@@ -51,6 +51,17 @@ section.step:first-child { padding-top: 0; }
 .preset small { color: var(--muted); font-size: 13px; line-height: 1.35; }
 .preset:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .fields { display: grid; gap: 16px; }
+.variants-wrap { margin-top: 18px; }
+.vh { margin: 0 0 8px; font-size: 15px; font-stretch: 112%; }
+.variants { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.variant { all: unset; cursor: pointer; display: grid; gap: 4px; justify-items: center; padding: 6px; border: 2px solid var(--line); border-radius: 12px; background: var(--surface); font-size: 12px; text-align: center; line-height: 1.2; }
+.variant[aria-pressed="true"] { border-color: var(--text); box-shadow: 3px 3px 0 var(--accent); }
+.variant canvas { width: 100%; aspect-ratio: 390 / 844; border-radius: 8px; display: block; }
+.variant:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.look { display: grid; gap: 10px; padding: 14px; border: 2px solid var(--line); border-radius: 14px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); min-height: 28px; }
+label.f.chk { display: flex; align-items: center; gap: 10px; font-weight: 600; align-self: end; min-height: 44px; }
+label.f.chk input { width: 22px; height: 22px; accent-color: var(--accent); }
 .row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
 label.f { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
 label.f span.sub { font-weight: 400; color: var(--muted); font-size: 13px; }
@@ -110,6 +121,10 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
         <h2><b>1</b>Pick a starting point</h2>
         <p class="hint">Every theme is fully editable. Start from the one closest to what you want.</p>
         <div class="presets" id="presets"></div>
+        <div class="variants-wrap">
+          <h3 class="vh">Pick a variant</h3>
+          <div class="variants" id="variants"></div>
+        </div>
       </section>
 
       <section class="step" id="make">
@@ -123,6 +138,21 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
           <div>
             <div class="f" style="font-weight:600;font-size:14px;margin-bottom:6px">Colors</div>
             <div class="swatches" id="swatches"></div>
+          </div>
+          <div class="look">
+            <div class="f" style="font-weight:600;font-size:14px">Look</div>
+            <div class="row2">
+              <label class="f">Centerpiece size<input type="range" id="k-scale" min="0.8" max="1.2" step="0.01"></label>
+              <label class="f">Centerpiece position<input type="range" id="k-shift" min="-60" max="60" step="1"></label>
+              <label class="f">Texture<input type="range" id="k-texture" min="0" max="1.6" step="0.05"></label>
+              <label class="f">Glow<input type="range" id="k-glow" min="0" max="1.6" step="0.05"></label>
+            </div>
+            <div class="row2">
+              <label class="f">Icon frame<select id="f-iconstyle"></select></label>
+              <label class="f">Icon symbols<select id="f-glyphs"></select></label>
+              <label class="f">Headline case<select id="f-case"><option value="title">Title Case</option><option value="upper">ALL CAPS</option></select></label>
+              <label class="f chk"><input type="checkbox" id="k-details"> Show fine-print details</label>
+            </div>
           </div>
           <div class="row2">
             <label class="f">Headline font<select id="f-display"></select></label>
@@ -1499,6 +1529,57 @@ const GLYPHS = {
   youtube: 'M2 5h20v14H2zM5 8v8h14V8zM10 9.2l5.2 2.8-5.2 2.8z',
   instagram: 'M3 3h18v18H3zM6 6v12h12V6zM12 8a4 4 0 1 1 0 8a4 4 0 0 1 0-8zM12 9.6a2.4 2.4 0 1 0 0 4.8a2.4 2.4 0 0 0 0-4.8zM15.4 6.9h1.7v1.7h-1.7z'
 };
+const GLYPHSETS = {
+  directive: {
+    camera: 'M12 2l8.66 5v10L12 22l-8.66-5V7zM12 5.2L5.9 8.7v6.6L12 18.8l6.1-3.5V8.7zM12 9l2.6 1.5v3L12 15l-2.6-1.5v-3z',
+    photos: 'M3 7h13v13H3zM5 9v9h9V9zM7 3h14v14h-3v-2h1V5H9v1H7z',
+    maps: 'M12 2l9 20-9-5.2L3 22zM12 7.6L7.2 18.4 12 15.6l4.8 2.8z',
+    calendar: 'M3 3h5v5H3zM9.5 3h5v5h-5zM16 3h5v5h-5zM3 9.5h5v5H3zM9.5 9.5h11.5v11.5H9.5zM11.5 11.5v7.5h7.5v-7.5zM3 16h5v5H3z',
+    phone: 'M4 3h6l1.5 5-3 2.2 5.3 5.3 2.2-3 5 1.5v6h-5C9 20 4 15 4 8z',
+    messages: 'M3 4h18v12H10l-5 4v-4H3zM6 7v2h12V7zM6 11v2h8v-2z',
+    browser: 'M11 2h2v4h-2zM11 18h2v4h-2zM2 11h4v2H2zM18 11h4v2h-4zM12 5a7 7 0 1 1 0 14a7 7 0 0 1 0-14zM12 7.5a4.5 4.5 0 1 0 0 9a4.5 4.5 0 0 0 0-9zM11 11h2v2h-2z',
+    music: 'M2 10h2.5v4H2zM6 7h2.5v10H6zM10 3h2.5v18H10zM14 6h2.5v12H14zM18 9h2.5v6H18z',
+    youtube: 'M12 2l8.66 5v10L12 22l-8.66-5V7zM10 8v8l6.2-4z',
+    instagram: 'M6.5 3h11L21 6.5v11L17.5 21h-11L3 17.5v-11zM12 7a5 5 0 1 0 0 10a5 5 0 0 0 0-10zM12 9.4a2.6 2.6 0 1 1 0 5.2a2.6 2.6 0 0 1 0-5.2z'
+  },
+  longroad: {
+    camera: 'M21 2C13 3 7 8 5 15l-2 6 1 1 6-2C17 18 21 10 21 2zM8.2 16.6L16.6 7.6l.9.9-8.4 9z',
+    photos: 'M4 2h16v20H4zM6.2 4.2v15.6h11.6V4.2zM12 7a3.6 4.6 0 1 1 0 9.2A3.6 4.6 0 0 1 12 7z',
+    maps: 'M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6zM12 10a2 2 0 1 0 0 4a2 2 0 0 0 0-4z',
+    calendar: 'M14.5 2.5a9.5 9.5 0 1 0 7 15.6A7.6 7.6 0 0 1 14.5 2.5zM18.5 3.5l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z',
+    phone: 'M12 2.5a1.6 1.6 0 0 1 1.6 1.6v.8A6.2 6.2 0 0 1 18.2 11v4l2.3 3.2H3.5L5.8 15v-4a6.2 6.2 0 0 1 4.6-6.1v-.8A1.6 1.6 0 0 1 12 2.5zM9.6 19.4h4.8a2.4 2.4 0 0 1-4.8 0z',
+    messages: 'M2.5 5h19v14h-19zM4.4 6.6l7.6 5.6 7.6-5.6h-2.2L12 10.2 6.6 6.6zM12 13.4a2.3 2.3 0 1 0 0 4.6a2.3 2.3 0 0 0 0-4.6z',
+    browser: 'M3 4h4.2v17H3zM8.4 6.5h4.2V21H8.4zM14.2 5.4l4-1.1 3.9 14.8-4 1.1zM4.2 7v1.4h1.8V7zM9.6 9.5v1.4h1.8V9.5z',
+    music: 'M14.6 2.4l1.9-.9 1.6 1.6-.9 1.9-3 3a6.8 6.8 0 1 1-2.6-2.6zM9.4 12.2a2 2 0 1 0 0 4a2 2 0 0 0 0-4zM16.9 3.1l.9.9-4.9 4.9-.9-.9z',
+    youtube: 'M2 2h20v3.4H2zM2 5.4h4.6V22H2zM17.4 5.4H22V22h-4.6zM9.6 10v7l6-3.5z',
+    instagram: 'M12 1.5a6.4 7.4 0 1 1 0 14.8a6.4 7.4 0 0 1 0-14.8zM12 4.2a4 5 0 1 0 0 10a4 5 0 0 0 0-10zM10.9 16.2h2.2V22.5h-2.2z'
+  },
+  nightfall: {
+    camera: 'M2.5 9.5a4 4 0 0 1 8 0V17a4 4 0 0 1-8 0zM13.5 9.5a4 4 0 0 1 8 0V17a4 4 0 0 1-8 0zM4.6 13v4a1.9 1.9 0 0 0 3.8 0v-4zM15.6 13v4a1.9 1.9 0 0 0 3.8 0v-4zM10.5 8h3v4h-3z',
+    photos: 'M2.5 2.5h6v2.2H4.7v3.8H2.5zM15.5 2.5h6v6h-2.2V4.7h-3.8zM2.5 15.5h2.2v3.8h3.8v2.2h-6zM19.3 15.5h2.2v6h-6v-2.2h3.8zM12 7.2a4.8 4.8 0 1 1 0 9.6a4.8 4.8 0 0 1 0-9.6z',
+    maps: 'M12 1.5L22.5 12 12 22.5 1.5 12zM12 5.4L5.4 12 12 18.6 18.6 12zM12 8.4l3.4 6H8.6z',
+    calendar: 'M5.5 3h13v19h-13zM7.6 5.6v14.3h8.8V5.6zM9.4 2h5.2v3H9.4zM9.4 8.4h5.2V10H9.4zM9.4 12h5.2v1.6H9.4zM9.4 15.6h3.4v1.6H9.4z',
+    phone: 'M7.5 6h9v16h-9zM9.6 8.2v4.6h4.8V8.2zM10.8 14.6h2.4V17h-2.4zM10.8 18.4h2.4v2.2h-2.4zM14 1h1.8v5H14z',
+    messages: 'M2 5l8 7-8 7v-3.6L5.8 12 2 8.6zM11 5l8 7-8 7v-3.6l3.8-3.4L11 8.6zM20 10.8h2v2.4h-2z',
+    browser: 'M10.9 10h2.2v12h-2.2zM12 3.5a8.5 8.5 0 0 1 8.5 8.5h-2.3a6.2 6.2 0 0 0-12.4 0H3.5A8.5 8.5 0 0 1 12 3.5zM12 7.6a4.4 4.4 0 0 1 4.4 4.4h-2.2a2.2 2.2 0 0 0-4.4 0H7.6A4.4 4.4 0 0 1 12 7.6z',
+    music: 'M3.5 13a8.5 8.5 0 0 1 17 0v7h-4.6v-7.4h2.4a6.3 6.3 0 0 0-12.6 0h2.4V20H3.5z',
+    youtube: 'M2 4.5h20v13H2zM4.2 6.7v8.6h15.6V6.7zM10 8.6v4.8l4.2-2.4zM8.5 19h7v2h-7z',
+    instagram: 'M12 1.5a10.5 10.5 0 1 1 0 21a10.5 10.5 0 0 1 0-21zM12 4.2a7.8 7.8 0 1 0 0 15.6a7.8 7.8 0 0 0 0-15.6zM11.1 6h1.8v4.4h-1.8zM11.1 13.6h1.8V18h-1.8zM6 11.1h4.4v1.8H6zM13.6 11.1H18v1.8h-4.4z'
+  },
+  grimoire: {
+    camera: 'M12 1.5a8 8 0 1 1 0 16a8 8 0 0 1 0-16zM8.6 5.6a3.4 3.4 0 0 0-2.4 2.6l1.5.3a1.9 1.9 0 0 1 1.3-1.4zM5.5 18.5h13l1.2 4H4.3z',
+    photos: 'M12 3.5l6.5 8.5L12 22.5 5.5 12zM12 7.5L8.4 12 12 17.8l3.6-5.8zM10.9 0.8h2.2v3h-2.2z',
+    maps: 'M12 1.5a10.5 10.5 0 1 1 0 21a10.5 10.5 0 0 1 0-21zM12 3.6a8.4 8.4 0 1 0 0 16.8a8.4 8.4 0 0 0 0-16.8zM12 5.4l1.7 4.9 4.9 1.7-4.9 1.7-1.7 4.9-1.7-4.9L5.4 12l4.9-1.7z',
+    calendar: 'M5 2h14v2.2h-1.6c0 4-2.4 6-4 7.8 1.6 1.8 4 3.8 4 7.8H19V22H5v-2.2h1.6c0-4 2.4-6 4-7.8-1.6-1.8-4-3.8-4-7.8H5zM8.9 4.2c.2 2.8 1.9 4.6 3.1 5.8 1.2-1.2 2.9-3 3.1-5.8zM9 19.8h6c-.3-2-1.6-3.4-3-4.6-1.4 1.2-2.7 2.6-3 4.6z',
+    phone: 'M3 8.6l12-4.9v16.6L3 15.4zM15 6.4h2v11.2h-2zM18.5 8.8h3v1.7h-3zM18.5 13.5h3v1.7h-3zM5 16h3.2l1 5H6z',
+    messages: 'M2.5 14.5c2.8-.8 4.8-2.8 5.8-5.6.9-2.4 3-3.9 5.5-3.9l3.6-1.5-1 2.4c1.1 1.4 1.2 3.4.2 5.5-1.3 3.1-4.4 5.2-8.4 5.9l-2 3.7-.9-3.1c-1.5-.3-2.6-1.6-2.8-3.4zM14.6 7.2a.9.9 0 1 0 0 1.8a.9.9 0 0 0 0-1.8z',
+    browser: 'M1.5 12C4.5 7 8.2 5 12 5s7.5 2 10.5 7c-3 5-6.7 7-10.5 7S4.5 17 1.5 12zM12 7.8a4.2 4.2 0 1 0 0 8.4a4.2 4.2 0 0 0 0-8.4zM12 10.3a1.7 1.7 0 1 1 0 3.4a1.7 1.7 0 0 1 0-3.4z',
+    music: 'M5.8 2.5l1.8.9C6.4 6.6 7 9.8 9.4 11.6V5.5h1.7v8.2h1.8V5.5h1.7v6.1c2.4-1.8 3-5 1.8-8.2l1.8-.9c2 4 1 9-2.6 11.4V19h2v2.5H6.4V19h2v-4.1C4.8 12.5 3.8 7.5 5.8 2.5z',
+    youtube: 'M12 1l2.2 6.6L21 5.5l-2.6 6.5L21 18.5l-6.8-2.1L12 23l-2.2-6.6L3 18.5l2.6-6.5L3 5.5l6.8 2.1zM10.2 9v6l5.1-3z',
+    instagram: 'M12 3a6 7 0 1 1 0 14a6 7 0 0 1 0-14zM12 5.4a3.7 4.6 0 1 0 0 9.2a3.7 4.6 0 0 0 0-9.2zM10.9 16.8h2.2V22h-2.2zM12 0l.8 1.6 1.6.8-1.6.8-.8 1.6-.8-1.6-1.6-.8 1.6-.8z'
+  }
+};
+
 const APPS = [
   ['camera', 'Camera'], ['photos', 'Photos'], ['maps', 'Maps'], ['calendar', 'Calendar'], ['phone', 'Phone'],
   ['messages', 'Messages'], ['browser', 'Safari'], ['music', 'Music'], ['youtube', 'YouTube'], ['instagram', 'Instagram']
@@ -1545,7 +1626,7 @@ const PRESETS = {
     company: 'Directive Zero', unit: 'D-00',
     colors: { ground: '#0B0C0E', ink: '#F1ECE2', accent: '#FF7A1A', glow: '#46E27A', panel: '#131518', alert: '#E3242B' },
     fonts: { display: 'Shippori Mincho B1', mono: 'Barlow Condensed' },
-    motif: 'alert', texture: 'scan', marks: 'frame', iconStyle: 'hex', units: 'fahrenheit', upper: true,
+    motif: 'alert', texture: 'scan', marks: 'frame', iconStyle: 'hex', glyphs: 'directive', units: 'fahrenheit', upper: true,
     phrases: [['Remain', 'Calm'], ['Hold', 'Position'], ['Do Not', 'Hesitate'], ['Return', 'To Base']],
     text: {
       topL: 'DIRECTIVE ZERO // OPERATOR TERMINAL', topR: 'D-00', tag: 'NOTICE', ref: 'REF. D-00 / CYCLE 283',
@@ -1581,7 +1662,7 @@ const PRESETS = {
     company: 'The Long Road', unit: 'DAY 283',
     colors: { ground: '#EEE1C4', ink: '#2B2117', accent: '#A3261C', glow: '#C9A24F', panel: '#F5EBD3' },
     fonts: { display: 'IM Fell English', mono: 'IM Fell English SC' },
-    motif: 'map', texture: 'paper', marks: 'none', iconStyle: 'woodcut', units: 'fahrenheit', upper: false,
+    motif: 'map', texture: 'paper', marks: 'none', iconStyle: 'woodcut', glyphs: 'longroad', units: 'fahrenheit', upper: false,
     phrases: [['Pack More', 'Bread'], ['Keep The', 'Lantern Lit'], ['The Long', 'Way Home'], ['Walk On,', 'Wanderer']],
     text: {
       mapTitle: 'A Traveller\'s Map of the Long Road', journal: 'Four hundred miles behind. The rest, ahead.',
@@ -1616,7 +1697,7 @@ const PRESETS = {
     company: 'Nightfall Descent', unit: 'SQUAD 7',
     colors: { ground: '#070C16', ink: '#7FE0FF', accent: '#F2B33D', glow: '#3E8DFF', panel: '#0E1726', alert: '#FF4D4D' },
     fonts: { display: 'Oxanium', mono: 'Share Tech Mono' },
-    motif: 'night', texture: 'rain', marks: 'none', iconStyle: 'visor', units: 'fahrenheit', upper: true,
+    motif: 'night', texture: 'rain', marks: 'none', iconStyle: 'visor', glyphs: 'nightfall', units: 'fahrenheit', upper: true,
     phrases: [['Drop Window', 'Open'], ['Stay', 'Low'], ['Night', 'Shift'], ['Rain', 'Check']],
     text: {
       topL: 'NIGHTFALL DESCENT // HELMET DISPLAY', topR: 'SQUAD 7', optics: 'OPTICS: LOW-LIGHT',
@@ -1653,7 +1734,7 @@ const PRESETS = {
     company: 'Planar Grimoire', unit: 'TURN 283',
     colors: { ground: '#15132A', ink: '#EDE4CF', accent: '#D9B45A', glow: '#8E5CD9', panel: '#1F1B3A' },
     fonts: { display: 'Cormorant Garamond', mono: 'Cormorant SC' },
-    motif: 'grimoire', texture: 'stars', marks: 'none', iconStyle: 'gilded', units: 'fahrenheit', upper: false,
+    motif: 'grimoire', texture: 'stars', marks: 'none', iconStyle: 'gilded', glyphs: 'grimoire', units: 'fahrenheit', upper: false,
     phrases: [['The', 'Wandering Star'], ['Seer Of', 'Small Hours'], ['Gilded', 'Familiar'], ['Oath Of', 'Embers']],
     text: {
       school: 'Arcanum of Divination', cardNo: 'VII · LXXVIII', flavor: 'What the stars promise, the patient collect.',
@@ -1661,7 +1742,7 @@ const PRESETS = {
       foot: 'DRAW AGAIN TOMORROW', homeTop: 'THE GREAT SIGIL', sideL: ['ESSENCE', 'IV'], sideR: ['TURN', '283'],
       caption: 'Draw again tomorrow.', gems: ['#E9E1C8', '#3A7BD5', '#5B4A8A', '#D23A4A', '#2FAE7A']
     },
-    codes: { camera: 'SCRY', photos: 'RELIC', maps: 'ATLAS', calendar: 'ALMANAC', phone: 'BELL', messages: 'RAVEN', browser: 'ORACLE', music: 'LYRE', youtube: 'VISION', instagram: 'MIRROR' },
+    codes: { camera: 'SCRY', photos: 'RELIC', maps: 'ATLAS', calendar: 'ALMANAC', phone: 'HORN', messages: 'RAVEN', browser: 'ORACLE', music: 'LYRE', youtube: 'VISION', instagram: 'MIRROR' },
     widget: {
       scriptFont: 'Georgia-Bold', txGraphic: 'stars', archive: true,
       archiveList: [
@@ -1699,6 +1780,49 @@ const DEVICES = [
   ['Another size (enter it)', 0, 0]
 ];
 
+const VARIANTS = {
+  halcyon: [
+    { name: 'Mint', colors: {}, seed: 0 },
+    { name: 'Lilac Ward', colors: { ground: '#D9D2FF', ink: '#1A1433', accent: '#FF6F9F', glow: '#7FE3F0', panel: '#EFEBFF' }, seed: 1 },
+    { name: 'Coral Clinic', colors: { ground: '#FFC9B8', ink: '#2A1410', accent: '#1F9E8E', glow: '#FFE38A', panel: '#FFE9E1' }, seed: 2 },
+    { name: 'Obsidian Lab', colors: { ground: '#0E1512', ink: '#A6F3CC', accent: '#9D8CF2', glow: '#2E7D63', panel: '#16201C' }, seed: 3, knobs: { glow: 1.3 } },
+    { name: 'Arctic Cryo', colors: { ground: '#DDEFFA', ink: '#0B1B2A', accent: '#3A7BD5', glow: '#9FD8FF', panel: '#F2F9FD' }, seed: 4 }
+  ],
+  directive: [
+    { name: 'Amber Alert', colors: {}, seed: 0 },
+    { name: 'Crimson Lockdown', colors: { accent: '#E3242B', alert: '#FF8A1F', ink: '#F4ECEC', glow: '#FFD24A' }, seed: 1 },
+    { name: 'Signal Green', colors: { accent: '#46E27A', glow: '#FF7A1A', alert: '#E3242B', ink: '#E6F5EA' }, seed: 2 },
+    { name: 'Violet Override', colors: { ground: '#0C0A12', panel: '#15121C', accent: '#A06BFF', glow: '#46E27A', alert: '#FF3B6B', ink: '#EEE8FF' }, seed: 3 },
+    { name: 'Whiteout', colors: { ground: '#ECEAE4', panel: '#FFFFFF', ink: '#141414', accent: '#D9481A', glow: '#1E8F4E', alert: '#C41C26' }, seed: 4, knobs: { texture: 0.6 } }
+  ],
+  longroad: [
+    { name: 'Parchment', colors: {}, seed: 0 },
+    { name: 'Night Ink', colors: { ground: '#1B2230', ink: '#E8DFC8', accent: '#E0A44A', glow: '#3A4A66', panel: '#232C3D' }, seed: 1 },
+    { name: 'Sea Chart', colors: { ground: '#DCE6E4', ink: '#1E3440', accent: '#B23A2E', glow: '#8FB3B8', panel: '#EEF3F2' }, seed: 2 },
+    { name: 'Autumn Ledger', colors: { ground: '#EAD3B0', ink: '#3A2414', accent: '#8C2F1B', glow: '#C77B3A', panel: '#F3E3C9' }, seed: 3 },
+    { name: 'Spring Atlas', colors: { ground: '#E6EED6', ink: '#24331E', accent: '#C2482E', glow: '#9BBF6A', panel: '#F2F6E8' }, seed: 4 }
+  ],
+  nightfall: [
+    { name: 'Visor Cyan', colors: {}, seed: 0 },
+    { name: 'Amber Optics', colors: { ink: '#FFB347', accent: '#7FE0FF', glow: '#FF8A3D', panel: '#1A140C' }, seed: 1 },
+    { name: 'Low-Light Green', colors: { ink: '#8CFF9E', accent: '#FFD24A', glow: '#3DDC84', panel: '#0C1A10' }, seed: 2 },
+    { name: 'Red Ops', colors: { ink: '#FF6A5A', accent: '#FFC36A', glow: '#FF2D2D', panel: '#1A0C0C', alert: '#FFE066' }, seed: 3 },
+    { name: 'Whiteout HUD', colors: { ink: '#F2F6FA', accent: '#4FC3FF', glow: '#9FB6CC', panel: '#121820' }, seed: 4 }
+  ],
+  grimoire: [
+    { name: 'Amethyst', colors: {}, seed: 0 },
+    { name: 'Emerald Codex', colors: { ground: '#0E1F18', panel: '#15291F', glow: '#2FAE7A' }, seed: 1 },
+    { name: 'Ruby Pact', colors: { ground: '#22101A', panel: '#301624', glow: '#D23A4A', accent: '#E8C27A' }, seed: 2 },
+    { name: 'Sapphire Tide', colors: { ground: '#0E1630', panel: '#16204A', glow: '#3A7BD5', accent: '#CFE0F5' }, seed: 3 },
+    { name: 'Obsidian Gold', colors: { ground: '#0C0C0E', panel: '#18171C', glow: '#6E5B2E', accent: '#E3C26A' }, seed: 4 }
+  ]
+};
+const ICON_STYLES = [['frame', 'Lab frame'], ['hex', 'Hex alert'], ['woodcut', 'Woodcut'], ['visor', 'Visor'], ['gilded', 'Gilded']];
+const GLYPH_CHOICES = [['', 'Classic'], ['directive', 'Tactical'], ['longroad', 'Storybook'], ['nightfall', 'Field kit'], ['grimoire', 'Arcane']];
+
+function K(th) { const k = th.knobs || {}; return { scale: k.scale == null ? 1 : k.scale, shift: k.shift || 0, texture: k.texture == null ? 1 : k.texture, glow: k.glow == null ? 1 : k.glow, details: k.details !== false }; }
+function seedOf(th, base) { return base + (th.seed || 0) * 7919; }
+function centerXform(ctx, th, cx, cy, fn) { const k = K(th); ctx.save(); ctx.translate(cx, cy + k.shift); ctx.scale(k.scale, k.scale); ctx.translate(-cx, -cy); fn(); ctx.restore(); }
 function hexA(hex, a) {
   const h = (hex || '#000000').replace('#', '');
   const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
@@ -1731,7 +1855,7 @@ function texture(ctx, th, pxW, pxH, s) {
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   if (th.texture === 'scan') {
-    ctx.fillStyle = hexA(ink, 0.05);
+    ctx.fillStyle = hexA(ink, 0.05 * K(th).texture);
     const step = Math.max(2, 3 * s), hgt = Math.max(1, 0.7 * s);
     for (let y = 0; y < pxH; y += step) ctx.fillRect(0, y, pxW, hgt);
   } else {
@@ -1739,7 +1863,7 @@ function texture(ctx, th, pxW, pxH, s) {
     const pc = document.createElement('canvas');
     pc.width = cell; pc.height = cell;
     const p = pc.getContext('2d');
-    p.fillStyle = hexA(ink, 0.14);
+    p.fillStyle = hexA(ink, 0.14 * K(th).texture);
     p.beginPath(); p.arc(cell / 2, cell / 2, Math.max(0.5, 0.62 * s), 0, Math.PI * 2); p.fill();
     ctx.fillStyle = ctx.createPattern(pc, 'repeat');
     ctx.fillRect(0, 0, pxW, pxH);
@@ -1751,8 +1875,8 @@ function ground(ctx, th, Hl, cx, cy, glowR, pxW, pxH, s) {
   const c = th.colors;
   ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 390, Hl);
   const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
-  g.addColorStop(0, hexA(c.glow, th.motif === 'radar' ? 0.28 : 0.55));
-  g.addColorStop(0.55, hexA(c.glow, th.motif === 'radar' ? 0.1 : 0.22));
+  g.addColorStop(0, hexA(c.glow, Math.min(1, (th.motif === 'radar' ? 0.28 : 0.55) * K(th).glow)));
+  g.addColorStop(0.55, hexA(c.glow, Math.min(1, (th.motif === 'radar' ? 0.1 : 0.22) * K(th).glow)));
   g.addColorStop(1, hexA(c.glow, 0));
   ctx.fillStyle = g; ctx.fillRect(0, 0, 390, Hl);
   ctx.strokeStyle = hexA(c.ink, 0.07); ctx.lineWidth = 0.6;
@@ -1878,10 +2002,12 @@ function radarArt(ctx, th, cx, cy, R, RING, BOX) {
 }
 
 function sideBlock(ctx, th, x, y, lines, size, align) {
+  if (!K(th).details) return;
   lines.forEach((l, i) => spaced(ctx, l, x, y + i * size * 1.35, size, th.fonts.mono, 400, 0.14, align, th.colors.ink));
 }
 
 function dataBlock(ctx, th, x, y) {
+  if (!K(th).details) return;
   const ink = th.colors.ink;
   if (th.motif === 'radar') {
     for (let i = 0; i < 8; i++) { ctx.fillStyle = i < 6 ? ink : hexA(ink, 0.25); ctx.fillRect(x + i * 4.5, y, 3, 14); }
@@ -1903,6 +2029,7 @@ function hatchStrip(ctx, th, x, y, w) {
 }
 
 function ticker(ctx, th, x, y, rot, text, size) {
+  if (!K(th).details) return;
   ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
   spaced(ctx, text, 0, size, size, th.fonts.mono, 400, 0.3, 'left', hexA(th.colors.ink, 0.8));
   ctx.restore();
@@ -1949,9 +2076,11 @@ function drawWallpaper(canvas, th, mode, phraseIdx) {
     spaced(ctx, T.headL[1] || '', 42, 274.5, 7.5, mono, 400, 0.12, 'left', ink);
     spaced(ctx, T.headR[0] || '', 368, 264, 7.5, mono, 400, 0.12, 'right', ink);
     spaced(ctx, T.headR[1] || '', 368, 274.5, 7.5, mono, 400, 0.12, 'right', ink);
+    if (K(th).details) {
     T.readL.forEach((l, i) => spaced(ctx, l, 22, 296 + i * 9, 6.2, mono, 400, 0.14, 'left', hexA(ink, 0.9)));
     T.readR.forEach((l, i) => spaced(ctx, l, 368, 296 + i * 9, 6.2, mono, 400, 0.14, 'right', hexA(ink, 0.9)));
-    art(ctx, th, CX, CY, 96, 120, 128);
+    }
+    centerXform(ctx, th, CX, CY, () => art(ctx, th, CX, CY, 96, 120, 128));
     spaced(ctx, T.clock, CX, 327, 6.8, mono, 400, 0.16, 'center', hexA(ink, 0.95));
     sideBlock(ctx, th, 26, 450, T.sideL, 7.2, 'left');
     sideBlock(ctx, th, 364, 450, T.sideR, 7.2, 'right');
@@ -1968,7 +2097,7 @@ function drawWallpaper(canvas, th, mode, phraseIdx) {
     spaced(ctx, l1, 22, 652, size, fam, wgt, -0.02, 'left', ink);
     spaced(ctx, l2, 22, 652 + size * 0.98, size, fam, wgt, -0.02, 'left', ink);
     const fy = Math.max(716, 652 + size * 0.98 + 22);
-    wrapLines(ctx, T.fine, 346, 5.6, mono, 0.03, 3).forEach((ln, i) => spaced(ctx, ln, 22, fy + i * 9, 5.6, mono, 400, 0.03, 'left', hexA(ink, 0.85)));
+    if (K(th).details) wrapLines(ctx, T.fine, 346, 5.6, mono, 0.03, 3).forEach((ln, i) => spaced(ctx, ln, 22, fy + i * 9, 5.6, mono, 400, 0.03, 'left', hexA(ink, 0.85)));
     seg(ctx, 112, Hl - 44, 278, Hl - 44, hexA(ink, 0.6), 0.8);
     spaced(ctx, T.foot, CX, Hl - 31, 6.6, mono, 400, 0.2, 'center', ink);
   } else {
@@ -1976,7 +2105,7 @@ function drawWallpaper(canvas, th, mode, phraseIdx) {
     ground(ctx, th, Hl, CX, CY, 210, W, H, s);
     rulers(ctx, th, 60, Hl - 44);
     marks(ctx, th, [[22, 58], [368, 58], [22, 700], [368, 700]]);
-    art(ctx, th, CX, CY, 112, 140, 150);
+    centerXform(ctx, th, CX, CY, () => art(ctx, th, CX, CY, 112, 140, 150));
     spaced(ctx, T.clock, CX, 254.5, 7.6, mono, 400, 0.16, 'center', ink);
     sideBlock(ctx, th, 18, 392.5, T.sideL, 8, 'left');
     sideBlock(ctx, th, 372, 392.5, T.sideR, 8, 'right');
@@ -1996,7 +2125,8 @@ function drawIcon(canvas, th, app, idx) {
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, S, S);
   ctx.save(); ctx.scale(k, k);
   const c = th.colors, mono = th.fonts.mono, num = String(idx + 1).padStart(2, '0'), code = (th.codes[app] || app.slice(0, 3)).toUpperCase();
-  const glyph = new Path2D(GLYPHS[app]);
+  const set = (th.glyphs && GLYPHSETS[th.glyphs]) || GLYPHS;
+  const glyph = new Path2D(set[app] || GLYPHS[app]);
   if (th.iconStyle === 'visor') {
     drawVisorIcon(ctx, th, glyph, num, code);
   } else if (th.iconStyle === 'gilded') {
@@ -2189,10 +2319,10 @@ function drawAlert(ctx, th, Hl, mode, phraseIdx, W, H, s) {
     syncGraph(ctx, th, 22, gy + 8, 346, 34);
     const cy = gy + 52;
     cautionBand(ctx, th, 22, cy, 346, 9);
-    wrapLines(ctx, T.fine, 346, 6.6, mono, 0.04, 3).forEach((ln, i) => spaced(ctx, ln, 22, cy + 22 + i * 9.5, 6.6, mono, 500, 0.04, 'left', hexA(c.ink, 0.72)));
+    if (K(th).details) wrapLines(ctx, T.fine, 346, 6.6, mono, 0.04, 3).forEach((ln, i) => spaced(ctx, ln, 22, cy + 22 + i * 9.5, 6.6, mono, 500, 0.04, 'left', hexA(c.ink, 0.72)));
     const ry = Math.min(cy + 70, Hl - 96);
     seg(ctx, 22, ry - 12, 368, ry - 12, hexA(c.accent, 0.4), 0.7);
-    (T.stats || []).forEach((st, i) => {
+    (K(th).details ? (T.stats || []) : []).forEach((st, i) => {
       const x = 22 + i * 120;
       lab(st[0], x, ry, 6.8, 'left', hexA(c.ink, 0.7));
       spaced(ctx, st[1], x, ry + 20, 18, mono, 700, 0.02, 'left', i === 2 ? red : c.ink);
@@ -2205,7 +2335,7 @@ function drawAlert(ctx, th, Hl, mode, phraseIdx, W, H, s) {
     ctx.restore();
     const CY = 410;
     lab(T.homeTop, 195, 248, 7.5, 'center', c.accent, 0.18);
-    ringAnalyzer(ctx, th, 195, CY);
+    centerXform(ctx, th, 195, CY, () => ringAnalyzer(ctx, th, 195, CY));
     T.sideL.forEach((l, i) => lab(l, 22, 394 + i * 10.5, 8, 'left'));
     T.sideR.forEach((l, i) => lab(l, 368, 394 + i * 10.5, 8, 'right'));
     T.cornerL.forEach((l, i) => lab(l, 22, 540 + i * 9.5, 7, 'left', hexA(c.ink, 0.85)));
@@ -2240,12 +2370,12 @@ function paperGround(ctx, th, Hl, pxW, pxH, s) {
   for (let y = 0; y < Hl; y += 26) { ctx.moveTo(0, y); ctx.lineTo(390, y); }
   for (let x = 0; x < 390; x += 26) { ctx.moveTo(x, 0); ctx.lineTo(x, Hl); }
   ctx.stroke();
-  const r = rng(283);
-  for (let i = 0; i < 2600; i++) { ctx.fillStyle = hexA(c.ink, 0.03 + r() * 0.07); const sz = 0.3 + r() * 0.9; ctx.fillRect(r() * 390, r() * Hl, sz, sz); }
+  const r = rng(seedOf(th, 283));
+  for (let i = 0; i < Math.round(2600 * K(th).texture); i++) { ctx.fillStyle = hexA(c.ink, 0.03 + r() * 0.07); const sz = 0.3 + r() * 0.9; ctx.fillRect(r() * 390, r() * Hl, sz, sz); }
   ctx.strokeStyle = hexA(c.glow, 0.18); ctx.lineWidth = 0.4;
   for (let i = 0; i < 70; i++) { const x = r() * 390, y = r() * Hl, a = r() * Math.PI; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * 10, y + Math.sin(a) * 10); ctx.stroke(); }
   const g = ctx.createRadialGradient(195, Hl / 2, Hl * 0.25, 195, Hl / 2, Hl * 0.72);
-  g.addColorStop(0, hexA(c.glow, 0)); g.addColorStop(1, hexA(c.glow, 0.32));
+  g.addColorStop(0, hexA(c.glow, 0)); g.addColorStop(1, hexA(c.glow, Math.min(1, 0.32 * K(th).glow)));
   ctx.fillStyle = g; ctx.fillRect(0, 0, 390, Hl);
   ctx.strokeStyle = c.ink; ctx.lineWidth = 1.2; ctx.strokeRect(12, 12, 366, Hl - 24);
   ctx.lineWidth = 0.5; ctx.strokeRect(16, 16, 358, Hl - 32);
@@ -2363,7 +2493,7 @@ function drawMap(ctx, th, Hl, mode, phraseIdx, W, H, s) {
   paperGround(ctx, th, Hl, W, H, s);
   if (mode === 'lock') {
     fell(ctx, T.mapTitle, 195, 248, 11, sc, c.ink, 'center', false, 0.08);
-    mapScene(ctx, th, 28, 258, 334, 330, 7, { compass: 22, scale: true, label: 9.5 });
+    centerXform(ctx, th, 195, 423, () => mapScene(ctx, th, 28, 258, 334, 330, seedOf(th, 7), { compass: 22, scale: true, label: 9.5 }));
     const ph = th.phrases[phraseIdx % th.phrases.length] || ['', ''];
     const l1 = ph[0] || '', l2 = ph[1] || '';
     ctx.font = `400 46px "${fam}", Georgia, serif`;
@@ -2380,7 +2510,7 @@ function drawMap(ctx, th, Hl, mode, phraseIdx, W, H, s) {
     seg(ctx, 140, Hl - 46, 250, Hl - 46, hexA(c.ink, 0.5), 0.6);
     fell(ctx, T.foot, 195, Hl - 32, 9, sc, c.accent, 'center', false, 0.14);
   } else {
-    mapScene(ctx, th, 28, 236, 334, 360, 11, { compass: 24, scale: true, label: 10 });
+    centerXform(ctx, th, 195, 416, () => mapScene(ctx, th, 28, 236, 334, 360, seedOf(th, 11), { compass: 24, scale: true, label: 10 }));
     fell(ctx, T.caption, 195, 624, 13, fam, hexA(c.ink, 0.85), 'center', true);
   }
 }
@@ -2887,9 +3017,9 @@ function realHarness(ctx, Hl) {
   ctx.fillRect(172, Hl - 26, 46, 30); ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.lineWidth = 1.2; ctx.strokeRect(172, Hl - 26, 46, 30);
   ctx.fillStyle = rad(ctx, 193, Hl - 13, 1, 9, [[0, '#8C98A6'], [1, '#2A313B']]); ctx.beginPath(); ctx.arc(195, Hl - 11, 8, 0, Math.PI * 2); ctx.fill();
 }
-function filmGrain(ctx, Hl, seed) {
-  const r = rng(seed);
-  for (let i = 0; i < 5000; i++) { ctx.fillStyle = r() < 0.5 ? `rgba(0,0,0,${r() * 0.14})` : `rgba(255,255,255,${r() * 0.05})`; ctx.fillRect(r() * 390, r() * Hl, 0.8, 0.8); }
+function filmGrain(ctx, Hl, seed, amt) {
+  const r = rng(seed); amt = amt == null ? 1 : amt;
+  for (let i = 0; i < Math.round(5000 * amt); i++) { ctx.fillStyle = r() < 0.5 ? `rgba(0,0,0,${r() * 0.14})` : `rgba(255,255,255,${r() * 0.05})`; ctx.fillRect(r() * 390, r() * Hl, 0.8, 0.8); }
   ctx.fillStyle = rad(ctx, 195, Hl * 0.5, Hl * 0.25, Hl * 0.75, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,0.6)']]); ctx.fillRect(0, 0, 390, Hl);
 }
 
@@ -2969,7 +3099,7 @@ function bokehCity(ctx, Hl, seed, th) {
   for (let i = 0; i < 90; i++) {
     const x = r() * 390, y = Hl * (0.34 + r() * 0.42), rr = 3 + Math.pow(r(), 2) * 26;
     const pal = r(); const col = pal < 0.55 ? [255, 176, 96] : pal < 0.8 ? [120, 190, 255] : pal < 0.92 ? [255, 90, 80] : [235, 240, 255];
-    const a = 0.08 + r() * 0.22;
+    const a = Math.min(1, (0.08 + r() * 0.22) * K(th).glow);
     ctx.fillStyle = rad(ctx, x, y, 0, rr, [[0, `rgba(${col},${a})`], [0.7, `rgba(${col},${a * 0.6})`], [1, `rgba(${col},0)`]]);
     ctx.beginPath(); ctx.arc(x, y, rr, 0, Math.PI * 2); ctx.fill();
     if (y > Hl * 0.55) { ctx.fillStyle = lin(ctx, 0, y, 0, y + 140, [[0, `rgba(${col},${a * 0.5})`], [1, `rgba(${col},0)`]]); ctx.fillRect(x - rr * 0.25, y, rr * 0.5, 140); }
@@ -2997,7 +3127,7 @@ function faceplateEdgeX(Hl, y, side) {
 }
 function glowLine(ctx, th, draw, w, a) {
   ctx.save(); ctx.strokeStyle = hexA(th.colors.ink, a == null ? 0.9 : a); ctx.lineWidth = w || 1.3;
-  ctx.shadowColor = hexA(th.colors.ink, 0.9); ctx.shadowBlur = 9; ctx.beginPath(); draw(); ctx.stroke();
+  ctx.shadowColor = hexA(th.colors.ink, 0.9); ctx.shadowBlur = 9 * K(th).glow; ctx.beginPath(); draw(); ctx.stroke();
   ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(235,250,255,0.55)'; ctx.lineWidth = Math.max(0.5, (w || 1.3) * 0.4); ctx.beginPath(); draw(); ctx.stroke();
   ctx.restore();
 }
@@ -3030,13 +3160,14 @@ function visorEdge(ctx, th, Hl) {
     [[56, yb + 30, 1], [334, yb + 30, -1]].forEach(([x, y, d]) => { ctx.moveTo(x, y); ctx.lineTo(x + d * 20, y + 34); ctx.lineTo(x + d * 46, y + 34); });
   }, 0.8, 0.45);
   const mono = th.fonts.mono, ink = th.colors.ink;
+  if (!K(th).details) return;
   spaced(ctx, 'INTERFACE ONLINE  /  OPTICS  /  TACCOM', 30, 296, 4.6, mono, 400, 0.18, 'left', hexA(ink, 0.32));
   spaced(ctx, 'RANGE FINDING  //  EVAL', 66, yb + 72, 4.6, mono, 400, 0.18, 'left', hexA(ink, 0.32));
   spaced(ctx, 'SYNC  //  STATUS', 324, yb + 72, 4.6, mono, 400, 0.18, 'right', hexA(ink, 0.32));
   spaced(ctx, '00.4304  ||  -  ||  NV-88', 195, Hl - 114, 4.6, mono, 400, 0.18, 'center', hexA(ink, 0.32));
 }
 const cy0 = (x, base, k) => base + (k || 0.0011) * Math.pow(x - 195, 2);
-function hudGlow(ctx, th, fn) { ctx.save(); ctx.shadowColor = hexA(th.colors.ink, 0.75); ctx.shadowBlur = 5; fn(); ctx.restore(); }
+function hudGlow(ctx, th, fn) { ctx.save(); ctx.shadowColor = hexA(th.colors.ink, 0.75); ctx.shadowBlur = 5 * K(th).glow; fn(); ctx.restore(); }
 function hudCompass(ctx, th, base) {
   const c = th.colors, mono = th.fonts.mono;
   hudGlow(ctx, th, () => {
@@ -3122,8 +3253,8 @@ function drawNight(ctx, th, Hl, mode, phraseIdx) {
   const c = th.colors, T = th.text, mono = th.fonts.mono;
   const ph = th.phrases[phraseIdx % th.phrases.length] || ['', ''];
   const obj = `${ph[0]} ${ph[1]}`.trim().toUpperCase();
-  bokehCity(ctx, Hl, mode === 'lock' ? 31 : 37, th);
-  filmGrain(ctx, Hl, 9);
+  bokehCity(ctx, Hl, seedOf(th, mode === 'lock' ? 31 : 37), th);
+  filmGrain(ctx, Hl, 9, K(th).texture);
   visorEdge(ctx, th, Hl);
   if (mode === 'lock') {
     hudVitals(ctx, th, 228, 8);
@@ -3157,12 +3288,12 @@ function drawNight(ctx, th, Hl, mode, phraseIdx) {
 
 // ---------- GRIMOIRE motif (arcane card deck) ----------
 function starGround(ctx, th, Hl) {
-  const c = th.colors, r = rng(77);
+  const c = th.colors, r = rng(seedOf(th, 77));
   ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 390, Hl);
   const g = ctx.createRadialGradient(195, Hl * 0.5, 30, 195, Hl * 0.5, Hl * 0.6);
-  g.addColorStop(0, hexA(c.glow, 0.28)); g.addColorStop(1, hexA(c.glow, 0));
+  g.addColorStop(0, hexA(c.glow, Math.min(1, 0.28 * K(th).glow))); g.addColorStop(1, hexA(c.glow, 0));
   ctx.fillStyle = g; ctx.fillRect(0, 0, 390, Hl);
-  for (let i = 0; i < 420; i++) {
+  for (let i = 0; i < Math.round(420 * K(th).texture); i++) {
     const x = r() * 390, y = r() * Hl, s = r() < 0.92 ? 0.5 + r() * 0.8 : 1.4 + r();
     ctx.fillStyle = hexA(c.ink, 0.25 + r() * 0.6); ctx.beginPath(); ctx.arc(x, y, s / 2, 0, Math.PI * 2); ctx.fill();
     if (s > 1.6) { seg(ctx, x - 4, y, x + 4, y, hexA(c.ink, 0.5), 0.5); seg(ctx, x, y - 4, x, y + 4, hexA(c.ink, 0.5), 0.5); }
@@ -3267,10 +3398,10 @@ function drawGrimoire(ctx, th, Hl, mode, phraseIdx) {
     fell(ctx, T.foot, 195, Hl - 34, 9.5, sc, c.accent, 'center', false, 0.16);
   } else {
     fell(ctx, T.homeTop, 195, 226, 10, sc, c.accent, 'center', false, 0.16);
-    sigil(ctx, th, 195, 410, 140);
+    centerXform(ctx, th, 195, 410, () => sigil(ctx, th, 195, 410, 140));
     gems.forEach((col, i) => { const a = -Math.PI / 2 + i * Math.PI * 2 / 5; gem(ctx, th, 195 + 160 * Math.cos(a), 410 + 160 * Math.sin(a), 7, col); });
-    T.sideL.forEach((l, i) => fell(ctx, l, 26, 566 + i * 13, 10, sc, c.ink, 'left', false, 0.12));
-    T.sideR.forEach((l, i) => fell(ctx, l, 364, 566 + i * 13, 10, sc, c.ink, 'right', false, 0.12));
+    if (K(th).details) { T.sideL.forEach((l, i) => fell(ctx, l, 26, 566 + i * 13, 10, sc, c.ink, 'left', false, 0.12));
+    T.sideR.forEach((l, i) => fell(ctx, l, 364, 566 + i * 13, 10, sc, c.ink, 'right', false, 0.12)); }
     fell(ctx, T.caption, 195, 612, 15, fam, hexA(c.ink, 0.85), 'center', true);
   }
 }
@@ -3334,13 +3465,40 @@ function buildPresets() {
     const d = document.createElement('small'); d.textContent = p.blurb;
     b.append(cv, t, d);
     b.addEventListener('click', () => {
-      state.th = clone(p); state.lock = 0; syncFields(); markPresets(); refresh(true);
+      state.th = clone(p); state.lock = 0; applyVariant(0, true); syncFields(); markPresets(); buildVariants(); refresh(true);
     });
     host.append(b);
     fontsFor(p).then(() => drawWallpaper(cv, p, 'lock', 0));
   });
 }
 function markPresets() { document.querySelectorAll('.preset').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === state.th.id))); }
+
+// ---------- variants ----------
+function applyVariant(i, silent) {
+  const th = state.th, base = PRESETS[th.id], v = (VARIANTS[th.id] || [])[i];
+  if (!base || !v) return;
+  th.colors = Object.assign({}, base.colors, v.colors);
+  th.seed = v.seed || 0;
+  th.knobs = Object.assign({ scale: 1, shift: 0, texture: 1, glow: 1, details: true }, v.knobs || {});
+  th.variant = i;
+  if (!silent) { syncFields(); markVariants(); refresh(); }
+}
+function buildVariants() {
+  const host = $('variants'); host.textContent = '';
+  const list = VARIANTS[state.th.id] || [];
+  list.forEach((v, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'variant'; b.dataset.i = i;
+    const cv = document.createElement('canvas'); cv.width = 130; cv.height = 281;
+    const name = document.createElement('span'); name.textContent = v.name;
+    b.append(cv, name);
+    b.addEventListener('click', () => applyVariant(i));
+    host.append(b);
+    const t = clone(state.th); t.colors = Object.assign({}, PRESETS[t.id].colors, v.colors); t.seed = v.seed || 0; t.knobs = Object.assign({}, v.knobs || {});
+    fontsFor(t).then(() => drawWallpaper(cv, t, 'lock', i % 4));
+  });
+  markVariants();
+}
+function markVariants() { document.querySelectorAll('.variant').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.i === (state.th.variant || 0)))); }
 
 // ---------- fields ----------
 const COLOR_FIELDS = [['ground', 'Background'], ['ink', 'Lines and text'], ['accent', 'Accent'], ['glow', 'Glow'], ['panel', 'Widget panel']];
@@ -3352,6 +3510,14 @@ function buildFields() {
     i.addEventListener('input', () => { state.th.colors[k] = i.value; refresh(); });
     l.append(i, document.createTextNode(label)); sw.append(l);
   });
+  const knob = (id, key, num) => $(id).addEventListener('input', (e) => { state.th.knobs = state.th.knobs || {}; state.th.knobs[key] = num ? +e.target.value : e.target.checked; refresh(); });
+  knob('k-scale', 'scale', true); knob('k-shift', 'shift', true); knob('k-texture', 'texture', true); knob('k-glow', 'glow', true);
+  $('k-details').addEventListener('change', (e) => { state.th.knobs = state.th.knobs || {}; state.th.knobs.details = e.target.checked; refresh(); });
+  ICON_STYLES.forEach(([v, n]) => { const o = document.createElement('option'); o.value = v; o.textContent = n; $('f-iconstyle').append(o); });
+  GLYPH_CHOICES.forEach(([v, n]) => { const o = document.createElement('option'); o.value = v; o.textContent = n; $('f-glyphs').append(o); });
+  $('f-iconstyle').addEventListener('change', (e) => { state.th.iconStyle = e.target.value; refresh(); });
+  $('f-glyphs').addEventListener('change', (e) => { state.th.glyphs = e.target.value || null; refresh(); });
+  $('f-case').addEventListener('change', (e) => { state.th.upper = e.target.value === 'upper'; refresh(); });
   const ds = $('f-display'); DISPLAY_FONTS.forEach(([f]) => { const o = document.createElement('option'); o.value = f; o.textContent = f; ds.append(o); });
   const ms = $('f-mono'); MONO_FONTS.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f; ms.append(o); });
   ds.addEventListener('change', async () => { state.th.fonts.display = ds.value; await fontsFor(state.th); refresh(); });
@@ -3364,16 +3530,16 @@ function buildFields() {
     th.motif = m;
     if (m === 'alert') {
       const d = PRESETS.directive;
-      th.texture = 'scan'; th.marks = 'frame'; th.iconStyle = 'hex'; th.widget.txGraphic = 'sync'; th.upper = true;
+      th.texture = 'scan'; th.marks = 'frame'; th.iconStyle = 'hex'; th.widget.txGraphic = 'sync'; th.upper = true; th.glyphs = 'directive';
       if (!th.colors.alert) th.colors.alert = d.colors.alert;
       Object.keys(d.text).forEach(k => { if (th.text[k] == null) th.text[k] = clone(d.text[k]); });
     } else if (m === 'map' || m === 'night' || m === 'grimoire') {
       const d = PRESETS[{ map: 'longroad', night: 'nightfall', grimoire: 'grimoire' }[m]];
-      th.texture = d.texture; th.marks = d.marks; th.iconStyle = d.iconStyle; th.widget.txGraphic = d.widget.txGraphic; th.upper = d.upper;
+      th.texture = d.texture; th.marks = d.marks; th.iconStyle = d.iconStyle; th.widget.txGraphic = d.widget.txGraphic; th.upper = d.upper; th.glyphs = d.glyphs;
       Object.keys(d.text).forEach(k => { if (th.text[k] == null) th.text[k] = clone(d.text[k]); });
       if (d.colors.alert && !th.colors.alert) th.colors.alert = d.colors.alert;
     } else {
-      th.texture = 'dots'; th.marks = 'cross'; th.iconStyle = 'frame'; th.widget.txGraphic = 'helix';
+      th.texture = 'dots'; th.marks = 'cross'; th.iconStyle = 'frame'; th.widget.txGraphic = 'helix'; th.glyphs = null;
       const h = PRESETS.halcyon;
       Object.keys(h.text).forEach(k => { if (th.text[k] == null) th.text[k] = clone(h.text[k]); });
     }
@@ -3424,6 +3590,9 @@ function syncFields() {
   const th = state.th;
   $('f-company').value = th.company; $('f-unit').value = th.unit;
   COLOR_FIELDS.forEach(([k]) => { $('c-' + k).value = th.colors[k]; });
+  const k = Object.assign({ scale: 1, shift: 0, texture: 1, glow: 1, details: true }, th.knobs || {});
+  $('k-scale').value = k.scale; $('k-shift').value = k.shift; $('k-texture').value = k.texture; $('k-glow').value = k.glow; $('k-details').checked = k.details !== false;
+  $('f-iconstyle').value = th.iconStyle || 'frame'; $('f-glyphs').value = th.glyphs || ''; $('f-case').value = th.upper ? 'upper' : 'title';
   $('f-display').value = th.fonts.display; $('f-mono').value = th.fonts.mono;
   $('f-motif').value = th.motif;
   document.querySelectorAll('[data-units]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.units === th.units)));
@@ -3669,7 +3838,8 @@ $('savebar-btn').addEventListener('click', () => { if (pendingFile) shareFile(pe
 $('btn-copy').addEventListener('click', copyScript);
 $('btn-txt').addEventListener('click', () => saveFile(`${slug(state.th.company)}-widgets.txt`, buildScript()));
 window.addEventListener('resize', () => renderPreview());
-buildPresets(); buildFields(); buildSingles(); syncFields();
+if (state.th.variant == null) applyVariant(0, true);
+buildPresets(); buildFields(); buildSingles(); syncFields(); buildVariants();
 fontsFor(state.th).then(() => refresh());
 
 </script>
