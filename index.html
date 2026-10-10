@@ -165,6 +165,7 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
               <option value="map">Hand-drawn map</option>
               <option value="night">Night helmet display</option>
               <option value="grimoire">Arcane card and sigil</option>
+              <option value="orbital">Deep range tracker</option>
             </select></label>
             <div class="f">Temperature
               <div class="seg" role="group" aria-label="Temperature units">
@@ -235,6 +236,9 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
         </div>
         <div id="view-home" hidden>
           <div class="phone" id="home-phone"><canvas id="pv-home" width="390" height="844"></canvas><div class="ui" id="home-ui"></div></div>
+          <div class="btns" style="justify-content:center;margin-top:10px" role="group" aria-label="Home frame">
+            <button type="button" class="btn" data-frame="0">1</button><button type="button" class="btn" data-frame="1">2</button><button type="button" class="btn" data-frame="2">3</button><button type="button" class="btn" data-frame="3">4</button><button type="button" class="btn" data-frame="4">5</button><button type="button" class="btn" data-frame="5">6</button>
+          </div>
           <p class="note">Widgets and icons are a preview of what the steps in Install will set up.</p>
         </div>
         <div id="view-icons" hidden>
@@ -537,6 +541,20 @@ function graphic(W, H) {
   const t = Date.now() / 60000
   const phase = (t / 7) % (Math.PI * 2)
   const mid = H / 2
+  if (T.txGraphic === "trajectory") {
+    const ax = W * 0.88, ay = H * 0.22, sx = 4, sy = H - 2, cx1 = W * 0.35, cy1 = -H * 0.2
+    const bz = (u) => new Point((1 - u) ** 2 * sx + 2 * (1 - u) * u * cx1 + u * u * ax, (1 - u) ** 2 * sy + 2 * (1 - u) * u * cy1 + u * u * ay)
+    for (let i = 0; i < 7; i++) {
+      const u = 0.15 + i * 0.11, p = bz(u), q = bz(u + 0.01), ang = Math.atan2(q.y - p.y, q.x - p.x), sz = H * 0.42 - i * 1.4
+      const ux = Math.cos(ang), uy = Math.sin(ang), vx = -uy, vy = ux, sk = 0.55
+      const pts = [new Point(p.x + vx * sz - ux * sz * sk, p.y + vy * sz - uy * sz * sk), new Point(p.x + vx * sz + ux * sz * sk, p.y + vy * sz + uy * sz * sk), new Point(p.x - vx * sz + ux * sz * sk, p.y - vy * sz + uy * sz * sk), new Point(p.x - vx * sz - ux * sz * sk, p.y - vy * sz - uy * sz * sk)]
+      const fr = new Path(); fr.addLines(pts); fr.closeSubpath(); dc.addPath(fr); dc.setStrokeColor(new Color(T.headBg, 0.85 - i * 0.08)); dc.setLineWidth(1); dc.strokePath()
+    }
+    const tp = []; for (let u = 0; u <= 1.0001; u += 0.04) tp.push(bz(u))
+    const tr = new Path(); tr.addLines(tp); dc.addPath(tr); dc.setStrokeColor(INK); dc.setLineWidth(1.3); dc.strokePath()
+    dc.setFillColor(new Color(T.headBg)); dc.fillEllipse(new Rect(ax - 4, ay - 4, 8, 8))
+    return dc.getImage()
+  }
   if (T.txGraphic === "reentry") {
     let s = Math.floor(t)
     const rr = () => { s = (s * 9301 + 49297) % 233280; return s / 233280 }
@@ -1530,6 +1548,18 @@ const GLYPHS = {
   instagram: 'M3 3h18v18H3zM6 6v12h12V6zM12 8a4 4 0 1 1 0 8a4 4 0 0 1 0-8zM12 9.6a2.4 2.4 0 1 0 0 4.8a2.4 2.4 0 0 0 0-4.8zM15.4 6.9h1.7v1.7h-1.7z'
 };
 const GLYPHSETS = {
+  deeprange: {
+    camera: 'M2 2h7v2.2H4.2V9H2zM15 2h7v7h-2.2V4.2H15zM2 15h2.2v4.8H9V22H2zM19.8 15H22v7h-7v-2.2h4.8zM12 8.5a3.5 3.5 0 1 1 0 7a3.5 3.5 0 0 1 0-7z',
+    photos: 'M4 8l12-4 4 10-12 4zM6.6 9.2l2.6 6.6 8.2-2.7-2.6-6.6zM2 13l2-.7 2.9 7.3 10-3.3.7 2L6 22z',
+    maps: 'M2 4h20L12 21zM6 6.2L12 16.6 18 6.2zM12 7.6a1.8 1.8 0 1 1 0 3.6a1.8 1.8 0 0 1 0-3.6z',
+    calendar: 'M3 3h8v5H3zM13 3h8v8h-8zM3 10h8v11H3zM13 13h8v8h-8zM5 12v7h4v-7zM15 15v4h4v-4z',
+    phone: 'M12 14a2 2 0 1 1 0 4a2 2 0 0 1 0-4zM4.9 11.1a10 10 0 0 1 14.2 0l-1.6 1.6a7.7 7.7 0 0 0-11 0zM8.1 14.3a5.5 5.5 0 0 1 7.8 0l-1.6 1.6a3.2 3.2 0 0 0-4.6 0zM1.7 7.9a14.5 14.5 0 0 1 20.6 0l-1.6 1.6a12.2 12.2 0 0 0-17.4 0z',
+    messages: 'M2 4h20v12h-8l-4 4v-4H2zM5 7v2h14V7zM5 11v2h9v-2z',
+    browser: 'M12 7a5 5 0 1 1 0 10a5 5 0 0 1 0-10zM1.5 13.6c-.9-2.2 3.4-4.8 9.6-5.9l.4 1.9c-5.1.9-8 2.6-7.8 3.5.4 1 4.7 1.6 10.4.6 5.6-1 9.4-3.1 9-4.1-.2-.5-1.4-.8-3.3-.9l.1-1.9c2.7.1 4.6.7 5 1.9.9 2.2-3.8 5.2-10.4 6.4-6.6 1.2-12.1.7-13-1.5z',
+    music: 'M2 10h2.5v4H2zM6 7h2.5v10H6zM10 3h2.5v18H10zM14 6h2.5v12H14zM18 9h2.5v6H18z',
+    youtube: 'M2 4h20v16H2zM4.2 6.2v11.6h15.6V6.2zM9.5 8.5v7l6-3.5z',
+    instagram: 'M12 3a9 9 0 1 1 0 18a9 9 0 0 1 0-18zM12 5.4a6.6 6.6 0 1 0 0 13.2a6.6 6.6 0 0 0 0-13.2zM12 9a3 3 0 1 1 0 6a3 3 0 0 1 0-6z'
+  },
   directive: {
     camera: 'M12 2l8.66 5v10L12 22l-8.66-5V7zM12 5.2L5.9 8.7v6.6L12 18.8l6.1-3.5V8.7zM12 9l2.6 1.5v3L12 15l-2.6-1.5v-3z',
     photos: 'M3 7h13v13H3zM5 9v9h9V9zM7 3h14v14h-3v-2h1V5H9v1H7z',
@@ -1763,12 +1793,41 @@ const PRESETS = {
       ['The Moon Is Watching Your Discards', 'ORDER OF THE OBSERVATORY'], ['Every Deck Has One Wild Card', 'THE TRICKSTER\'S ALMANAC'],
       ['Fortune Favors The Prepared Deck', 'GUILD OF ALCHEMISTS'], ['Tonight, Play The Long Game', 'THE TRICKSTER\'S ALMANAC']
     ]
+  },
+  deeprange: {
+    id: 'deeprange', title: 'Deep Range', blurb: 'A long-range tracking display. Black glass, red contact frames, a yellow trajectory and a blue planet below.',
+    company: 'Deep Range', unit: 'RELAY 07',
+    colors: { ground: '#050608', ink: '#FFE14A', accent: '#FF3B30', glow: '#2340FF', panel: '#0B0D10', alert: '#3DFF8A' },
+    fonts: { display: 'Archivo', mono: 'Share Tech Mono' },
+    motif: 'orbital', texture: 'scan', marks: 'none', iconStyle: 'tracker', glyphs: 'deeprange', units: 'fahrenheit', upper: true,
+    phrases: [['Contact', 'Lost'], ['Signal', 'Acquired'], ['Return', 'Window'], ['Deep', 'Range']],
+    text: {
+      topL: 'TRACKING 12 CONTACTS', coords: 'RANGE 0.4 AU // RELAY 07', yearLabel: 'YEAR', year: 'auto',
+      codeA: 'R 07-KX', codeB: 'DR 0X283', fine: 'A E0- 12  9X  00', foot: 'DEEP RANGE // RELAY 07',
+      homeTop: 'PROXIMITY ALERT', caption: 'LOSS OF SIGNAL IMMINENT', countdown: 'T-00:00:47'
+    },
+    codes: { camera: 'SCAN', photos: 'LOG', maps: 'WPT', calendar: 'YEAR', phone: 'PING', messages: 'COMM', browser: 'ORBIT', music: 'FREQ', youtube: 'FEED', instagram: 'LOCK' },
+    widget: {
+      scriptFont: 'AvenirNext-Heavy', txGraphic: 'trajectory', archive: true,
+      L: { status: 'W-01 // CONTACT STATUS', next: 'NEXT RENDEZVOUS', none: 'No Contacts', noneSub: 'PASSIVE LISTEN', ext: 'SURFACE',
+        dur: 'WINDOW', state: 'STATE', feels: 'FEELS LIKE', hilo: 'HI / LO', active: 'IN CONTACT', queued: 'INBOUND', standby: 'LISTENING',
+        cell: 'RESERVE', cycle: 'DAY', shift: 'W-02 // WINDOW', activeLong: 'WINDOW OPEN', offTitle: 'Listening', tx: 'W-05 // DEEP RANGE COMMS' },
+      classes: ['CONTACT', 'PING', 'ECHO', 'LOSS OF SIGNAL']
+    },
+    slogans: [
+      ['Contact Lost Is Not Contact Gone', 'RANGE CONTROL'], ['We Hear You. Do Not Repeat.', 'SIGNAL ANALYSIS'],
+      ['Your Last Ping Was Logged', 'TELEMETRY'], ['Nothing Out Here Is Abandoned', 'SALVAGE RIGHTS'],
+      ['Return Window Closes At Dawn', 'FLIGHT DYNAMICS'], ['The Dark Is Mostly Paperwork', 'RANGE CONTROL'],
+      ['Echo Detected. Ignore Echo.', 'SIGNAL ANALYSIS'], ['Drift Is A Direction Too', 'NAVIGATION'],
+      ['All Lost Contacts Are Billed', 'ACCOUNTS RECEIVABLE'], ['Stay On Frequency', 'COMMS'],
+      ['The Relay Remembers Your Voice', 'RELAY OPS'], ['If It Answers, Do Not Answer Back', 'PROTOCOL OFFICE']
+    ]
   }
 };
 
 const DISPLAY_FONTS = [['Newsreader', 300], ['Shippori Mincho B1', 800], ['IM Fell English', 400], ['Cormorant Garamond', 700], ['Fraunces', 700], ['Oxanium', 700], ['Space Grotesk', 600], ['Archivo', 800]];
 const MONO_FONTS = ['IBM Plex Mono', 'Barlow Condensed', 'IM Fell English SC', 'Cormorant SC', 'Share Tech Mono', 'DM Mono', 'JetBrains Mono'];
-const SCRIPT_FONTS = { 'Newsreader': 'Baskerville', 'Shippori Mincho B1': 'HiraMinProN-W6', 'IM Fell English': 'Baskerville-SemiBold', 'Cormorant Garamond': 'Georgia-Bold', 'Oxanium': 'AvenirNextCondensed-DemiBold', 'Fraunces': 'Georgia-Bold', 'Space Grotesk': 'AvenirNext-DemiBold', 'Archivo': 'Futura-CondensedExtraBold' };
+const SCRIPT_FONTS = { 'Newsreader': 'Baskerville', 'Shippori Mincho B1': 'HiraMinProN-W6', 'IM Fell English': 'Baskerville-SemiBold', 'Cormorant Garamond': 'Georgia-Bold', 'Oxanium': 'AvenirNextCondensed-DemiBold', 'Fraunces': 'Georgia-Bold', 'Space Grotesk': 'AvenirNext-DemiBold', 'Archivo': 'AvenirNext-Heavy' };
 const DEVICES = [
   ['iPhone 12 mini / 13 mini', 1080, 2340],
   ['iPhone 12, 13, 14, 12 Pro, 13 Pro', 1170, 2532],
@@ -1781,6 +1840,13 @@ const DEVICES = [
 ];
 
 const VARIANTS = {
+  deeprange: [
+    { name: 'Contact Red', colors: {}, seed: 0 },
+    { name: 'Signal Green', colors: { ink: '#E8FFF0', accent: '#3DFF8A', glow: '#0F5C4A', alert: '#FFE14A' }, seed: 1 },
+    { name: 'Cold Blue', colors: { ink: '#BFE9FF', accent: '#3A7BFF', glow: '#123A8C', alert: '#39D6FF' }, seed: 2 },
+    { name: 'Amber Range', colors: { ink: '#FFC36A', accent: '#FF7A1A', glow: '#3A1E7A', alert: '#FFE14A' }, seed: 3 },
+    { name: 'Redline', colors: { ink: '#FFFFFF', accent: '#FF2D55', glow: '#5A0F1E', alert: '#FF9F0A' }, seed: 4 }
+  ],
   halcyon: [
     { name: 'Mint', colors: {}, seed: 0 },
     { name: 'Lilac Ward', colors: { ground: '#D9D2FF', ink: '#1A1433', accent: '#FF6F9F', glow: '#7FE3F0', panel: '#EFEBFF' }, seed: 1 },
@@ -1817,8 +1883,8 @@ const VARIANTS = {
     { name: 'Obsidian Gold', colors: { ground: '#0C0C0E', panel: '#18171C', glow: '#6E5B2E', accent: '#E3C26A' }, seed: 4 }
   ]
 };
-const ICON_STYLES = [['frame', 'Lab frame'], ['hex', 'Hex alert'], ['woodcut', 'Woodcut'], ['visor', 'Visor'], ['gilded', 'Gilded']];
-const GLYPH_CHOICES = [['', 'Classic'], ['directive', 'Tactical'], ['longroad', 'Storybook'], ['nightfall', 'Field kit'], ['grimoire', 'Arcane']];
+const ICON_STYLES = [['frame', 'Lab frame'], ['hex', 'Hex alert'], ['woodcut', 'Woodcut'], ['visor', 'Visor'], ['gilded', 'Gilded'], ['tracker', 'Range tracker']];
+const GLYPH_CHOICES = [['', 'Classic'], ['directive', 'Tactical'], ['longroad', 'Storybook'], ['nightfall', 'Field kit'], ['grimoire', 'Arcane'], ['deeprange', 'Deep range']];
 
 function K(th) { const k = th.knobs || {}; return { scale: k.scale == null ? 1 : k.scale, shift: k.shift || 0, texture: k.texture == null ? 1 : k.texture, glow: k.glow == null ? 1 : k.glow, details: k.details !== false }; }
 function seedOf(th, base) { return base + (th.seed || 0) * 7919; }
@@ -2064,6 +2130,7 @@ function drawWallpaper(canvas, th, mode, phraseIdx) {
   if (th.motif === 'alert') { drawAlert(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'map') { drawMap(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'night') { drawNight(ctx, th, Hl, mode, phraseIdx); ctx.restore(); return; }
+  if (th.motif === 'orbital') { if (mode === 'home') drawOrbitalHome(ctx, th, Hl, W, H, s, phraseIdx); else drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'grimoire') { drawGrimoire(ctx, th, Hl, mode, phraseIdx); ctx.restore(); return; }
   const T = th.text, ink = th.colors.ink, mono = th.fonts.mono;
   const art = th.motif === 'radar' ? radarArt : globeArt;
@@ -2127,7 +2194,9 @@ function drawIcon(canvas, th, app, idx) {
   const c = th.colors, mono = th.fonts.mono, num = String(idx + 1).padStart(2, '0'), code = (th.codes[app] || app.slice(0, 3)).toUpperCase();
   const set = (th.glyphs && GLYPHSETS[th.glyphs]) || GLYPHS;
   const glyph = new Path2D(set[app] || GLYPHS[app]);
-  if (th.iconStyle === 'visor') {
+  if (th.iconStyle === 'tracker') {
+    drawTrackerIcon(ctx, th, glyph, num, code);
+  } else if (th.iconStyle === 'visor') {
     drawVisorIcon(ctx, th, glyph, num, code);
   } else if (th.iconStyle === 'gilded') {
     drawGildedIcon(ctx, th, glyph, num, code, idx);
@@ -3431,12 +3500,226 @@ function drawGildedIcon(ctx, th, glyph, num, code, idx) {
   gem(ctx, th, 512, 730, 26, gems[idx % gems.length]);
 }
 
+// ---------- ORBITAL motif (deep range tracking display) ----------
+function drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s) {
+  const c = th.colors, T = th.text, mono = th.fonts.mono, disp = th.fonts.display, dw = dispWeight(disp), k = K(th)
+  const RED = c.accent, YEL = c.ink, BLU = c.glow, GRN = c.alert || '#3DFF8A', CYN = '#39D6FF'
+  ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 390, Hl);
+  texture(ctx, Object.assign({}, th, { texture: 'scan', colors: Object.assign({}, c, { ink: '#9AD9FF' }) }), W, H, s);
+  const lab = (t, x, y, size, col, align, wgt, fam) => spaced(ctx, t, x, y, size, fam || mono, wgt || 400, 0.08, align || 'left', col);
+  const yearTxt = T.year === 'auto' || !T.year ? String(new Date().getFullYear()) : T.year;
+  const top = mode === 'lock' ? 238 : 222;
+  const baseY = mode === 'lock' ? Math.min(Hl - 190, 650) : 610;
+  const R = 1400, pcx = 195, pcy = baseY + R;
+  const arc = (r) => { ctx.beginPath(); for (let x = -20; x <= 410; x += 5) { const dy = Math.sqrt(Math.max(0, r * r - (x - pcx) ** 2)); x === -20 ? ctx.moveTo(x, pcy - dy) : ctx.lineTo(x, pcy - dy); } };
+  // tracking plane
+  centerXform(ctx, th, 195, (top + baseY) / 2, () => {
+    const q = [[40, top + 120], [330, top + 52], [372, top + 236], [76, top + 300]];
+    const L = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+    ctx.lineWidth = 0.7;
+    for (let i = 0; i <= 8; i++) { const t = i / 8, a = L(q[0], q[1], t), b = L(q[3], q[2], t); ctx.strokeStyle = hexA('#9AA8AE', i % 4 === 0 ? 0.4 : 0.18); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+    for (let i = 0; i <= 6; i++) { const t = i / 6, a = L(q[0], q[3], t), b = L(q[1], q[2], t); ctx.strokeStyle = hexA('#9AA8AE', i % 3 === 0 ? 0.4 : 0.18); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+    ctx.strokeStyle = hexA('#C9D2D6', 0.55); ctx.lineWidth = 1; ctx.beginPath(); q.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); ctx.stroke();
+    if (k.details) {
+      [[120, top + 150, 'K-17'], [250, top + 120, 'K-04'], [300, top + 200, 'R-88'], [150, top + 230, 'K-22']].forEach(([x, y, l]) => { ctx.fillStyle = RED; ctx.fillRect(x - 3, y - 3, 6, 6); lab(l, x + 6, y + 3, 7, hexA(RED, 0.9)); });
+      [[205, top + 175, 'RELAY 04'], [96, top + 196, 'BUOY 11']].forEach(([x, y, l]) => { ctx.strokeStyle = YEL; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(x - 7, y - 10); ctx.lineTo(x + 7, y - 10); ctx.lineTo(x, y + 1); ctx.closePath(); ctx.stroke(); ctx.fillStyle = YEL; ctx.beginPath(); ctx.arc(x, y - 6.5, 1.4, 0, Math.PI * 2); ctx.fill(); lab(l, x + 10, y - 4, 7.5, '#F2F2F2', 'left', 700); });
+    }
+    // trajectory through stacked frames
+    const sx = 24, sy = baseY + 30, ax = 300, ay = top + 92, cx1 = 110, cy1 = top + 40;
+    const bz = (t) => [(1 - t) ** 2 * sx + 2 * (1 - t) * t * cx1 + t * t * ax, (1 - t) ** 2 * sy + 2 * (1 - t) * t * cy1 + t * t * ay];
+    for (let i = 0; i < 8; i++) {
+      const t = 0.14 + i * 0.1, p = bz(t), n = bz(t + 0.01), ang = Math.atan2(n[1] - p[1], n[0] - p[0]), sz = 44 - i * 4.2;
+      const ux = Math.cos(ang), uy = Math.sin(ang), vx = -uy, vy = ux, sk = 0.55;
+      const pts = [[p[0] + vx * sz - ux * sz * sk, p[1] + vy * sz - uy * sz * sk], [p[0] + vx * sz + ux * sz * sk, p[1] + vy * sz + uy * sz * sk], [p[0] - vx * sz + ux * sz * sk, p[1] - vy * sz + uy * sz * sk], [p[0] - vx * sz - ux * sz * sk, p[1] - vy * sz - uy * sz * sk]];
+      ctx.strokeStyle = hexA(RED, 0.85 - i * 0.06); ctx.lineWidth = 1.1; ctx.beginPath(); pts.forEach((q2, j) => j ? ctx.lineTo(q2[0], q2[1]) : ctx.moveTo(q2[0], q2[1])); ctx.closePath(); ctx.stroke();
+    }
+    ctx.save(); ctx.shadowColor = hexA(YEL, 0.8); ctx.shadowBlur = 6 * k.glow;
+    ctx.strokeStyle = YEL; ctx.lineWidth = 1.3; ctx.beginPath(); for (let t = 0; t <= 1.0001; t += 0.02) { const p = bz(t); t === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]); } ctx.stroke(); ctx.restore();
+    ctx.fillStyle = '#FF6A3D'; ctx.beginPath(); ctx.arc(ax, ay, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = c.ground; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(ax, ay, 3, 0, Math.PI * 2); ctx.stroke();
+  });
+  // planet limb
+  ctx.save(); arc(R); ctx.lineTo(410, Hl + 10); ctx.lineTo(-20, Hl + 10); ctx.closePath(); ctx.fillStyle = hexA(BLU, 0.55); ctx.fill(); ctx.clip();
+  ctx.fillStyle = lin(ctx, 0, baseY, 0, Hl, [[0, hexA(BLU, 0.6)], [1, hexA('#000000', 0.3)]]); ctx.fillRect(0, baseY - 20, 390, Hl);
+  ctx.strokeStyle = hexA('#6F8BFF', 0.6); ctx.lineWidth = 0.8;
+  for (let i = 1; i <= 7; i++) { arc(R - i * (7 + i * 4)); ctx.stroke(); }
+  for (let i = -9; i <= 9; i++) { const a = i * 0.03; ctx.beginPath(); ctx.moveTo(pcx + R * Math.sin(a), pcy - R * Math.cos(a)); ctx.lineTo(pcx + (R - 160) * Math.sin(a * 0.55), pcy - (R - 160) * Math.cos(a * 0.55)); ctx.stroke(); }
+  const r0 = rng(seedOf(th, 41));
+  for (let i = 0; i < Math.round(110 * k.texture); i++) { ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(r0() * 390, baseY + 6 + r0() * (Hl - baseY), 3 + r0() * 12, 1.5 + r0() * 2.5); }
+  ctx.restore();
+  ctx.save(); ctx.shadowBlur = 5 * k.glow;
+  ctx.shadowColor = GRN; ctx.strokeStyle = GRN; ctx.lineWidth = 1.1; arc(R + 10); ctx.stroke();
+  ctx.shadowColor = CYN; ctx.strokeStyle = CYN; ctx.lineWidth = 0.9; arc(R + 24); ctx.stroke(); ctx.restore();
+  [[110, 'W-1'], [300, 'W-2']].forEach(([x, l]) => { const y = pcy - Math.sqrt(R * R - (x - pcx) ** 2) - 18; ctx.strokeStyle = '#F2A33A'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(x - 8, y - 10); ctx.lineTo(x + 8, y - 10); ctx.lineTo(x, y + 3); ctx.closePath(); ctx.stroke(); ctx.fillStyle = '#F2A33A'; ctx.beginPath(); ctx.arc(x, y - 5.5, 1.6, 0, Math.PI * 2); ctx.fill(); });
+  // red block glyphs on the edges
+  ctx.fillStyle = RED;
+  [[0, top + 30, 12, 40], [0, top + 78, 7, 14], [0, top + 300, 14, 34], [0, top + 340, 8, 12]].forEach(([x, y, w, h]) => ctx.fillRect(x, y, w, h));
+  [[378, top + 60, 12, 46], [383, top + 112, 7, 14], [374, top + 270, 16, 36]].forEach(([x, y, w, h]) => ctx.fillRect(x, y, w, h));
+  if (k.details) { lab(T.codeA || 'R 07-KX', 18, top + 40, 7, RED); lab(T.codeB || 'DR 0X283', 18, top + 310, 7, RED); }
+  // headline callout and readouts
+  if (mode === 'lock') {
+    const ph = th.phrases[phraseIdx % th.phrases.length] || ['', ''];
+    const head = `${ph[0]} ${ph[1]}`.trim(); const txt = th.upper ? head.toUpperCase() : head;
+    const fs = Math.min(32, 32 * 330 / Math.max(1, measureSpaced(ctx, txt, 32, disp, dw, 0.01)));
+    ctx.save(); ctx.shadowColor = hexA(YEL, 0.7); ctx.shadowBlur = 10 * k.glow;
+    spaced(ctx, txt, 24, top + 66, fs, disp, dw, 0.01, 'left', YEL); ctx.restore();
+    lab(T.topL || 'TRACKING 12 CONTACTS', 24, top + 6, 11, YEL, 'left', 700, disp);
+    lab(T.coords || 'RANGE 0.4 AU // RELAY 07', 24, top + 20, 7, hexA(YEL, 0.75));
+    lab(T.yearLabel || 'YEAR', 364, baseY - 74, 11, YEL, 'right', 700, disp);
+    ctx.save(); ctx.shadowColor = hexA(YEL, 0.7); ctx.shadowBlur = 10 * k.glow;
+    spaced(ctx, yearTxt, 364, baseY - 42, 34, disp, dw, 0.02, 'right', YEL); ctx.restore();
+    if (k.details) { ['041', '712', '288'].forEach((n, i) => lab(n, 364, Hl - 140 + i * 11, 9, RED, 'right')); lab(T.fine || 'A E0- 12  9X  00', 24, Hl - 128, 7.5, YEL); }
+    lab(T.foot || 'DEEP RANGE // RELAY 07', 195, Hl - 30, 7, hexA(YEL, 0.85), 'center');
+  } else {
+    lab(T.homeTop || 'RANGE CONTROL // PASSIVE LISTEN', 195, top + 6, 8, YEL, 'center', 700);
+    lab(T.caption || 'CONTACT LOST · KEEP LISTENING', 195, baseY - 46, 8, YEL, 'center', 700, disp);
+  }
+}
+
+function drawTrackerIcon(ctx, th, glyph, num, code) {
+  const c = th.colors;
+  ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 1024, 1024);
+  ctx.fillStyle = 'rgba(154,217,255,0.05)'; for (let y = 0; y < 1024; y += 12) ctx.fillRect(0, y, 1024, 4);
+  ctx.strokeStyle = hexA('#9AA8AE', 0.5); ctx.lineWidth = 6; ctx.strokeRect(120, 120, 784, 784);
+  ctx.fillStyle = c.accent; ctx.fillRect(120, 120, 120, 40); ctx.fillRect(120, 160, 40, 80); ctx.fillRect(784, 864, 120, 40); ctx.fillRect(864, 784, 40, 80);
+  ctx.save(); ctx.shadowColor = hexA(c.ink, 0.7); ctx.shadowBlur = 30;
+  ctx.save(); ctx.translate(312, 300); ctx.scale(16.6, 16.6); ctx.fillStyle = c.ink; ctx.fill(glyph, 'evenodd'); ctx.restore(); ctx.restore();
+  spaced(ctx, num, 860, 212, 56, th.fonts.mono, 400, 0.06, 'right', c.accent);
+  spaced(ctx, code, 180, 860, 56, th.fonts.mono, 400, 0.1, 'left', c.ink);
+}
+
+function drawContact(ctx, th, cx, cy, sc, frame, k) {
+  const c = th.colors, YEL = c.ink, RED = c.accent, mono = th.fonts.mono
+  const r = rng(seedOf(th, 501 + frame))
+  const glow = (col, b, fn) => { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = b * k.glow; fn(); ctx.restore(); };
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(-0.18 + frame * 0.07); ctx.scale(sc, sc);
+  // occlusion so the frames read behind the contact
+  ctx.fillStyle = hexA(c.ground, 0.78);
+  ctx.beginPath(); ctx.moveTo(-86, -10); ctx.lineTo(-30, -26); ctx.lineTo(30, -26); ctx.lineTo(88, -6); ctx.lineTo(30, 26); ctx.lineTo(-30, 26); ctx.closePath(); ctx.fill();
+  glow(YEL, 9, () => {
+    ctx.strokeStyle = YEL; ctx.lineWidth = 1.1;
+    // truss arms
+    ctx.beginPath(); ctx.moveTo(-80, -4); ctx.lineTo(-22, -4); ctx.moveTo(-80, 4); ctx.lineTo(-22, 4); ctx.moveTo(22, -4); ctx.lineTo(66, -4); ctx.moveTo(22, 4); ctx.lineTo(60, 4); ctx.stroke();
+    for (let x = -76; x < -22; x += 8) { ctx.beginPath(); ctx.moveTo(x, -4); ctx.lineTo(x + 8, 4); ctx.stroke(); }
+    for (let x = 26; x < 58; x += 8) { ctx.beginPath(); ctx.moveTo(x, -4); ctx.lineTo(x + 8, 4); ctx.stroke(); }
+    // hex core module
+    ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = Math.PI / 3 * i; const x = 22 * Math.cos(a), y = 18 * Math.sin(a); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.closePath(); ctx.stroke();
+    ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = Math.PI / 3 * i; const x = 12 * Math.cos(a), y = 10 * Math.sin(a); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.closePath(); ctx.stroke();
+    // intact panel pair (left)
+    [[-70, -30], [-48, -30], [-70, 8], [-48, 8]].forEach(([x, y]) => { ctx.strokeRect(x, y, 18, 22); ctx.beginPath(); ctx.moveTo(x, y + 11); ctx.lineTo(x + 18, y + 11); ctx.moveTo(x + 9, y); ctx.lineTo(x + 9, y + 22); ctx.stroke(); });
+    // torn panel (right) drifting away
+    ctx.save(); ctx.translate(78, -22); ctx.rotate(0.6); ctx.strokeRect(-9, -11, 18, 22); ctx.beginPath(); ctx.moveTo(-9, 0); ctx.lineTo(9, 0); ctx.stroke(); ctx.restore();
+    ctx.beginPath(); ctx.moveTo(66, -4); ctx.lineTo(70, -9); ctx.lineTo(74, -5); ctx.moveTo(60, 4); ctx.lineTo(64, 9); ctx.stroke();
+    // antenna dish
+    ctx.beginPath(); ctx.moveTo(0, -18); ctx.lineTo(0, -34); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, -40, 9, Math.PI * 0.15, Math.PI * 0.85); ctx.stroke();
+    // docking ring
+    ctx.beginPath(); ctx.ellipse(0, 26, 8, 3, 0, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, 18); ctx.lineTo(0, 23); ctx.stroke();
+  });
+  // hull breach
+  glow(RED, 10, () => { ctx.fillStyle = RED; ctx.beginPath(); ctx.moveTo(8, -6); ctx.lineTo(16, -2); ctx.lineTo(11, 4); ctx.lineTo(18, 9); ctx.lineTo(7, 6); ctx.lineTo(4, 0); ctx.closePath(); ctx.fill(); });
+  // debris field with motion streaks
+  for (let i = 0; i < 18; i++) {
+    const x = 50 + r() * 70, y = -40 + r() * 70, sz = 1 + r() * 2.6
+    ctx.fillStyle = i % 4 === 0 ? RED : YEL; ctx.fillRect(x, y, sz, sz)
+    ctx.strokeStyle = hexA(YEL, 0.35); ctx.lineWidth = 0.6; ctx.beginPath(); ctx.moveTo(x, y + sz / 2); ctx.lineTo(x - 6 - r() * 8, y + sz / 2 + 2); ctx.stroke()
+  }
+  // spin arrow
+  ctx.strokeStyle = hexA(YEL, 0.8); ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(0, 0, 44, 30, 0, Math.PI * 1.1, Math.PI * 1.55); ctx.stroke()
+  const ea = Math.PI * 1.55, ex = 44 * Math.cos(ea), ey = 30 * Math.sin(ea)
+  ctx.fillStyle = YEL; ctx.beginPath(); ctx.moveTo(ex + 5, ey + 1); ctx.lineTo(ex - 2, ey - 4); ctx.lineTo(ex - 1, ey + 5); ctx.closePath(); ctx.fill()
+  ctx.restore();
+  // scan sweep across the contact (screen space)
+  const sxp = cx - 70 * sc + ((frame * 37) % 100) / 100 * 140 * sc
+  ctx.save(); const g = ctx.createLinearGradient(sxp - 24, 0, sxp, 0); g.addColorStop(0, hexA(YEL, 0)); g.addColorStop(1, hexA(YEL, 0.22)); ctx.fillStyle = g; ctx.fillRect(sxp - 24, cy - 46 * sc, 24, 92 * sc);
+  ctx.strokeStyle = hexA(YEL, 0.8); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(sxp, cy - 46 * sc); ctx.lineTo(sxp, cy + 46 * sc); ctx.stroke(); ctx.restore();
+  // leader-line callouts
+  if (k.details) {
+    const tags = [[cx + 14 * sc, cy - 2 * sc, cx + 70, cy - 84, 'HULL BREACH // DECK 3', RED], [cx - 2 * sc, cy - 40 * sc, cx - 96, cy - 92, 'ANTENNA: NO CARRIER', YEL], [cx + 60 * sc, cy + 6 * sc, cx + 30, cy + 92, 'DEBRIS FIELD 0.6 KM', YEL], [cx - 60 * sc, cy + 18 * sc, cx - 50, cy + 92, `SPIN ${(0.4 + frame * 0.17).toFixed(1)}°/S`, YEL]]
+    tags.forEach(([x1, y1, x2, y2, t, col]) => {
+      ctx.strokeStyle = hexA(col, 0.85); ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.lineTo(x2 + (x2 > cx ? 14 : -14), y2); ctx.stroke()
+      ctx.fillStyle = col; ctx.fillRect(x1 - 1.5, y1 - 1.5, 3, 3)
+      spaced(ctx, t, x2 + (x2 > cx ? 16 : -16), y2 + 2.5, 6.5, mono, 400, 0.08, x2 > cx ? 'left' : 'right', col)
+    })
+  }
+}
+
+function drawOrbitalHome(ctx, th, Hl, W, H, s, frame) {
+  frame = frame || 0
+  const c = th.colors, T = th.text, mono = th.fonts.mono, disp = th.fonts.display, dw = dispWeight(disp), k = K(th)
+  const RED = c.accent, YEL = c.ink, BLU = c.glow, GRN = c.alert || '#3DFF8A', CYN = '#39D6FF'
+  const lab = (t, x, y, size, col, align, wgt, fam) => spaced(ctx, t, x, y, size, fam || mono, wgt || 400, 0.08, align || 'left', col);
+  const glow = (col, b, fn) => { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = b * k.glow; fn(); ctx.restore(); };
+  // per-frame readings
+  const fr = rng(seedOf(th, 900 + frame * 13))
+  const sig = frame === 0 ? 18 : Math.round(6 + fr() * 58)
+  const rangeKm = frame === 0 ? 540 : Math.round(420 + fr() * 460)
+  const mm = frame === 0 ? 0 : Math.floor(fr() * 4), ss = frame === 0 ? 47 : Math.floor(fr() * 60)
+  const lockPct = frame === 0 ? 94 : Math.round(40 + fr() * 58)
+  const closing = (frame === 0 ? 2.3 : 0.8 + fr() * 3.4).toFixed(1), brg = frame === 0 ? 214 : Math.round(fr() * 359)
+  const BANNERS = ['PROXIMITY ALERT', 'SIGNAL DEGRADING', 'LOCK UNSTABLE', 'CONTACT DRIFTING', 'RE-ACQUIRING', 'HULL BREACH DETECTED']
+  const CAPS = ['LOSS OF SIGNAL IMMINENT', 'HOLD THE LOCK', 'RANGE CLOSING FAST', 'CARRIER WAVE LOST', 'SWEEPING SECTOR', 'DO NOT DOCK']
+  const banner = frame === 0 ? (T.homeTop || BANNERS[0]) : BANNERS[frame % BANNERS.length]
+  const caption = frame === 0 ? (T.caption || CAPS[0]) : CAPS[frame % CAPS.length]
+  const countdown = frame === 0 ? (T.countdown || 'T-00:00:47') : `T-00:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`
+  ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 390, Hl);
+  texture(ctx, Object.assign({}, th, { texture: 'scan', colors: Object.assign({}, c, { ink: '#9AD9FF' }) }), W, H, s);
+  const r = rng(seedOf(th, 77 + frame))
+  const pr = 520, px = -120, py = Hl + 260;
+  ctx.save(); ctx.beginPath(); ctx.arc(px, py, pr, 0, Math.PI * 2); ctx.fillStyle = hexA(BLU, 0.6); ctx.fill(); ctx.clip();
+  ctx.strokeStyle = hexA('#6F8BFF', 0.6); ctx.lineWidth = 0.9;
+  for (let i = 1; i <= 9; i++) { ctx.beginPath(); ctx.arc(px, py, pr - i * 22, 0, Math.PI * 2); ctx.stroke(); }
+  for (let i = 0; i < 14; i++) { const a = -Math.PI / 2 + (i - 7) * 0.09; ctx.beginPath(); ctx.moveTo(px + pr * Math.cos(a), py + pr * Math.sin(a)); ctx.lineTo(px, py); ctx.stroke(); }
+  for (let i = 0; i < Math.round(70 * k.texture); i++) { ctx.fillStyle = 'rgba(0,0,0,0.55)'; const a = -Math.PI / 2 + (r() - 0.5) * 1.4, d = pr - 10 - r() * 160; ctx.fillRect(px + d * Math.cos(a), py + d * Math.sin(a), 4 + r() * 12, 2 + r() * 2); }
+  ctx.restore();
+  glow(GRN, 6, () => { ctx.strokeStyle = GRN; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(px, py, pr + 14, -Math.PI * 0.62, -Math.PI * 0.08); ctx.stroke(); });
+  glow(CYN, 6, () => { ctx.strokeStyle = CYN; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(px, py, pr + 32, -Math.PI * 0.6, -Math.PI * 0.1); ctx.stroke(); });
+  const cx = 206, cy = 410;
+  centerXform(ctx, th, cx, cy, () => {
+    for (let i = 0; i < 9; i++) {
+      const t = i / 8, sz = 176 - t * 120, rot = -0.42 + t * 0.34, ox = (1 - t) * -46, oy = (1 - t) * 52;
+      ctx.save(); ctx.translate(cx + ox, cy + oy); ctx.rotate(rot); ctx.transform(1, 0, -0.35, 1, 0, 0);
+      ctx.strokeStyle = hexA(RED, 0.22 + t * 0.45); ctx.lineWidth = 1 + t * 0.6; ctx.strokeRect(-sz / 2, -sz * 0.36, sz, sz * 0.72);
+      ctx.restore();
+    }
+    glow(YEL, 8, () => { ctx.strokeStyle = YEL; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(24, 650); ctx.quadraticCurveTo(70, 480, cx - 40, cy + 20); ctx.stroke(); });
+    drawContact(ctx, th, cx, cy, 1.0, frame, k);
+    ctx.strokeStyle = YEL; ctx.lineWidth = 2;
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sy]) => { const x = cx + sx * 104, y = cy + sy * 66; ctx.beginPath(); ctx.moveTo(x - sx * 16, y); ctx.lineTo(x, y); ctx.lineTo(x, y - sy * 16); ctx.stroke(); });
+    lab(`CONTACT K-${17 + frame} // LOCK ${lockPct}%`, cx - 104, cy - 72, 6.5, YEL);
+  });
+  for (let i = 0; i < 4; i++) { const y = 300 + r() * 220, h = 2 + r() * 5, off = (r() - 0.5) * 30; try { ctx.drawImage(ctx.canvas, 0, y * s, W, h * s, off * s, y * s, W, h * s); } catch (e) {} }
+  const by = 244;
+  ctx.save(); ctx.beginPath(); ctx.rect(22, by, 346, 22); ctx.clip();
+  ctx.fillStyle = RED; ctx.fillRect(22, by, 346, 22);
+  ctx.fillStyle = c.ground; for (let x = 0; x < 400; x += 18) { ctx.beginPath(); ctx.moveTo(x, by + 22); ctx.lineTo(x + 9, by + 22); ctx.lineTo(x + 31, by); ctx.lineTo(x + 22, by); ctx.closePath(); ctx.fill(); }
+  ctx.restore();
+  const bw = Math.min(330, measureSpaced(ctx, banner, 11, disp, 800, 0.08) + 28);
+  ctx.fillStyle = c.ground; ctx.fillRect(195 - bw / 2, by + 2, bw, 18);
+  lab(banner, 195, by + 15.5, 11, RED, 'center', 800, disp);
+  const lit = Math.max(1, Math.round(sig / 100 * 12));
+  for (let i = 0; i < 12; i++) { const on = i < lit; ctx.fillStyle = on ? (sig < 25 ? RED : (i < 2 ? RED : YEL)) : hexA(YEL, 0.15); ctx.fillRect(24, 520 - i * 15, 14 + i * 1.2, 9); }
+  lab('SIGNAL', 24, 352, 7, YEL); lab(`${sig}%`, 24, 538, 10, sig < 25 ? RED : YEL, 'left', 700, disp);
+  ctx.strokeStyle = hexA(YEL, 0.7); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(366, 300); ctx.lineTo(366, 520); ctx.stroke();
+  for (let i = 0; i <= 11; i++) { const y = 300 + i * 20; ctx.beginPath(); ctx.moveTo(366, y); ctx.lineTo(366 - (i % 5 === 0 ? 10 : 5), y); ctx.stroke(); if (i % 5 === 0) lab(String(900 - i * 40), 352, y + 3, 7, hexA(YEL, 0.8), 'right'); }
+  const my = 300 + Math.max(0, Math.min(220, (900 - rangeKm) / 40 * 20));
+  ctx.fillStyle = RED; ctx.beginPath(); ctx.moveTo(368, my); ctx.lineTo(378, my - 6); ctx.lineTo(378, my + 6); ctx.closePath(); ctx.fill();
+  lab(String(rangeKm), 350, my + 3, 7.5, RED, 'right', 700);
+  lab('RANGE KM', 368, 290, 7, YEL, 'right');
+  glow(YEL, 10, () => { lab(countdown, 368, 590, 26, YEL, 'right', 800, disp); });
+  lab(caption, 368, 608, 8, RED, 'right', 700);
+  if (k.details) lab(`CLOSING ${closing} KM/S · BRG ${String(brg).padStart(3, '0')} · LOCK ${lockPct}%`, 368, 622, 6.5, hexA(YEL, 0.75), 'right');
+  ctx.fillStyle = RED;
+  [[0, 290, 12, 44], [0, 340, 7, 12], [378, 560, 12, 40], [383, 606, 7, 12]].forEach(([x, y, w, h]) => ctx.fillRect(x, y, w, h));
+}
+
 const ROLES = {
   halcyon: { panel: 'panel', ink: 'ink', headBg: 'ink', headText: 'ground', altBg: 'accent', altText: 'ink', accent: 'accent' },
   directive: { panel: 'panel', ink: 'ink', headBg: 'alert', headText: 'ink', altBg: 'accent', altText: 'ground', accent: 'glow' },
   longroad: { panel: 'panel', ink: 'ink', headBg: 'ink', headText: 'panel', altBg: 'accent', altText: 'panel', accent: 'accent' },
   nightfall: { panel: 'panel', ink: 'ink', headBg: 'ink', headText: 'ground', altBg: 'accent', altText: 'ground', accent: 'accent' },
-  grimoire: { panel: 'panel', ink: 'ink', headBg: 'accent', headText: 'ground', altBg: 'glow', altText: 'ink', accent: 'accent' }
+  grimoire: { panel: 'panel', ink: 'ink', headBg: 'accent', headText: 'ground', altBg: 'glow', altText: 'ink', accent: 'accent' },
+  deeprange: { panel: 'panel', ink: 'ink', headBg: 'accent', headText: 'ground', altBg: 'glow', altText: 'ink', accent: 'alert' }
 };
 const STORE = 'foundry.v1', CHECKS = 'foundry.checks.v1';
 const $ = (id) => document.getElementById(id);
@@ -3533,8 +3816,8 @@ function buildFields() {
       th.texture = 'scan'; th.marks = 'frame'; th.iconStyle = 'hex'; th.widget.txGraphic = 'sync'; th.upper = true; th.glyphs = 'directive';
       if (!th.colors.alert) th.colors.alert = d.colors.alert;
       Object.keys(d.text).forEach(k => { if (th.text[k] == null) th.text[k] = clone(d.text[k]); });
-    } else if (m === 'map' || m === 'night' || m === 'grimoire') {
-      const d = PRESETS[{ map: 'longroad', night: 'nightfall', grimoire: 'grimoire' }[m]];
+    } else if (m === 'map' || m === 'night' || m === 'grimoire' || m === 'orbital') {
+      const d = PRESETS[{ map: 'longroad', night: 'nightfall', grimoire: 'grimoire', orbital: 'deeprange' }[m]];
       th.texture = d.texture; th.marks = d.marks; th.iconStyle = d.iconStyle; th.widget.txGraphic = d.widget.txGraphic; th.upper = d.upper; th.glyphs = d.glyphs;
       Object.keys(d.text).forEach(k => { if (th.text[k] == null) th.text[k] = clone(d.text[k]); });
       if (d.colors.alert && !th.colors.alert) th.colors.alert = d.colors.alert;
@@ -3630,7 +3913,8 @@ function renderPreview() {
   document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === state.view)));
   document.querySelectorAll('[data-lock]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.lock === state.lock)));
   if (state.view === 'lock') { const cv = $('pv-lock'); sizeCanvas(cv); drawWallpaper(cv, th, 'lock', state.lock); }
-  if (state.view === 'home') { const cv = $('pv-home'); sizeCanvas(cv); drawWallpaper(cv, th, 'home', 0); buildHomeUI(); }
+  if (state.view === 'home') { const cv = $('pv-home'); sizeCanvas(cv); drawWallpaper(cv, th, 'home', state.frame || 0); buildHomeUI(); }
+  document.querySelectorAll('[data-frame]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.frame === (state.frame || 0))));
   if (state.view === 'icons') {
     const sh = $('icon-sheet'); sh.textContent = '';
     APPS.forEach(([k, name], i) => {
@@ -3729,6 +4013,12 @@ function renderChecklist() {
       `Name it with its code: ${codes}.`,
       'Duplicate the shortcut for the next app to go faster. Move the original apps to a hidden page or App Library.'
     ]],
+    ['rotate', 'Optional: rotate the home screen through the day', [
+      'The theme pack includes six home frames, each with different readings. Save them to a new Photos album called Foundry Home.',
+      'Open Shortcuts, tap Automation, then + and choose Time of Day. Pick a time, set it to Daily and choose Run Immediately.',
+      'Add the action Find Photos: Album is Foundry Home, sort Random, limit 1. Then add Set Wallpaper Photo and choose Home Screen.',
+      'Repeat for a few more times of day (for example 9 AM, noon, 3 PM, 6 PM, 9 PM) so the readings change as the day goes on.'
+    ]],
     ['widgets', 'Add the live widgets', [
       'Install Scriptable (free) from the App Store and open it once.',
       `Tap +, paste the widget script from step 3 and name it ${slug(th.company)}-widgets.`,
@@ -3808,6 +4098,13 @@ function buildSingles() {
   const add = (label, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.textContent = label; b.addEventListener('click', fn); host.append(b); };
   for (let i = 0; i < 4; i++) add(`Lock screen ${i + 1}`, async () => saveFile(`${slug(state.th.company)}-lock-${i + 1}.png`, await renderBlob('lock', i)));
   add('Home wallpaper', async () => saveFile(`${slug(state.th.company)}-home.png`, await renderBlob('home', 0)));
+  add('Home frames (6, zip)', async () => {
+    if (typeof JSZip === 'undefined') { setStatus('The zip tool did not load.'); return; }
+    setStatus('Building home frames…');
+    const z = new JSZip();
+    for (let i = 0; i < 6; i++) z.file(`home-frame-${i + 1}.png`, await renderBlob('home', i));
+    await saveFile(`${slug(state.th.company)}-home-frames.zip`, await z.generateAsync({ type: 'blob' }));
+  });
 }
 async function exportZip() {
   if (typeof JSZip === 'undefined') { setStatus('The zip tool did not load. Use the single downloads instead.'); return; }
@@ -3816,6 +4113,7 @@ async function exportZip() {
     const z = new JSZip(), base = slug(state.th.company);
     for (let i = 0; i < 4; i++) z.file(`wallpapers/lock-${i + 1}.png`, await renderBlob('lock', i));
     z.file('wallpapers/home.png', await renderBlob('home', 0));
+    for (let i = 0; i < 6; i++) z.file(`wallpapers/home-frames/home-frame-${i + 1}.png`, await renderBlob('home', i));
     for (let i = 0; i < APPS.length; i++) { const [k, n] = APPS[i]; z.file(`icons/${state.th.codes[k]}-${String(i + 1).padStart(2, '0')}_${n}.png`, await iconBlob(k, i)); }
     z.file(`${base}-widgets.js`, buildScript());
     z.file('INSTALL.txt', `${state.th.company} theme — made with Foundry\n\n${installText()}\n`);
@@ -3833,6 +4131,7 @@ async function copyScript() {
 // ---------- boot ----------
 document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { state.view = b.dataset.view; renderPreview(); }));
 document.querySelectorAll('[data-lock]').forEach(b => b.addEventListener('click', () => { state.lock = +b.dataset.lock; renderPreview(); }));
+document.querySelectorAll('[data-frame]').forEach(b => b.addEventListener('click', () => { state.frame = +b.dataset.frame; renderPreview(); }));
 $('btn-zip').addEventListener('click', exportZip);
 $('savebar-btn').addEventListener('click', () => { if (pendingFile) shareFile(pendingFile).then(ok => { if (!ok) setStatus('Your browser blocked saving. Try again, or use a computer.'); }); });
 $('btn-copy').addEventListener('click', copyScript);
