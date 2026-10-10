@@ -48,6 +48,8 @@ section.step:first-child { padding-top: 0; }
 .preset[aria-pressed="true"] { border-color: var(--text); box-shadow: 4px 4px 0 var(--accent); }
 .preset canvas { width: 100%; aspect-ratio: 390 / 844; border-radius: 10px; display: block; }
 .preset strong { font-stretch: 112%; font-size: 15px; line-height: 1.2; }
+.preset-icons { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.preset-icons img { width: 100%; aspect-ratio: 1; border-radius: 22%; display: block; }
 .preset small { color: var(--muted); font-size: 13px; line-height: 1.35; }
 .preset:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .fields { display: grid; gap: 16px; }
@@ -3744,14 +3746,21 @@ function buildPresets() {
     b.type = 'button'; b.className = 'preset'; b.dataset.id = p.id;
     b.setAttribute('aria-pressed', String(state.th.id === p.id));
     const cv = document.createElement('canvas'); cv.width = 260; cv.height = 563;
+    const ic = document.createElement('div'); ic.className = 'preset-icons'; ic.setAttribute('aria-hidden', 'true');
     const t = document.createElement('strong'); t.textContent = p.title;
     const d = document.createElement('small'); d.textContent = p.blurb;
-    b.append(cv, t, d);
+    b.append(cv, ic, t, d);
     b.addEventListener('click', () => {
       state.th = clone(p); state.lock = 0; applyVariant(0, true); syncFields(); markPresets(); buildVariants(); refresh(true);
     });
     host.append(b);
-    fontsFor(p).then(() => drawWallpaper(cv, p, 'lock', 0));
+    fontsFor(p).then(() => {
+      drawWallpaper(cv, p, 'lock', 0);
+      APPS.slice(0, 5).forEach(([k], i) => {
+        const c2 = document.createElement('canvas'); c2.width = 96; c2.height = 96; drawIcon(c2, p, k, i);
+        const img = document.createElement('img'); img.src = c2.toDataURL('image/png'); img.alt = ''; ic.append(img);
+      });
+    });
   });
 }
 function markPresets() { document.querySelectorAll('.preset').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === state.th.id))); }
