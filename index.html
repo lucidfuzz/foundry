@@ -8912,19 +8912,46 @@ function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
       spaced(ctx, i ? 'LONG ODDS · MARKETS' : 'LONG ODDS · BREAKING', 60, ny + 18, 7.5, mono, 700, 0.08, 'left', i ? hexA(c.ink, 0.6) : NO); spaced(ctx, i ? `${3 + phraseIdx}m ago` : 'now', 366, ny + 18, 7.5, mono, 500, 0, 'right', hexA(c.ink, 0.5))
       let t2 = txt; while (measureSpaced(ctx, t2, 10, mono, 500, 0) > 300 && t2.length > 8) t2 = t2.slice(0, -2); if (t2 !== txt) t2 = t2.trimEnd() + '…'; spaced(ctx, t2, 60, ny + 34, 10, mono, 500, 0, 'left', c.ink) })
   } else {
+    // home: a full prediction-market terminal, Bloomberg-dense, behind the icons
+    const G = '#FFD84A', ink = (al) => hexA(c.ink, al), PANEL = hexA(c.panel, dark ? 0.82 : 0.9)
+    const panel = (x, y, w, h, title, right) => { ctx.fillStyle = PANEL; ctx.fillRect(x, y, w, h); ctx.strokeStyle = hexA(V, 0.45); ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1); ctx.fillStyle = hexA(V, 0.22); ctx.fillRect(x, y, w, 13); spaced(ctx, title, x + 5, y + 9.5, 6.5, mono, 700, 0.08, 'left', G); if (right) spaced(ctx, right, x + w - 5, y + 9.5, 6.5, mono, 600, 0.04, 'right', ink(0.7)) }
+    const line = (pts, col, w) => { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = w || 1.4; ctx.shadowColor = col; ctx.shadowBlur = 8 * k.glow; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.restore() }
+    const series = (n, start, drift, vol) => { const out = []; let v = start; for (let i = 0; i < n; i++) { v = Math.max(0.03, Math.min(0.97, v + drift + (r() - 0.5) * vol)); out.push(v) } return out }
+    // full-bleed terminal grid with faint numbers raining down the columns
+    ctx.strokeStyle = ink(0.05); ctx.lineWidth = 1; for (let x = 0; x <= 390; x += 13) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, Hl); ctx.stroke() } for (let y = 0; y <= Hl; y += 13) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(390, y); ctx.stroke() }
+    for (let i = 0; i < 90; i++) spaced(ctx, (r() * 99).toFixed(r() > 0.5 ? 2 : 1), r() * 390, r() * Hl, 6, mono, 500, 0, 'left', hexA([YES, NO, V, G][i % 4], 0.12))
     centerXform(ctx, th, 195, 430, () => {
-      const rx = 70, ry = 286, rw = 250, rh = 74
-      ctx.save(); ctx.shadowColor = V; ctx.shadowBlur = 22 * k.glow; ctx.fillStyle = c.panel; ctx.beginPath(); ctx.roundRect(rx, ry, rw, rh, 14); ctx.fill(); ctx.restore(); ctx.strokeStyle = V; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(rx, ry, rw, rh, 14); ctx.stroke()
-      for (let i = 0; i < 3; i++) { const x = rx + 12 + i * 78; ctx.fillStyle = hexA(c.ink, dark ? 0.06 : 0.04); ctx.fillRect(x, ry + 12, 70, rh - 24); glowText('YES', x + 35, ry + 47, 20, YES) }
-      spaced(ctx, 'JACKPOT', 195, ry - 10, 11, mono, 800, 0.3, 'center', '#FFD84A')
-      const y0 = 400, h = 150, mid = 195, bid = [], ask = []; let a = 0, b2 = 0
-      for (let i = 0; i <= 20; i++) { a += 2 + r() * 7; bid.push([mid - 8 - i * 8.4, y0 + h - a]); b2 += 2 + r() * 7; ask.push([mid + 8 + i * 8.4, y0 + h - b2]) }
-      const area = (pts, col) => { ctx.fillStyle = hexA(col, 0.2); ctx.beginPath(); ctx.moveTo(pts[0][0], y0 + h); pts.forEach(([x, y]) => ctx.lineTo(x, y)); ctx.lineTo(pts[pts.length - 1][0], y0 + h); ctx.closePath(); ctx.fill(); ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.shadowColor = col; ctx.shadowBlur = 10 * k.glow; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.restore() }
-      area(bid, YES); area(ask, NO); glowText('62¢', mid, y0 - 8, 16, c.ink); spaced(ctx, 'WILL THE SEA FORGET ITS NAME?', mid, y0 - 30, 10, disp, dw, 0.02, 'center', hexA(c.ink, 0.85))
-      ctx.save(); ctx.translate(285, 520); ctx.rotate(-0.22); ctx.strokeStyle = NO; ctx.lineWidth = 2.5; ctx.strokeRect(-56, -16, 112, 30); spaced(ctx, 'LIQUIDATED', 0, 5, 14, mono, 800, 0.1, 'center', NO); ctx.restore()
+      const X = 10, Wd = 370
+      // function-key strip
+      const keys = ['MKT', 'BOOK', 'NEWS', 'VOID', 'PNL', 'GO']; keys.forEach((kk, i) => { const kx = X + i * (Wd / 6); ctx.fillStyle = i === 5 ? hexA(YES, 0.85) : hexA(G, 0.85); ctx.fillRect(kx + 1, 168, Wd / 6 - 3, 14); spaced(ctx, kk, kx + Wd / 12, 178, 7, mono, 800, 0.06, 'center', '#111111') })
+      // market watch
+      panel(X, 188, Wd, 92, 'MARKET WATCH // EXISTENTIAL', 'VOL $4.2M · 24H')
+      const rows = [['TODAY HAPPENS TWICE', 12, 4], ['VOID TAKES BETS', 61, 9], ['MEANING > 40¢', 33, -6], ['SEA FORGETS ITS NAME', 5, -1], ['TOMORROW PRICED IN', 71, 8], ['BLUE DISCONTINUED', 8, -2]]
+      rows.forEach(([q, p, ch], i) => { const y = 211 + i * 11.5, up = ch >= 0; spaced(ctx, q, X + 6, y, 7, mono, 500, 0, 'left', ink(0.85)); spaced(ctx, `${p}¢`, X + 220, y, 7, mono, 700, 0, 'right', c.ink); spaced(ctx, `${up ? '▲' : '▼'}${Math.abs(ch)}`, X + 258, y, 7, mono, 700, 0, 'right', up ? YES : NO); const sp = series(14, 0.5, up ? 0.025 : -0.025, 0.12); line(sp.map((v, j) => [X + 268 + j * 7, y - 2 - v * 7 + 3]), up ? YES : NO, 1) })
+      // twin charts: one pumping, one liquidated (falling)
+      const cy0 = 286, ch0 = 128, cw = (Wd - 6) / 2
+      panel(X, cy0, cw, ch0, 'YES · PUMPING', '▲ +58%'); panel(X + cw + 6, cy0, cw, ch0, 'NO · FREEFALL', '▼ -91%')
+      const plot = (x0, up) => { const n = 26, vs = series(n, up ? 0.18 : 0.86, up ? 0.03 : -0.032, 0.09), px = (j) => x0 + 8 + j * ((cw - 16) / (n - 1)), py = (v) => cy0 + ch0 - 10 - v * (ch0 - 32), col = up ? YES : NO
+        for (let g = 0; g < 4; g++) { const gy = cy0 + 20 + g * (ch0 - 30) / 3; ctx.strokeStyle = ink(0.07); ctx.beginPath(); ctx.moveTo(x0 + 4, gy); ctx.lineTo(x0 + cw - 4, gy); ctx.stroke() }
+        let o = vs[0]; vs.forEach((v, j) => { const hi = Math.max(o, v) + r() * 0.05, lo = Math.min(o, v) - r() * 0.05, cu = v >= o; ctx.strokeStyle = hexA(cu ? YES : NO, 0.5); ctx.beginPath(); ctx.moveTo(px(j), py(hi)); ctx.lineTo(px(j), py(lo)); ctx.stroke(); ctx.fillStyle = hexA(cu ? YES : NO, 0.45); ctx.fillRect(px(j) - 1.6, py(Math.max(o, v)), 3.2, Math.max(1.2, py(Math.min(o, v)) - py(Math.max(o, v)))); o = v })
+        const pts = vs.map((v, j) => [px(j), py(v)]); ctx.fillStyle = hexA(col, 0.12); ctx.beginPath(); ctx.moveTo(pts[0][0], cy0 + ch0 - 6); pts.forEach(([x, y]) => ctx.lineTo(x, y)); ctx.lineTo(pts[n - 1][0], cy0 + ch0 - 6); ctx.closePath(); ctx.fill(); line(pts, col, 1.8)
+        ctx.fillStyle = col; ctx.beginPath(); ctx.arc(pts[n - 1][0], pts[n - 1][1], 2.6, 0, Math.PI * 2); ctx.fill(); return pts }
+      plot(X, true); const red = plot(X + cw + 6, false)
+      ctx.save(); ctx.translate(X + cw + 6 + cw * 0.56, cy0 + ch0 * 0.6); ctx.rotate(0.32); ctx.strokeStyle = NO; ctx.lineWidth = 2.2; ctx.strokeRect(-54, -13, 108, 26); ctx.shadowColor = NO; ctx.shadowBlur = 8 * k.glow; spaced(ctx, 'LIQUIDATED', 0, 5, 13, mono, 800, 0.1, 'center', NO); ctx.restore()
+      // order book and heatmap
+      const oy = 420, oh = 104, ow = 150
+      panel(X, oy, ow, oh, 'ORDER BOOK', 'VOID')
+      for (let i = 0; i < 6; i++) { const y = oy + 23 + i * 13, f1 = 0.25 + r() * 0.7, f2 = 0.25 + r() * 0.7; ctx.fillStyle = hexA(YES, 0.18); ctx.fillRect(X + ow / 2 - 2 - (ow / 2 - 8) * f1, y - 7, (ow / 2 - 8) * f1, 9); ctx.fillStyle = hexA(NO, 0.16); ctx.fillRect(X + ow / 2 + 2, y - 7, (ow / 2 - 8) * f2, 9); spaced(ctx, `${61 - i}¢`, X + ow / 2 - 6, y, 6.5, mono, 700, 0, 'right', YES); spaced(ctx, `${62 + i}¢`, X + ow / 2 + 6, y, 6.5, mono, 700, 0, 'left', NO) }
+      panel(X + ow + 6, oy, Wd - ow - 6, oh, 'HEATMAP // ALL MARKETS', '24H')
+      const hx = X + ow + 10, hw = Wd - ow - 14, cols = 5, rws = 4, tw = hw / cols, tth = (oh - 20) / rws, labels = ['VOID', 'TIME', 'MOON', 'BLUE', 'SEA', 'FOG', 'TUES', 'ECHO', 'DOOR', 'STAR', 'SUN', 'MAP', 'SKY', 'DREAM', 'WIND', 'CLOCK', 'RAIN', 'MIRROR', 'WORD', 'SELF']
+      labels.forEach((lb, i) => { const ch2 = Math.round((r() - 0.45) * 80), up = ch2 >= 0, tx = hx + (i % cols) * tw, ty = oy + 16 + Math.floor(i / cols) * tth; ctx.fillStyle = hexA(up ? YES : NO, 0.12 + Math.min(0.55, Math.abs(ch2) / 90)); ctx.fillRect(tx + 1, ty + 1, tw - 2, tth - 2); spaced(ctx, lb, tx + tw / 2, ty + tth / 2 - 1, 6, mono, 700, 0, 'center', c.ink); spaced(ctx, `${up ? '+' : ''}${ch2}%`, tx + tw / 2, ty + tth / 2 + 7, 6, mono, 600, 0, 'center', ink(0.8)) })
+      // news wire
+      const ny = 530, nh = 136
+      panel(X, ny, Wd, nh, 'NEWS WIRE // BREAKING', 'LIVE')
+      const wire = ['Tuesday delisted after failing to happen twice.', 'The void announces a loyalty program.', 'Clocks reach consensus. Experts alarmed.', 'Your reflection files for independence.', 'Moon confirms it was a dream.', 'Silence now fully priced in.', 'A door you never opened is still waiting.', 'Analysts unable to locate the present.', 'Entropy beats estimates again.']
+      wire.forEach((w2, i) => { const y = ny + 26 + i * 12.4; const tmin = 9 * 60 + 41 - i * 7; spaced(ctx, `${String(Math.floor(tmin / 60)).padStart(2, '0')}:${String(tmin % 60).padStart(2, '0')}`, X + 6, y, 6.5, mono, 600, 0, 'left', G); spaced(ctx, i === 0 ? 'BRK' : i % 3 === 1 ? 'MKT' : 'VOID', X + 40, y, 6.5, mono, 800, 0, 'left', i === 0 ? NO : V); let t3 = w2; while (measureSpaced(ctx, t3, 7, mono, 500, 0) > Wd - 84 && t3.length > 8) t3 = t3.slice(0, -2); spaced(ctx, t3 === w2 ? t3 : t3.trimEnd() + '.', X + 66, y, 7, mono, 500, 0, 'left', i === 0 ? c.ink : ink(0.78)) })
     })
-    if (k.details) spaced(ctx, T.homeTop || '', 195, 236, 8, mono, 700, 0.2, 'center', V)
-    spaced(ctx, T.caption || '', 195, 640, 11, mono, 600, 0.08, 'center', hexA(c.ink, 0.75))
+    if (k.details) spaced(ctx, 'Bet small. Dream huge.', 195, 718, 9, mono, 600, 0.08, 'center', hexA(c.ink, 0.7))
   }
 }
 function drawContractIcon(ctx, th, glyph, num, code) {
