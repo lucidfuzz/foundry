@@ -94,7 +94,9 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
   body.preview-open .stage { transform: none; visibility: visible; transition: transform .28s ease, visibility 0s; }
   .stage-card { border: 0; padding: 4px 2px; background: transparent; }
   .stage-head { display: flex; justify-content: space-between; align-items: center; margin: 0 4px 10px; font-size: 18px; }
-  .stage .phone { width: min(100%, calc((100dvh - 210px) * 390 / 844)); max-width: none; }
+  .stage .phone { width: min(100%, calc((100dvh - 178px) * 390 / 844)); max-width: none; }
+  .stage-head { margin-bottom: 6px; }
+  .stage .seg { margin-bottom: 8px; }
   .stage .icon-sheet { max-width: 520px; margin: 0 auto; }
 }
 .stage .seg { margin-bottom: 12px; }
@@ -111,7 +113,51 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
 .gallery { display: grid; gap: 18px; }
 .wg { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 14px; border: 2px solid var(--line); border-radius: 16px; background: var(--surface); }
 @media (min-width: 720px) { .wg { grid-template-columns: minmax(0, 380px) 1fr; align-items: start; } }
-.wg-frame { position: relative; overflow: hidden; }
+.wg-frame { position: relative; overflow: hidden; border-radius: 22px; }
+.inspectable { cursor: zoom-in; }
+.inspectable:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.wg-frame::after { content: "⤢"; position: absolute; right: 6px; bottom: 6px; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 999px; background: rgba(0,0,0,.45); color: #fff; font-size: 13px; pointer-events: none; }
+.phone .zoom-chip { position: absolute; right: 10px; bottom: 10px; z-index: 5; padding: 6px 10px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font-size: 12px; font-weight: 700; pointer-events: none; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.steps-nav { position: sticky; top: 0; z-index: 30; display: flex; gap: 6px; overflow-x: auto; padding: calc(8px + env(safe-area-inset-top, 0px)) 0 8px; margin: 0 0 4px; background: var(--bg); border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.steps-nav::-webkit-scrollbar { display: none; }
+.steps-nav a { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border: 2px solid var(--line); border-radius: 999px; color: var(--text); text-decoration: none; font-weight: 700; font-size: 14px; }
+.steps-nav a b { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 999px; background: var(--text); color: var(--bg); font-size: 11px; }
+.steps-nav a[aria-current="true"] { border-color: var(--text); background: var(--surface); }
+.steps-nav a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+section.step { scroll-margin-top: 70px; }
+.seg-sm { margin-bottom: 10px; }
+.seg-sm button { padding: 6px 14px; font-size: 13px; min-height: 32px; }
+.wg-list { display: grid; gap: 18px; justify-items: center; }
+.wg-full { margin: 0; display: grid; gap: 6px; justify-items: center; }
+.wg-full > div { border-radius: 22px; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+.wg-full figcaption { display: flex; gap: 8px; align-items: baseline; font-size: 13px; color: var(--muted); }
+.wg-full figcaption strong { color: var(--text); }
+.wg-full figcaption code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; }
+.icon-sheet figure.inspectable img { transition: transform .15s ease; }
+.icon-sheet figure.inspectable:active img { transform: scale(.96); }
+body.insp-open { overflow: hidden; }
+.insp { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; background: #0b0c0e; color: #f4f4f2; }
+.insp[hidden] { display: none; }
+.insp-bar, .insp-foot { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+.insp-bar { padding-top: calc(10px + env(safe-area-inset-top, 0px)); border-bottom: 1px solid rgba(255,255,255,.1); }
+.insp-foot { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid rgba(255,255,255,.1); }
+.insp-title { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.insp-title strong { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.insp-title span { font-size: 12px; color: #a9a9a4; }
+.insp-zoom { display: inline-flex; border: 1.5px solid rgba(255,255,255,.4); border-radius: 999px; overflow: hidden; flex: none; }
+.insp-zoom button { all: unset; cursor: pointer; padding: 0 12px; min-height: 36px; display: inline-grid; place-items: center; font-weight: 700; font-size: 13px; }
+.insp-zoom button[aria-pressed="true"] { background: #f4f4f2; color: #0b0c0e; }
+.insp-close, .insp-save, .insp-nav { all: unset; cursor: pointer; display: inline-grid; place-items: center; min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,.4); font-weight: 700; font-size: 15px; box-sizing: border-box; }
+.insp-nav { font-size: 26px; padding: 0; line-height: 1; }
+.insp-nav:disabled { opacity: .3; cursor: default; }
+.insp-save { background: #f4f4f2; color: #0b0c0e; border-color: #f4f4f2; }
+.insp-save[hidden] { display: none; }
+.insp-hint { flex: 1; text-align: center; font-size: 12px; color: #a9a9a4; }
+.insp-close:focus-visible, .insp-save:focus-visible, .insp-nav:focus-visible, .insp-zoom button:focus-visible { outline: 3px solid #8fd3ff; outline-offset: 2px; }
+.insp-stage { flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; display: flex; padding: 12px; touch-action: pan-x pan-y pinch-zoom; }
+.insp-content { margin: auto; }
+.insp-content > * { box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+@media (max-width: 520px) { .insp-hint { display: none; } }
 .wg-scale { transform-origin: 0 0; box-shadow: 0 2px 0 rgba(0,0,0,0.08); border-radius: 22px; }
 .wg-meta h3 { margin: 0 0 4px; font-size: 18px; font-stretch: 112%; }
 .wg-meta p { margin: 0 0 10px; font-size: 15px; line-height: 1.5; }
@@ -144,6 +190,9 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
     <div><p class="lede">Design a whole phone theme (lock screens, home wallpaper, icons and live widgets), then install it step by step.</p><p class="tip">On iPhone, tap Share, then Add to Home Screen to keep Foundry like an app.</p></div>
   </header>
 
+  <nav class="steps-nav" aria-label="Steps">
+    <a href="#pick" aria-current="true"><b>1</b>Pick</a><a href="#make"><b>2</b>Customize</a><a href="#widgets"><b>3</b>Widgets</a><a href="#export"><b>4</b>Export</a><a href="#install"><b>5</b>Install</a>
+  </nav>
   <div class="layout">
     <main>
       <section class="step" id="pick">
@@ -218,7 +267,7 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
 
       <section class="step" id="widgets">
         <h2><b>3</b>Widgets</h2>
-        <p class="hint">Every widget comes in one script. Each preview below uses your current theme. Add a Scriptable widget, pick your script and type the parameter shown.</p>
+        <p class="hint">Every widget comes in one script. Each preview below uses your current theme. Add a Scriptable widget, pick your script and type the parameter shown. Tap any preview to see it full size.</p>
         <div class="gallery" id="gallery"></div>
       </section>
 
@@ -272,13 +321,13 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
           <button type="button" data-view="icons">Icons</button>
         </div>
         <div id="view-lock">
-          <div class="phone"><canvas id="pv-lock" width="390" height="844"></canvas></div>
+          <div class="phone"><canvas id="pv-lock" width="390" height="844"></canvas><span class="zoom-chip" aria-hidden="true">⤢ Tap to inspect</span></div>
           <div class="btns" style="justify-content:center;margin-top:10px" role="group" aria-label="Lock screen headline">
             <button type="button" class="btn" data-lock="0">1</button><button type="button" class="btn" data-lock="1">2</button><button type="button" class="btn" data-lock="2">3</button><button type="button" class="btn" data-lock="3">4</button>
           </div>
         </div>
         <div id="view-home" hidden>
-          <div class="phone" id="home-phone"><canvas id="pv-home" width="390" height="844"></canvas><div class="ui" id="home-ui"></div></div>
+          <div class="phone" id="home-phone"><canvas id="pv-home" width="390" height="844"></canvas><div class="ui" id="home-ui"></div><span class="zoom-chip" aria-hidden="true">⤢ Tap to inspect</span></div>
           <div class="btns" style="justify-content:center;margin-top:10px" role="group" aria-label="Home frame">
             <button type="button" class="btn" data-frame="0">1</button><button type="button" class="btn" data-frame="1">2</button><button type="button" class="btn" data-frame="2">3</button><button type="button" class="btn" data-frame="3">4</button><button type="button" class="btn" data-frame="4">5</button><button type="button" class="btn" data-frame="5">6</button>
           </div>
@@ -286,14 +335,30 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
           <p class="note">Icons sit in the top row and the dock so the artwork stays clear. Arrange your own the same way for the best look.</p>
         </div>
         <div id="view-widgets" hidden>
+          <div class="seg seg-sm" role="group" aria-label="Widget view"><button type="button" data-wgmode="full">Full size</button><button type="button" data-wgmode="phone">On phone</button></div>
+          <div class="wg-list" id="wg-list" hidden></div>
           <div class="phone" id="wg-phone"><canvas id="pv-wg" width="390" height="844"></canvas><div class="wg-scroll" id="wg-scroll" tabindex="0" aria-label="Widget preview, scrollable"></div></div>
-          <p class="note">Every widget on your home screen, in your colors. Scroll inside the phone to see them all.</p>
+          <p class="note" id="wg-note">Every widget on your home screen, in your colors. Scroll inside the phone, tap a widget to inspect it.</p>
         </div>
         <div id="view-icons" hidden>
           <div class="icon-sheet" id="icon-sheet"></div>
         </div>
       </div>
     </aside>
+  </div>
+  <div class="insp" id="insp" role="dialog" aria-modal="true" aria-labelledby="insp-title" hidden>
+    <div class="insp-bar">
+      <div class="insp-title"><strong id="insp-title">Preview</strong><span id="insp-count"></span></div>
+      <div class="insp-zoom" role="group" aria-label="Zoom"><button type="button" data-z="1" aria-pressed="true">Fit</button><button type="button" data-z="2">2×</button><button type="button" data-z="3">3×</button></div>
+      <button type="button" class="insp-close" id="insp-close">Done</button>
+    </div>
+    <div class="insp-stage" id="insp-stage" tabindex="-1"><div class="insp-content" id="insp-content"></div></div>
+    <div class="insp-foot">
+      <button type="button" class="insp-nav" id="insp-prev" aria-label="Previous">‹</button>
+      <span class="insp-hint">Double-tap to zoom · swipe for the next one</span>
+      <button type="button" class="insp-save" id="insp-dl">Save PNG</button>
+      <button type="button" class="insp-nav" id="insp-next" aria-label="Next">›</button>
+    </div>
   </div>
   <button type="button" class="fab" id="open-preview" aria-controls="preview-stage" aria-expanded="false">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 2v16h10V4zm3 13h4v1.5h-4z"/></svg>
@@ -9165,6 +9230,8 @@ function refresh(fontsChanged) {
   });
 }
 
+// canvas pixel density for previews; the inspector raises it so zoomed views stay sharp
+function pvD() { return Math.min(9, (window.devicePixelRatio || 2) * (window.__pvRes || 1)); }
 function sizeCanvas(cv) {
   const dpr = Math.min(3, window.devicePixelRatio || 1), w = Math.max(200, cv.parentElement.clientWidth || 300);
   cv.width = Math.round(w * dpr); cv.height = Math.round(w * dpr * 844 / 390);
@@ -9181,7 +9248,7 @@ function renderPreview() {
   document.querySelectorAll('[data-lock]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.lock === state.lock)));
   if (state.view === 'lock') { const cv = $('pv-lock'); sizeCanvas(cv); drawWallpaper(cv, th, 'lock', state.lock); }
   if (state.view === 'home') { const cv = $('pv-home'); sizeCanvas(cv); drawWallpaper(cv, th, 'home', state.frame || 0); buildHomeUI(); }
-  if (state.view === 'widgets') { const cv = $('pv-wg'); sizeCanvas(cv); drawWallpaper(cv, th, 'home', 0); buildWidgetPhone(); }
+  if (state.view === 'widgets') { const full = state.wgMode === 'full'; $('wg-phone').hidden = full; $('wg-list').hidden = !full; $('wg-note').textContent = full ? 'Every widget at full size. Tap any widget to inspect it up close.' : 'Every widget on your home screen, in your colors. Scroll inside the phone, tap a widget to inspect it.'; document.querySelectorAll('[data-wgmode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.wgmode === (state.wgMode || 'phone')))); if (full) buildWidgetList(); else { const cv = $('pv-wg'); sizeCanvas(cv); drawWallpaper(cv, th, 'home', 0); buildWidgetPhone(); } }
   document.querySelectorAll('[data-frame]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.frame === (state.frame || 0))));
   if (state.view === 'icons') {
     const sh = $('icon-sheet'); sh.textContent = '';
@@ -9189,7 +9256,7 @@ function renderPreview() {
       const f = document.createElement('figure'); const img = document.createElement('img');
       img.src = iconURL(k, i, 180); img.alt = `${name} icon`;
       const cap = document.createElement('figcaption'); cap.textContent = name;
-      f.append(img, cap); sh.append(f);
+      f.append(img, cap); sh.append(f); makeInspectable(f, `Enlarge ${name} icon`, () => openInspector(iconItems(), i, f));
     });
   }
 }
@@ -9223,6 +9290,20 @@ function buildHomeUI() {
   ui.append(dock);
 }
 
+
+// Widgets tab, full-size list: every widget at readable size, no phone frame
+function buildWidgetList() {
+  const th = state.th, host = $('wg-list'); host.textContent = ''
+  const avail = Math.min(host.clientWidth || 360, 460)
+  widgetList(th).forEach((item, i) => {
+    const p = previewWidget(item, th), s = Math.min(1.25, avail / p.w * (item.mode === 'shift' ? 0.5 : 1))
+    const fig = document.createElement('figure'); fig.className = 'wg-full'
+    const wrap = document.createElement('div'); wrap.style.cssText = `width:${p.w * s}px;height:${p.h * s}px`; p.el.style.transform = `scale(${s})`; p.el.style.transformOrigin = '0 0'; wrap.append(p.el)
+    const cap = document.createElement('figcaption'); cap.innerHTML = `<strong></strong><code></code>`; cap.firstChild.textContent = item.name; cap.lastChild.textContent = item.mode
+    fig.append(wrap, cap); host.append(fig); makeInspectable(wrap, `Enlarge ${item.name}`, () => openInspector(widgetItems(), i, wrap))
+  })
+}
+
 // Widgets tab: every widget stacked on the home wallpaper, scrollable inside the phone
 function buildWidgetPhone() {
   const th = state.th, phone = $('wg-phone'), scr = $('wg-scroll');
@@ -9231,7 +9312,7 @@ function buildWidgetPhone() {
   const k = phone.clientWidth / 390, S = 338 / 364;
   const inner = el('div', `width:390px;transform:scale(${k});transform-origin:0 0;padding:58px 0 40px;box-sizing:border-box`);
   const list = widgetList(th), by = (m) => list.find(x => x.mode === m);
-  const slot = (item) => { const p = previewWidget(item, th); const wrap = el('div', `width:${p.w * S}px;height:${p.h * S}px;flex:none`); p.el.style.transform = `scale(${S})`; p.el.style.transformOrigin = '0 0'; p.el.style.boxShadow = '0 6px 16px rgba(0,0,0,.28)'; wrap.append(p.el); return wrap; };
+  const all = widgetList(th), slot = (item) => { const p = previewWidget(item, th); const wrap = el('div', `width:${p.w * S}px;height:${p.h * S}px;flex:none`); p.el.style.transform = `scale(${S})`; p.el.style.transformOrigin = '0 0'; p.el.style.boxShadow = '0 6px 16px rgba(0,0,0,.28)'; wrap.append(p.el); const wi = all.indexOf(item); makeInspectable(wrap, `Enlarge ${item.name}`, () => openInspector(widgetItems(), wi, wrap)); return wrap; };
   const row = (kids, gap) => { const r = el('div', `display:flex;justify-content:center;gap:${gap || 22}px;margin:0 0 20px`); kids.forEach(c => r.append(c)); inner.append(r); };
   const lbl = (t) => inner.append(el('div', `text-align:center;margin:-12px 0 16px;font:600 11px -apple-system,system-ui,sans-serif;color:${th.colors.ink};text-shadow:0 1px 2px ${hexA(th.colors.ground, 0.85)}`, t));
   row([slot(by('status'))]); lbl('status');
@@ -9304,7 +9385,7 @@ function widgetList(th) {
   ];
 }
 function pv(tag, css, text) { const e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
-function pvCanvas(w, h, draw) { const c = document.createElement('canvas'); const d = Math.min(3, window.devicePixelRatio || 2); c.width = w * d; c.height = h * d; c.style.cssText = `width:${w}px;height:${h}px;display:block`; const x = c.getContext('2d'); x.scale(d, d); draw(x); return c; }
+function pvCanvas(w, h, draw) { const c = document.createElement('canvas'); const d = pvD(); c.width = w * d; c.height = h * d; c.style.cssText = `width:${w}px;height:${h}px;display:block`; const x = c.getContext('2d'); x.scale(d, d); draw(x); return c; }
 
 
 function drawPreviewHeader(x, W, H, f, base, tcol, wc, th) {
@@ -9337,7 +9418,7 @@ function drawPreviewFrame(x, W, H, f, wc, th) {
 
 // Runs the widget script's own drawing code in the browser so previews match the phone
 function scriptableKit(th) {
-  const wc = widgetColors(th), D = Math.min(3, window.devicePixelRatio || 2);
+  const wc = widgetColors(th), D = pvD();
   const T = { ink: wc.ink, accent: wc.accent, headBg: wc.headBg, headText: wc.headText, altBg: wc.altBg, altText: wc.altText, panel: wc.panel, ground: th.colors.ground };
   class Color { constructor(hex, a) { this.hex = hex; this.a = a == null ? 1 : a; } css() { return hexA(this.hex, this.a); } }
   class Point { constructor(x, y) { this.x = x; this.y = y; } }
@@ -9583,6 +9664,7 @@ function buildGallery() {
     const dl = document.createElement('dl');
     [['Parameter', item.mode], ['Best size', item.size], ['When tapped', item.tap]].forEach(([k, v]) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; dl.append(dt, dd); });
     meta.append(h, d, dl);
+    const idx = host.children.length; makeInspectable(frame, `Enlarge ${item.name} preview`, () => openInspector(widgetItems(), idx, frame));
     art.append(frame, meta); host.append(art);
   });
   fitGallery();
@@ -9595,6 +9677,42 @@ function fitGallery() {
     s.style.transform = `scale(${k})`; f.style.height = (h * k) + 'px';
   });
 }
+
+
+// ---------- inspector: full-screen, zoomable view of any screen, widget or icon ----------
+const insp = { items: [], i: 0, z: 1, opener: null };
+function screenItems(mode) {
+  const th = state.th, n = mode === 'lock' ? 4 : 6
+  return Array.from({ length: n }, (_, i) => ({ title: mode === 'lock' ? `Lock screen ${i + 1}` : `Home screen ${i + 1}`, file: `${th.id}-${mode}-${i + 1}.png`, png: true,
+    render(z, aw, ah) { const base = aw < 600 ? aw : Math.min(aw, Math.max(320, ah * 390 / 844)), dw = base * z, px = Math.min(2700, Math.round(dw * Math.min(3, window.devicePixelRatio || 2))); const cv = document.createElement('canvas'); cv.width = px; cv.height = Math.round(px * 844 / 390); drawWallpaper(cv, th, mode, i); cv.style.cssText = `width:${dw}px;height:${dw * 844 / 390}px;display:block;border-radius:${18 * z}px`; return cv } }))
+}
+function widgetItems() {
+  const th = state.th
+  return widgetList(th).map(item => ({ title: item.name + ' · ' + item.mode, render(z, aw) { const W = item.mode === 'shift' ? 170 : 364, s = Math.min(aw, item.mode === 'shift' ? 340 : 600) / W * z; window.__pvRes = Math.min(3, s); let p; try { p = previewWidget(item, th) } finally { window.__pvRes = 1 } const wrap = document.createElement('div'); wrap.style.cssText = `width:${p.w * s}px;height:${p.h * s}px;flex:none`; p.el.style.transform = `scale(${s})`; p.el.style.transformOrigin = '0 0'; wrap.append(p.el); return wrap } }))
+}
+function iconItems() {
+  const th = state.th
+  return APPS.map(([key, name], i) => ({ title: `${name} icon`, file: `${th.id}-icon-${String(i + 1).padStart(2, '0')}-${key}.png`, png: true, render(z, aw) { const dw = Math.min(aw, 360) * z, px = Math.min(2048, Math.round(dw * Math.min(3, window.devicePixelRatio || 2))); const cv = document.createElement('canvas'); cv.width = px; cv.height = px; drawIcon(cv, th, key, i); cv.style.cssText = `width:${dw}px;height:${dw}px;display:block;border-radius:${dw * 0.22}px`; return cv } }))
+}
+function openInspector(items, i, opener) {
+  insp.items = items; insp.i = Math.max(0, Math.min(items.length - 1, i)); insp.z = 1; insp.opener = opener || document.activeElement
+  $('insp').hidden = false; document.body.classList.add('insp-open'); renderInspector(); requestAnimationFrame(() => $('insp-close').focus())
+}
+function closeInspector() { $('insp').hidden = true; document.body.classList.remove('insp-open'); $('insp-content').textContent = ''; if (insp.opener && insp.opener.focus) insp.opener.focus() }
+function renderInspector(keep) {
+  const it = insp.items[insp.i], stage = $('insp-stage'), cont = $('insp-content'); if (!it) return
+  $('insp-title').textContent = it.title; $('insp-count').textContent = insp.items.length > 1 ? `${insp.i + 1} / ${insp.items.length}` : ''
+  document.querySelectorAll('#insp [data-z]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.z === insp.z)))
+  $('insp-prev').disabled = insp.i === 0; $('insp-next').disabled = insp.i === insp.items.length - 1; $('insp-dl').hidden = !it.png
+  const aw = Math.max(200, stage.clientWidth - 24), ah = Math.max(200, stage.clientHeight - 24)
+  const fx = keep ? (stage.scrollLeft + keep.x) / Math.max(1, stage.scrollWidth) : 0.5, fy = keep ? (stage.scrollTop + keep.y) / Math.max(1, stage.scrollHeight) : 0
+  cont.textContent = ''; const node = it.render(insp.z, aw, ah); cont.append(node); insp.node = node
+  requestAnimationFrame(() => { if (keep) { stage.scrollLeft = fx * stage.scrollWidth - keep.x; stage.scrollTop = fy * stage.scrollHeight - keep.y } else { stage.scrollLeft = (stage.scrollWidth - stage.clientWidth) / 2; stage.scrollTop = 0 } })
+}
+function inspZoom(z, at) { if (z === insp.z) return; insp.z = z; renderInspector(at) }
+function inspStep(d) { const n = insp.i + d; if (n < 0 || n >= insp.items.length) return; insp.i = n; insp.z = 1; renderInspector() }
+function inspSave() { const it = insp.items[insp.i]; if (!it || !it.png || !insp.node || !insp.node.toBlob) return; insp.node.toBlob(b => { const u = URL.createObjectURL(b), a2 = document.createElement('a'); a2.href = u; a2.download = it.file || 'foundry.png'; document.body.append(a2); a2.click(); a2.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000) }, 'image/png') }
+function makeInspectable(el, label, open) { el.setAttribute('role', 'button'); el.setAttribute('tabindex', '0'); el.setAttribute('aria-label', label); el.classList.add('inspectable'); el.addEventListener('click', open); el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open() } }) }
 
 // ---------- widget script ----------
 function scriptTheme() {
@@ -9750,12 +9868,29 @@ async function copyScript() {
 
 // ---------- boot ----------
 document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { state.view = b.dataset.view; renderPreview(); }));
+if (state.wgMode == null) state.wgMode = (window.matchMedia && window.matchMedia('(max-width: 700px)').matches) ? 'full' : 'phone';
+document.querySelectorAll('[data-wgmode]').forEach(b => b.addEventListener('click', () => { state.wgMode = b.dataset.wgmode; renderPreview(); }));
+makeInspectable(document.querySelector('#view-lock .phone'), 'Inspect lock screen full size', () => openInspector(screenItems('lock'), state.lock || 0, document.querySelector('#view-lock .phone')));
+makeInspectable($('home-phone'), 'Inspect home screen full size', () => openInspector(screenItems('home'), state.frame || 0, $('home-phone')));
+$('insp-close').addEventListener('click', closeInspector); $('insp-prev').addEventListener('click', () => inspStep(-1)); $('insp-next').addEventListener('click', () => inspStep(1)); $('insp-dl').addEventListener('click', inspSave);
+document.querySelectorAll('#insp [data-z]').forEach(b => b.addEventListener('click', () => inspZoom(+b.dataset.z)));
+(() => { const st = $('insp-stage'); let tx = 0, ty = 0, tt = 0, lastTap = 0;
+  st.addEventListener('dblclick', e => { const r = st.getBoundingClientRect(); inspZoom(insp.z === 1 ? 2 : 1, { x: e.clientX - r.left, y: e.clientY - r.top }) });
+  st.addEventListener('touchstart', e => { if (e.touches.length !== 1) return; tx = e.touches[0].clientX; ty = e.touches[0].clientY; tt = Date.now() }, { passive: true });
+  st.addEventListener('touchend', e => { if (e.changedTouches.length !== 1) return; const t = e.changedTouches[0], dx = t.clientX - tx, dy = t.clientY - ty, now = Date.now();
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && now - tt < 250) { if (now - lastTap < 320) { const r = st.getBoundingClientRect(); inspZoom(insp.z === 1 ? 2 : 1, { x: t.clientX - r.left, y: t.clientY - r.top }); lastTap = 0; e.preventDefault(); return } lastTap = now }
+    if (insp.z === 1 && Math.abs(dx) > 60 && Math.abs(dy) < 50 && now - tt < 600) inspStep(dx < 0 ? 1 : -1) });
+})();
+document.addEventListener('keydown', e => { if ($('insp').hidden) return; if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); closeInspector() } else if (e.key === 'ArrowRight') inspStep(1); else if (e.key === 'ArrowLeft') inspStep(-1); else if (e.key === '+' || e.key === '=') inspZoom(Math.min(3, insp.z + 1)); else if (e.key === '-') inspZoom(Math.max(1, insp.z - 1)) });
+window.addEventListener('resize', () => { if (!$('insp').hidden) renderInspector() });
+// step navigation: highlight the section on screen
+(() => { const links = [...document.querySelectorAll('.steps-nav a')]; if (!('IntersectionObserver' in window) || !links.length) return; const io = new IntersectionObserver(es => { es.forEach(en => { if (en.isIntersecting) links.forEach(l => l.setAttribute('aria-current', String(l.getAttribute('href') === '#' + en.target.id))) }) }, { rootMargin: '-40% 0px -55% 0px' }); document.querySelectorAll('section.step').forEach(s => io.observe(s)) })();
 // Mobile: the preview opens as a full-screen sheet from a floating button
 function openPreview() { document.body.classList.add('preview-open'); $('open-preview').setAttribute('aria-expanded', 'true'); $('preview-stage').setAttribute('role', 'dialog'); $('preview-stage').setAttribute('aria-modal', 'true'); requestAnimationFrame(() => { renderPreview(); $('close-preview').focus(); }); }
 function closePreview() { document.body.classList.remove('preview-open'); $('open-preview').setAttribute('aria-expanded', 'false'); $('preview-stage').removeAttribute('role'); $('preview-stage').removeAttribute('aria-modal'); $('open-preview').focus(); }
 $('open-preview').addEventListener('click', openPreview);
 $('close-preview').addEventListener('click', closePreview);
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.body.classList.contains('preview-open')) closePreview(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.body.classList.contains('preview-open') && $('insp').hidden) closePreview(); });
 $('toggle-icons').addEventListener('click', () => { state.hideIcons = !state.hideIcons; $('toggle-icons').textContent = state.hideIcons ? 'Show icons' : 'Hide icons'; $('toggle-icons').setAttribute('aria-pressed', String(!state.hideIcons)); renderPreview(); });
 document.querySelectorAll('[data-lock]').forEach(b => b.addEventListener('click', () => { state.lock = +b.dataset.lock; renderPreview(); }));
 document.querySelectorAll('[data-frame]').forEach(b => b.addEventListener('click', () => { state.frame = +b.dataset.frame; renderPreview(); }));
