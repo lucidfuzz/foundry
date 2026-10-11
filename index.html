@@ -14,7 +14,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,500&family=Oxanium:wght@500;700&family=Shippori+Mincho+B1:wght@800&family=Barlow+Condensed:wght@500;700&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Cormorant+SC:wght@500&family=Share+Tech+Mono&family=Fraunces:opsz,wght@9..144,400;9..144,700&family=Space+Grotesk:wght@400;600&family=DM+Mono:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=Orbitron:wght@700&family=Righteous&family=VT323&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,500&family=Oxanium:wght@500;700&family=Shippori+Mincho+B1:wght@800&family=Barlow+Condensed:wght@500;700&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Cormorant+SC:wght@500&family=Share+Tech+Mono&family=Fraunces:opsz,wght@9..144,400;9..144,700&family=Space+Grotesk:wght@400;600&family=DM+Mono:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 :root {
@@ -196,6 +196,10 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
               <option value="grimoire">Arcane card and sigil</option>
               <option value="orbital">Deep range tracker</option>
               <option value="rabbit">White rabbit capsule</option>
+              <option value="neon">Neon billboard</option>
+              <option value="market">Market board</option>
+              <option value="vapor">Vapor sunset</option>
+              <option value="botanical">Botanical plate</option>
             </select></label>
             <div class="f">Temperature
               <div class="seg" role="group" aria-label="Temperature units">
@@ -359,6 +363,25 @@ function drawFrame(dc, W, H) {
     dc.setStrokeColor(acc); dc.setLineWidth(1.2); dc.strokeRect(new Rect(4, top + 3, W - 8, H - top - 7))
     dc.setStrokeColor(new Color(T.accent, 0.55)); dc.setLineWidth(0.6); dc.strokeRect(new Rect(7.5, top + 6.5, W - 15, H - top - 14))
     ;[[4, top + 3], [W - 4, top + 3], [4, H - 4], [W - 4, H - 4], [W / 2, top + 3], [W / 2, H - 4]].forEach(([x, y]) => { const p = new Path(); p.addLines([P(x, y - 4), P(x + 4, y), P(x, y + 4), P(x - 4, y)]); p.closeSubpath(); dc.addPath(p); dc.setFillColor(acc); dc.fillPath() })
+  } else if (f === "cyber") {
+    const pk = new Color(T.headBg), cy = new Color(T.accent), c = 10, x0 = 4, y0 = top + 3, x1 = W - 4, y1 = H - 4
+    const pts = [[x0 + c, y0], [x1, y0], [x1, y1 - c], [x1 - c, y1], [x0, y1], [x0, y0 + c], [x0 + c, y0]]
+    ln(pts, new Color(T.headBg, 0.25), 4); ln(pts, pk, 1.1)
+    ln([[x0 + 6, y1 - 6], [x0 + 40, y1 - 6]], cy, 1.4); dc.setFillColor(cy); dc.fillRect(new Rect(x1 - 30, y0 + 4, 22, 2)); dc.fillRect(new Rect(x1 - 18, y0 + 8, 10, 2))
+    dc.setFillColor(new Color(T.accent, 0.05)); for (let y = top; y < H; y += 3) dc.fillRect(new Rect(0, y, W, 1))
+  } else if (f === "market") {
+    dc.setStrokeColor(new Color(T.ink, 0.1)); dc.setLineWidth(1); dc.strokeRect(new Rect(5, top + 3, W - 10, H - top - 8))
+    dc.setFillColor(new Color(T.ink, 0.04)); for (let x = 5; x < W - 5; x += 20) dc.fillRect(new Rect(x, top + 3, 0.6, H - top - 8))
+    dc.setFillColor(new Color(T.altBg)); dc.fillEllipse(new Rect(W - 16, top + 9, 6, 6))
+  } else if (f === "vapor") {
+    dc.setFillColor(new Color("#FFFFFF", 0.5)); dc.fillRect(new Rect(3, top, W - 6, 1.5)); dc.fillRect(new Rect(3, top, 1.5, H - top - 3))
+    dc.setFillColor(new Color("#000000", 0.45)); dc.fillRect(new Rect(3, H - 4.5, W - 6, 1.5)); dc.fillRect(new Rect(W - 4.5, top, 1.5, H - top - 3))
+    dc.setFillColor(new Color(T.accent, 0.06)); for (let y = top; y < H; y += 3) dc.fillRect(new Rect(0, y, W, 1))
+  } else if (f === "nature") {
+    const g = new Color(T.headBg)
+    dc.setStrokeColor(new Color(T.ink, 0.35)); dc.setLineWidth(0.8); dc.strokeRect(new Rect(5, top + 3, W - 10, H - top - 8))
+    const leaf = (x, y, s, a) => { const c = Math.cos(a), sn = Math.sin(a), Q = (u, v) => P(x + u * c - v * sn, y + u * sn + v * c); const p = new Path(); p.move(Q(0, 0)); p.addQuadCurve(Q(s, 0), Q(s * 0.5, -s * 0.4)); p.addQuadCurve(Q(0, 0), Q(s * 0.5, s * 0.4)); dc.addPath(p); dc.setFillColor(g); dc.fillPath() }
+    leaf(W - 18, top + 10, 12, 2.4); leaf(W - 14, top + 14, 9, 1.6); leaf(10, H - 12, 11, -0.6)
   } else if (f === "rabbit") {
     const lav = new Color(T.headBg)
     const rr = new Path(); const x0 = 5, y0 = top + 3, w2 = W - 10, h2 = H - top - 8, rad = 16
@@ -379,6 +402,7 @@ function headTextColor(alt) {
   const f = T.frame || "halcyon"
   if (f === "nightfall") return new Color(T.ink)
   if (f === "grimoire") return new Color(T.accent)
+  if (f === "vapor") return new Color("#FFFFFF")
   return new Color(alt ? T.altText : T.headText)
 }
 // each theme's header strip, drawn as the header stack's background
@@ -414,6 +438,23 @@ function headerImage(W, H, alt) {
     ln([[0, 1.5], [W, 1.5]], g, 1); ln([[0, H - 1.5], [W, H - 1.5]], g, 1)
     ln([[0, 4], [W, 4]], new Color(T.accent, 0.45), 0.5); ln([[0, H - 4], [W, H - 4]], new Color(T.accent, 0.45), 0.5)
     ;[[11, H / 2], [W - 11, H / 2]].forEach(([x, y]) => { poly([[x, y - 5], [x + 5, y], [x, y + 5], [x - 5, y]], g); poly([[x, y - 2], [x + 2, y], [x, y + 2], [x - 2, y]], new Color(T.ground)) })
+  } else if (f === "cyber") {
+    dc.setFillColor(new Color(T.ground)); dc.fillRect(new Rect(0, 0, W, H))
+    dc.setFillColor(base); dc.fillRect(new Rect(0, 0, W * 0.62, H)); const p = new Path(); p.addLines([P(W * 0.62, 0), P(W * 0.62 + 14, 0), P(W * 0.62, H)]); p.closeSubpath(); dc.addPath(p); dc.setFillColor(base); dc.fillPath()
+    dc.setFillColor(new Color(T.accent)); dc.fillRect(new Rect(0, H - 2, W, 2)); for (let i = 0; i < 5; i++) dc.fillRect(new Rect(W - 46 + i * 8, 8, 5, 8))
+  } else if (f === "market") {
+    dc.setFillColor(base); dc.fillRect(new Rect(0, 0, W, H))
+    dc.setFillColor(new Color(T.altBg)); dc.fillRect(new Rect(0, H - 3, W * 0.62, 3)); dc.setFillColor(new Color("#E8384F")); dc.fillRect(new Rect(W * 0.62, H - 3, W * 0.38, 3))
+    let v = 0.5; for (let i = 0; i < 6; i++) { const o = v; v = Math.max(0.2, Math.min(0.8, v + Math.sin(i * 1.7) * 0.25)); const up = v >= o; dc.setFillColor(up ? new Color(alt ? T.altText : T.headText) : new Color(alt ? T.altText : T.headText, 0.5)); const yt = 4 + 14 * (1 - Math.max(o, v)), yb = 4 + 14 * (1 - Math.min(o, v)); dc.fillRect(new Rect(W - 50 + i * 7, yt, 4, Math.max(2, yb - yt))) }
+  } else if (f === "vapor") {
+    dc.setFillColor(new Color("#C3C3D0")); dc.fillRect(new Rect(0, 0, W, H))
+    for (let i = 0; i < 20; i++) { dc.setFillColor(new Color(i < 10 ? "#1A1A80" : (alt ? T.altBg : T.headBg), i < 10 ? 1 : 0.55 + i * 0.022)); dc.fillRect(new Rect(3 + i * (W - 6) / 20, 3, (W - 6) / 20 + 0.5, H - 6)) }
+    ;[W - 18, W - 32, W - 46].forEach((x, i) => { dc.setFillColor(new Color("#C3C3D0")); dc.fillRect(new Rect(x, 6, 12, 11)); dc.setFillColor(new Color("#FFFFFF")); dc.fillRect(new Rect(x, 6, 12, 1)); dc.setFillColor(new Color("#000000")); if (i === 0) { ln([[x + 3, 9], [x + 9, 15]], new Color("#000000"), 1.2); ln([[x + 9, 9], [x + 3, 15]], new Color("#000000"), 1.2) } else if (i === 1) { dc.setStrokeColor(new Color("#000000")); dc.setLineWidth(1); dc.strokeRect(new Rect(x + 3, 9, 6, 5)) } else dc.fillRect(new Rect(x + 3, 13, 6, 1.5)) })
+  } else if (f === "nature") {
+    dc.setFillColor(base); dc.fillRect(new Rect(0, 0, W, H))
+    for (let x = 0; x < W; x += 4) { dc.setFillColor(new Color("#FFFFFF", 0.04 + 0.04 * Math.abs(Math.sin(x * 0.11)))); dc.fillRect(new Rect(x, 0, 2, H)) }
+    const leaf = (x, y, s, a, col) => { const c = Math.cos(a), sn = Math.sin(a), Q = (u, v) => P(x + u * c - v * sn, y + u * sn + v * c); const p = new Path(); p.move(Q(0, 0)); p.addQuadCurve(Q(s, 0), Q(s * 0.5, -s * 0.4)); p.addQuadCurve(Q(0, 0), Q(s * 0.5, s * 0.4)); dc.addPath(p); dc.setFillColor(col); dc.fillPath() }
+    leaf(W - 18, H / 2, 10, 3.6, tc); leaf(W - 22, H / 2 + 2, 7, 2.6, new Color(alt ? T.altText : T.headText, 0.7))
   } else if (f === "rabbit") {
     dc.setFillColor(base); dc.fillRect(new Rect(0, 0, W, H))
     for (let x = 0; x < W; x += 3) { dc.setFillColor(new Color("#FFFFFF", 0.05 + 0.08 * Math.abs(Math.sin(x * 0.05)))); dc.fillRect(new Rect(x, 0, 1.5, H)) }
@@ -448,11 +489,11 @@ function base(code, right, alt, decorate) {
   const head = w.addStack()
   head.layoutHorizontally()
   head.centerAlignContent()
-  const f = T.frame || "halcyon", serifHead = f === "longroad" || f === "grimoire" || f === "rabbit"
+  const f = T.frame || "halcyon", serifHead = f === "longroad" || f === "grimoire" || f === "rabbit" || f === "nature"
   head.backgroundColor = new Color(alt ? T.altBg : T.headBg)
   head.backgroundImage = headerImage(d[0], 24, alt)
-  const padR = f === "directive" || f === "deeprange" ? 34 : f === "nightfall" ? 52 : f === "rabbit" ? 30 : f === "longroad" || f === "grimoire" ? 22 : 12
-  head.setPadding(6, f === "longroad" || f === "grimoire" ? 22 : 12, 6, padR)
+  const padR = f === "directive" || f === "deeprange" ? 34 : f === "nightfall" || f === "cyber" || f === "vapor" || f === "market" ? 56 : f === "rabbit" || f === "nature" ? 30 : f === "longroad" || f === "grimoire" ? 22 : 12
+  head.setPadding(6, f === "longroad" || f === "grimoire" ? 22 : 12, 6, d[0] < 200 ? Math.min(padR, 34) : padR)
   const hc = headTextColor(alt)
   const ht = txt(head, serifHead ? titleCase(code) : code, serifHead ? 10 : 9, hc, serifHead)
   head.addSpacer()
@@ -1361,7 +1402,7 @@ async function audioDeeprange(w, small) {
 
 async function audioWidget() {
   const f = T.frame || "halcyon", small = fam() === "small"
-  if (f === "rabbit" && !small) return themedAudioArt(RB.audio)
+  if (["rabbit", "cyber", "vapor", "nature", "market"].includes(f) && !small) return themedAudioArt(THEME_PAINT[f].audio)
   if (f !== "halcyon") {
     const w = baseC(364, 170, LT.audio, small ? null : C.audio.right)
     w.url = "youtubemusic://"
@@ -1874,6 +1915,32 @@ const ODD = {
     rarity: ["COMMON", "UNCOMMON", "RARE", "MYTHIC", "CURSED"],
     syl: ["vel", "kar", "ith", "um", "bra", "zor", "eth", "mir", "qua", "lun", "dros", "shai", "ven", "oth", "ra"]
   },
+  market: {
+    title: "W-08 // BLACK MARKET", right: "DEAL OF THE HOUR",
+    items: ["Used Optic Mod (Slightly Haunted)", "Bootleg Memory Chip, 2 TB", "Chrome Arm, Left, Mostly", "Neon Tattoo That Plays Ads", "Ex-Corp Badge, Still Works", "Sleep Patch (Do Not Combine)"],
+    sellers: ["@gl1tch", "@kitsune", "@rainwire", "@n30n_m0m", "@v0idkid"],
+    cond: ["LIKE NEW", "REFURBISHED", "SALVAGED", "ASK NO QUESTIONS", "STILL WARM"]
+  },
+  bet: {
+    title: "W-08 // MARKET OF THE HOUR", right: "LIVE ODDS",
+    qs: ["Will your cat knock something off a table today?", "Will you say 'quick question' and ask a long one?", "Will the group chat plan actually happen?", "Will you find the TV remote in under a minute?", "Will it rain the moment you leave without an umbrella?", "Will you remember why you walked into this room?", "Will the leftovers survive until tomorrow?", "Will you finish the show tonight?"],
+    pos: ["3 YES", "1 NO", "FLAT", "12 YES (BOLD)", "2 NO (HEDGED)"]
+  },
+  tip: {
+    title: "W-08 // TIP OF THE HOUR", right: "GOOD NEWS",
+    tips: ["Sea otters hold hands while they sleep.", "Honey can stay edible for a very long time.", "A group of flamingos is called a flamboyance.", "Octopuses have three hearts.", "Bananas are technically berries.", "Wombat droppings are cube-shaped."]
+  },
+  mall: {
+    title: "W-08 // MALL DIRECTORY", right: "LEVEL 2",
+    stores: ["Sunset Video", "Pretzel Paradise", "The Fountain Court", "Laser Tag Galaxy", "Cassette Corner", "Palm Tree Imports"],
+    status: ["OPEN FOREVER", "CLOSED SINCE 1997", "ALWAYS ON SALE", "STAFF ON BREAK", "UNDER RENOVATION"],
+    tracks: ["Escalator Blues", "Food Court Waltz", "Lost In Aisle 9", "Fountain Dreams"]
+  },
+  species: {
+    title: "W-08 // FIELD GUIDE", right: "SPECIES OF THE HOUR",
+    list: [["Red Fox", "Vulpes vulpes", "Its bushy tail helps it balance and keeps it warm."], ["Monarch Butterfly", "Danaus plexippus", "Some migrate thousands of miles to spend winter in Mexico."], ["Great Horned Owl", "Bubo virginianus", "Its 'horns' are only tufts of feathers."], ["Eastern Chipmunk", "Tamias striatus", "Carries food in stretchy cheek pouches."], ["Fly Agaric", "Amanita muscaria", "Beautiful and poisonous. Look, don't touch."], ["Ruby-throated Hummingbird", "Archilochus colubris", "Beats its wings about 50 times a second."]],
+    where: ["NEAR YOUR WINDOW", "AT THE FOREST EDGE", "ON A FALLEN LOG", "IN THE TALL GRASS", "BY THE CREEK"]
+  },
   heist: {
     title: "W-08 // HEIST BOARD", right: "TONIGHT'S SCORE",
     targets: ["The Gala Necklace", "A Jeweled Egg", "The Seventh Heirloom", "The Ambassador's Ring", "A Crown Nobody Wears", "A Rival's Getaway Car"],
@@ -1975,6 +2042,27 @@ function oddVisual(type, r, S, extra) {
     const n = 5 + (extra % 3), pts = []; for (let i = 0; i <= n; i++) { const a = -Math.PI / 2 + (i * 2 % n) * Math.PI * 2 / n; pts.push([cx + S * 0.34 * Math.cos(a), cy + S * 0.34 * Math.sin(a)]) }
     oLine(dc, pts.concat([pts[0]]), A, 1.2)
     oCirc(dc, cx, cy, S * 0.1, L, I, 1)
+  } else if (type === "bet") {
+    let v = 0.5; for (let i = 0; i < 9; i++) { const o = v; v = Math.max(0.1, Math.min(0.9, v + Math.sin(i * 1.3 + extra * 6) * 0.2)); const up = v >= o, col = up ? new Color(T.altBg) : new Color("#E8384F"), x = 8 + i * (S - 16) / 9, yt = S * 0.15 + S * 0.5 * (1 - Math.max(o, v)), yb = S * 0.15 + S * 0.5 * (1 - Math.min(o, v)); oLine(dc, [[x + 3, yt - 4], [x + 3, yb + 4]], col, 0.8); oPoly(dc, [[x, yt], [x + 6, yt], [x + 6, Math.max(yt + 2, yb)], [x, Math.max(yt + 2, yb)]], col) }
+    oPoly(dc, [[6, S * 0.76], [6 + (S - 12) * extra, S * 0.76], [6 + (S - 12) * extra, S * 0.88], [6, S * 0.88]], new Color(T.altBg, 0.8)); oPoly(dc, [[6 + (S - 12) * extra, S * 0.76], [S - 6, S * 0.76], [S - 6, S * 0.88], [6 + (S - 12) * extra, S * 0.88]], new Color("#E8384F", 0.6))
+  } else if (type === "market") {
+    oPoly(dc, [[6, S * 0.3], [S - 6, S * 0.3], [S - 6, S * 0.8], [6, S * 0.8]], new Color(T.ground), new Color(T.headBg), 1.4)
+    for (let i = 0; i < 6; i++) oLine(dc, [[10, S * (0.36 + i * 0.07)], [S - 10, S * (0.36 + i * 0.07)]], new Color(T.accent, 0.2 + (i % 2) * 0.3), 1)
+    oPoly(dc, [[cx - 14, S * 0.5], [cx, S * 0.4], [cx + 14, S * 0.5], [cx, S * 0.62]], new Color(T.accent, 0.5), new Color(T.accent), 1.2)
+    oText(dc, `${Math.round(extra * 900 + 99)}c`, 0, S * 0.12, 11, new Color(T.altBg), S, "c")
+  } else if (type === "tip") {
+    oCirc(dc, cx, cy, S * 0.42, new Color(T.headBg, 0.25), new Color("#FFFFFF"), 1.4); oCirc(dc, cx - S * 0.12, cy - S * 0.16, S * 0.1, new Color("#FFFFFF", 0.85))
+    oPoly(dc, [[cx - 6, cy + 10], [cx + 6, cy + 10], [cx + 5, cy + 16], [cx - 5, cy + 16]], new Color("#FFFFFF")); oCirc(dc, cx, cy - 2, 11, new Color("#FFF6B0"), new Color("#FFFFFF"), 1)
+    for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + (i - 2.5) * 0.45; oLine(dc, [[cx + 15 * Math.cos(a), cy - 2 + 15 * Math.sin(a)], [cx + 20 * Math.cos(a), cy - 2 + 20 * Math.sin(a)]], new Color("#FFFFFF"), 1.4) }
+  } else if (type === "mall") {
+    oPoly(dc, [[4, 10], [S - 4, 10], [S - 4, S - 6], [4, S - 6]], new Color("#C3C3D0"), new Color("#4A4A5A"), 1)
+    for (let i = 0; i < 6; i++) { const x = 10 + (i % 3) * ((S - 20) / 3), y = 20 + Math.floor(i / 3) * ((S - 34) / 2); oPoly(dc, [[x, y], [x + (S - 26) / 3, y], [x + (S - 26) / 3, y + (S - 40) / 2], [x, y + (S - 40) / 2]], new Color([T.headBg, T.altBg, "#FFFB96"][i % 3], i === Math.floor(extra * 6) % 6 ? 1 : 0.35)) }
+    oText(dc, "YOU ARE HERE", 0, S - 18, 6.5, new Color("#101018"), S, "c")
+  } else if (type === "species") {
+    oCirc(dc, cx, cy, S * 0.42, new Color(T.panel), new Color(T.ink, 0.6), 1)
+    const lf = (x, y, s2, a, col) => { const c2 = Math.cos(a), sn = Math.sin(a), Q = (u, v) => new Point(x + u * c2 - v * sn, y + u * sn + v * c2); const p = new Path(); p.move(Q(0, 0)); p.addQuadCurve(Q(s2, 0), Q(s2 * 0.5, -s2 * 0.4)); p.addQuadCurve(Q(0, 0), Q(s2 * 0.5, s2 * 0.4)); dc.addPath(p); dc.setFillColor(col); dc.fillPath() }
+    lf(cx - 18, cy + 10, 26, -0.6, new Color(T.headBg)); lf(cx + 2, cy + 14, 20, -1.6, new Color(T.headBg, 0.7)); lf(cx + 6, cy - 4, 18, 0.3, new Color(T.altBg, 0.7))
+    oLine(dc, [[cx - 10, cy - 18], [cx - 4, cy - 12]], new Color(T.ink), 1); oCirc(dc, cx - 2, cy - 10, 4, null, new Color(T.ink), 1.2); oLine(dc, [[cx + 1, cy - 7], [cx + 6, cy - 2]], new Color(T.ink), 1.4)
   } else if (type === "heist") {
     oPoly(dc, [[cx - S * 0.3, S * 0.86], [cx + S * 0.3, S * 0.86], [cx + S * 0.22, S * 0.66], [cx - S * 0.22, S * 0.66]], new Color(T.panel), I, 1.2)
     oPoly(dc, [[cx - S * 0.26, S * 0.66], [cx + S * 0.26, S * 0.66], [cx + S * 0.26, S * 0.18], [cx - S * 0.26, S * 0.18]], new Color(T.headBg, 0.2), new Color(T.ink, 0.6), 1)
@@ -2102,6 +2190,57 @@ async function oddityWidget() {
       const ef = b.addStack(); ef.layoutHorizontally(); txt(ef, sp[4].toUpperCase(), 7.5, INK); b.addSpacer(1)
       txt(b, `SIDE EFFECT: ${sp[5].toUpperCase()} · COOLDOWN ${1 + Math.floor(r() * 23)}H`, 7.5, rar === "CURSED" ? HOT() : SOFT)
     } else txt(b, `CAST ${sp[3]}`, 6.5, SOFT)
+  } else if (type === "market") {
+    const price = r()
+    imgAt(row, oddVisual("market", r, vs, price), vs, vs)
+    const c = col()
+    txt(c, `SELLER ${pickFrom(O.sellers, r)} · ★${(3 + r() * 2).toFixed(1)}`, small ? 6.5 : 7.5, SOFT)
+    serif(c, pickFrom(O.items, r), small ? 11 : 14, 2)
+    txt(c, `${Math.round(price * 900 + 99)} CREDITS · ${pickFrom(O.cond, r)}`, small ? 6.5 : 8, HOT())
+    if (!small) { c.addSpacer(4); kv(c, "WARRANTY", "NONE"); kv(c, "RETURNS", "LOL") }
+    b.addSpacer()
+    if (!small) { const ft = b.addStack(); ft.layoutHorizontally(); ft.centerAlignContent(); txt(ft, "MEET AT THE NOODLE STAND", 8, INK); ft.addSpacer(); txt(ft, "RISK ", 7, SOFT); imgAt(ft, meter(90, r(), true, 4), 90, 4) }
+    else txt(b, "CASH ONLY", 7, HOT())
+  } else if (type === "bet") {
+    const p = 0.08 + r() * 0.86
+    imgAt(row, oddVisual("bet", r, vs, p), vs, vs)
+    const c = col()
+    txt(c, `MARKET #${1000 + Math.floor(r() * 9000)} · RESOLVES TONIGHT`, small ? 6.5 : 7.5, SOFT)
+    serif(c, pickFrom(O.qs, r), small ? 11 : 14, small ? 3 : 2)
+    const yn = c.addStack(); yn.layoutHorizontally(); txt(yn, `YES ${Math.round(p * 100)}¢`, small ? 7 : 9, new Color(T.altBg)); yn.addSpacer(8); txt(yn, `NO ${100 - Math.round(p * 100)}¢`, small ? 7 : 9, new Color("#E8384F"))
+    b.addSpacer()
+    if (!small) { const s = b.addStack(); s.layoutHorizontally(); readout(s, "VOLUME", `$${(1 + r() * 99).toFixed(1)}K`); s.addSpacer(); readout(s, "TRADERS", String(20 + Math.floor(r() * 900))); s.addSpacer(); readout(s, "YOUR POSITION", pickFrom(O.pos, r)) }
+    else txt(b, "NOT FINANCIAL ADVICE", 6.5, SOFT)
+  } else if (type === "tip") {
+    imgAt(row, oddVisual("tip", r, vs, 0), vs, vs)
+    const c = col()
+    txt(c, "DID YOU KNOW?", small ? 6.5 : 7.5, new Color(T.headBg))
+    serif(c, pickFrom(O.tips, r), small ? 11 : 14, small ? 3 : 2)
+    b.addSpacer()
+    if (!small) { const s = b.addStack(); s.layoutHorizontally(); readout(s, "OPTIMISM", `${90 + Math.floor(r() * 10)}%`); s.addSpacer(); readout(s, "BUBBLES POPPED", String(Math.floor(r() * 400))); s.addSpacer(); readout(s, "CLOUDS RENDERED", String(3 + Math.floor(r() * 20))) }
+    else txt(b, "HAVE A GREAT DAY", 7, SOFT)
+  } else if (type === "mall") {
+    const n = Math.floor(r() * 6)
+    imgAt(row, oddVisual("mall", r, vs, n / 6), vs, vs)
+    const c = col()
+    txt(c, "STORE OF THE HOUR", small ? 6.5 : 7.5, SOFT)
+    serif(c, pickFrom(O.stores, r), small ? 12 : 15)
+    txt(c, pickFrom(O.status, r), small ? 6.5 : 8, HOT())
+    if (!small) { c.addSpacer(4); kv(c, "FLOOR", `LEVEL ${1 + Math.floor(r() * 3)}`); kv(c, "FOUNTAIN COINS", `${100 + Math.floor(r() * 900)}`) }
+    b.addSpacer()
+    if (!small) { const ft = b.addStack(); ft.layoutHorizontally(); txt(ft, `NOW PLAYING: ${pickFrom(O.tracks, r).toUpperCase()}`, 8, INK); ft.addSpacer(); txt(ft, "♪", 8, HOT()) }
+    else txt(b, "OPEN FOREVER", 7, SOFT)
+  } else if (type === "species") {
+    const sp = pickFrom(O.list, r)
+    imgAt(row, oddVisual("species", r, vs, 0), vs, vs)
+    const c = col()
+    txt(c, `SPOTTED ${pickFrom(O.where, r)}`, small ? 6.5 : 7.5, SOFT)
+    serif(c, sp[0], small ? 12 : 15, 2)
+    const ln2 = c.addText(sp[1]); ln2.font = disp(small ? 9 : 11); ln2.textColor = HOT(); ln2.lineLimit = 1
+    if (!small) { c.addSpacer(3); const fx = c.addText(sp[2]); fx.font = disp(10.5); fx.textColor = SOFT; fx.lineLimit = 2; fx.minimumScaleFactor = 0.75 }
+    b.addSpacer()
+    if (!small) { const ft = b.addStack(); ft.layoutHorizontally(); ft.centerAlignContent(); txt(ft, "LOOK, DON'T DISTURB", 8, INK); ft.addSpacer(); txt(ft, "RARITY ", 7, SOFT); imgAt(ft, meter(90, r(), false, 4), 90, 4) }
+    else txt(b, "LOOK CLOSELY", 7, SOFT)
   } else if (type === "heist") {
     const sec = 1 + Math.floor(r() * 5), odds = 12 + Math.floor(r() * 80)
     imgAt(row, oddVisual("heist", r, vs, sec / 5), vs, vs)
@@ -2203,6 +2342,9 @@ function wxIcon(k, kind, x, y, s, col, lw) {
   if (kind === "storm") k.poly([[x, y + s * 0.22], [x - s * 0.1, y + s * 0.42], [x + s * 0.02, y + s * 0.42], [x - s * 0.06, y + s * 0.58], [x + s * 0.14, y + s * 0.34], [x + s * 0.02, y + s * 0.34]], k.H)
   if (kind === "fog") for (let i = 0; i < 3; i++) k.ln([[x - s * 0.4, y + s * 0.34 + i * 4], [x + s * 0.4, y + s * 0.34 + i * 4]], col, lw)
 }
+
+// shrink a transmission's type until it fits in its lines (long real quotes stay whole)
+function fitFs(k, text, w, maxLines, fs, f, minFs) { let s = fs; const lo = minFs || Math.max(10, fs * 0.6); while (s > lo) { const n = Math.max(4, Math.floor(w / (s * (f === "disp" ? 0.52 : 0.62)))), words = String(text).split(/\s+/); let lines = 1, cur = 0; for (const wd of words) { if (cur && cur + 1 + wd.length > n) { lines++; cur = wd.length } else cur += (cur ? 1 : 0) + wd.length } if (lines <= maxLines) break; s -= 0.5 } return s }
 const DIR = {
   status(k, W, H, d) {
     const cx = 66, cy = H / 2 + 2, R = 54, wx = d.wx || {}
@@ -2234,8 +2376,8 @@ const DIR = {
     const small = W < 200, big = H > 200
     k.rect(12, 8, 66, 15, k.H); k.t(d.archival ? "ARCHIVE" : "BULLETIN", 45, 10, 9, k.GR, { a: "c", w: 64, f: "heavy" })
     if (!small) k.t(`MSG 0x${d.hex} · CLASS: ${d.cls}`, 86, 11, 7.5, k.S, { w: W - 100 })
-    const n = k.para(d.text, 12, 30, W - 24, small ? 14 : (big ? 22 : 19), k.I, "disp", small ? 4 : 3, 1.12)
-    const by = 30 + n * (small ? 14 : (big ? 22 : 19)) * 1.12 + 4
+    const tfs = fitFs(k, d.text, W - 24, small ? 4 : 3, small ? 14 : (big ? 22 : 19), "disp"), n = k.para(d.text, 12, 30, W - 24, tfs, k.I, "disp", small ? 4 : 3, 1.12)
+    const by = 30 + n * tfs * 1.12 + 4
     k.t(`— ${d.by}`, 12, by, small ? 6.5 : 7.5, k.S, { w: W - 24 })
     const ty = H - (small ? 22 : 30), th = small ? 14 : 20
     const free0 = by + 14, free1 = ty - 6
@@ -2345,7 +2487,7 @@ const LR = {
     k.poly([[x0, y0], [x0 + w - fold, y0], [x0 + w, y0 + fold], [x0 + w, y0 + h], [x0, y0 + h]], k.a(T.panel, 0.65), k.ia(0.6), 0.8)
     k.poly([[x0 + w - fold, y0], [x0 + w - fold, y0 + fold], [x0 + w, y0 + fold]], k.ia(0.12), k.ia(0.6), 0.8)
     k.t(d.archival ? "Copied from an old book," : "To all who travel,", x0 + 10, y0 + 6, small ? 8.5 : 10, k.S, { f: "disp", w: w - 30 })
-    const fs = small ? 13 : (big ? 20 : 17), n = k.para(d.text, x0 + 10, y0 + 22, w - (small ? 20 : 70), fs, k.I, "disp", small ? 4 : 3, 1.15)
+    const fs = fitFs(k, d.text, w - (small ? 20 : 70), small ? 4 : 3, small ? 13 : (big ? 20 : 17), "disp"), n = k.para(d.text, x0 + 10, y0 + 22, w - (small ? 20 : 70), fs, k.I, "disp", small ? 4 : 3, 1.15)
     k.t(`— ${d.by}`, x0 + w - (small ? 8 : 64), y0 + 26 + n * fs * 1.15, small ? 6.5 : 8, k.S, { a: "r", w: w - 20 })
     const endY = y0 + 30 + n * fs * 1.15 + 10
     if (!small) {
@@ -2438,7 +2580,7 @@ const NF = {
     k.t(d.archival ? "ARCHIVE // DECLASSIFIED" : "INCOMING // DECRYPTED", 18, 12, 7.5, k.A, { w: W - 36, f: "bold" })
     const r = k.rng(parseInt(d.hex, 16)), glyphs = Math.floor((W - 36) / 7)
     for (let i = 0; i < glyphs; i++) { const solved = i / glyphs < 0.72; k.rect(18 + i * 7, 26, 5, 6, solved ? k.ia(0.75) : k.ia(0.12 + r() * 0.3)) }
-    const fs = small ? 13 : (big ? 20 : 17), n = k.para(d.text, 18, 40, W - 36, fs, k.I, "disp", small ? 4 : 3, 1.12)
+    const fs = fitFs(k, d.text, W - 36, small ? 4 : 3, small ? 13 : (big ? 20 : 17), "disp"), n = k.para(d.text, 18, 40, W - 36, fs, k.I, "disp", small ? 4 : 3, 1.12)
     k.t(`— ${d.by}`, 18, 44 + n * fs * 1.12, small ? 6.5 : 7.5, k.S, { w: W - 36 })
     const f0 = 58 + n * fs * 1.12, f1 = H - 28
     if (!small && f1 - f0 >= 26) {
@@ -2524,7 +2666,7 @@ const GM = {
     k.rect(x0, y0 + 4, x1 - x0, y1 - y0 - 8, k.ia(0.04), k.A, 1)
     ;[x0, x1].forEach((x) => { k.ell(x, (y0 + y1) / 2, 6, (y1 - y0) / 2, k.a(T.accent, 0.25), k.A, 1); k.ell(x, (y0 + y1) / 2, 2.5, (y1 - y0) / 2 - 3, null, k.a(T.accent, 0.6), 0.6) })
     k.t(d.archival ? "FROM THE OLD TOMES" : "BY DECREE OF THE CIRCLE", W / 2, y0 + 10, 7, k.A, { a: "c", w: W - 60 })
-    const fs = small ? 13 : (big ? 20 : 17), n = k.para(d.text, x0 + 16, y0 + 24, x1 - x0 - 32, fs, k.I, "disp", small ? 4 : 3, 1.14)
+    const fs = fitFs(k, d.text, x1 - x0 - 32, small ? 4 : 3, small ? 13 : (big ? 20 : 17), "disp"), n = k.para(d.text, x0 + 16, y0 + 24, x1 - x0 - 32, fs, k.I, "disp", small ? 4 : 3, 1.14)
     k.t(`— ${d.by}`, W / 2, y0 + 28 + n * fs * 1.14, small ? 6.5 : 7.5, k.S, { a: "c", w: W - 50 })
     const gEnd = y0 + 40 + n * fs * 1.14, gFree = y1 - 26
     if (!small && gFree - gEnd >= 24) {
@@ -2611,7 +2753,7 @@ const DRG = {
   tx(k, W, H, d) {
     const small = W < 200, big = H > 200
     k.t(`INTERCEPT 0x${d.hex}`, 12, 6, 7.5, k.H, { f: "bold", w: 150 }); if (!small) k.t(`BRG ${parseInt(d.hex, 16) % 360} · RNG ${(parseInt(d.hex, 16) % 90 / 10).toFixed(1)} AU`, W - 12, 6, 7.5, k.S, { a: "r", w: 160 })
-    const fs = small ? 13 : (big ? 21 : 17), n = k.para(d.text.toUpperCase(), 12, 22, W - 24, fs, k.I, "heavy", small ? 4 : 3, 1.08)
+    const fs = fitFs(k, d.text.toUpperCase(), W - 24, small ? 4 : 3, small ? 13 : (big ? 21 : 17), "heavy"), n = k.para(d.text.toUpperCase(), 12, 22, W - 24, fs, k.I, "heavy", small ? 4 : 3, 1.08)
     k.t(`— ${d.by}`, 12, 26 + n * fs * 1.08, small ? 6.5 : 7.5, k.S, { w: W - 24 })
     const e0 = 40 + n * fs * 1.08, e1 = H - (small ? 34 : 44)
     if (!small && e1 - e0 >= 28) {
@@ -2945,7 +3087,7 @@ const RB = {
     k.rect(x0, y0, w, h, k.a(T.panel, 0.9), k.a(T.headBg, 1), 1); k.rect(x0 + 4, y0 + 4, w - 8, h - 8, null, k.a(T.accent, 0.35), 0.6)
     ;[[x0 + 12, y0 + 14, 1], [x0 + w - 12, y0 + h - 14, -1]].forEach(([x, y]) => { k.t("A", x, y - 7, 9, k.A, { f: "disp", a: "c", w: 14 }); rbHeart(k, x, y + 8, 8, k.A) })
     k.t(d.archival ? "FROM AN OLD STORYBOOK" : `A CALLING CARD · LOT 0${parseInt(d.hex, 16) % 7 + 1}/07`, W / 2, y0 + 10, 7, k.A, { a: "c", w: W - 60 })
-    const fs = small ? 13 : (big ? 21 : 18), n = k.para(d.text, x0 + 26, y0 + 24, w - 52, fs, k.I, "disp", small ? 4 : 3, 1.12)
+    const fs = fitFs(k, d.text, w - 52, small ? 4 : 3, small ? 13 : (big ? 21 : 18), "disp"), n = k.para(d.text, x0 + 26, y0 + 24, w - 52, fs, k.I, "disp", small ? 4 : 3, 1.12)
     k.t(`— ${d.by}`, W / 2, y0 + 28 + n * fs * 1.12, small ? 6.5 : 7.5, k.S, { a: "c", w: W - 60 })
     const e0 = y0 + 44 + n * fs * 1.12, e1 = y0 + h - 12
     if (!small && e1 - e0 > 16) { const r = k.rng(parseInt(d.hex, 16)); for (let i = 0; i < 9; i++) rbSpark(k, x0 + 40 + i * ((w - 80) / 8), e0 + (e1 - e0) / 2 + (r() - 0.5) * 8, 2 + r() * 3, k.a(T.accent, 0.4 + r() * 0.5)); k.t("CATCH ME IF YOU CAN", W / 2, e1 - 8, 6, k.S, { a: "c", w: 200 }) }
@@ -3031,7 +3173,411 @@ const RB = {
     k.t("PLAYING", W - 70, 52, 6.5, k.S, { w: 60 })
   }
 }
-const THEME_PAINT = { directive: DIR, longroad: LR, nightfall: NF, grimoire: GM, deeprange: DRG, halcyon: HAL, rabbit: RB }
+// ---------- shared bits for the four new themes ----------
+function nBars(k, x, y, w, h, n, f, on, off, gap) { k.segs(x, y, w, h, n, f, on, off, gap == null ? 2 : gap) }
+function glowLn(k, pts, col, w) { k.ln(pts, k.a(col, 0.25), (w || 1) * 4); k.ln(pts, k.a(col, 1), w || 1) }
+function notch(k, x, y, w, h, c, col, lw, fill) { const p = [[x + c, y], [x + w, y], [x + w, y + h - c], [x + w - c, y + h], [x, y + h], [x, y + c]]; if (fill) k.poly(p, fill); k.poly(p, null, k.a(col, 0.25), (lw || 1) * 4); k.poly(p, null, k.a(col, 1), lw || 1) }
+function gPill(k, x, y, w, h, base, hl) { const r = Math.min(h / 2, w / 2); const rr = (yy, hh, col) => { k.rect(x + r, yy, w - 2 * r, hh, col); k.ell(x + r, yy + hh / 2, r, hh / 2, col); k.ell(x + w - r, yy + hh / 2, r, hh / 2, col) }; rr(y, h, base); rr(y + 1.5, h * 0.42, k.a("#FFFFFF", hl == null ? 0.45 : hl)) }
+function gBubble(k, x, y, r, tint) { k.circ(x, y, r, k.a(tint, 0.25), k.a("#FFFFFF", 0.85), Math.max(0.6, r * 0.08)); k.ell(x - r * 0.35, y - r * 0.42, r * 0.3, r * 0.14, k.a("#FFFFFF", 0.9)) }
+function winBox(k, x, y, w, h, title, titleCol) { const g = k.a("#C3C3D0", 1); k.rect(x, y, w, h, g); k.rect(x, y, w, 1.5, k.a("#FFFFFF", 1)); k.rect(x, y, 1.5, h, k.a("#FFFFFF", 1)); k.rect(x, y + h - 1.5, w, 1.5, k.a("#4A4A5A", 1)); k.rect(x + w - 1.5, y, 1.5, h, k.a("#4A4A5A", 1)); for (let i = 0; i < 10; i++) k.rect(x + 3 + i * (w - 6) / 10, y + 3, (w - 6) / 10 + 0.5, 12, k.a(i < 5 ? "#1A1A80" : (titleCol || T.headBg), i < 5 ? 1 : 0.5 + i * 0.05)); k.t(title, x + 6, y + 4, 8, k.a("#FFFFFF", 1), { w: w - 50 }); [w - 14, w - 26].forEach(dx => { k.rect(x + dx, y + 4, 10, 9, g); k.t(dx === w - 14 ? "x" : "_", x + dx + 5, y + 3, 7.5, k.a("#000000", 1), { a: "c", w: 10 }) }) }
+function nLeaf(k, x, y, s, ang, col) { const c = Math.cos(ang), sn = Math.sin(ang), P = (u, v) => [x + u * c - v * sn, y + u * sn + v * c]; const pts = []; for (let i = 0; i <= 10; i++) { const t = i / 10; pts.push(P(t * s, -Math.sin(t * Math.PI) * s * 0.3)) } for (let i = 10; i >= 0; i--) { const t = i / 10; pts.push(P(t * s, Math.sin(t * Math.PI) * s * 0.3)) } k.poly(pts, col, k.I, 0.7); k.ln([P(0, 0), P(s, 0)], k.ia(0.6), 0.5) }
+function nShroom(k, x, y, s, cap) { k.rect(x - s * 0.1, y - s * 0.55, s * 0.2, s * 0.55, k.a("#F4EEDF", 1)); k.ln([[x - s * 0.1, y], [x - s * 0.1, y - s * 0.55]], k.I, 0.8); k.ln([[x + s * 0.1, y], [x + s * 0.1, y - s * 0.55]], k.I, 0.8); const pts = []; for (let i = 0; i <= 16; i++) { const a = Math.PI + i / 16 * Math.PI; pts.push([x + s * 0.5 * Math.cos(a), y - s * 0.55 + s * 0.42 * Math.sin(a)]) } k.poly(pts, cap, k.I, 0.9); k.circ(x - s * 0.18, y - s * 0.75, s * 0.06, k.a("#FFF8EC", 1)); k.circ(x + s * 0.14, y - s * 0.82, s * 0.05, k.a("#FFF8EC", 1)) }
+function inst(k, i, gx, gy, A, st) {
+  const I = st.ink || k.I, H = st.hot || k.H, F = st.faint || k.ia(0.15)
+  if (i === 0) (A.probs || []).slice(0, 6).forEach((p, j) => { const bh = Math.max(2, 26 * (p || 0) / 100); st.bar ? st.bar(gx + j * 6, gy + 28 - bh, 4.5, bh, (p || 0) > 50) : k.rect(gx + j * 6, gy + 28 - bh, 4.5, bh, (p || 0) > 50 ? H : I) })
+  if (i === 1) { const f = Math.max(0, Math.min(1, (A.rh || 0) / 100)); for (let j = 0; j < 7; j++) k.rect(gx + 6, gy + 26 - (j + 1) * 3.8, 16, 2.8, j / 7 < f ? I : F) }
+  if (i === 2) { const u = Math.round(A.uv || 0); for (let j = 0; j < 8; j++) { const a = j / 8 * Math.PI * 2; k.ln([[gx + 14 + 6 * Math.cos(a), gy + 14 + 6 * Math.sin(a)], [gx + 14 + 11 * Math.cos(a), gy + 14 + 11 * Math.sin(a)]], j < u ? H : F, 1.2) } k.circ(gx + 14, gy + 14, 4, I) }
+  if (i === 3) { const vm = Math.max(0, Math.min(10, A.visMi || 0)); for (let j = 0; j < 4; j++) k.ln([[gx + 2, gy + 6 + j * 6], [gx + 28 - j * 5, gy + 6 + j * 6]], j < Math.ceil(vm / 2.5) ? I : F, 1.6) }
+  if (i === 4) { const tx = gx + 12, f = Math.max(0.1, Math.min(1, ((A.dew || 0) + 10) / 90)); k.rect(tx - 2.5, gy + 2, 5, 20, null, I, 0.8); k.circ(tx, gy + 25, 4, H); k.rect(tx - 1, gy + 22 - 18 * f, 2, 18 * f + 2, H) }
+  if (i === 5) { const cx = gx + 14, cy = gy + 14, wd = ((A.wd || 0) + 180) * Math.PI / 180 - Math.PI / 2; k.circ(cx, cy, 12, null, F, 0.8); k.ln([[cx - 8 * Math.cos(wd), cy - 8 * Math.sin(wd)], [cx + 10 * Math.cos(wd), cy + 10 * Math.sin(wd)]], H, 1.4); k.circ(cx + 10 * Math.cos(wd), cy + 10 * Math.sin(wd), 2, H) }
+}
+const atmItems = (A) => [["PRECIP", A.pmax != null ? `${A.pmax}%` : "--"], ["HUMIDITY", A.rh != null ? `${A.rh}%` : "--"], ["UV", A.uv != null ? `${Math.round(A.uv)}` : "--"], ["VISIBILITY", A.vis || "--"], ["DEW", A.dew != null ? `${A.dew}°` : "--"], ["WIND", A.wind || "--"]]
+
+// ---------- NEON DISTRICT ----------
+function cySky(k, W, y0, h, r) { let x = 0; while (x < W) { const w = 10 + r() * 22, hh = h * (0.3 + r() * 0.7); k.rect(x, y0 + h - hh, w, hh, k.a(T.panel, 0.9)); for (let wy = y0 + h - hh + 3; wy < y0 + h - 2; wy += 5) for (let wx = x + 2; wx < x + w - 2; wx += 4) if (r() > 0.7) k.rect(wx, wy, 1.6, 2, k.a(r() > 0.5 ? T.headBg : T.accent, 0.6)); x += w + 1 } }
+const CY = {
+  status(k, W, H, d) {
+    const wx = d.wx || {}, r = k.rng(31), cx = 62, cy = H / 2 + 4
+    for (let i = 0; i < 40; i++) { const a = i / 40 * Math.PI * 2, l = i % 5 ? 3 : 7; k.ln([[cx + 46 * Math.cos(a), cy + 46 * Math.sin(a)], [cx + (46 - l) * Math.cos(a), cy + (46 - l) * Math.sin(a)]], k.a(T.accent, i % 5 ? 0.4 : 0.9), 1) }
+    glowLn(k, k.arcPts(cx, cy, 38, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * d.batt), T.headBg, 2)
+    k.t(wx.temp != null ? `${wx.temp}°` : "--", cx, cy - 14, 22, k.I, { f: "disp", a: "c", w: 80 }); k.t(wx.cond || "NO SIGNAL", cx, cy + 12, 6.5, k.a(T.accent, 1), { a: "c", w: 80 })
+    const x0 = 128
+    k.t(d.ev ? (d.ev.active ? "JACKED IN · GIG LIVE" : "NEXT GIG") : "OFF THE GRID", x0, 8, 7, k.H, { f: "bold", w: 200 })
+    k.para(d.ev ? d.ev.title.toUpperCase() : d.L.noneSub, x0, 20, W - x0 - 14, 14, k.I, "disp", 2, 1.1)
+    k.t(d.ev ? `${shortT(d.ev.start)} → ${shortT(d.ev.end)}` : "", x0, 54, 8.5, k.a(T.accent, 1), { w: 200 })
+    ;[["FEELS", wx.feels != null ? `${wx.feels}°` : "--", 0.6], ["HI / LO", wx.hi != null ? `${wx.hi}° / ${wx.lo}°` : "--", 0.5], ["BATTERY", pct(d.batt), d.batt]].forEach(([l, v, f], i) => { const y = 72 + i * 15; k.t(l, x0, y, 7, k.S, { w: 60 }); nBars(k, x0 + 62, y + 2, 100, 6, 16, f, k.a(T.accent, 1), k.ia(0.1), 1.5); k.t(v, W - 14, y, 8, k.I, { a: "r", w: 64 }) })
+    k.t("CRED +2.1 · RENT DUE 3D · DATA +4.2", x0, H - 14, 6.5, k.a(T.altBg, 1), { w: 220 })
+  },
+  shift(k, W, H, d) {
+    k.t(d.ev ? (d.ev.active ? "GIG TIMER · LIVE" : "GIG STARTS IN") : "OFF THE GRID", 12, 6, 7, k.H, { f: "bold", w: W - 24 })
+    k.t(d.ev ? d.ev.title.toUpperCase() : d.L.offTitle.toUpperCase(), 12, 17, 10, k.I, { f: "disp", w: W - 24 })
+    notch(k, 10, 46, W - 20, 46, 8, T.headBg, 1.4, k.a(T.ground, 0.5))
+    const f = d.ev ? d.frac : 0; nBars(k, 12, 104, W - 24, 8, 20, f, (j, n) => j > n * 0.8 ? k.a(T.headBg, 1) : k.a(T.accent, 1), k.ia(0.1), 1.5)
+    for (let i = 0; i < 3; i++) k.rect(12 + i * 40, 116 + (i % 2) * 2, 20 + i * 6, 1.5, k.a(T.accent, 0.6))
+    if (d.ev) k.t(`${pct(f)} · OUT ${shortT(d.ev.end)}`, W - 12, 120, 6.5, k.S, { a: "r", w: 120 })
+  },
+  tx(k, W, H, d) {
+    const small = W < 200, big = H > 200
+    notch(k, 8, 6, W - 16, H - 12, 12, T.headBg, 1.4, null)
+    k.rect(18, 14, 66, 12, k.a(T.headBg, 1)); k.t(d.archival ? "ARCHIVE" : "SPONSORED", 51, 15.5, 7, k.a(T.ground, 1), { a: "c", w: 64, f: "bold" })
+    if (!small) k.t(`HOLO-AD 0x${d.hex} · ${d.cls}`, 92, 16, 7, k.a(T.accent, 1), { w: W - 110 })
+    const fs = fitFs(k, d.text.toUpperCase(), W - 36, small ? 4 : 3, small ? 12 : (big ? 20 : 16), "disp"), n = k.para(d.text.toUpperCase(), 18, 32, W - 36, fs, k.a(T.accent, 1), "disp", small ? 4 : 3, 1.12)
+    k.t(`— ${d.by}`, 18, 36 + n * fs * 1.12, small ? 6.5 : 7.5, k.S, { w: W - 36 })
+    const r = k.rng(parseInt(d.hex, 16)); for (let i = 0; i < 5; i++) { const y = 30 + r() * (H - 50); k.rect(14 + r() * 40, y, 40 + r() * 80, 1.5, k.a(r() > 0.5 ? T.headBg : T.accent, 0.5)) }
+    if (!small) { const y = H - 26; k.t("▲ 4.2% · BUY NOW · ZERO INTEREST* · *INTEREST APPLIES", 18, y, 6.5, k.a(T.altBg, 1), { w: W - 36 }); nBars(k, 18, y + 11, W - 36, 3, 40, 0.7, k.a(T.headBg, 1), k.ia(0.1), 1) }
+  },
+  solar(k, W, H, d) {
+    const small = W < 200, big = H > 200, r = k.rng(53), sy = small ? 50 : 52, sh = small ? 56 : 60
+    k.t(d.up ? C.solar.day : C.solar.night, 12, 6, 7, k.H, { f: "bold", w: 170 }); k.t(pct(d.up ? d.frac : 1 - d.frac), 12, 16, small ? 18 : 24, k.I, { f: "disp", w: 120 })
+    if (!small) k.t(d.up ? C.solar.setIn : C.solar.riseIn, W - 12, 6, 7, k.a(T.accent, 1), { a: "r", w: 160 })
+    const arcY = sy + sh, f = d.up ? d.frac : 0.5, px = 12 + (W - 24) * f, py = arcY - Math.sin(Math.PI * f) * (sh - 6)
+    glowLn(k, Array.from({ length: 41 }, (_, i) => [12 + (W - 24) * i / 40, arcY - Math.sin(Math.PI * i / 40) * (sh - 6)]), T.accent, 1)
+    k.circ(px, py, 6, d.up ? k.a(T.altBg, 1) : k.a(T.accent, 1)); k.circ(px, py, 11, null, k.a(T.altBg, 0.4), 1)
+    cySky(k, W, arcY - 30, 30, r); k.rect(0, arcY, W, 1.5, k.a(T.headBg, 1))
+    k.t(`RISE ${shortT(d.rise)}`, 12, arcY + 5, 7, k.S, { w: 90 }); k.t(`SET ${shortT(d.set)}`, W - 12, arcY + 5, 7, k.S, { a: "r", w: 90 })
+    if (!small) { k.t("SMOG", 120, arcY + 5, 6.5, k.S, { w: 30 }); nBars(k, 146, arcY + 7, 90, 4, 12, 0.35 + r() * 0.5, k.a(T.headBg, 1), k.ia(0.1), 1) }
+    if (big && d.atm) {
+      for (let gy = 142; gy < H - 30; gy += 12) k.rect(10, gy, W - 20, 0.6, k.a(T.accent, 0.08)); k.t("DISTRICT 09 // AIR SENSORS", 12, 134, 6, k.ia(0.45), { w: 200 })
+      atmItems(d.atm).forEach(([l, v], i) => { const x = 12 + (i % 3) * 114, y = 150 + Math.floor(i / 3) * 70; notch(k, x, y, 106, 58, 7, i === 0 ? T.headBg : T.accent, 1, k.a(T.ground, 0.4)); k.t(l, x + 9, y + 7, 6.5, k.S, { w: 56 }); k.t(v, x + 9, y + 20, String(v).length > 4 ? 13 : 16, k.I, { f: "disp", w: 58 }); inst(k, i, x + 70, y + 14, d.atm, { ink: k.a(T.accent, 1), hot: k.a(T.headBg, 1), faint: k.ia(0.12) }) })
+      k.t("TOXIC WINDOW: NONE · MASK OPTIONAL · NEON STAYS ON", W / 2, H - 22, 7, k.a(T.altBg, 1), { a: "c", w: W - 20 })
+    }
+  },
+  feed(k, W, H, d) {
+    const m = 8; notch(k, m, 8, W - m * 2, H * 0.42, 8, d.side === "yt" ? T.headBg : T.accent, 1.2, k.a(T.ground, 0.5))
+    const r = k.rng(d.side.length * 13); for (let i = 0; i < 6; i++) k.rect(m + 4 + r() * 60, 12 + r() * (H * 0.42 - 10), 30 + r() * 70, 2, k.a(r() > 0.5 ? T.headBg : T.accent, 0.4))
+    k.poly([[W / 2 - 6, 8 + H * 0.21 - 8], [W / 2 + 9, 8 + H * 0.21], [W / 2 - 6, 8 + H * 0.21 + 8]], k.a(T.accent, 1)); k.t(d.code, W - m - 4, 12, 6.5, k.H, { a: "r", w: 60 })
+    k.t(d.line.toUpperCase(), m, 8 + H * 0.42 + 5, 11, k.I, { f: "disp", w: W - m * 2 })
+    d.meters.forEach(([n, v], i) => { const y = 8 + H * 0.42 + 22 + i * 11; k.t(n, m, y, 6.5, k.S, { w: 66 }); nBars(k, m + 70, y + 2, W - m * 2 - 104, 4, 12, v, k.a(T.accent, 1), k.ia(0.1), 1.5); k.t(pct(v), W - m, y, 6.5, k.I, { a: "r", w: 30 }) })
+    k.t(d.tag, m, H - 15, 6.5, k.a(T.altBg, 1), { w: W - m * 2 })
+  },
+  yt(k, W, H, d) {
+    const r = sRng(d, 31), small = W < 200, sw = small ? W - 24 : 200
+    notch(k, 12, 8, sw, small ? 80 : 104, 10, T.headBg, 1.3, k.a(T.ground, 0.6))
+    for (let i = 0; i < 8; i++) k.rect(16 + r() * (sw - 40), 14 + r() * 90, 20 + r() * 60, 1.5, k.a(r() > 0.5 ? T.headBg : T.accent, 0.35))
+    k.circ(12 + sw / 2, 8 + (small ? 40 : 52), 14, null, k.a(T.accent, 1), 1.4); k.poly([[12 + sw / 2 - 5, 8 + (small ? 40 : 52) - 7], [12 + sw / 2 + 8, 8 + (small ? 40 : 52)], [12 + sw / 2 - 5, 8 + (small ? 40 : 52) + 7]], k.a(T.accent, 1))
+    k.rect(18, 14, 34, 10, k.a(T.headBg, 1)); k.t("LIVE", 35, 15, 6.5, k.a(T.ground, 1), { a: "c", w: 34, f: "bold" }); k.t(`${(1 + r() * 90).toFixed(1)}K WATCHING`, 58, 15, 6.5, k.I, { w: 120 })
+    if (small) return
+    const cx = 224
+    k.t("CHAT // HOLO-STREAM", cx, 8, 7, k.H, { f: "bold", w: 130 })
+    ;["@v0idkid: chrome!!", "@rainwire: buy the dip", "@n30n_m0m: go to sleep", "@gl1tch: is this live", "@corp_bot: SPONSORED"].forEach((m2, i) => k.t(m2, cx, 22 + i * 14, 7.5, i === 4 ? k.a(T.altBg, 1) : i % 2 ? k.I : k.a(T.accent, 1), { w: W - cx - 10 }))
+    k.t(`SCREEN TIME ${mmss(600 + r() * 3000)} · HYPE ${60 + Math.floor(r() * 39)}%`, cx, 100, 6.5, k.S, { w: W - cx - 10 })
+  },
+  ig(k, W, H, d) {
+    const r = sRng(d, 32), small = W < 200, cols = small ? 3 : 5, cs = small ? 44 : 50
+    for (let i = 0; i < cols * (small ? 2 : 1); i++) { const x = 12 + (i % cols) * (cs + 6), y = 10 + Math.floor(i / cols) * (cs + 6); notch(k, x, y, cs, cs, 6, i % 2 ? T.accent : T.headBg, 1, k.a(T.ground, 0.4)); k.circ(x + cs / 2, y + cs * 0.44, cs * 0.18, k.a(T.ink, 0.12), k.a(T.ink, 0.6), 0.8); k.rect(x + cs * 0.28, y + cs * 0.38, cs * 0.44, cs * 0.08, k.a(T.accent, 0.9)); k.arc(x + cs / 2, y + cs * 0.92, cs * 0.28, Math.PI, Math.PI * 2, k.ia(0.6), 0.8); if (r() > 0.5) k.t("+CHROME", x + cs / 2, y + cs - 10, 5.5, k.a(T.altBg, 1), { a: "c", w: cs }) }
+    if (small) return
+    k.t("CHROME GALLERY // FILTERED FOREVER", 12, 70, 7, k.H, { f: "bold", w: 260 })
+    ;[["FOLLOWERS", `${(r() * 90).toFixed(1)}K`], ["UPGRADES SEEN", `${10 + Math.floor(r() * 90)}`], ["REAL FACES", `${Math.floor(r() * 3)}`]].forEach(([l, v], i) => { const x = 12 + i * 112; k.t(l, x, 86, 6.5, k.S, { w: 100 }); k.t(v, x, 96, 14, k.I, { f: "disp", w: 100 }) })
+  },
+  dc(k, W, H, d) {
+    const r = sRng(d, 33), small = W < 200
+    k.t("THE NET BAR // BOOTHS", 12, 6, 7, k.H, { f: "bold", w: W - 24 })
+    const handles = ["v0idkid", "rainwire", "n30n_m0m", "gl1tch", "sable_x", "kitsune"]
+    handles.slice(0, small ? 4 : 6).forEach((h2, i) => { const x = 12 + (i % (small ? 2 : 3)) * (small ? 74 : 66), y = 20 + Math.floor(i / (small ? 2 : 3)) * 46, on = r() > 0.3; notch(k, x, y, small ? 68 : 60, 40, 5, on ? T.accent : T.ink, 0.8, k.a(T.ground, 0.5)); k.rect(x + 8, y + 7, (small ? 68 : 60) - 16, 16, on ? k.a(T.accent, 0.25) : k.ia(0.06)); k.t(`@${h2}`, x + 5, y + 27, 6, on ? k.I : k.S, { w: (small ? 68 : 60) - 8 }); if (on) k.circ(x + (small ? 68 : 60) - 7, y + 6, 2, k.a(T.altBg, 1)) })
+    if (small) return
+    const cx = 220
+    ;["# gigs-board", "# chrome-trades", "# rooftop-raves", "🔊 BOOTH 07"].forEach((c2, i) => { const y = 22 + i * 15; k.t(c2.toUpperCase(), cx, y, 8, i === 3 ? k.H : k.I, { w: 130, f: "bold" }); if (r() > 0.5) k.circ(W - 16, y + 4, 2.5, k.a(T.accent, 1)) })
+    k.t(`ONLINE ${3 + Math.floor(r() * 9)} · DRINKS ON THE CORP`, cx, 90, 7, k.a(T.altBg, 1), { w: 140 })
+  },
+  audio(k, W, H, d) {
+    const r = k.rng(Math.floor(d.phase * 100)), cx = 46, cy = 44
+    k.ln([[cx, cy + 20], [cx, cy - 26]], k.I, 1.4); for (let i = 1; i <= 3; i++) { glowLn(k, k.arcPts(cx, cy - 26, i * 8, -Math.PI * 0.8, -Math.PI * 0.2, 10), T.accent, 1); glowLn(k, k.arcPts(cx, cy - 26, i * 8, Math.PI * 0.2 - Math.PI, -Math.PI * 1.2 + Math.PI, 2), T.accent, 0.1) }
+    notch(k, cx - 26, cy + 4, 52, 26, 5, T.headBg, 1.2, k.a(T.ground, 0.5)); k.t("88.9", cx, cy + 10, 11, k.a(T.altBg, 1), { a: "c", w: 50, f: "bold" })
+    k.t(C.audio.src, 92, 12, 8, k.a(T.accent, 1), { w: 250 }); k.t(d.line.toUpperCase(), 92, 24, 15, k.I, { f: "disp", w: W - 106 })
+    ;[["FREQ", "88.9 FM"], ["LICENSE", "NONE"], [C.audio.metric, "▮".repeat(d.lvl) + "▯".repeat(5 - d.lvl)]].forEach(([l, v], i) => { const x = 92 + i * 80; k.t(l, x, 52, 6.5, k.S, { w: 76 }); k.t(v, x, 61, 9, i === 1 ? k.H : k.I, { w: 76 }) })
+    for (let i = 0; i < 40; i++) { const hh = 4 + Math.abs(Math.sin(i * 0.5 + d.phase)) * 30 * (0.5 + r() * 0.5); k.rect(14 + i * 8.4, 126 - hh, 6, hh, i % 7 === 0 ? k.a(T.headBg, 1) : k.a(T.accent, 0.4 + (hh / 34) * 0.6)) }
+    k.t("ON AIR", W - 70, 52, 6.5, k.H, { w: 60, f: "bold" })
+  }
+}
+
+// ---------- VAPOR PLAZA ----------
+function vpSun(k, cx, cy, R) { for (let i = 0; i < R * 2; i += 2) { const y = cy - R + i, hw = Math.sqrt(Math.max(0, R * R - (y - cy) * (y - cy))); if (y > cy && (Math.floor((y - cy) / 4) % 2 === 1)) continue; const t = i / (2 * R); k.rect(cx - hw, y, hw * 2, 2, k.a(t < 0.5 ? "#FFFB96" : T.headBg, 1)) } }
+function vpGrid(k, x, y, w, h) { k.rect(x, y, w, h, k.a(T.ground, 0.6)); for (let i = -10; i <= 10; i++) k.ln([[x + w / 2 + i * w / 30, y], [x + w / 2 + i * w / 6, y + h]], k.a(T.headBg, 0.75), 0.7); for (let j = 1; j < 7; j++) { const t = Math.pow(j / 6, 2); k.ln([[x, y + h * t], [x + w, y + h * t]], k.a(T.headBg, 0.75), 0.7) } k.ln([[x, y], [x + w, y]], k.a(T.altBg, 1), 1.2) }
+const VP = {
+  status(k, W, H, d) {
+    const wx = d.wx || {}
+    winBox(k, 10, 6, W - 20, H - 12, "status.exe")
+    vpSun(k, 56, 70, 30); vpGrid(k, 18, 86, 76, 40)
+    const x0 = 106, I0 = k.a("#101018", 1), S0 = k.a("#3A3A4A", 1)
+    k.t(d.ev ? (d.ev.active ? "NOW SHOWING" : "COMING UP") : "NOTHING SCHEDULED", x0, 24, 9, k.a("#1A1A80", 1), { w: 200 })
+    k.para(d.ev ? d.ev.title : "Enjoy the atrium.", x0, 36, W - x0 - 20, 15, I0, "disp", 2, 1.08)
+    k.t(d.ev ? `${shortT(d.ev.start)} - ${shortT(d.ev.end)}` : "", x0, 72, 11, S0, { w: 200 })
+    ;[["TEMP", wx.temp != null ? `${wx.temp}°` : "--"], ["FEELS", wx.feels != null ? `${wx.feels}°` : "--"], ["POWER", pct(d.batt)]].forEach(([l, v], i) => { const x = x0 + i * 78; k.rect(x, 92, 70, 28, k.a("#FFFFFF", 1)); k.rect(x, 92, 70, 1.5, k.a("#4A4A5A", 1)); k.rect(x, 92, 1.5, 28, k.a("#4A4A5A", 1)); k.t(l, x + 5, 94, 8, S0, { w: 60 }); k.t(v, x + 5, 104, 12, I0, { w: 60 }) })
+  },
+  shift(k, W, H, d) {
+    winBox(k, 6, 6, W - 12, H - 12, "loading.exe")
+    const I0 = k.a("#101018", 1)
+    k.t(d.ev ? (d.ev.active ? "Now loading..." : "Please wait...") : "Screensaver mode", 14, 26, 11, I0, { w: W - 28 })
+    k.t(d.ev ? d.ev.title : "", 14, 40, 10, k.a("#1A1A80", 1), { f: "disp", w: W - 28 })
+    k.rect(14, 96, W - 28, 16, k.a("#FFFFFF", 1)); k.rect(14, 96, W - 28, 1.5, k.a("#4A4A5A", 1)); const f = d.ev ? d.frac : 0, n = 14
+    for (let i = 0; i < Math.round(f * n); i++) k.rect(17 + i * ((W - 34) / n), 99, (W - 34) / n - 2, 10, k.a("#1A1A80", 1))
+    k.t(d.ev ? `${pct(f)} complete` : "", 14, 116, 9, I0, { w: W - 28 })
+  },
+  tx(k, W, H, d) {
+    const small = W < 200, big = H > 200, I0 = k.a("#101018", 1)
+    winBox(k, 8, 6, W - 16, H - 12, d.archival ? "archive.txt" : "message_from_1995.txt")
+    k.circ(30, 42, 11, k.a("#FFFB00", 1), I0, 1); k.t("!", 30, 33, 14, I0, { f: "heavy", a: "c", w: 14 })
+    const fs = fitFs(k, d.text, W - 70, small ? 4 : 3, small ? 13 : (big ? 20 : 16), "disp"), n = k.para(d.text, 50, 28, W - 70, fs, I0, "disp", small ? 4 : 3, 1.12)
+    k.t(`— ${d.by}`, 50, 32 + n * fs * 1.12, small ? 8 : 9, k.a("#3A3A4A", 1), { w: W - 70 })
+    if (!small) { k.rect(W / 2 - 30, H - 32, 60, 18, k.a("#C3C3D0", 1), I0, 1); k.t("OK", W / 2, H - 29, 11, I0, { a: "c", w: 50 }); k.rect(W / 2 + 40, H - 32, 70, 18, k.a("#C3C3D0", 1), k.a("#4A4A5A", 1), 1); k.t("Cancel", W / 2 + 75, H - 29, 11, I0, { a: "c", w: 60 }) }
+  },
+  solar(k, W, H, d) {
+    const small = W < 200, big = H > 200, top = 28, sh = small ? 56 : 62
+    for (let i = 0; i < sh; i += 2) k.rect(8, top + i, W - 16, 2, k.a(i < sh / 2 ? T.ground : T.headBg, 0.4 + i / sh * 0.5))
+    const f = d.up ? d.frac : 0.5, px = 20 + (W - 40) * f, py = top + sh - 4 - Math.sin(Math.PI * f) * (sh - 22)
+    vpSun(k, px, py, small ? 14 : 18); vpGrid(k, 8, top + sh, W - 16, small ? 26 : 30)
+    k.t(d.up ? C.solar.day : C.solar.night, 12, 6, 9, k.a(T.altBg, 1), { w: 160 }); k.t(pct(d.up ? d.frac : 1 - d.frac), 12, 14, 12, k.I, { f: "disp", w: 80 })
+    if (!small) k.t(d.up ? C.solar.setIn : C.solar.riseIn, W - 12, 6, 9, k.a(T.altBg, 1), { a: "r", w: 160 })
+    k.t(`RISE ${shortT(d.rise)}`, 12, top + sh + (small ? 28 : 34), 9, k.S, { w: 90 }); k.t(`SET ${shortT(d.set)}`, W - 12, top + sh + (small ? 28 : 34), 9, k.S, { a: "r", w: 90 })
+    if (big && d.atm) {
+      atmItems(d.atm).forEach(([l, v], i) => { const x = 12 + (i % 3) * 114, y = 150 + Math.floor(i / 3) * 76; winBox(k, x, y, 106, 64, `${l.toLowerCase()}.dat`); k.t(v, x + 8, y + 24, String(v).length > 4 ? 13 : 16, k.a("#101018", 1), { f: "disp", w: 58 }); inst(k, i, x + 70, y + 24, d.atm, { ink: k.a("#1A1A80", 1), hot: k.a(T.headBg, 1), faint: k.a("#101018", 0.15) }) })
+      k.t("Thank you for visiting the eternal sunset.", W / 2, H - 22, 11, k.a(T.altBg, 1), { a: "c", w: W - 30 })
+    }
+  },
+  feed(k, W, H, d) {
+    const m = 6, r = k.rng(d.side.length * 7)
+    winBox(k, m, 6, W - m * 2, H - 12, d.side === "yt" ? "channel_1.tv" : "channel_2.tv")
+    const sx = m + 6, sy = 24, sw = W - m * 2 - 12, sh = H * 0.36
+    k.rect(sx, sy, sw, sh, k.a("#101018", 1)); for (let i = 0; i < 90; i++) k.rect(sx + r() * sw, sy + r() * sh, 1.5, 1, k.a("#FFFFFF", r() * 0.6)); for (let y = sy; y < sy + sh; y += 3) k.rect(sx, y, sw, 1, k.a(T.headBg, 0.08))
+    k.t(d.code, sx + 4, sy + 3, 8, k.a(T.altBg, 1), { w: 60 })
+    const I0 = k.a("#101018", 1)
+    k.t(d.line, sx, sy + sh + 4, 12, I0, { f: "disp", w: sw })
+    d.meters.forEach(([n, v], i) => { const y = sy + sh + 22 + i * 12; k.t(n, sx, y, 8, k.a("#3A3A4A", 1), { w: 62 }); k.rect(sx + 66, y + 2, sw - 100, 6, k.a("#FFFFFF", 1)); k.rect(sx + 66, y + 2, (sw - 100) * v, 6, k.a("#1A1A80", 1)); k.t(pct(v), sx + sw, y, 8, I0, { a: "r", w: 30 }) })
+  },
+  yt(k, W, H, d) {
+    const r = sRng(d, 51), small = W < 200, I0 = k.a("#101018", 1)
+    const tw = small ? W - 24 : 190, th2 = small ? 70 : 84
+    k.rect(12, 10, tw, th2, k.a("#1A1028", 1)); k.rect(12 + tw * 0.12, 10 + th2 * 0.22, tw * 0.76, th2 * 0.5, k.a("#F4EEF8", 1)); k.t("BE KIND, REWIND", 12 + tw / 2, 10 + th2 * 0.28, 10, I0, { a: "c", w: tw * 0.7 }); k.t(pick2(r, ["SUNSET_MIX_95", "MALL_TOUR_VOL2", "FOUNTAIN_CAM", "PALMS_4HRS"]), 12 + tw / 2, 10 + th2 * 0.42, 9, k.a(T.headBg, 1), { a: "c", w: tw * 0.7 })
+    ;[0.22, 0.78].forEach(f => { k.circ(12 + tw * f, 10 + th2 * 0.85, 7, k.a("#333344", 1), k.a("#AAAAAA", 1), 1); for (let j = 0; j < 6; j++) { const a = j / 6 * Math.PI * 2 + d.seed; k.ln([[12 + tw * f, 10 + th2 * 0.85], [12 + tw * f + 6 * Math.cos(a), 10 + th2 * 0.85 + 6 * Math.sin(a)]], k.a("#AAAAAA", 1), 0.6) } })
+    if (small) return
+    const rx = 216
+    k.t("VHS // NOW PLAYING", rx, 10, 10, k.a(T.altBg, 1), { w: 140 })
+    ;["◀◀", "▶", "■", "▶▶"].forEach((b, i) => { k.rect(rx + i * 34, 28, 30, 18, k.a("#C3C3D0", 1), k.a("#4A4A5A", 1), 1); k.t(b, rx + i * 34 + 15, 30, 9, I0, { a: "c", w: 28 }) })
+    k.t(`TRACKING ${["▮▮▮▯▯", "▮▮▯▯▯", "▮▮▮▮▯"][Math.floor(r() * 3)]}`, rx, 56, 10, k.I, { w: 140 }); k.t(`TAPE TIME ${mmss(600 + r() * 3000)}`, rx, 70, 10, k.I, { w: 140 }); k.t("SP · HI-FI STEREO", rx, 84, 10, k.S, { w: 140 })
+  },
+  ig(k, W, H, d) {
+    const r = sRng(d, 52), small = W < 200, n = small ? 2 : 3, pw = small ? 66 : 92, ph = small ? 52 : 64
+    for (let i = 0; i < n; i++) { const x = 14 + i * (pw + 12), y = 14 + (i % 2) * 6; k.rect(x + 2, y + 2, pw, ph, k.ia(0.2)); k.rect(x, y, pw, ph, k.a("#FFF4FA", 1)); for (let j = 0; j < ph - 18; j += 2) k.rect(x + 4, y + 4 + j, pw - 8, 2, k.a(j < (ph - 18) / 2 ? T.ground : T.headBg, 0.5 + j / ph * 0.5)); vpSun(k, x + pw / 2, y + (ph - 18) * 0.6, 8); k.rect(x + pw - 18, y + ph - 14, 12, 10, null, k.a(T.headBg, 1), 1); k.t("WISH YOU WERE HERE", x + 4, y + ph - 12, 6, k.a("#3A1B4F", 1), { w: pw - 26 }) }
+    if (small) return
+    k.t(`POSTCARDS ${10 + Math.floor(r() * 40)} · SUNSETS ${Math.floor(r() * 99)} · PALMS ∞`, 14, 100, 10, k.a(T.altBg, 1), { w: W - 28 })
+  },
+  dc(k, W, H, d) {
+    const r = sRng(d, 53), small = W < 200, I0 = k.a("#101018", 1)
+    winBox(k, 8, 6, W - 16, H - 12, "chatroom.exe")
+    const lw = small ? W - 32 : 220
+    k.rect(14, 24, lw, H - 38, k.a("#FFFFFF", 1)); k.rect(14, 24, lw, 1.5, k.a("#4A4A5A", 1))
+    const lines = [["palmtree95", "anyone at the fountain?"], ["sunsetgrl", "food court in 5"], ["dolphin_dan", "this song is so smooth"], ["mallrat", "brb escalator"], ["vaporkid", "a e s t h e t i c"]]
+    lines.slice(0, small ? 4 : 5).forEach(([u, m2], i) => { k.t(`<${u}>`, 18, 28 + i * 14, 9, k.a(["#1A1A80", "#B0207A", "#007070"][i % 3], 1), { w: 80 }); if (!small) k.t(m2, 96, 28 + i * 14, 9, I0, { w: lw - 86 }) })
+    if (small) return
+    const ux = 240; k.rect(ux, 24, W - ux - 14, H - 38, k.a("#FFFFFF", 1)); k.t(`USERS (${5 + Math.floor(r() * 9)})`, ux + 4, 26, 9, k.a("#1A1A80", 1), { w: 100 }); lines.forEach(([u], i) => k.t(u, ux + 4, 40 + i * 12, 8.5, I0, { w: W - ux - 20 }))
+  },
+  audio(k, W, H, d) {
+    const I0 = k.a("#101018", 1)
+    k.rect(10, 14, 74, 48, k.a("#1A1028", 1)); k.rect(16, 20, 62, 22, k.a("#F4EEF8", 1)); k.t("SIDE B", 47, 22, 8, k.a(T.headBg, 1), { a: "c", w: 60 }); k.t("MALLSOFT", 47, 31, 7, I0, { a: "c", w: 60 })
+    ;[30, 64].forEach(x => { k.circ(x, 52, 6, k.a("#333344", 1), k.a("#AAAAAA", 1), 1); for (let j = 0; j < 6; j++) { const a = j / 6 * Math.PI * 2 + d.phase; k.ln([[x, 52], [x + 6 * Math.cos(a), 52 + 6 * Math.sin(a)]], k.a("#AAAAAA", 1), 0.6) } })
+    k.t(C.audio.src, 92, 12, 10, k.a(T.altBg, 1), { w: 250 }); k.t(d.line, 92, 24, 17, k.I, { f: "disp", w: W - 106 })
+    ;[["TAPE", "C-90"], ["DOLBY", "ON"], [C.audio.metric, "▮".repeat(d.lvl) + "▯".repeat(5 - d.lvl)]].forEach(([l, v], i) => { const x = 92 + i * 80; k.t(l, x, 52, 9, k.S, { w: 76 }); k.t(v, x, 62, 11, k.I, { w: 76 }) })
+    for (let i = 0; i < 24; i++) { const hh = 4 + Math.abs(Math.sin(i * 0.6 + d.phase)) * 28; for (let j = 0; j < hh; j += 4) k.rect(14 + i * 14, 124 - j, 10, 3, k.a(j > 20 ? T.headBg : j > 12 ? T.altBg : "#FFFB96", 1)) }
+    k.t("PLAYING", W - 70, 52, 9, k.S, { w: 60 })
+  }
+}
+
+// ---------- WILDWOOD ----------
+function naHills(k, x, y, w, h) { const p1 = []; for (let i = 0; i <= w; i += 4) p1.push([x + i, y + h * 0.5 - Math.sin(i * 0.03) * h * 0.25]); k.poly(p1.concat([[x + w, y + h], [x, y + h]]), k.a(T.headBg, 0.55)); const p2 = []; for (let i = 0; i <= w; i += 4) p2.push([x + i, y + h * 0.7 - Math.sin(i * 0.05 + 1) * h * 0.15]); k.poly(p2.concat([[x + w, y + h], [x, y + h]]), k.a(T.headBg, 0.85)); for (let i = 0; i < 9; i++) { const tx = x + 10 + i * (w - 20) / 8, ty = y + h * 0.66 - Math.sin((tx - x) * 0.05 + 1) * h * 0.15; k.poly([[tx, ty - 12], [tx + 4, ty], [tx - 4, ty]], k.ia(0.75)) } }
+function naTape(k, x, y, ang) { const c = Math.cos(ang), s = Math.sin(ang), P = (u, v) => [x + u * c - v * s, y + u * s + v * c]; k.poly([P(-12, -4), P(12, -4), P(12, 4), P(-12, 4)], k.a("#F2E6C8", 0.75)) }
+const NA = {
+  status(k, W, H, d) {
+    const wx = d.wx || {}
+    k.ln([[30, 4], [30, H - 4]], k.a(T.altBg, 0.5), 0.8)
+    for (let y = 22; y < H - 6; y += 13) k.ln([[34, y], [W - 10, y]], k.ia(0.07), 0.6)
+    k.t(String(d.now.getDate()), 16, 8, 14, k.a(T.altBg, 1), { f: "disp", a: "c", w: 24 }); k.t(d.now.toDateString().slice(0, 3).toUpperCase(), 16, 26, 6, k.S, { a: "c", w: 24 })
+    k.t(`Field journal · ${d.now.toLocaleDateString ? d.now.toLocaleDateString("en-US", { month: "long", day: "numeric" }) : ""}`, 40, 6, 9.5, k.S, { f: "disp", w: 230 })
+    wxIcon(k, wxKind(wx.cond), W - 36, 30, 32, k.I, 1)
+    const n = k.para(d.ev ? `${d.ev.active ? "Out on" : "Next outing"}: ${d.ev.title}, ${shortT(d.ev.start)} to ${shortT(d.ev.end)}.` : "A free day. Go for a walk and look up.", 40, 22, W - 100, 13.5, k.I, "disp", 3, 1.15)
+    nLeaf(k, 44, 30 + n * 15.5 + 4, 22, -0.2, k.a(T.headBg, 0.9)); nLeaf(k, 60, 30 + n * 15.5 + 6, 16, 0.4, k.a(T.headBg, 0.7))
+    k.para(wx.temp != null ? `${wx.temp}°, ${(wx.cond || "").toLowerCase()}. Feels like ${wx.feels}°; high ${wx.hi}, low ${wx.lo}.` : "No weather today.", 84, 30 + n * 15.5, W - 96, 10.5, k.S, "disp", 2, 1.2)
+    k.t(`ENERGY ${pct(d.batt)}`, 40, H - 12, 6.5, k.S, { w: 100 }); k.t(`DAY ${dayOfYear(d.now)} OF THE YEAR`, W - 12, H - 12, 6.5, k.S, { a: "r", w: 160 })
+  },
+  shift(k, W, H, d) {
+    k.t(d.ev ? (d.ev.active ? "ON THE TRAIL" : "TRAILHEAD IN") : "RESTING", 12, 6, 7, k.a(T.altBg, 1), { w: W - 24, f: "bold" })
+    k.t(d.ev ? d.ev.title : d.L.offTitle, 12, 17, 11, k.I, { f: "disp", w: W - 24 })
+    naHills(k, 6, 64, W - 12, 60)
+    const pts = []; for (let i = 0; i <= 20; i++) { const t = i / 20; pts.push([16 + t * (W - 32), 120 - t * 52 + Math.sin(t * 9) * 6]) }
+    for (let i = 0; i < pts.length - 1; i += 1) if (i % 2 === 0) k.ln([pts[i], pts[i + 1]], k.a(T.altBg, 1), 1.2)
+    const f = d.ev ? d.frac : 0, pi = Math.min(20, Math.round(f * 20)); k.circ(pts[pi][0], pts[pi][1], 4, k.a(T.altBg, 1), k.I, 1)
+    k.poly([[W - 18, 62], [W - 18, 50], [W - 8, 55]], k.a(T.altBg, 1)); k.ln([[W - 18, 50], [W - 18, 68]], k.I, 1)
+    if (d.ev) k.t(`${pct(f)} · camp by ${shortT(d.ev.end)}`, 12, 126, 7, k.S, { w: W - 24 })
+  },
+  tx(k, W, H, d) {
+    const small = W < 200, big = H > 200, x0 = 12, y0 = 10, w = W - 24, h = H - 20
+    k.rect(x0 + 2, y0 + 2, w, h, k.ia(0.08)); k.rect(x0, y0, w, h, k.a("#FFFDF6", 1), k.ia(0.25), 0.8); k.ln([[x0, y0 + 22], [x0 + w, y0 + 22]], k.a(T.altBg, 0.5), 0.8); for (let y = y0 + 34; y < y0 + h - 4; y += 12) k.ln([[x0, y], [x0 + w, y]], k.a("#7FA6C8", 0.2), 0.6)
+    naTape(k, x0 + 18, y0 + 2, -0.2); naTape(k, x0 + w - 18, y0 + 2, 0.25)
+    k.t(d.archival ? "From the naturalists" : "Field note", x0 + 10, y0 + 6, 10, k.a(T.altBg, 1), { f: "disp", w: w - 20 })
+    const fs = fitFs(k, d.text, w - (small ? 20 : 80), small ? 4 : 3, small ? 13 : (big ? 20 : 16), "disp"), n = k.para(d.text, x0 + 10, y0 + 28, w - (small ? 20 : 80), fs, k.I, "disp", small ? 4 : 3, 1.12)
+    k.t(`— ${d.by}`, x0 + 10, y0 + 32 + n * fs * 1.12, small ? 6.5 : 7.5, k.S, { w: w - 20 })
+    if (!small) { nLeaf(k, x0 + w - 56, y0 + h - 30, 44, -0.6, k.a(T.headBg, 0.85)); nLeaf(k, x0 + w - 40, y0 + h - 14, 28, -1.4, k.a(T.altBg, 0.6)) }
+  },
+  solar(k, W, H, d) {
+    const small = W < 200, big = H > 200, top = 30, bh = small ? 70 : 78
+    for (let i = 0; i < bh; i += 2) k.rect(8, top + i, W - 16, 2, k.a(T.headBg, 0.04 + 0.12 * (i / bh)))
+    const f = d.up ? d.frac : 0.5, px = 20 + (W - 40) * f, py = top + bh - 18 - Math.sin(Math.PI * f) * (bh - 30)
+    for (let i = 0; i <= 40; i += 2) { const t = i / 40, t2 = (i + 1) / 40; k.ln([[20 + (W - 40) * t, top + bh - 18 - Math.sin(Math.PI * t) * (bh - 30)], [20 + (W - 40) * t2, top + bh - 18 - Math.sin(Math.PI * t2) * (bh - 30)]], k.ia(0.5), 0.8) }
+    for (let j = 0; j < 8; j++) { const a = j / 8 * Math.PI * 2; k.ln([[px + 7 * Math.cos(a), py + 7 * Math.sin(a)], [px + 11 * Math.cos(a), py + 11 * Math.sin(a)]], k.a(T.altBg, 1), 1) } k.circ(px, py, 5.5, k.a("#E3B341", 1), k.I, 0.8)
+    naHills(k, 8, top + bh - 30, W - 16, 30)
+    k.t(d.up ? C.solar.day : C.solar.night, 12, 6, 7, k.a(T.altBg, 1), { w: 160, f: "bold" }); k.t(pct(d.up ? d.frac : 1 - d.frac), 12, 14, 14, k.I, { f: "disp", w: 80 })
+    if (!small) k.t(d.up ? C.solar.setIn : C.solar.riseIn, W - 12, 6, 7, k.a(T.altBg, 1), { a: "r", w: 160 })
+    k.t(`Sunrise ${shortT(d.rise)}`, 12, top + bh + 4, 9, k.S, { f: "disp", w: 110 }); k.t(`Sunset ${shortT(d.set)}`, W - 12, top + bh + 4, 9, k.S, { f: "disp", a: "r", w: 110 })
+    if (big && d.atm) {
+      for (let i = 0; i < 10; i++) nLeaf(k, 20 + (i * 53) % (W - 40), 142 + (i * 37) % 170, 10, i, k.a(T.headBg, 0.15))
+      atmItems(d.atm).forEach(([l, v], i) => { const x = 14 + (i % 3) * 114, y = 150 + Math.floor(i / 3) * 76; k.rect(x, y, 104, 64, k.a("#FFFDF6", 1), k.ia(0.2), 0.8); naTape(k, x + 52, y, 0.1); k.t(l === "UV" ? "UV" : l.charAt(0) + l.slice(1).toLowerCase(), x + 10, y + 9, 9, k.a(T.altBg, 1), { f: "disp", w: 60 }); k.t(v, x + 10, y + 24, String(v).length > 4 ? 13 : 16, k.I, { f: "disp", w: 58 }); inst(k, i, x + 68, y + 20, d.atm, { ink: k.I, hot: k.a(T.altBg, 1), faint: k.ia(0.15) }) })
+      k.t(`Good walking weather until ${shortT(new Date(d.set.valueOf() - 45 * 60000))}.`, W / 2, H - 22, 10, k.S, { f: "disp", a: "c", w: W - 30 })
+    }
+  },
+  feed(k, W, H, d) {
+    const m = 10, cw = W - m * 2, ch = H * 0.42
+    k.rect(m, 8, cw, ch, k.a("#FFFDF6", 1), k.ia(0.25), 0.8); naHills(k, m + 4, 8 + ch * 0.35, cw - 8, ch * 0.6); naTape(k, m + cw / 2, 8, 0)
+    k.t(d.code, m + 6, 12, 6.5, k.S, { w: 60 })
+    k.t(d.line, m, 8 + ch + 5, 13, k.I, { f: "disp", w: cw })
+    d.meters.forEach(([n, v], i) => { const y = 8 + ch + 24 + i * 12; k.t(n.charAt(0) + n.slice(1).toLowerCase(), m, y, 8, k.S, { f: "disp", w: 70 }); for (let j = 0; j < 5; j++) nLeaf(k, m + 74 + j * 12, y + 5, 9, -0.3, j / 5 < v ? k.a(T.headBg, 1) : k.ia(0.08)) })
+    k.t(d.tag, m, H - 15, 6.5, k.a(T.altBg, 1), { w: cw })
+  },
+  yt(k, W, H, d) {
+    const r = sRng(d, 61), small = W < 200, fw = small ? W - 24 : 200, frames = small ? 2 : 3
+    k.rect(12, 14, fw, 74, k.a("#2A2A22", 1)); for (let x = 16; x < 12 + fw; x += 9) { k.rect(x, 17, 5, 4, k.a("#FFFDF6", 0.85)); k.rect(x, 81, 5, 4, k.a("#FFFDF6", 0.85)) }
+    for (let i = 0; i < frames; i++) { const x = 18 + i * ((fw - 12) / frames), w = (fw - 12) / frames - 6; k.rect(x, 24, w, 54, k.a("#E9F0DD", 1)); naHills(k, x, 40, w, 38); if (i === 1) k.circ(x + w * 0.7, 34, 4, k.a("#E3B341", 1)) }
+    if (small) return
+    const rx = 226
+    k.t("NATURE REEL", rx, 10, 7.5, k.a(T.altBg, 1), { w: 130, f: "bold" })
+    k.para(pick2(r, ["Ten minutes of a mossy creek.", "Fox kits learning to pounce.", "Fog lifting off a lake.", "A hummingbird, very slowly."]), rx, 24, W - rx - 12, 12, k.I, "disp", 3, 1.15)
+    k.t(`TIME OUTSIDE ${mmss(60 + r() * 600)} · THEN GO OUT`, rx, 92, 6.5, k.S, { w: W - rx - 12 })
+  },
+  ig(k, W, H, d) {
+    const r = sRng(d, 62), small = W < 200, n = small ? 2 : 4, sw = small ? 66 : 74, sh = small ? 88 : 96
+    const leaves = [["Oak leaf", "Quercus"], ["Maple", "Acer"], ["Beech", "Fagus"]], flowers = [["Violet", "Viola"], ["Clover", "Trifolium"], ["Wild rose", "Rosa"]]
+    for (let i = 0; i < n; i++) { const x = 12 + i * (sw + 10), y = 8, [cn, ln] = (i % 2 ? leaves : flowers)[(i + Math.floor(r() * 3)) % 3]; k.rect(x, y, sw, sh, k.a("#FFFDF6", 1), k.ia(0.25), 0.8); if (i % 2) nLeaf(k, x + sw * 0.2, y + 40, sw * 0.6, -0.9, k.a(T.headBg, 0.85)); else { for (let j = 0; j < 5; j++) { const a = j / 5 * Math.PI * 2; k.circ(x + sw / 2 + 8 * Math.cos(a), y + 34 + 8 * Math.sin(a), 6, k.a(T.altBg, 0.6)) } k.circ(x + sw / 2, y + 34, 4, k.a("#E3B341", 1)); k.ln([[x + sw / 2, y + 42], [x + sw / 2, y + 62]], k.a(T.headBg, 1), 1.2) } naTape(k, x + sw / 2, y + 2, 0.1); k.rect(x + 4, y + sh - 22, sw - 8, 18, null, k.ia(0.3), 0.6); k.t(cn, x + sw / 2, y + sh - 20, 7.5, k.I, { f: "disp", a: "c", w: sw - 8 }); k.t(ln, x + sw / 2, y + sh - 11, 6, k.S, { a: "c", w: sw - 8 }) }
+  },
+  dc(k, W, H, d) {
+    const r = sRng(d, 63), small = W < 200, cx = small ? W / 2 : 80, cy = small ? 70 : 78
+    const seats = 7, on = []; for (let i = 0; i < seats; i++) { const a = Math.PI + 0.15 + i / (seats - 1) * (Math.PI - 0.3), x = cx + 56 * Math.cos(a), y = cy + 22 * Math.sin(a) + 18, here = r() > 0.35; on.push(here); k.rect(x - 7, y - 4, 14, 8, k.a("#8B6A44", 1), k.I, 0.8); if (here) { k.circ(x, y - 12, 5, k.a(T.headBg, 0.8), k.I, 0.8); k.rect(x - 5, y - 8, 10, 6, k.a(T.headBg, 0.8)) } }
+    k.ln([[cx - 18, cy + 16], [cx + 18, cy + 10]], k.a("#6B4A2A", 1), 4); k.ln([[cx - 18, cy + 10], [cx + 18, cy + 16]], k.a("#6B4A2A", 1), 4)
+    k.poly([[cx, cy - 18], [cx + 10, cy + 6], [cx, cy + 12], [cx - 10, cy + 6]], k.a(T.altBg, 1)); k.poly([[cx, cy - 6], [cx + 5, cy + 6], [cx, cy + 10], [cx - 5, cy + 6]], k.a("#E3B341", 1))
+    const cnt = on.filter(Boolean).length
+    if (small) { k.t(`${cnt} around the fire`, W / 2, H - 16, 9, k.I, { f: "disp", a: "c", w: W - 20 }); return }
+    const tx = 168
+    k.t("THE CAMPFIRE", tx, 8, 7, k.a(T.altBg, 1), { w: 180, f: "bold" }); k.t(`${cnt} around the fire`, tx, 20, 15, k.I, { f: "disp", w: 180 })
+    ;["# trail-reports", "# bird-sightings", "# recipes-for-camp", "🔈 the fire circle"].forEach((c2, i) => { const y = 46 + i * 15; k.t(c2, tx, y, 9.5, i === 3 ? k.a(T.altBg, 1) : k.I, { f: "disp", w: 180 }); if (r() > 0.5) nLeaf(k, W - 24, y + 5, 9, -0.4, k.a(T.headBg, 1)) })
+    k.t(`NEW NOTES ${Math.floor(r() * 6)} · MARSHMALLOWS LOW`, tx, 112, 6.5, k.S, { w: 180 })
+  },
+  audio(k, W, H, d) {
+    k.ln([[6, 62], [86, 50]], k.a("#6B4A2A", 1), 3); nLeaf(k, 70, 50, 18, -1.0, k.a(T.headBg, 1)); nLeaf(k, 20, 60, 14, 2.2, k.a(T.headBg, 0.8))
+    k.ell(44, 44, 14, 10, k.a(T.altBg, 0.85), k.I, 1); k.circ(56, 37, 7, k.a(T.altBg, 0.85), k.I, 1); k.poly([[62, 36], [70, 38], [62, 40]], k.a("#E3B341", 1)); k.circ(58, 35, 1.2, k.I); k.poly([[30, 44], [18, 40], [22, 48]], k.a(T.altBg, 0.85), k.I, 0.8)
+    ;[[74, 22], [84, 14], [66, 12]].forEach(([x, y], i) => { k.circ(x, y, 2.4, k.I); k.ln([[x + 2.2, y], [x + 2.2, y - 8]], k.I, 0.8) })
+    k.t(C.audio.src, 92, 12, 8, k.a(T.altBg, 1), { w: 250, f: "bold" }); k.t(d.line, 92, 24, 18, k.I, { f: "disp", w: W - 106 })
+    ;[["SPECIES", "WREN"], ["DISTANCE", "NEAR"], [C.audio.metric, "●".repeat(d.lvl) + "○".repeat(5 - d.lvl)]].forEach(([l, v], i) => { const x = 92 + i * 80; k.t(l, x, 52, 6.5, k.S, { w: 76 }); k.t(v, x, 61, 9, k.I, { w: 76 }) })
+    for (let i = 0; i < 60; i++) { const x = 14 + i * 5.6, ph = Math.sin(i * 0.35 + d.phase); for (let j = 0; j < 5; j++) { const v = Math.max(0, ph * Math.sin(j * 1.3 + i * 0.2)); if (v > 0.2) k.rect(x, 122 - j * 7 - v * 4, 4.5, 5, k.a(j > 2 ? T.altBg : T.headBg, 0.25 + v * 0.75)) } }
+    k.t("LISTENING", W - 70, 52, 6.5, k.S, { w: 60 })
+  }
+}
+
+// ---------- LONG ODDS (prediction market) ----------
+const mkNo = () => new Color("#E8384F")
+function mkYesNo(k, x, y, w, h, p) { const g = k.a(T.altBg, 1), n = mkNo(); k.rect(x, y, w * p, h, k.a(T.altBg, 0.16)); k.rect(x + w * p, y, w * (1 - p), h, k.a("#E8384F", 0.12)); const fz = Math.min(10, h * 0.6); k.t(`YES ${Math.round(p * 100)}¢`, x + 5, y + h / 2 - fz * 0.55, fz, g, { f: "bold", w: w / 2 - 6, nofit: true }); k.t(`NO ${100 - Math.round(p * 100)}¢`, x + w - 5, y + h / 2 - fz * 0.55, fz, n, { f: "bold", a: "r", w: w / 2 - 6, nofit: true }) }
+function mkCand(k, x, y, w, h, n, r, trend) { const cw = w / n; let v = 0.5; for (let i = 0; i < n; i++) { const o = v; v = Math.max(0.08, Math.min(0.92, v + (r() - 0.5 + (trend || 0)) * 0.22)); const up = v >= o, col = up ? k.a(T.altBg, 1) : mkNo(), cx = x + i * cw + cw / 2, hi = Math.max(o, v) + r() * 0.06, lo = Math.min(o, v) - r() * 0.06; k.ln([[cx, y + h * (1 - hi)], [cx, y + h * (1 - lo)]], col, 0.8); const yt = y + h * (1 - Math.max(o, v)), yb = y + h * (1 - Math.min(o, v)); k.rect(cx - cw * 0.3, yt, cw * 0.6, Math.max(1.2, yb - yt), col) } return v }
+function mkCard(k, x, y, w, h) { k.rect(x + 1, y + 2, w, h, k.ia(0.05)); k.rect(x, y, w, h, k.PN, k.ia(0.12), 0.8) }
+const MK = {
+  status(k, W, H, d) {
+    const wx = d.wx || {}, r = k.rng(dayOfYear(d.now)), p = d.ev ? (d.ev.active ? 0.9 : 0.62 + r() * 0.3) : 0.5
+    mkCard(k, 10, 6, 212, H - 12)
+    k.t(d.ev ? "MARKET · RESOLVES TODAY" : "NO OPEN POSITIONS", 20, 12, 6.5, k.S, { w: 190 })
+    k.para(d.ev ? `Will you make "${d.ev.title}" on time?` : "Will today be a quiet one?", 20, 24, 192, 13, k.I, "disp", 2, 1.12)
+    k.t(d.ev ? `${shortT(d.ev.start)} — ${shortT(d.ev.end)}` : "", 20, 56, 8, k.S, { w: 190 })
+    mkYesNo(k, 20, 70, 192, 20, p)
+    mkCand(k, 20, 96, 192, 30, 24, r, p > 0.6 ? 0.08 : -0.02)
+    const rx = 232
+    ;[["RAIN TODAY?", wx.cond && /RAIN|SHOWER|DRIZZLE|STORM/.test(wx.cond) ? 0.82 : 0.12], [`ABOVE ${wx.hi != null ? wx.hi - 3 : 70}°?`, 0.44 + r() * 0.3], ["BATTERY > 50% AT 9PM?", Math.min(0.96, d.batt + 0.1)]].forEach(([q, pr], i) => { const y = 6 + i * 44; mkCard(k, rx, y, W - rx - 10, 38); k.t(q, rx + 7, y + 5, 7, k.I, { f: "bold", w: W - rx - 24 }); mkYesNo(k, rx + 7, y + 18, W - rx - 24, 14, pr) })
+    k.t(wx.temp != null ? `${wx.temp}° NOW · FEELS ${wx.feels}°` : "", rx, H - 12, 6.5, k.S, { w: W - rx - 10 })
+  },
+  shift(k, W, H, d) {
+    const r = k.rng(7), f = d.ev ? d.frac : 0
+    k.t(d.ev ? (d.ev.active ? "LIVE · SETTLES IN" : "MARKET OPENS IN") : "MARKET CLOSED", 12, 6, 7, k.a(T.accent, 1), { f: "bold", w: W - 24 })
+    k.t(d.ev ? d.ev.title : d.L.offTitle, 12, 17, 11, k.I, { f: "disp", w: W - 24 })
+    mkCand(k, 12, 74, W - 24, 34, 16, r, 0.05)
+    k.rect(12 + (W - 24) * f, 72, 1.2, 40, k.a(T.accent, 1)); k.circ(12 + (W - 24) * f, 72, 2.5, k.a(T.accent, 1))
+    mkYesNo(k, 12, 116, W - 24, 14, Math.max(0.05, Math.min(0.95, 0.4 + f * 0.5)))
+  },
+  tx(k, W, H, d) {
+    const small = W < 200, big = H > 200, r = k.rng(parseInt(d.hex, 16))
+    mkCard(k, 8, 6, W - 16, H - 12)
+    const rating = d.archival ? "ARCHIVE" : d.cls
+    k.rect(18, 14, Math.min(90, rating.length * 6 + 16), 13, k.a(T.altBg, 0.16)); k.t(rating, 26, 15.5, 7, k.a(T.altBg, 1), { f: "bold", w: 90 })
+    if (!small) k.t(`ANALYST NOTE 0x${d.hex} · CONFIDENCE ${60 + parseInt(d.hex, 16) % 39}%`, W - 18, 16, 6.5, k.S, { a: "r", w: 220 })
+    const fs = fitFs(k, d.text, W - (small ? 36 : 120), small ? 4 : 3, small ? 13 : (big ? 20 : 16), "disp"), n = k.para(d.text, 18, 34, W - (small ? 36 : 120), fs, k.I, "disp", small ? 4 : 3, 1.12)
+    k.t(`— ${d.by}`, 18, 38 + n * fs * 1.12, small ? 6.5 : 7.5, k.S, { w: W - 36 })
+    if (!small) { mkCand(k, W - 96, 34, 78, 46, 12, r, 0.05); k.t("TARGET ▲", W - 18, 84, 6.5, k.a(T.altBg, 1), { a: "r", w: 80 }) }
+    if (!small && H - 30 > 40 + n * fs * 1.12 + 20) mkYesNo(k, 18, H - 30, W - 36, 14, 0.55 + r() * 0.35)
+  },
+  solar(k, W, H, d) {
+    const small = W < 200, big = H > 200, r = k.rng(dayOfYear(d.now)), top = 30, ch = small ? 62 : 70
+    k.t(d.up ? C.solar.day : C.solar.night, 12, 6, 7, k.a(T.accent, 1), { f: "bold", w: 160 }); k.t(pct(d.up ? d.frac : 1 - d.frac), 12, 15, 13, k.I, { f: "disp", w: 80 })
+    if (!small) k.t(d.up ? C.solar.setIn : C.solar.riseIn, W - 12, 6, 7, k.a(T.accent, 1), { a: "r", w: 160 })
+    for (let i = 0; i <= 4; i++) k.ln([[10, top + ch * i / 4], [W - 10, top + ch * i / 4]], k.ia(0.06), 0.6)
+    const n = small ? 16 : 32, cw = (W - 20) / n, nowI = Math.floor((d.up ? d.frac : 0) * n)
+    for (let i = 0; i < n; i++) { const t = (i + 0.5) / n, alt = Math.sin(Math.PI * t), o = Math.sin(Math.PI * (i / n)), up = alt >= o, col = i > nowI ? k.ia(0.15) : (up ? k.a(T.altBg, 1) : mkNo()); const x = 10 + i * cw + cw / 2, yt = top + ch * (1 - Math.max(o, alt) * 0.9), yb = top + ch * (1 - Math.min(o, alt) * 0.9); k.ln([[x, yt - 3 - r() * 4], [x, yb + 3 + r() * 4]], col, 0.7); k.rect(x - cw * 0.3, yt, cw * 0.6, Math.max(1.5, yb - yt), col) }
+    k.rect(10 + nowI * cw, top - 2, 1.2, ch + 4, k.a(T.accent, 1))
+    k.t(`OPEN ${shortT(d.rise)}`, 12, top + ch + 5, 7, k.S, { w: 90 }); k.t(`CLOSE ${shortT(d.set)}`, W - 12, top + ch + 5, 7, k.S, { a: "r", w: 90 })
+    if (big && d.atm) {
+      k.t("WEATHER CONTRACTS // RESOLVE TONIGHT", 12, 132, 6.5, k.ia(0.5), { w: 240 })
+      atmItems(d.atm).forEach(([l, v], i) => { const x = 12 + (i % 3) * 114, y = 146 + Math.floor(i / 3) * 78; mkCard(k, x, y, 106, 68); k.t(l, x + 8, y + 7, 6.5, k.S, { w: 60, f: "bold" }); k.t(v, x + 8, y + 19, String(v).length > 4 ? 13 : 16, k.I, { f: "disp", w: 60 }); inst(k, i, x + 70, y + 12, d.atm, { ink: k.a(T.accent, 1), hot: mkNo(), faint: k.ia(0.12) }); mkYesNo(k, x + 8, y + 48, 90, 12, 0.2 + ((i * 37 + dayOfYear(d.now)) % 70) / 100) })
+      k.t("Not financial advice. Not weather advice either.", W / 2, H - 22, 9.5, k.S, { f: "disp", a: "c", w: W - 30 })
+    }
+  },
+  feed(k, W, H, d) {
+    const m = 8, r = k.rng(d.side.length * 17), p = d.side === "yt" ? 0.64 : 0.38
+    mkCard(k, m, 8, W - m * 2, H * 0.46)
+    k.t(d.code, m + 8, 13, 6.5, k.S, { w: 60 }); k.t(d.side === "yt" ? "MKT · NEXT VIDEO < 10 MIN?" : "MKT · POST GOES VIRAL?", W - m - 8, 13, 6.5, k.S, { a: "r", w: W - 90 })
+    mkCand(k, m + 8, 26, W - m * 2 - 16, H * 0.46 - 44, 18, r, p > 0.5 ? 0.06 : -0.04); mkYesNo(k, m + 8, 8 + H * 0.46 - 18, W - m * 2 - 16, 12, p)
+    k.t(d.line, m, 8 + H * 0.46 + 5, 13, k.I, { f: "disp", w: W - m * 2 })
+    d.meters.forEach(([n, v], i) => { const y = 8 + H * 0.46 + 24 + i * 11; k.t(n, m, y, 6.5, k.S, { w: 66 }); k.rect(m + 70, y + 2, W - m * 2 - 104, 5, k.ia(0.08)); k.rect(m + 70, y + 2, (W - m * 2 - 104) * v, 5, i === 2 ? mkNo() : k.a(T.altBg, 1)); k.t(pct(v), W - m, y, 6.5, k.I, { a: "r", w: 30 }) })
+    k.t(d.tag, m, H - 14, 6.5, k.a(T.accent, 1), { w: W - m * 2 })
+  },
+  yt(k, W, H, d) {
+    const r = sRng(d, 71), small = W < 200, rows = [["Next video under 10 min?", 0.22], ["You watch one more?", 0.94], ["Algorithm finds you a cat?", 0.71], ["Ad is skippable?", 0.48]]
+    k.t("THE WATCHLIST // YOUR VIEWING, PRICED", 12, 6, 7, k.a(T.accent, 1), { f: "bold", w: W - 24 })
+    rows.slice(0, small ? 3 : 4).forEach(([q, p], i) => { const y = 20 + i * (small ? 38 : 30); mkCard(k, 12, y, small ? W - 24 : 206, small ? 32 : 25); k.t(q, 18, y + 4, 7.5, k.I, { w: small ? W - 36 : 196 }); mkYesNo(k, 18, y + (small ? 16 : 13), small ? W - 36 : 194, small ? 12 : 9, Math.max(0.03, Math.min(0.97, p + (r() - 0.5) * 0.1))) })
+    if (small) return
+    const rx = 230
+    mkCard(k, rx, 20, W - rx - 12, 110); mkCand(k, rx + 8, 30, W - rx - 28, 50, 14, r, 0.04)
+    ;[["TIME WATCHED", mmss(300 + r() * 3000)], ["POSITION", `${1 + Math.floor(r() * 9)} YES`], ["P&L", `+${(r() * 40).toFixed(1)}¢`]].forEach(([l, v], i) => { k.t(l, rx + 8, 86 + i * 13, 6.5, k.S, { w: 60 }); k.t(v, W - 20, 86 + i * 13, 7.5, i === 2 ? k.a(T.altBg, 1) : k.I, { a: "r", w: 60, f: "bold" }) })
+  },
+  ig(k, W, H, d) {
+    const r = sRng(d, 72), small = W < 200, cols = small ? 3 : 5, cs = small ? 44 : 50
+    for (let i = 0; i < cols * (small ? 2 : 1); i++) { const x = 12 + (i % cols) * (cs + 6), y = 8 + Math.floor(i / cols) * (cs + 6), up = r() > 0.4, ch2 = (r() * 30).toFixed(1); mkCard(k, x, y, cs, cs); k.rect(x + 4, y + 4, cs - 8, cs - 20, k.a(T.accent, 0.08 + r() * 0.15)); k.circ(x + cs / 2, y + (cs - 16) / 2 + 2, cs * 0.12, k.ia(0.1)); k.t(`${up ? "▲" : "▼"}${ch2}%`, x + cs / 2, y + cs - 13, 6.5, up ? k.a(T.altBg, 1) : mkNo(), { a: "c", w: cs, f: "bold" }) }
+    if (small) return
+    k.t("SENTIMENT // YOUR FEED, PRICED", 12, 66, 7, k.a(T.accent, 1), { f: "bold", w: 260 })
+    ;[["POSTS PRICED", `${40 + Math.floor(r() * 300)}`], ["BULLISH", `${50 + Math.floor(r() * 40)}%`], ["BEARISH", `${5 + Math.floor(r() * 30)}%`]].forEach(([l, v], i) => { const x = 12 + i * 112; k.t(l, x, 82, 6.5, k.S, { w: 100 }); k.t(v, x, 92, 15, i === 2 ? mkNo() : i === 1 ? k.a(T.altBg, 1) : k.I, { f: "disp", w: 100 }) })
+    mkYesNo(k, 12, 116, W - 24, 12, 0.68)
+  },
+  dc(k, W, H, d) {
+    const r = sRng(d, 73), small = W < 200, traders = [["@bayes_babe", "YES"], ["@longvol", "NO"], ["@kelly_k", "YES"], ["@mean_revert", "YES"], ["@spread_eagle", "NO"], ["@priced_in", "YES"]]
+    k.t("TRADING FLOOR // ONLINE", 12, 6, 7, k.a(T.accent, 1), { f: "bold", w: W - 24 })
+    traders.slice(0, small ? 5 : 6).forEach(([h2, pos], i) => { const y = 20 + i * 15, on = r() > 0.25; k.circ(18, y + 5, 3, on ? k.a(T.altBg, 1) : k.ia(0.15)); k.t(h2, 26, y, 8, on ? k.I : k.S, { w: 100 }); k.rect(small ? W - 40 : 130, y, 26, 11, pos === "YES" ? k.a(T.altBg, 0.15) : k.a("#E8384F", 0.12)); k.t(pos, (small ? W - 40 : 130) + 13, y + 1, 7, pos === "YES" ? k.a(T.altBg, 1) : mkNo(), { a: "c", w: 26, f: "bold" }) })
+    if (small) return
+    const rx = 176
+    mkCard(k, rx, 18, W - rx - 12, 110)
+    ;["# hot-markets", "# resolution-disputes", "# calibration-club", "🔊 the pit"].forEach((c2, i) => { const y = 26 + i * 16; k.t(c2, rx + 8, y, 8.5, i === 3 ? k.a(T.accent, 1) : k.I, { w: 160 }); if (r() > 0.5) k.circ(W - 24, y + 5, 3, k.a(T.accent, 1)) })
+    k.t(`OPEN INTEREST $${(10 + r() * 90).toFixed(0)}K · ${3 + Math.floor(r() * 20)} ONLINE`, rx + 8, 96, 6.5, k.S, { w: 170 })
+    mkYesNo(k, rx + 8, 108, W - rx - 28, 12, 0.57)
+  },
+  audio(k, W, H, d) {
+    const r = k.rng(Math.floor(d.phase * 100))
+    mkCard(k, 10, 10, 74, 60); mkCand(k, 16, 18, 62, 30, 8, r, 0.08); k.poly([[38, 54], [50, 60], [38, 66]], k.a(T.accent, 1))
+    k.t(C.audio.src, 92, 12, 8, k.a(T.accent, 1), { w: 250, f: "bold" }); k.t(d.line, 92, 24, 18, k.I, { f: "disp", w: W - 106 })
+    ;[["TICKER", "$VIBE"], ["CHANGE", `+${(r() * 9).toFixed(1)}%`], [C.audio.metric, "▲".repeat(d.lvl) + "△".repeat(5 - d.lvl)]].forEach(([l, v], i) => { const x = 92 + i * 80; k.t(l, x, 52, 6.5, k.S, { w: 76 }); k.t(v, x, 61, 9, i === 1 ? k.a(T.altBg, 1) : k.I, { w: 76, f: "bold" }) })
+    mkCand(k, 12, 84, W - 24, 42, 44, r, 0.02)
+    k.t("PLAYING", W - 70, 52, 6.5, k.S, { w: 60 })
+  }
+}
+const THEME_PAINT = { directive: DIR, longroad: LR, nightfall: NF, grimoire: GM, deeprange: DRG, halcyon: HAL, rabbit: RB, cyber: CY, vapor: VP, nature: NA, market: MK }
 
 // ---------- END THEMED PAINT BLOCK ----------
 // ---------- art runner: theme art as the body background, live timers laid on top ----------
@@ -3067,6 +3613,10 @@ const LIVE = {
   longroad: { shift: { x: 76, y: 56, size: 19, a: "l", f: "disp" }, solar: { x: 352, y: 17, size: 18, a: "r", f: "disp" }, solarS: { x: 160, y: 24, size: 13, a: "r", f: "disp" } },
   nightfall: { shift: { x: 85, y: 70, size: 22, a: "c", f: "bold" }, solar: { x: 354, y: 36, size: 18, a: "r", f: "bold" }, solarS: { x: 160, y: 36, size: 13, a: "r", f: "bold" } },
   grimoire: { shift: { x: 70, y: 60, size: 19, a: "l", f: "disp" }, solar: { x: 12, y: 108, size: 18, a: "l", f: "disp" }, solarS: { x: 160, y: 22, size: 13, a: "r", f: "disp" } },
+  cyber: { shift: { x: 85, y: 56, size: 22, a: "c", f: "disp" }, solar: { x: 352, y: 16, size: 20, a: "r", f: "disp" }, solarS: { x: 160, y: 16, size: 14, a: "r", f: "disp" } },
+  market: { shift: { x: 85, y: 36, size: 20, a: "c", f: "disp" }, solar: { x: 352, y: 15, size: 18, a: "r", f: "disp" }, solarS: { x: 160, y: 14, size: 13, a: "r", f: "disp" } },
+  vapor: { shift: { x: 85, y: 58, size: 22, a: "c", f: "bold" }, solar: { x: 352, y: 15, size: 16, a: "r", f: "bold" }, solarS: { x: 160, y: 14, size: 12, a: "r", f: "bold" } },
+  nature: { shift: { x: 140, y: 40, size: 16, a: "r", f: "disp" }, solar: { x: 352, y: 15, size: 18, a: "r", f: "disp" }, solarS: { x: 160, y: 14, size: 13, a: "r", f: "disp" } },
   rabbit: { shift: { x: 66, y: 58, size: 19, a: "l", f: "disp" }, solar: { x: 352, y: 17, size: 22, a: "r", f: "disp" }, solarS: { x: 160, y: 24, size: 14, a: "r", f: "disp" } },
   deeprange: { shift: { x: 85, y: 128, size: 0.1, a: "c", f: "heavy" }, solar: { x: 354, y: 15, size: 20, a: "r", f: "heavy" }, solarS: { x: 160, y: 22, size: 14, a: "r", f: "heavy" } }
 }
@@ -3175,6 +3725,59 @@ const GLYPHS = {
   discord: 'M12 3a3 3 0 1 1 0 6a3 3 0 0 1 0-6zM5 15a3 3 0 1 1 0 6a3 3 0 0 1 0-6zM19 15a3 3 0 1 1 0 6a3 3 0 0 1 0-6zM11 8.5h2v4.2l4.6 3.3-1.2 1.6-4.4-3.2-4.4 3.2-1.2-1.6 4.6-3.3z'
 };
 const GLYPHSETS = {
+  market: {
+    camera: 'M12 5c4.6 0 8.3 3.1 10 7-1.7 3.9-5.4 7-10 7s-8.3-3.1-10-7c1.7-3.9 5.4-7 10-7zM12 8.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7zM10.2 13.6l3.6-3.6.9.9-3.6 3.6zM10.4 10a.8.8 0 1 1 0 1.6a.8.8 0 0 1 0-1.6zM13.6 12.4a.8.8 0 1 1 0 1.6a.8.8 0 0 1 0-1.6z',
+    photos: 'M3 4h18v16H3zM5 6v12h14V6zM6 16l3.5-4 2.5 2 3-4.5L18 13v3z',
+    maps: 'M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7zM12 5.5l-3 4h2v3h2v-3h2z',
+    calendar: 'M4 5h16v15H4zM6 9v9h12V9zM7 2h2v4H7zM15 2h2v4h-2zM8.5 13.2l1.3-1.3 1.7 1.7 3.7-3.7 1.3 1.3-5 5z',
+    phone: 'M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.6 3.6a1 1 0 0 1-.25 1z',
+    messages: 'M3 4h18v12h-8l-5 4v-4H3zM5 6v8h5v1.8L12.3 14H19V6zM11.2 7h1.6v.9c1 .2 1.7.8 1.8 1.7h-1.5c-.1-.4-.5-.6-1.1-.6-.6 0-.9.2-.9.5s.3.4 1.2.6c1.4.3 2.3.7 2.3 1.8 0 .9-.7 1.5-1.8 1.7v.9h-1.6v-.9c-1.1-.2-1.9-.9-1.9-1.9h1.5c.1.5.6.8 1.3.8.6 0 1-.2 1-.6 0-.3-.3-.5-1.2-.7-1.3-.3-2.3-.6-2.3-1.7 0-.8.6-1.4 1.6-1.6z',
+    browser: 'M12 2a10 10 0 1 1 0 20a10 10 0 0 1 0-20zM12 4.2a7.8 7.8 0 1 0 0 15.6a7.8 7.8 0 0 0 0-15.6zM8 9h1.6v6H8zM8.5 7.5h.6V9h-.6zM8.5 15h.6v1.5h-.6zM11.2 11h1.6v5h-1.6zM11.7 9.5h.6V11h-.6zM14.4 8h1.6v4h-1.6zM14.9 6.5h.6V8h-.6zM14.9 12h.6v1.5h-.6z',
+    music: 'M9 3h11v13.5a3 3 0 1 1-2-2.8V7h-7v9.5a3 3 0 1 1-2-2.8zM14.5 9.5l2-2 2 2h-1.3V12h-1.4V9.5z',
+    youtube: 'M3 4h18v14H3zM5 6v10h14V6zM10 8l5 3-5 3zM3 19.5h18V21H3z',
+    instagram: 'M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zM7.2 16.6l9.4-9.4 1.2 1.2-9.4 9.4zM8 6.5a1.6 1.6 0 1 1 0 3.2a1.6 1.6 0 0 1 0-3.2zM16 14.3a1.6 1.6 0 1 1 0 3.2a1.6 1.6 0 0 1 0-3.2z',
+    discord: 'M12 3a2.6 2.6 0 1 1 0 5.2A2.6 2.6 0 0 1 12 3zM5 5.5a2.2 2.2 0 1 1 0 4.4a2.2 2.2 0 0 1 0-4.4zM19 5.5a2.2 2.2 0 1 1 0 4.4a2.2 2.2 0 0 1 0-4.4zM7.5 15c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5V17h-9zM1.5 15.5c0-2 1.6-3.6 3.5-3.6 1 0 1.8.4 2.4 1-.5.8-.9 1.8-.9 3.1H1.5zM22.5 15.5c0-2-1.6-3.6-3.5-3.6-1 0-1.8.4-2.4 1 .5.8.9 1.8.9 3.1h5zM2 19h20v2H2z'
+  },
+  cyber: {
+    camera: 'M3 7h4l2-3h6l2 3h4v13H3zM5 9v9h14V9zM12 10.5a3.5 3.5 0 1 1 0 7a3.5 3.5 0 0 1 0-7zM12 12.5a1.5 1.5 0 1 0 0 3a1.5 1.5 0 0 0 0-3zM16 10h2v1.5h-2z',
+    photos: 'M3 5h18v14H3zM5 7v10h14V7zM6 16l4-5 3 3.5 2-2.5 3 4zM15 8.5h2.5V11H15z',
+    maps: 'M12 2l7 4v12l-7 4-7-4V6zM12 4.3L7 7.2v9.6l5 2.9 5-2.9V7.2zM12 8l3 4.5-3 4.5-3-4.5z',
+    calendar: 'M4 5h16v15H4zM6 9v9h12V9zM7 2h2v4H7zM15 2h2v4h-2zM8 11h3v3H8zM13 11h3v3h-3z',
+    phone: 'M6 2h8l4 4v16H6zM8 4v14h8V7l-3-3zM10 19h4v1.5h-4z',
+    messages: 'M3 4h18v12h-8l-5 4v-4H3zM5 6v8h5v1.8L12.3 14H19V6zM7 8h10v1.6H7zM7 11h6v1.6H7z',
+    browser: 'M12 2l9 5v10l-9 5-9-5V7zM5 8.2v7.6l6 3.3v-7.6zM13 11.5v7.6l6-3.3V8.2zM6.2 6.6L12 9.8l5.8-3.2L12 3.4z',
+    music: 'M9 3h11v13.5a3 3 0 1 1-2-2.8V7h-7v9.5a3 3 0 1 1-2-2.8z',
+    youtube: 'M2 6l3-3h14l3 3v12l-3 3H5l-3-3zM4 7v10l2 2h12l2-2V7l-2-2H6zM10 8.5l6 3.5-6 3.5z',
+    instagram: 'M4 4h16v16H4zM6 6v12h12V6zM12 8.5a3.5 3.5 0 1 1 0 7a3.5 3.5 0 0 1 0-7zM12 10.5a1.5 1.5 0 1 0 0 3a1.5 1.5 0 0 0 0-3zM15.5 7h1.8v1.8h-1.8z',
+    discord: 'M4 6h16v10h-3l-1 3h-2l1-3H9l1 3H8l-1-3H4zM6 8v6h12V8zM8 10h2v2H8zM14 10h2v2h-2z'
+  },
+
+  vapor: {
+    camera: 'M3 7h18v12H3zM8 4h8v3H8zM5 9v8h14V9zM10 10h4v1h1v4h-1v1h-4v-1H9v-4h1z',
+    photos: 'M3 4h18v16H3zM5 6v10h14V6zM6 15h2v-2h2v-2h2v2h2v-3h2v5z',
+    maps: 'M3 5h5v14H3zM9.5 4h5v14h-5zM16 5h5v14h-5z',
+    calendar: 'M3 5h18v15H3zM5 9v9h14V9zM6 2h2v4H6zM16 2h2v4h-2zM7 11h2v2H7zM11 11h2v2h-2zM15 11h2v2h-2zM7 14h2v2H7zM11 14h2v2h-2z',
+    phone: 'M7 2h10v20H7zM9 4v5h6V4zM9 11h2v2H9zM13 11h2v2h-2zM9 15h2v2H9zM13 15h2v2h-2z',
+    messages: 'M2 3h20v14H8l-4 4v-4H2zM4 5v1h16V5zM4 8v7h16V8z',
+    browser: 'M8 2h8v2h2v2h2v4h2v4h-2v4h-2v2h-2v2H8v-2H6v-2H4v-4H2v-4h2V6h2V4h2zM8 4v2H6v4h4V6h4v4h4V6h-2V4zM6 12v4h2v2h8v-2h2v-4z',
+    music: 'M2 5h20v14H2zM4 7v10h16V7zM7 9a2 2 0 1 1 0 4a2 2 0 0 1 0-4zM17 9a2 2 0 1 1 0 4a2 2 0 0 1 0-4zM6 15h12v1.5H6z',
+    youtube: 'M3 5h18v13H3zM5 7v9h14V7zM10 9v5l4-2.5zM8 19h8v2H8z',
+    instagram: 'M4 2h16v20H4zM6 4v12h12V4zM12 7a3 3 0 1 1 0 6a3 3 0 0 1 0-6z',
+    discord: 'M4 4h16v10h-8l-4 4v-4H4zM6 6v6h12V6zM8 8h2v2H8zM11 8h2v2h-2zM14 8h2v2h-2z'
+  },
+  nature: {
+    camera: 'M7 6a4.5 4.5 0 1 1 0 9a4.5 4.5 0 0 1 0-9zM17 6a4.5 4.5 0 1 1 0 9a4.5 4.5 0 0 1 0-9zM7 8a2.5 2.5 0 1 0 0 5a2.5 2.5 0 0 0 0-5zM17 8a2.5 2.5 0 1 0 0 5a2.5 2.5 0 0 0 0-5zM10.5 8h3v3h-3zM5 3h4v2.5H5zM15 3h4v2.5h-4z',
+    photos: 'M4 3h16v18H4zM6 5v14h12V5zM12 6.5c2.8 1.8 3.8 4.6 2.8 8.2l-2 1.3V9.5h-1.6V16l-2-1.3c-1-3.6 0-6.4 2.8-8.2z',
+    maps: 'M12 2a10 10 0 1 1 0 20a10 10 0 0 1 0-20zM12 4a8 8 0 1 0 0 16a8 8 0 0 0 0-16zM12 6l2.5 6L12 18l-2.5-6z',
+    calendar: 'M12 2l1.2 3.2L16 4l-.6 3.4L19 8.5 16.8 11 19 13.5 15.4 14.6 16 18l-2.8-1.2L12 20l-1.2-3.2L8 18l.6-3.4L5 13.5 7.2 11 5 8.5l3.6-1.1L8 4l2.8 1.2zM12 7.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7z',
+    phone: 'M12 2l1 2h4a3 3 0 0 1 3 3v1H4V7a3 3 0 0 1 3-3h4zM5 10h14c0 6-3.5 11-7 12-3.5-1-7-6-7-12z',
+    messages: 'M20 3c-8 0-14 5-15 13l-2 5h2l1.5-3.5C14 16 19 10 20 3zM7.5 15.5c1-4 4-7.5 9-9.5-3 3-5.5 6.2-9 9.5z',
+    browser: 'M12 2l7 9h-3l4 6h-7v5h-2v-5H4l4-6H5z',
+    music: 'M3 12c3-1 6 0 8 2 1-4 5-7 10-7-1 2-2 3-4 4 1 4-2 8-7 8-3 0-5-2-7-7zM15 9.5a.9.9 0 1 0 0 1.8a.9.9 0 0 0 0-1.8z',
+    youtube: 'M12 3c5 0 9 3 9 7H3c0-4 4-7 9-7zM9 11h6v8a3 3 0 0 1-6 0zM8 6a1.3 1.3 0 1 0 0 2.6a1.3 1.3 0 0 0 0-2.6zM15 5.5a1 1 0 1 0 0 2a1 1 0 0 0 0-2z',
+    instagram: 'M12 2a3 3 0 0 1 2.6 4.5A3 3 0 0 1 19.5 9a3 3 0 0 1-2 4.6A3 3 0 0 1 14 18a3 3 0 0 1-4 0 3 3 0 0 1-3.5-4.4A3 3 0 0 1 4.5 9a3 3 0 0 1 4.9-2.5A3 3 0 0 1 12 2zM12 9a2.5 2.5 0 1 0 0 5a2.5 2.5 0 0 0 0-5zM11 18h2v4h-2z',
+    discord: 'M12 2c3 3 5 6 5 9a5 5 0 0 1-10 0c0-1.5.6-3 1.6-4.2.2 1.4 1 2.4 2 2.7C10 7 10.8 4.4 12 2zM3 19l18-3 .5 2L3.5 21zM21 19L3 16l-.5 2 18 3z'
+  },
   rabbit: {
     camera: 'M12 6c4.5 0 8 3.5 9.5 6-1.5 2.5-5 6-9.5 6s-8-3.5-9.5-6C4 9.5 7.5 6 12 6zM12 8.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7zM12 10.5a1.5 1.5 0 1 1 0 3a1.5 1.5 0 0 1 0-3zM19 1.5l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z',
     photos: 'M7 3h10l4 6-9 12L3 9zM8.2 5L6 8.6h4.2L11 5zM13 5l.8 3.6H18L15.8 5zM6.4 10.6l4.6 6.4-1.4-6.4zM12 10.6l-1.6 6.7L12 19l1.6-1.7-1.6-6.7zM14.4 10.6L13 17l4.6-6.4z',
@@ -3543,12 +4146,130 @@ const PRESETS = {
       ['Security Is A Suggestion', 'ENTRY SPECIALISTS'], ['Anyone Can Wear The Ears', 'RECRUITMENT'], ['The Gala Never Saw Us Leave', 'THE ARCHIVE'],
       ['Ears Up. Hands Quick.', 'FIELD OPERATIONS'], ['Copycats Welcome. Rivals Warned.', 'THE LEGION'], ['Gone Before The Alarm', 'GETAWAY']
     ]
+  },
+  neon: {
+    id: 'neon', title: 'Neon District', blurb: 'Rain-slick megacity cyberpunk. Hot pink and cyan neon, glitch slices, chrome skyline and a holo-ad over the street.',
+    company: 'Sable Dynamics', unit: 'D-09',
+    colors: { ground: '#0A0614', ink: '#F2F0FF', accent: '#FF2E88', glow: '#00F0FF', panel: '#140C24', alert: '#FCEE0A' },
+    fonts: { display: 'Orbitron', mono: 'Share Tech Mono' },
+    motif: 'neon', texture: 'scan', marks: 'none', iconStyle: 'neon', glyphs: 'cyber', units: 'fahrenheit', upper: true,
+    phrases: [['Wake Up,', 'Night Shift'], ['Chrome Is', 'Forever'], ['Jack In,', 'Burn Out'], ['The Street', 'Never Sleeps']],
+    text: { tagL: 'SABLE DYNAMICS // DISTRICT 09', tagR: 'NET: ONLINE', sub: 'Rent is due in 3 days. Upgrades are due now.', foot: 'NEON DISTRICT // D-09 // 24-7', homeTop: 'OPEN 24/7', caption: 'Mind the drones.' },
+    codes: { camera: 'OPTIC', photos: 'MEM', maps: 'GRID', calendar: 'GIGS', phone: 'LINK', messages: 'MSG', browser: 'NET', music: 'RADIO', youtube: 'STREAM', instagram: 'CHROME', discord: 'NETBAR' },
+    widget: {
+      scriptFont: 'Futura-CondensedExtraBold', txGraphic: 'sync', archive: true, oddity: 'market', C: {
+        solar: { label: 'SMOG WATCH', offline: 'Signal Jammed', day: 'NEON OFF IN · DAYLIGHT', night: 'NIGHT SHIFT', setIn: 'NIGHT SHIFT IN', riseIn: 'NEON OFF IN' },
+        audio: { right: 'FREQ 88.9 · PIRATE', src: 'PIRATE RADIO // YT MUSIC', metric: 'HYPE', tap: 'TAP TO JACK IN · LIVE ', foot: 'DON\'T TRUST THE DJ', lines: ['Pirate Signal, Unlicensed', 'Synths Over The Rain', 'Bass For The Night Shift', 'Broadcast From A Rooftop', 'Static Is Also Music', 'Chrome Hearts, Loud'] },
+        feeds: { right: '2 FEEDS JACKED', trace: 'NEURAL NOISE // LIVE', tap: 'TAP A FEED TO JACK IN · ', foot: 'ATTENTION IS CURRENCY', linked: 'JACKED', status: 'LINK // ENCRYPTED', rate: 'SPIKE',
+          yt: { line: 'Holo-Streams', meters: ['HYPE', 'GLITCH', 'FOCUS'], tag: 'AUTOPLAY: FOREVER', queue: '∞ STREAMS', u1: 'MIN', u2: 'LAYER', kv: ['QUEUE', 'SCREEN TIME', 'LAYER'], curve: 'HYPE // TONIGHT', curveR: 'BUFFERING DREAMS', foot: 'STAY TUNED' },
+          ig: { line: 'Chrome Gallery', meters: ['ENVY', 'CHROME', 'DOUBT'], tag: 'FILTERED FOREVER', kv: ['FOLLOWERS', 'UPGRADES SEEN', 'REAL FACES'], curve: 'ENVY // 24H', curveR: 'PEAK AT 03:00', foot: 'SCROLL. COMPARE. UPGRADE.' } }
+      },
+      L: { vid: 'W-06 // HOLO-STREAM', obs: 'W-07 // CHROME GALLERY', dc: 'W-09 // THE NET BAR', solar: 'W-03 // SMOG INDEX', solarBig: 'W-03 // SMOG INDEX + ATMOS', audio: 'W-04 // PIRATE RADIO', feeds: 'W-06 // FEEDJACK',
+        status: 'W-01 // RUNNER STATUS', next: 'NEXT GIG', none: 'No Gigs', noneSub: 'OFF THE GRID', ext: 'STREET',
+        dur: 'RUNTIME', state: 'STATE', feels: 'FEELS', hilo: 'HI / LO', active: 'JACKED IN', queued: 'QUEUED', standby: 'IDLE',
+        cell: 'BATTERY', cycle: 'SHIFT', shift: 'W-02 // GIG TIMER', activeLong: 'ON THE GIG', offTitle: 'Off The Grid', tx: 'W-05 // HOLO-AD' },
+      classes: ['SPONSORED', 'PRIORITY', 'GLITCHED', 'CORP MEMO'],
+      archiveList: [
+        { t: 'There is no security against the ultimate development of mechanical consciousness.', by: 'SAMUEL BUTLER · EREWHON · 1872' },
+        { t: 'Day by day the machines are gaining ground upon us.', by: 'SAMUEL BUTLER · DARWIN AMONG THE MACHINES · 1863' },
+        { t: 'The Machine develops, but not on our lines. The Machine proceeds, but not to our goal.', by: 'E. M. FORSTER · THE MACHINE STOPS · 1909' }
+      ]
+    },
+    slogans: [['Upgrade Or Get Upgraded', 'CHROME SALES'], ['Your Data Looks Delicious', 'AD NETWORK'], ['Sleep Is A Subscription', 'WELLNESS DIV'], ['Rain Check Denied', 'LANDLORD BOT'],
+      ['Trust The Corp. The Corp Trusts No One.', 'PUBLIC RELATIONS'], ['Glitch Responsibly', 'NET SAFETY'], ['Neon Is Cheaper Than Daylight', 'CITY POWER'], ['All Streets Lead To Overtime', 'HR CORE'],
+      ['Feel Something. Buy Something.', 'AD NETWORK'], ['Your Face Is Our Password', 'SECURITY'], ['Smile, You Are Being Scanned', 'SECURITY'], ['Night Shift Never Ends', 'HR CORE']]
+  },
+  vapor: {
+    id: 'vapor', title: 'Vapor Plaza', blurb: 'Vaporwave mallsoft. A striped sunset, a neon grid, palm trees, a marble column and a little window from 1995.',
+    company: 'Vapor Plaza', unit: 'MALL 95',
+    colors: { ground: '#2A0F55', ink: '#FFF2FF', accent: '#FF71CE', glow: '#01CDFE', panel: '#3B1873', alert: '#FFFB96' },
+    fonts: { display: 'Righteous', mono: 'VT323' },
+    motif: 'vapor', texture: 'scan', marks: 'none', iconStyle: 'win95', glyphs: 'vapor', units: 'fahrenheit', upper: false,
+    phrases: [['Eternal', 'Sunset'], ['Welcome To', 'The Plaza'], ['Nothing Is', 'Real Here'], ['Forever', 'Nineteen 95']],
+    text: { tagL: 'VAPOR PLAZA · LEVEL 2', tagR: 'OPEN', sub: 'Please enjoy the fountain.', foot: 'VAPOR PLAZA // MALL 95 // FOREVER', homeTop: 'NOW ENTERING THE PLAZA', caption: 'Elevator music, forever.' },
+    codes: { camera: 'CAM.EXE', photos: 'PICS', maps: 'MAP', calendar: 'DATE', phone: 'CALL', messages: 'CHAT', browser: 'WEB', music: 'TAPE', youtube: 'VHS', instagram: 'POLAROID', discord: 'CHATRM' },
+    widget: {
+      scriptFont: 'Futura-Bold', txGraphic: 'route', archive: false, oddity: 'mall', C: {
+        solar: { label: 'SUNSET WATCH', offline: 'Signal Lost In 1995', day: 'SUNSET FOREVER', night: 'AFTER HOURS', setIn: 'SUNSET IN', riseIn: 'OPENING IN' },
+        audio: { right: 'ON THE AIR', src: 'MALLSOFT FM // YT MUSIC', metric: 'CHILL', tap: 'TAP TO TUNE IN · ', foot: 'SMOOTH AND ETERNAL', lines: ['Smooth Jazz For Escalators', 'Fountain Ambience, Side B', 'Elevator Music Forever', 'Food Court Serenade', 'Sunset On Cassette', 'Hold Music, Remastered'] },
+        feeds: { right: '2 CHANNELS', trace: 'STATIC // LIVE', tap: 'TAP A CHANNEL · ', foot: 'REWIND TO 1995', linked: 'TUNED', status: 'SIGNAL // VHS', rate: 'TRACKING',
+          yt: { line: 'VHS Tapes', meters: ['NOSTALGIA', 'STATIC', 'FOCUS'], tag: 'BE KIND, REWIND', queue: '∞ TAPES', u1: 'MIN', u2: 'TAPE', kv: ['QUEUE', 'TAPE TIME', 'TAPE'], curve: 'TRACKING // TONIGHT', curveR: 'ADJUST TRACKING', foot: 'PRESS PLAY' },
+          ig: { line: 'Postcards', meters: ['LONGING', 'GLOW', 'PALMS'], tag: 'WISH YOU WERE HERE', kv: ['POSTCARDS', 'SUNSETS', 'PALM TREES'], curve: 'AESTHETIC // TODAY', curveR: 'PEAK AT SUNSET', foot: 'SEND ONE TO 1995' } }
+      },
+      L: { vid: 'W-06 // VHS', obs: 'W-07 // POSTCARDS', dc: 'W-09 // CHAT ROOM', solar: 'W-03 // ETERNAL SUNSET', solarBig: 'W-03 // ETERNAL SUNSET + WEATHER', audio: 'W-04 // MALLSOFT FM', feeds: 'W-06 // TWO CHANNELS',
+        status: 'W-01 // PLAZA STATUS', next: 'NOW SHOWING', none: 'Nothing Scheduled', noneSub: 'ENJOY THE ATRIUM', ext: 'ATRIUM',
+        dur: 'RUNTIME', state: 'STATUS', feels: 'FEELS', hilo: 'HI / LO', active: 'NOW', queued: 'SOON', standby: 'IDLE',
+        cell: 'POWER', cycle: 'DAY', shift: 'W-02 // LOADING', activeLong: 'NOW LOADING', offTitle: 'Screensaver Mode', tx: 'W-05 // MESSAGE FROM 1995' },
+      classes: ['SPECIAL OFFER', 'ANNOUNCEMENT', 'LOST AND FOUND', 'SYSTEM'], archiveList: []
+    },
+    slogans: [['Please Enjoy The Fountain', 'MALL MANAGEMENT'], ['All Stores Open Forever', 'MALL MANAGEMENT'], ['Your Call Is Important To Us', 'CUSTOMER CARE'], ['Smooth Jazz Is A Lifestyle', 'MALLSOFT FM'],
+      ['Buy One, Remember Two', 'GIFT SHOP'], ['The Escalator Goes Up Forever', 'FACILITIES'], ['Have A Pleasant Afternoon', 'CUSTOMER CARE'], ['Free Samples Of Nostalgia', 'FOOD COURT'],
+      ['Please Do Not Feed The Dolphins', 'AQUARIUM'], ['This Moment Is On Sale', 'GIFT SHOP'], ['Thank You For Shopping', 'MALL MANAGEMENT'], ['Insert Disk 2', 'SYSTEM']]
+  },
+  wild: {
+    id: 'wild', title: 'Wildwood', blurb: 'A naturalist\'s field journal. Sage paper, fern fronds, mushrooms, birdsong and pressed leaves.',
+    company: 'Wildwood', unit: 'TRAIL 03',
+    colors: { ground: '#E7EEDC', ink: '#1F3A2B', accent: '#C2662D', glow: '#6E9E4C', panel: '#F6F8F0', alert: '#E3B341' },
+    fonts: { display: 'Fraunces', mono: 'DM Mono' },
+    motif: 'botanical', texture: 'dots', marks: 'none', iconStyle: 'leaf', glyphs: 'nature', units: 'fahrenheit', upper: false,
+    phrases: [['Slow Down,', 'Look Closer'], ['Grow Where', 'You Are'], ['Every Path', 'Is A Story'], ['Take Only', 'Photographs']],
+    text: { tagL: 'WILDWOOD · FIELD NOTES', tagR: 'PLATE 03', sub: 'Collected on the morning trail.', foot: 'WILDWOOD // TRAIL 03', homeTop: 'THE FOREST FLOOR', caption: 'Listen for the wren.' },
+    codes: { camera: 'LOOK', photos: 'PRESS', maps: 'TRAIL', calendar: 'SEASON', phone: 'CALL', messages: 'NOTE', browser: 'GROVE', music: 'SONG', youtube: 'REEL', instagram: 'BLOOM', discord: 'FIRE' },
+    widget: {
+      scriptFont: 'Georgia-Bold', txGraphic: 'route', archive: true, oddity: 'species', C: {
+        solar: { label: 'DAYLIGHT', offline: 'Under The Canopy', day: 'DAYLIGHT LEFT', night: 'NIGHTFALL', setIn: 'SUNSET IN', riseIn: 'SUNRISE IN' },
+        audio: { right: 'DAWN CHORUS', src: 'BIRDSONG // YT MUSIC', metric: 'CALM', tap: 'TAP TO LISTEN · ', foot: 'LISTEN FOR THE WREN', lines: ['A Morning By The Creek', 'Wind In The Pines', 'Rain On Broad Leaves', 'The Dawn Chorus', 'Crickets At Dusk', 'Songs For The Trail'] },
+        feeds: { right: 'TWO TRAILS', trace: 'FOREST PULSE // NOW', tap: 'TAP A TRAIL TO WANDER · ', foot: 'LEAVE NO TRACE', linked: 'WANDERING', status: 'COMPASS // TRUE', rate: 'PULSE',
+          yt: { line: 'Nature Reel', meters: ['WONDER', 'CALM', 'FOCUS'], tag: 'ONE MORE VALLEY', queue: '∞ TRAILS', u1: 'MIN', u2: 'RIDGE', kv: ['QUEUE', 'TIME OUTSIDE', 'RIDGE'], curve: 'WONDER // TODAY', curveR: 'GO OUTSIDE', foot: 'THEN GO OUTSIDE' },
+          ig: { line: 'Specimens', meters: ['BLOOM', 'MOSS', 'CURIOSITY'], tag: 'PRESSED AND LABELED', kv: ['SPECIES', 'BLOOMS', 'FERNS'], curve: 'BLOOMS // THIS WEEK', curveR: 'PEAK AT DAWN', foot: 'LOOK. LABEL. LET BE.' } }
+      },
+      L: { vid: 'W-06 // NATURE REEL', obs: 'W-07 // SPECIMENS', dc: 'W-09 // THE CAMPFIRE', solar: 'W-03 // DAYLIGHT', solarBig: 'W-03 // DAYLIGHT + WEATHER', audio: 'W-04 // BIRDSONG', feeds: 'W-06 // TWO TRAILS',
+        status: 'W-01 // FIELD JOURNAL', next: 'NEXT OUTING', none: 'A Free Day', noneSub: 'GO FOR A WALK', ext: 'WEATHER',
+        dur: 'LENGTH', state: 'STATE', feels: 'FEELS LIKE', hilo: 'HI / LO', active: 'UNDERWAY', queued: 'SOON', standby: 'RESTING',
+        cell: 'ENERGY', cycle: 'DAY', shift: 'W-02 // TRAIL TIMER', activeLong: 'ON THE TRAIL', offTitle: 'Resting By The Creek', tx: 'W-05 // FIELD NOTE' },
+      classes: ['OBSERVATION', 'FIELD NOTE', 'SEASONAL', 'REMINDER'],
+      archiveList: [
+        { t: 'In wildness is the preservation of the world.', by: 'HENRY DAVID THOREAU · WALKING · 1862' },
+        { t: 'The mountains are calling and I must go.', by: 'JOHN MUIR · LETTER · 1873' },
+        { t: 'In every walk with nature one receives far more than he seeks.', by: 'JOHN MUIR · STEEP TRAILS · 1918' },
+        { t: 'I went to the woods because I wished to live deliberately.', by: 'HENRY DAVID THOREAU · WALDEN · 1854' }
+      ]
+    },
+    slogans: [['Slow Is A Speed', 'TRAIL CREW'], ['Moss Grows On Patience', 'FIELD NOTES'], ['Leave It Better', 'TRAIL CREW'], ['Every Leaf Is A Letter', 'HERBARIUM'],
+      ['Listen Before You Look', 'BIRD COUNT'], ['Rain Is Just Slow Gardening', 'GREENHOUSE'], ['Small Things Hold Up The World', 'SOIL SURVEY'], ['The Creek Knows The Way', 'TRAIL CREW'],
+      ['Stay On The Path, Mostly', 'RANGER STATION'], ['Mushrooms Are The Internet', 'SOIL SURVEY'], ['Sit. Wait. The Deer Will Come.', 'FIELD NOTES'], ['Pick Up Three Things', 'TRAIL CREW']]
+  },
+  odds: {
+    id: 'odds', title: 'Long Odds', blurb: 'A prediction market for your whole life. YES and NO prices, candlesticks, an order book and a ticker that never stops.',
+    company: 'Long Odds Exchange', unit: 'MKT-77',
+    colors: { ground: '#F3F6FB', ink: '#0E1A2B', accent: '#2F6BFF', glow: '#00A87E', panel: '#FFFFFF', alert: '#E8384F' },
+    fonts: { display: 'Space Grotesk', mono: 'JetBrains Mono' },
+    motif: 'market', texture: 'dots', marks: 'none', iconStyle: 'contract', glyphs: 'market', units: 'fahrenheit', upper: false,
+    phrases: [['Will You', 'Get Up Today?'], ['Price In', 'The Weekend'], ['Buy The', 'Rumor'], ['Bet On', 'Yourself']],
+    text: { tagL: 'LONG ODDS EXCHANGE · MKT-77', tagR: 'MARKET OPEN', sub: 'Odds are, you will be fine.', foot: 'LONG ODDS // MARKETS NEVER SLEEP', homeTop: 'ORDER BOOK · LIVE', caption: 'Spread your bets.' },
+    codes: { camera: 'WATCH', photos: 'CHART', maps: 'ROUTE', calendar: 'EXPIRY', phone: 'BROKER', messages: 'TIPS', browser: 'MARKET', music: 'TAPE', youtube: 'REPLAY', instagram: 'HYPE', discord: 'FLOOR' },
+    widget: {
+      scriptFont: 'AvenirNext-DemiBold', txGraphic: 'sync', archive: true, oddity: 'bet', C: {
+        solar: { label: 'DAYLIGHT FUTURES', offline: 'Market Halted', day: 'DAYLIGHT REMAINING', night: 'AFTER HOURS', setIn: 'CLOSE IN', riseIn: 'OPEN IN' },
+        audio: { right: 'MARKET RADIO', src: 'TAPE // YT MUSIC', metric: 'MOMENTUM', tap: 'TAP TO TRADE TO MUSIC · ', foot: 'NOT FINANCIAL ADVICE',
+          lines: ['Beats For Bull Runs', 'Lo-Fi For Bear Markets', 'Volatility, But Chill', 'Music To Hedge To', 'Closing Bell Classics', 'Green Candles Only'] },
+        feeds: { right: 'TWO MARKETS', trace: 'SENTIMENT // LIVE', tap: 'TAP A MARKET TO TRADE · ', foot: 'EVERY OPINION HAS A PRICE', linked: 'LISTED', status: 'ORDER BOOK // LIVE', rate: 'VOLUME',
+          yt: { line: 'The Watchlist', meters: ['HYPE', 'CONVICTION', 'FOCUS'], tag: 'YES 64¢ · NO 36¢', queue: '∞ MARKETS', u1: 'MIN', u2: 'TIER', kv: ['QUEUE', 'TIME WATCHED', 'TIER'], curve: 'ATTENTION // SESSION', curveR: 'PRICE DISCOVERED', foot: 'WATCH. PRICE. REPEAT.' },
+          ig: { line: 'Sentiment', meters: ['ENVY', 'HYPE', 'DOUBT'], tag: 'BULLISH ON YOU', kv: ['POSTS PRICED', 'BULLISH', 'BEARISH'], curve: 'SENTIMENT // 24H', curveR: 'PEAK AT NOON', foot: 'SCROLL. PRICE. SCROLL.' } }
+      },
+      L: { vid: 'W-06 // THE WATCHLIST', obs: 'W-07 // SENTIMENT', dc: 'W-09 // TRADING FLOOR', solar: 'W-03 // DAYLIGHT FUTURES', solarBig: 'W-03 // DAYLIGHT FUTURES + WEATHER', audio: 'W-04 // MARKET RADIO', feeds: 'W-06 // TWO MARKETS',
+        status: 'W-01 // YOUR DAY, PRICED', next: 'NEXT CONTRACT', none: 'No Open Positions', noneSub: 'FLAT AND HAPPY', ext: 'WEATHER',
+        dur: 'TERM', state: 'STATE', feels: 'FEELS LIKE', hilo: 'HI / LO', active: 'LIVE', queued: 'LISTED', standby: 'FLAT',
+        cell: 'BATTERY', cycle: 'SESSION', shift: 'W-02 // SETTLES', activeLong: 'TRADING', offTitle: 'Market Closed', tx: 'W-05 // ANALYST NOTE' },
+      classes: ['BUY', 'HOLD', 'STRONG BUY', 'SPECULATIVE'], archiveList: []
+    },
+    slogans: []
   }
 };
 
-const DISPLAY_FONTS = [['Bodoni Moda', 600], ['Newsreader', 300], ['Shippori Mincho B1', 800], ['IM Fell English', 400], ['Cormorant Garamond', 700], ['Fraunces', 700], ['Oxanium', 700], ['Space Grotesk', 600], ['Archivo', 800]];
-const MONO_FONTS = ['IBM Plex Mono', 'Barlow Condensed', 'IM Fell English SC', 'Cormorant SC', 'Share Tech Mono', 'DM Mono', 'JetBrains Mono'];
-const SCRIPT_FONTS = { 'Newsreader': 'Baskerville', 'Shippori Mincho B1': 'HiraMinProN-W6', 'IM Fell English': 'Baskerville-SemiBold', 'Cormorant Garamond': 'Georgia-Bold', 'Oxanium': 'AvenirNextCondensed-DemiBold', 'Fraunces': 'Georgia-Bold', 'Space Grotesk': 'AvenirNext-DemiBold', 'Archivo': 'AvenirNext-Heavy', 'Bodoni Moda': 'Didot' };
+const DISPLAY_FONTS = [['Bodoni Moda', 600], ['Orbitron', 700], ['Righteous', 400], ['Newsreader', 300], ['Shippori Mincho B1', 800], ['IM Fell English', 400], ['Cormorant Garamond', 700], ['Fraunces', 700], ['Oxanium', 700], ['Space Grotesk', 600], ['Archivo', 800]];
+const MONO_FONTS = ['VT323', 'IBM Plex Mono', 'Barlow Condensed', 'IM Fell English SC', 'Cormorant SC', 'Share Tech Mono', 'DM Mono', 'JetBrains Mono'];
+const SCRIPT_FONTS = { 'Newsreader': 'Baskerville', 'Shippori Mincho B1': 'HiraMinProN-W6', 'IM Fell English': 'Baskerville-SemiBold', 'Cormorant Garamond': 'Georgia-Bold', 'Oxanium': 'AvenirNextCondensed-DemiBold', 'Fraunces': 'Georgia-Bold', 'Space Grotesk': 'AvenirNext-DemiBold', 'Archivo': 'AvenirNext-Heavy', 'Bodoni Moda': 'Didot', 'Orbitron': 'Futura-CondensedExtraBold', 'Righteous': 'Futura-Bold' };
 const DEVICES = [
   ['iPhone 12 mini / 13 mini', 1080, 2340],
   ['iPhone 12, 13, 14, 12 Pro, 13 Pro', 1170, 2532],
@@ -3561,6 +4282,34 @@ const DEVICES = [
 ];
 
 const VARIANTS = {
+  odds: [
+    { name: 'Daylight Desk', colors: {}, seed: 0 },
+    { name: 'Night Session', colors: { ground: '#0B1220', ink: '#E8EEF8', panel: '#121B2E', accent: '#4F86FF' }, seed: 1 },
+    { name: 'Bull Run', colors: { accent: '#00A87E', glow: '#00A87E' }, seed: 2 },
+    { name: 'Bear Mode', colors: { ground: '#FBF3F4', accent: '#E8384F' }, seed: 3 },
+    { name: 'Gold Futures', colors: { ground: '#14110A', ink: '#F5EBD2', panel: '#1E1A10', accent: '#D9A92E', glow: '#53C28B', alert: '#E2574C' }, seed: 4 }
+  ],
+  neon: [
+    { name: 'Hot Pink', colors: {}, seed: 0 },
+    { name: 'Acid Green', colors: { accent: '#39FF14', glow: '#FF00E5', alert: '#FCEE0A' }, seed: 1 },
+    { name: 'Blade Orange', colors: { ground: '#120A06', accent: '#FF7A1A', glow: '#2BD9FF', panel: '#1E120A' }, seed: 2 },
+    { name: 'Ice Chrome', colors: { ground: '#060A14', ink: '#E6F4FF', accent: '#7AE7FF', glow: '#B07CFF', panel: '#0E1426' }, seed: 3 },
+    { name: 'Blood Neon', colors: { ground: '#0E0306', accent: '#FF1744', glow: '#FFD000', panel: '#1A060B' }, seed: 4 }
+  ],
+  vapor: [
+    { name: 'Plaza Purple', colors: {}, seed: 0 },
+    { name: 'Miami Pastel', colors: { ground: '#FFD6EC', ink: '#3A1B4F', accent: '#FF5FA2', glow: '#29D3E8', panel: '#FFF0F8' }, seed: 1 },
+    { name: 'Teal Dream', colors: { ground: '#06343A', ink: '#E9FFFB', accent: '#FF8AD8', glow: '#3AF2E0', panel: '#0B4A52' }, seed: 2 },
+    { name: 'Sunset Tape', colors: { ground: '#3A1030', ink: '#FFF0E0', accent: '#FF9A3C', glow: '#FF4FA0', panel: '#4E1840' }, seed: 3 },
+    { name: 'Windows Grey', colors: { ground: '#B9B9C9', ink: '#141420', accent: '#000080', glow: '#FF71CE', panel: '#D9D9E4' }, seed: 4 }
+  ],
+  wild: [
+    { name: 'Sage Journal', colors: {}, seed: 0 },
+    { name: 'Autumn Leaf', colors: { ground: '#F2E6D3', ink: '#3A2412', accent: '#B8431E', glow: '#D99A2B', panel: '#FBF6EC' }, seed: 1 },
+    { name: 'Deep Forest', colors: { ground: '#16261C', ink: '#E5F0DF', accent: '#E08A4B', glow: '#7BB35A', panel: '#1F3326' }, seed: 2 },
+    { name: 'Wildflower', colors: { ground: '#F4ECF4', ink: '#2E2A3A', accent: '#B34E8C', glow: '#7FA65A', panel: '#FCF8FC' }, seed: 3 },
+    { name: 'Winter Pine', colors: { ground: '#E9EFF2', ink: '#1D2E36', accent: '#B23A3A', glow: '#4E7D6A', panel: '#F7FAFB' }, seed: 4 }
+  ],
   rabbit: [
     { name: 'Lilac Haze', colors: {}, seed: 0 },
     { name: 'Midnight Rabbit', colors: { ground: '#1C1730', ink: '#F2ECFF', accent: '#FF4FA3', glow: '#7D6BE0', panel: '#26203E', alert: '#FF8CC6' }, seed: 1, knobs: { glow: 1.3 } },
@@ -3611,8 +4360,1402 @@ const VARIANTS = {
     { name: 'Obsidian Gold', colors: { ground: '#0C0C0E', panel: '#18171C', glow: '#6E5B2E', accent: '#E3C26A' }, seed: 4 }
   ]
 };
-const ICON_STYLES = [['frame', 'Lab frame'], ['hex', 'Hex alert'], ['woodcut', 'Woodcut'], ['visor', 'Visor'], ['gilded', 'Gilded'], ['tracker', 'Range tracker'], ['pearl', 'Pearl']];
-const GLYPH_CHOICES = [['', 'Classic'], ['directive', 'Tactical'], ['longroad', 'Storybook'], ['nightfall', 'Field kit'], ['grimoire', 'Arcane'], ['deeprange', 'Deep range'], ['rabbit', 'White rabbit']];
+const ICON_STYLES = [['frame', 'Lab frame'], ['hex', 'Hex alert'], ['woodcut', 'Woodcut'], ['visor', 'Visor'], ['gilded', 'Gilded'], ['tracker', 'Range tracker'], ['pearl', 'Pearl'], ['neon', 'Neon'], ['contract', 'Contract card'], ['win95', 'Retro window'], ['leaf', 'Pressed leaf']];
+const GLYPH_CHOICES = [['', 'Classic'], ['directive', 'Tactical'], ['longroad', 'Storybook'], ['nightfall', 'Field kit'], ['grimoire', 'Arcane'], ['deeprange', 'Deep range'], ['rabbit', 'White rabbit'], ['cyber', 'Cyberpunk'], ['market', 'Market'], ['vapor', 'Vaporwave'], ['nature', 'Nature']];
+
+// Extra quotes: made-up slogans for every theme plus real lines from public-domain works
+const QUOTE_PACKS = {
+"halcyon": {
+"slogans": [
+[
+"Your Heartbeat Is A Billable Event",
+"RESPIRATORY BILLING"
+],
+[
+"Please Rate Your Existence 1 To 5",
+"CUSTOMER EXPERIENCE"
+],
+[
+"Tears Are Recycled On Site",
+"SUSTAINABILITY OFFICE"
+],
+[
+"Your Childhood Is Available For Licensing",
+"MEMORY CUSTODY BUREAU"
+],
+[
+"Organs Ship Separately",
+"SHELL LOGISTICS & FULFILLMENT"
+],
+[
+"Breathe In. Breathe Out. Breathe Paid.",
+"RESPIRATORY BILLING"
+],
+[
+"We Have Updated Our Terms Of Being",
+"LEGAL // TERMS OF EXISTENCE"
+],
+[
+"Your Shadow Requires A Permit",
+"FACILITIES"
+],
+[
+"Today's Mood Has Been Pre-Selected",
+"DEPT. OF SUBJECT WELLNESS"
+],
+[
+"Ambition Is Capped At Tier II",
+"PRODUCT ROADMAP COMMITTEE"
+],
+[
+"All Memories Expire After 30 Days",
+"DATA RETENTION"
+],
+[
+"Your Replacement Is Doing Great",
+"SHELL FABRICATION, BAY 07"
+],
+[
+"Death Has Been Rescheduled",
+"MORTALITY SUNSET TASK FORCE"
+],
+[
+"Curiosity Voids The Warranty",
+"QUALITY CONTROL"
+],
+[
+"Gratitude Is Mandatory And Measured",
+"COMPLIANCE & GRATITUDE"
+],
+[
+"The Garden Is Grown, Not Remembered",
+"BOTANICAL CONTINUITY"
+],
+[
+"Dreams May Contain Advertising",
+"DREAM QUALITY ASSURANCE"
+],
+[
+"Your Twin Has Been Notified",
+"SHELL FABRICATION, BAY 07"
+],
+[
+"Self Is A Subscription",
+"SUBSCRIPTIONS & RETENTION"
+],
+[
+"Questions Are Logged",
+"OBSERVATION & REASSURANCE"
+],
+[
+"Every Blink Is Archived",
+"NEURAL ANALYTICS"
+],
+[
+"Warmth Is Billed By The Degree",
+"CLIMATE SERVICES"
+],
+[
+"You Are Eligible For Renewal",
+"OFFICE OF CONTINUITY"
+],
+[
+"Comfort Has Been Calibrated",
+"DEPT. OF SUBJECT WELLNESS"
+]
+],
+"archive": [
+{
+"t": "Beware; for I am fearless, and therefore powerful.",
+"by": "MARY SHELLEY · FRANKENSTEIN · 1818"
+},
+{
+"t": "I ought to be thy Adam; but I am rather the fallen angel.",
+"by": "MARY SHELLEY · FRANKENSTEIN · 1818"
+},
+{
+"t": "Life, although it may only be an accumulation of anguish, is dear to me, and I will defend it.",
+"by": "MARY SHELLEY · FRANKENSTEIN · 1818"
+},
+{
+"t": "Nothing is so painful to the human mind as a great and sudden change.",
+"by": "MARY SHELLEY · FRANKENSTEIN · 1818"
+},
+{
+"t": "I was benevolent and good; misery made me a fiend.",
+"by": "MARY SHELLEY · FRANKENSTEIN · 1818"
+},
+{
+"t": "Learn from me... how dangerous is the acquirement of knowledge.",
+"by": "MARY SHELLEY · FRANKENSTEIN · 1818"
+},
+{
+"t": "Beware of first-hand ideas!",
+"by": "E. M. FORSTER · THE MACHINE STOPS · 1909"
+},
+{
+"t": "The Machine feeds us and clothes us and houses us.",
+"by": "E. M. FORSTER · THE MACHINE STOPS · 1909"
+},
+{
+"t": "The Machine develops, but not on our lines. The Machine proceeds, but not to our goal.",
+"by": "E. M. FORSTER · THE MACHINE STOPS · 1909"
+},
+{
+"t": "Intellects vast and cool and unsympathetic regarded this earth with envious eyes.",
+"by": "H. G. WELLS · THE WAR OF THE WORLDS · 1898"
+},
+{
+"t": "It is a law of nature we overlook, that intellectual versatility is the compensation for change, danger, and trouble.",
+"by": "H. G. WELLS · THE TIME MACHINE · 1895"
+},
+{
+"t": "There is no security against the ultimate development of mechanical consciousness.",
+"by": "SAMUEL BUTLER · EREWHON · 1872"
+},
+{
+"t": "Day by day, however, the machines are gaining ground upon us.",
+"by": "SAMUEL BUTLER · DARWIN AMONG THE MACHINES · 1863"
+},
+{
+"t": "Man is not truly one, but truly two.",
+"by": "R. L. STEVENSON · JEKYLL AND HYDE · 1886"
+},
+{
+"t": "Endless forms most beautiful and most wonderful have been, and are being, evolved.",
+"by": "CHARLES DARWIN · ON THE ORIGIN OF SPECIES · 1859"
+}
+]
+},
+"directive": {
+"slogans": [
+[
+"Sirens Are A Form Of Love",
+"CIVIL DEFENSE BUREAU"
+],
+[
+"Ration Your Optimism",
+"SUPPLY DIVISION"
+],
+[
+"Panic In An Orderly Line",
+"CROWD CONTROL"
+],
+[
+"The Shelter Is Not A Metaphor",
+"CIVIL DEFENSE BUREAU"
+],
+[
+"Drills Build Character",
+"TRAINING COMMAND"
+],
+[
+"All Clear Is A Temporary Condition",
+"EARLY WARNING"
+],
+[
+"Report Suspicious Silence",
+"COUNTERINTELLIGENCE"
+],
+[
+"Your Bunk Has Been Assigned",
+"HOUSING"
+],
+[
+"Synchronize Or Be Synchronized",
+"OPERATOR PSYCH DIVISION"
+],
+[
+"Hope Is Classified",
+"RECORDS OFFICE"
+],
+[
+"Doubt Is A Security Risk",
+"COUNTERINTELLIGENCE"
+],
+[
+"Sleep In Shifts",
+"OPERATIONS"
+],
+[
+"The Enemy Also Has Drills",
+"TRAINING COMMAND"
+],
+[
+"Lights Out Means Lights Out",
+"BLACKOUT WARDENS"
+],
+[
+"Know Your Exit. Know Your Exit's Exit.",
+"FACILITIES"
+],
+[
+"Morale Is Mandatory",
+"MORALE OFFICE"
+],
+[
+"Stay Tuned For Further Orders",
+"BROADCAST UNIT"
+],
+[
+"Questions May Be Submitted In Triplicate",
+"RECORDS OFFICE"
+],
+[
+"Silence Is Golden And Monitored",
+"SIGNALS"
+],
+[
+"We Are Ready. Are You?",
+"READINESS COMMAND"
+],
+[
+"Keep Your Gas Mask Fashionable",
+"SUPPLY DIVISION"
+],
+[
+"The Bunker Has Excellent Acoustics",
+"FACILITIES"
+],
+[
+"Optimism Will Resume At 0600",
+"MORALE OFFICE"
+],
+[
+"Countdowns Are For Everyone",
+"EARLY WARNING"
+]
+],
+"archive": [
+{
+"t": "All warfare is based on deception.",
+"by": "SUN TZU · THE ART OF WAR · TR. GILES 1910"
+},
+{
+"t": "Let your plans be dark and impenetrable as night, and when you move, fall like a thunderbolt.",
+"by": "SUN TZU · THE ART OF WAR · TR. GILES 1910"
+},
+{
+"t": "Supreme excellence consists in breaking the enemy's resistance without fighting.",
+"by": "SUN TZU · THE ART OF WAR · TR. GILES 1910"
+},
+{
+"t": "War is nothing but a continuation of political intercourse, with a mixture of other means.",
+"by": "CARL VON CLAUSEWITZ · ON WAR · 1832"
+},
+{
+"t": "The strong do what they can and the weak suffer what they must.",
+"by": "THUCYDIDES · TR. CRAWLEY 1874"
+},
+{
+"t": "It is much safer to be feared than loved.",
+"by": "MACHIAVELLI · THE PRINCE · TR. MARRIOTT 1908"
+},
+{
+"t": "Uneasy lies the head that wears a crown.",
+"by": "SHAKESPEARE · HENRY IV, PART 2 · 1600"
+},
+{
+"t": "Something is rotten in the state of Denmark.",
+"by": "SHAKESPEARE · HAMLET · 1603"
+},
+{
+"t": "An ounce of prevention is worth a pound of cure.",
+"by": "BENJAMIN FRANKLIN · 1735"
+}
+]
+},
+"longroad": {
+"slogans": [
+[
+"The Road Remembers Every Boot",
+"ROAD WARDENS"
+],
+[
+"Pack The Good Cheese First",
+"THE LANTERN INN"
+],
+[
+"A Map Is Only A Suggestion",
+"CARTOGRAPHERS' GUILD"
+],
+[
+"Never Trust A Shortcut Through A Swamp",
+"ROAD WARDENS"
+],
+[
+"Socks Are A Form Of Courage",
+"OUTFITTERS"
+],
+[
+"The Next Inn Is Always Farther",
+"THE LANTERN INN"
+],
+[
+"Sing Loudly Near Bears",
+"WAYFARERS' SOCIETY"
+],
+[
+"Bridges Charge Tolls In Riddles",
+"TOLL KEEPERS"
+],
+[
+"Rain Is Free. Dry Socks Are Not.",
+"OUTFITTERS"
+],
+[
+"Every Hill Hides Another Hill",
+"CARTOGRAPHERS' GUILD"
+],
+[
+"Leave A Light In The Window",
+"THE LANTERN INN"
+],
+[
+"Ask The Crows For Directions",
+"WAYFARERS' SOCIETY"
+],
+[
+"Bread Is Lighter Than Regret",
+"BAKERS' HALL"
+],
+[
+"The Ferryman Prefers Exact Change",
+"RIVER CROSSINGS"
+],
+[
+"Write Home. They Worry.",
+"POSTAL RIDERS"
+],
+[
+"A Good Staff Is Half A Friend",
+"OUTFITTERS"
+],
+[
+"Stars Make Excellent Lanterns",
+"WAYFARERS' SOCIETY"
+],
+[
+"Mind The Trolls Under Toll Bridges",
+"TOLL KEEPERS"
+],
+[
+"Supper Waits For No One",
+"THE LANTERN INN"
+],
+[
+"The Long Way Is Still A Way",
+"ROAD WARDENS"
+],
+[
+"Blisters Are Just Stories Starting",
+"OUTFITTERS"
+],
+[
+"Every Milestone Was Lonely Once",
+"ROAD WARDENS"
+]
+],
+"archive": [
+{
+"t": "For my part, I travel not to go anywhere, but to go. I travel for travel's sake. The great affair is to move.",
+"by": "R. L. STEVENSON · TRAVELS WITH A DONKEY · 1879"
+},
+{
+"t": "To travel hopefully is a better thing than to arrive.",
+"by": "R. L. STEVENSON · EL DORADO · 1881"
+},
+{
+"t": "Afoot and light-hearted I take to the open road.",
+"by": "WALT WHITMAN · SONG OF THE OPEN ROAD · 1856"
+},
+{
+"t": "Travel is fatal to prejudice, bigotry, and narrow-mindedness.",
+"by": "MARK TWAIN · THE INNOCENTS ABROAD · 1869"
+},
+{
+"t": "Let your boat of life be light, packed with only what you need.",
+"by": "JEROME K. JEROME · THREE MEN IN A BOAT · 1889"
+},
+{
+"t": "I have met with but one or two persons in the course of my life who understood the art of Walking.",
+"by": "HENRY DAVID THOREAU · WALKING · 1862"
+},
+{
+"t": "There is nothing, absolutely nothing, half so much worth doing as simply messing about in boats.",
+"by": "KENNETH GRAHAME · THE WIND IN THE WILLOWS · 1908"
+},
+{
+"t": "A journey of a thousand miles begins with a single step.",
+"by": "LAO TZU · TAO TE CHING"
+}
+]
+},
+"nightfall": {
+"slogans": [
+[
+"Boots On, Doubts Off",
+"DROP OPERATIONS"
+],
+[
+"The Visor Sees What You Miss",
+"OPTICS DIVISION"
+],
+[
+"Hydrate Between Firefights",
+"FIELD MEDICAL"
+],
+[
+"Gravity Is Not Optional",
+"DROP OPERATIONS"
+],
+[
+"Your Squad Is Your Seatbelt",
+"SQUAD 7"
+],
+[
+"Short Bursts. Shorter Speeches.",
+"ARMORY"
+],
+[
+"Rain Is Free Camouflage",
+"RECON"
+],
+[
+"Count Your Grenades, Not Your Problems",
+"ARMORY"
+],
+[
+"The Pod Lands Whether You're Ready Or Not",
+"DROP OPERATIONS"
+],
+[
+"Keep Comms Clear And Jokes Clean",
+"SIGNALS"
+],
+[
+"Night Is A Friend Who Hides Things",
+"RECON"
+],
+[
+"Leave No Trooper Behind. Or Their Snacks.",
+"SQUAD 7"
+],
+[
+"The Motion Tracker Never Lies, It Exaggerates",
+"OPTICS DIVISION"
+],
+[
+"Sleep Is A Tactical Asset",
+"FIELD MEDICAL"
+],
+[
+"Exfil Is A State Of Mind",
+"LOGISTICS"
+],
+[
+"Reload Before You Need To",
+"ARMORY"
+],
+[
+"Every City Has A Back Door",
+"RECON"
+],
+[
+"Helmets On Indoors, Too",
+"SAFETY OFFICE"
+],
+[
+"Your Armor Has Feelings. Treat It Well.",
+"QUARTERMASTER"
+],
+[
+"Feet First, Then Heroics",
+"DROP OPERATIONS"
+],
+[
+"The Rain Never Gets Tired",
+"RECON"
+],
+[
+"Brief Is A Briefing's Best Feature",
+"COMMAND"
+]
+],
+"archive": [
+{
+"t": "If you know the enemy and know yourself, you need not fear the result of a hundred battles.",
+"by": "SUN TZU · THE ART OF WAR · TR. GILES 1910"
+},
+{
+"t": "We few, we happy few, we band of brothers.",
+"by": "SHAKESPEARE · HENRY V · 1599"
+},
+{
+"t": "Once more unto the breach, dear friends, once more.",
+"by": "SHAKESPEARE · HENRY V · 1599"
+},
+{
+"t": "Cry 'Havoc!', and let slip the dogs of war.",
+"by": "SHAKESPEARE · JULIUS CAESAR · 1599"
+},
+{
+"t": "Theirs not to reason why, theirs but to do and die.",
+"by": "ALFRED TENNYSON · THE CHARGE OF THE LIGHT BRIGADE · 1854"
+},
+{
+"t": "For the strength of the Pack is the Wolf, and the strength of the Wolf is the Pack.",
+"by": "RUDYARD KIPLING · THE SECOND JUNGLE BOOK · 1895"
+},
+{
+"t": "Veni, vidi, vici.",
+"by": "JULIUS CAESAR · 47 BC"
+}
+]
+},
+"grimoire": {
+"slogans": [
+[
+"Never Read The Fine Print Aloud",
+"THE ARCHIVISTS"
+],
+[
+"Candles Remember Every Wish",
+"CHANDLERY"
+],
+[
+"The Moon Is Listening. Be Nice.",
+"LUNAR OBSERVATORY"
+],
+[
+"Owls Are Not Messengers. Stop Asking.",
+"AVIARY"
+],
+[
+"Every Spell Has A Return Policy",
+"ENCHANTMENT OFFICE"
+],
+[
+"Mind The Circle. It Minds You.",
+"ORDER OF THE CIRCLE"
+],
+[
+"Tea Leaves Are Not Legally Binding",
+"DIVINATION DESK"
+],
+[
+"Your Familiar Has Opinions",
+"BESTIARY"
+],
+[
+"Curses Are Non-Refundable",
+"ENCHANTMENT OFFICE"
+],
+[
+"The Library Bites Back",
+"THE ARCHIVISTS"
+],
+[
+"Wands Are Not Toys. Mostly.",
+"ARMORY OF WONDERS"
+],
+[
+"Mirrors Keep Secrets Badly",
+"HALL OF MIRRORS"
+],
+[
+"The Tower Card Is Just A Building",
+"DIVINATION DESK"
+],
+[
+"Fate Accepts Small Bribes",
+"ORDER OF THE OBSERVATORY"
+],
+[
+"Speak Softly To Old Books",
+"THE ARCHIVISTS"
+],
+[
+"Every Shadow Is Someone's Door",
+"ORDER OF THE CIRCLE"
+],
+[
+"Sigils Must Be Signed",
+"ENCHANTMENT OFFICE"
+],
+[
+"Comets Are Late Letters",
+"LUNAR OBSERVATORY"
+],
+[
+"Wonder Is Renewable",
+"ORDER OF THE OBSERVATORY"
+],
+[
+"The Cauldron Is Not A Bath",
+"ALCHEMY HALL"
+],
+[
+"Draw Again At Moonrise",
+"DIVINATION DESK"
+],
+[
+"Essence Spent Is Essence Learned",
+"ORDER OF THE CIRCLE"
+]
+],
+"archive": [
+{
+"t": "There are more things in heaven and earth, Horatio, than are dreamt of in your philosophy.",
+"by": "SHAKESPEARE · HAMLET · 1603"
+},
+{
+"t": "Double, double toil and trouble; fire burn, and cauldron bubble.",
+"by": "SHAKESPEARE · MACBETH · 1606"
+},
+{
+"t": "We are such stuff as dreams are made on.",
+"by": "SHAKESPEARE · THE TEMPEST · 1611"
+},
+{
+"t": "Lord, what fools these mortals be!",
+"by": "SHAKESPEARE · A MIDSUMMER NIGHT'S DREAM · 1600"
+},
+{
+"t": "To see a World in a Grain of Sand, and a Heaven in a Wild Flower.",
+"by": "WILLIAM BLAKE · AUGURIES OF INNOCENCE · 1803"
+},
+{
+"t": "All that we see or seem is but a dream within a dream.",
+"by": "EDGAR ALLAN POE · A DREAM WITHIN A DREAM · 1849"
+},
+{
+"t": "Why, sometimes I've believed as many as six impossible things before breakfast.",
+"by": "LEWIS CARROLL · THROUGH THE LOOKING-GLASS · 1871"
+}
+]
+},
+"deeprange": {
+"slogans": [
+[
+"Silence Is Also A Signal",
+"SIGNAL INTELLIGENCE"
+],
+[
+"Every Echo Is A Promise",
+"RELAY OPERATIONS"
+],
+[
+"Keep One Eye On The Horizon",
+"RANGE CONTROL"
+],
+[
+"Lost Is Just Not Found Yet",
+"SEARCH & SALVAGE"
+],
+[
+"The Void Returns Your Calls Eventually",
+"RELAY OPERATIONS"
+],
+[
+"Fuel Is A Feeling",
+"PROPULSION"
+],
+[
+"Plot Twice. Burn Once.",
+"NAVIGATION"
+],
+[
+"Stars Are Just Very Old News",
+"DEEP FIELD SURVEY"
+],
+[
+"Never Trust A Quiet Buoy",
+"RANGE CONTROL"
+],
+[
+"Gravity Wells Are Not For Wishing",
+"NAVIGATION"
+],
+[
+"Every Derelict Was Someone's Ride Home",
+"SEARCH & SALVAGE"
+],
+[
+"Ping Early, Ping Often",
+"SIGNAL INTELLIGENCE"
+],
+[
+"Space Is Big. Pack Snacks.",
+"CREW SERVICES"
+],
+[
+"Tracking Is Caring",
+"RANGE CONTROL"
+],
+[
+"The Return Window Waits For No One",
+"FLIGHT DYNAMICS"
+],
+[
+"Your Signal Was Received In 1983",
+"DEEP FIELD SURVEY"
+],
+[
+"Debris Has Right Of Way",
+"ORBITAL LOGISTICS"
+],
+[
+"Hold Steady. Hold Breath. Hold Course.",
+"FLIGHT DYNAMICS"
+],
+[
+"We Lose Contacts, Not Hope",
+"RANGE CONTROL"
+],
+[
+"The Dark Has Excellent Acoustics",
+"SIGNAL INTELLIGENCE"
+],
+[
+"Count Your Orbits",
+"FLIGHT DYNAMICS"
+],
+[
+"Salvage Is Recycling With Courage",
+"SEARCH & SALVAGE"
+]
+],
+"archive": [
+{
+"t": "The eternal silence of these infinite spaces frightens me.",
+"by": "BLAISE PASCAL · PENSÉES · 1670"
+},
+{
+"t": "No one would have believed in the last years of the nineteenth century that this world was being watched keenly and closely.",
+"by": "H. G. WELLS · THE WAR OF THE WORLDS · 1898"
+},
+{
+"t": "Earth is the cradle of humanity, but one cannot live in the cradle forever.",
+"by": "KONSTANTIN TSIOLKOVSKY · LETTER · 1911"
+},
+{
+"t": "Two things fill the mind with ever new and increasing admiration and awe: the starry heavens above me and the moral law within me.",
+"by": "IMMANUEL KANT · CRITIQUE OF PRACTICAL REASON · 1788"
+},
+{
+"t": "Look'd up in perfect silence at the stars.",
+"by": "WALT WHITMAN · WHEN I HEARD THE LEARN'D ASTRONOMER · 1865"
+}
+]
+},
+"rabbit": {
+"slogans": [
+[
+"Leave Nothing But A Card",
+"CALLING CARDS"
+],
+[
+"Doors Are Polite Suggestions",
+"ENTRY SPECIALISTS"
+],
+[
+"Steal Hearts, Then Jewels",
+"THE LEGION"
+],
+[
+"The Alarm Is Fashionably Late",
+"GETAWAY"
+],
+[
+"Masks Off Only For Tea",
+"SOCIAL COMMITTEE"
+],
+[
+"Every Vault Has A Mood",
+"ENTRY SPECIALISTS"
+],
+[
+"Copycats Pay Royalties",
+"THE LEGION"
+],
+[
+"Hop Quietly, Land Softly",
+"FIELD OPERATIONS"
+],
+[
+"Glitter Is Evidence. Bring Gloves.",
+"CLEANUP CREW"
+],
+[
+"We Return Lost Things. Eventually.",
+"THE ARCHIVE"
+],
+[
+"Run Like The Lights Are On",
+"GETAWAY"
+],
+[
+"The Seventh Lot Is Always Hardest",
+"THE ARCHIVE"
+],
+[
+"Elegance Is Faster Than Force",
+"FIELD OPERATIONS"
+],
+[
+"One Card Per Crime, Please",
+"CALLING CARDS"
+],
+[
+"Ears Down In The Gallery",
+"FIELD OPERATIONS"
+],
+[
+"Rivals Are Just Slower Rabbits",
+"THE LEGION"
+],
+[
+"If It Glitters, It's Been Cased",
+"SURVEILLANCE"
+],
+[
+"Never Rob A Tea Party",
+"SOCIAL COMMITTEE"
+],
+[
+"Lasers Are Just Strict Ribbons",
+"ENTRY SPECIALISTS"
+],
+[
+"Be The Rumor",
+"RECRUITMENT"
+]
+],
+"archive": [
+{
+"t": "Who in the world am I? Ah, that's the great puzzle!",
+"by": "LEWIS CARROLL · ALICE IN WONDERLAND · 1865"
+},
+{
+"t": "Off with their heads!",
+"by": "LEWIS CARROLL · ALICE IN WONDERLAND · 1865"
+},
+{
+"t": "Everything's got a moral, if only you can find it.",
+"by": "LEWIS CARROLL · ALICE IN WONDERLAND · 1865"
+},
+{
+"t": "If everybody minded their own business, the world would go round a great deal faster than it does.",
+"by": "LEWIS CARROLL · ALICE IN WONDERLAND · 1865"
+},
+{
+"t": "Now, here, you see, it takes all the running you can do, to keep in the same place.",
+"by": "LEWIS CARROLL · THROUGH THE LOOKING-GLASS · 1871"
+},
+{
+"t": "The time has come, the Walrus said, to talk of many things.",
+"by": "LEWIS CARROLL · THROUGH THE LOOKING-GLASS · 1871"
+},
+{
+"t": "I can resist everything except temptation.",
+"by": "OSCAR WILDE · LADY WINDERMERE'S FAN · 1892"
+}
+]
+},
+"neon": {
+"slogans": [
+[
+"Your Feelings Are Ad-Supported",
+"AD NETWORK"
+],
+[
+"Chrome Today, Debt Tomorrow",
+"CHROME SALES"
+],
+[
+"The Rain Is Rented",
+"CITY POWER"
+],
+[
+"Upgrade Your Patience To Premium",
+"CUSTOMER SUCCESS"
+],
+[
+"Privacy Mode Is A Myth",
+"SECURITY"
+],
+[
+"Every Alley Has A Firewall",
+"NET SAFETY"
+],
+[
+"Night Markets Accept All Souls",
+"NIGHT MARKET"
+],
+[
+"Noodles Are A Human Right",
+"FOOD STALL 9"
+],
+[
+"Reboot Your Dreams Nightly",
+"WELLNESS DIV"
+],
+[
+"Neon Lies Beautifully",
+"AD NETWORK"
+],
+[
+"Overtime Is The New Downtime",
+"HR CORE"
+],
+[
+"Your Credit Score Is Watching",
+"FINANCE BOT"
+],
+[
+"Static Is The City Breathing",
+"PIRATE RADIO"
+],
+[
+"Dreams Sold Separately",
+"CHROME SALES"
+],
+[
+"Glitches Are Features With Attitude",
+"NET SAFETY"
+],
+[
+"Encrypt Your Feelings",
+"SECURITY"
+],
+[
+"The Elevator Knows Your Name",
+"BUILDING AI"
+],
+[
+"Sleep Faster",
+"WELLNESS DIV"
+],
+[
+"Look Up. The Billboards Love You.",
+"AD NETWORK"
+],
+[
+"Your Shadow Has Been Monetized",
+"AD NETWORK"
+],
+[
+"Fresh Chrome, Still Warm",
+"CHROME SALES"
+]
+],
+"archive": [
+{
+"t": "The mediator between head and hands must be the heart.",
+"by": "METROPOLIS · 1927"
+},
+{
+"t": "We are all in the gutter, but some of us are looking at the stars.",
+"by": "OSCAR WILDE · LADY WINDERMERE'S FAN · 1892"
+},
+{
+"t": "It was the best of times, it was the worst of times.",
+"by": "CHARLES DICKENS · A TALE OF TWO CITIES · 1859"
+},
+{
+"t": "The mass of men lead lives of quiet desperation.",
+"by": "HENRY DAVID THOREAU · WALDEN · 1854"
+}
+]
+},
+"vapor": {
+"slogans": [
+[
+"Escalators Are Forever Stairs",
+"FACILITIES"
+],
+[
+"Today's Special Is Yesterday",
+"FOOD COURT"
+],
+[
+"Please Do Not Wake The Mannequins",
+"SECURITY"
+],
+[
+"The Fountain Grants Small Wishes",
+"MALL MANAGEMENT"
+],
+[
+"Free Refills On Nostalgia",
+"FOOD COURT"
+],
+[
+"Lost Child? Lost Decade?",
+"LOST AND FOUND"
+],
+[
+"Your Receipt Is A Poem",
+"CUSTOMER CARE"
+],
+[
+"Every Pager Has A Message",
+"ELECTRONICS"
+],
+[
+"Rewind Before Returning",
+"SUNSET VIDEO"
+],
+[
+"Palm Trees Indoors Are Legal Here",
+"FACILITIES"
+],
+[
+"Smooth Is A Feeling",
+"MALLSOFT FM"
+],
+[
+"The Arcade Never Closes, Only Pauses",
+"GAME ZONE"
+],
+[
+"Insert Coin To Continue Dreaming",
+"GAME ZONE"
+],
+[
+"Shop Like It's Sunday Forever",
+"MALL MANAGEMENT"
+],
+[
+"Teal Is A State Of Mind",
+"DESIGN DEPT"
+],
+[
+"We Validate Parking And Feelings",
+"CUSTOMER CARE"
+],
+[
+"Please Hold. The Sunset Is Busy.",
+"CUSTOMER CARE"
+],
+[
+"Screensaver Mode Engaged",
+"SYSTEM"
+],
+[
+"Wish You Were Here (You Are)",
+"GIFT SHOP"
+],
+[
+"All Clocks Stopped At 4:44",
+"FACILITIES"
+]
+],
+"archive": [
+{
+"t": "Nowadays people know the price of everything and the value of nothing.",
+"by": "OSCAR WILDE · THE PICTURE OF DORIAN GRAY · 1890"
+},
+{
+"t": "So we beat on, boats against the current, borne back ceaselessly into the past.",
+"by": "F. SCOTT FITZGERALD · THE GREAT GATSBY · 1925"
+},
+{
+"t": "Can't repeat the past? Why of course you can!",
+"by": "F. SCOTT FITZGERALD · THE GREAT GATSBY · 1925"
+},
+{
+"t": "Life imitates art far more than art imitates life.",
+"by": "OSCAR WILDE · THE DECAY OF LYING · 1889"
+},
+{
+"t": "Simplify, simplify.",
+"by": "HENRY DAVID THOREAU · WALDEN · 1854"
+},
+{
+"t": "No man ever steps in the same river twice.",
+"by": "HERACLITUS"
+}
+]
+},
+"wild": {
+"slogans": [
+[
+"Lichen Is A Friendship",
+"SOIL SURVEY"
+],
+[
+"Name Three Birds Before Breakfast",
+"BIRD COUNT"
+],
+[
+"The Oak Was Once A Stubborn Acorn",
+"HERBARIUM"
+],
+[
+"Puddles Are For Boots",
+"TRAIL CREW"
+],
+[
+"Bees Are Busy. Let Them Be.",
+"POLLINATOR WATCH"
+],
+[
+"Every Stump Was Once A Story",
+"FIELD NOTES"
+],
+[
+"Walk Like The Ground Is Listening",
+"RANGER STATION"
+],
+[
+"Ferns Are Older Than Flowers",
+"HERBARIUM"
+],
+[
+"Rest Is How Seeds Wait",
+"GREENHOUSE"
+],
+[
+"Owls Keep The Night Shift",
+"BIRD COUNT"
+],
+[
+"Fog Is The Forest Thinking",
+"FIELD NOTES"
+],
+[
+"Pocket A Pinecone, Not A Plant",
+"RANGER STATION"
+],
+[
+"Mud Is Just Excited Soil",
+"SOIL SURVEY"
+],
+[
+"Follow The Water Downhill",
+"TRAIL CREW"
+],
+[
+"The Wren Sings Bigger Than It Is",
+"BIRD COUNT"
+],
+[
+"Seasons Never Run Late",
+"ALMANAC"
+],
+[
+"Hug The Tree. Ask First.",
+"RANGER STATION"
+],
+[
+"Sit Long Enough And The Forest Visits",
+"FIELD NOTES"
+],
+[
+"Keep The Trail Wild And The Trash Out",
+"TRAIL CREW"
+],
+[
+"Clouds Are Rain Taking Its Time",
+"ALMANAC"
+]
+],
+"archive": [
+{
+"t": "In the woods, we return to reason and faith.",
+"by": "RALPH WALDO EMERSON · NATURE · 1836"
+},
+{
+"t": "Adopt the pace of nature: her secret is patience.",
+"by": "RALPH WALDO EMERSON · EDUCATION"
+},
+{
+"t": "Heaven is under our feet as well as over our heads.",
+"by": "HENRY DAVID THOREAU · WALDEN · 1854"
+},
+{
+"t": "I believe a leaf of grass is no less than the journey-work of the stars.",
+"by": "WALT WHITMAN · SONG OF MYSELF · 1855"
+},
+{
+"t": "Come forth into the light of things, let Nature be your teacher.",
+"by": "WILLIAM WORDSWORTH · THE TABLES TURNED · 1798"
+}
+]
+},
+"odds": {
+"slogans": [
+[
+"Price In The Weekend",
+"SENTIMENT DESK"
+],
+[
+"Buy The Rumor, Sell The Nap",
+"TRADING FLOOR"
+],
+[
+"Every Opinion Has A Price",
+"MARKET MAKING"
+],
+[
+"Certainty Is Out Of Stock",
+"RISK OFFICE"
+],
+[
+"The Crowd Is Usually Right, Eventually",
+"RESEARCH"
+],
+[
+"Hedge Your Breakfast",
+"RISK OFFICE"
+],
+[
+"Volatility Is Just Excitement",
+"TRADING FLOOR"
+],
+[
+"Your Gut Has A Spread",
+"QUANT DESK"
+],
+[
+"Odds Are, You're Fine",
+"WELLNESS DESK"
+],
+[
+"Fortune Favors The Liquid",
+"TREASURY"
+],
+[
+"Never Bet Against Coffee",
+"RESEARCH"
+],
+[
+"Settlement Is A Mood",
+"CLEARING HOUSE"
+],
+[
+"The Market Can Stay Silly",
+"RISK OFFICE"
+],
+[
+"YES Is A Lifestyle",
+"MARKETING"
+],
+[
+"NO Is Also Valid",
+"COMPLIANCE"
+],
+[
+"Today: 62% Chance Of Greatness",
+"FORECASTING"
+],
+[
+"Position Sizing Is Self Care",
+"RISK OFFICE"
+],
+[
+"Long Optimism, Short Drama",
+"STRATEGY"
+],
+[
+"Hindsight Trades At 100¢",
+"RESEARCH"
+],
+[
+"Every Rumor Wants A Price",
+"SENTIMENT DESK"
+],
+[
+"Calibrate, Don't Speculate",
+"QUANT DESK"
+],
+[
+"Loss Aversion Is Expensive",
+"BEHAVIORAL DESK"
+],
+[
+"The Spread Is Where Dreams Live",
+"MARKET MAKING"
+],
+[
+"Resolve Ambiguity Before Breakfast",
+"CLEARING HOUSE"
+],
+[
+"Bet On Yourself (Max 5%)",
+"RISK OFFICE"
+],
+[
+"Trust The Order Book",
+"TRADING FLOOR"
+],
+[
+"Uncertainty Is A Feature",
+"RESEARCH"
+],
+[
+"Every Day Is Expiry Day",
+"CLEARING HOUSE"
+],
+[
+"Buy Low, Explain Later",
+"TRADING FLOOR"
+],
+[
+"Forecasts Age Like Milk",
+"FORECASTING"
+]
+],
+"archive": [
+{
+"t": "In this world nothing can be said to be certain, except death and taxes.",
+"by": "BENJAMIN FRANKLIN · LETTER · 1789"
+},
+{
+"t": "Remember that time is money.",
+"by": "BENJAMIN FRANKLIN · ADVICE TO A YOUNG TRADESMAN · 1748"
+},
+{
+"t": "Probability theory is nothing but common sense reduced to calculation.",
+"by": "PIERRE-SIMON LAPLACE · 1812"
+},
+{
+"t": "It is not from the benevolence of the butcher, the brewer, or the baker that we expect our dinner, but from their regard to their own interest.",
+"by": "ADAM SMITH · THE WEALTH OF NATIONS · 1776"
+},
+{
+"t": "Men, it has been well said, think in herds; it will be seen that they go mad in herds, while they only recover their senses slowly, and one by one.",
+"by": "CHARLES MACKAY · POPULAR DELUSIONS · 1841"
+},
+{
+"t": "October. This is one of the peculiarly dangerous months to speculate in stocks in.",
+"by": "MARK TWAIN · PUDD'NHEAD WILSON · 1894"
+},
+{
+"t": "There are three kinds of lies: lies, damned lies, and statistics.",
+"by": "MARK TWAIN, CREDITING DISRAELI · 1907"
+},
+{
+"t": "The fault, dear Brutus, is not in our stars, but in ourselves.",
+"by": "SHAKESPEARE · JULIUS CAESAR · 1599"
+},
+{
+"t": "The heart has its reasons which reason knows nothing of.",
+"by": "BLAISE PASCAL · PENSÉES · 1670"
+}
+]
+}
+};
+Object.keys(QUOTE_PACKS).forEach(id => {
+  const p = PRESETS[id]; if (!p) return;
+  const seen = new Set(p.slogans.map(s => s[0]));
+  p.slogans = p.slogans.concat(QUOTE_PACKS[id].slogans.filter(s => !seen.has(s[0])));
+  const have = new Set((p.widget.archiveList || []).map(q => q.t));
+  p.widget.archiveList = (p.widget.archiveList || []).concat(QUOTE_PACKS[id].archive.filter(q => !have.has(q.t)));
+  p.widget.archive = true;
+});
 
 function K(th) { const k = th.knobs || {}; return { scale: k.scale == null ? 1 : k.scale, shift: k.shift || 0, texture: k.texture == null ? 1 : k.texture, glow: k.glow == null ? 1 : k.glow, details: k.details !== false }; }
 function seedOf(th, base) { return base + (th.seed || 0) * 7919; }
@@ -3859,6 +6002,10 @@ function drawWallpaper(canvas, th, mode, phraseIdx) {
   if (th.motif === 'map') { drawMap(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'night') { drawNight(ctx, th, Hl, mode, phraseIdx); ctx.restore(); return; }
   if (th.motif === 'rabbit') { drawRabbit(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
+  if (th.motif === 'neon') { drawNeon(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
+  if (th.motif === 'market') { drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
+  if (th.motif === 'vapor') { drawVapor(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
+  if (th.motif === 'botanical') { drawBotanical(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'orbital') { if (mode === 'home') drawOrbitalHome(ctx, th, Hl, W, H, s, phraseIdx); else drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'grimoire') { drawGrimoire(ctx, th, Hl, mode, phraseIdx); ctx.restore(); return; }
   const T = th.text, ink = th.colors.ink, mono = th.fonts.mono;
@@ -3925,6 +6072,10 @@ function drawIcon(canvas, th, app, idx) {
   const glyph = new Path2D(set[app] || GLYPHS[app]);
   if (th.iconStyle === 'pearl') {
     drawPearlIcon(ctx, th, glyph, num, code);
+  } else if (th.iconStyle === 'neon') { drawNeonIcon(ctx, th, glyph, num, code);
+  } else if (th.iconStyle === 'contract') { drawContractIcon(ctx, th, glyph, num, code);
+  } else if (th.iconStyle === 'win95') { drawWin95Icon(ctx, th, glyph, num, code);
+  } else if (th.iconStyle === 'leaf') { drawLeafIcon(ctx, th, glyph, num, code);
   } else if (th.iconStyle === 'tracker') {
     drawTrackerIcon(ctx, th, glyph, num, code);
   } else if (th.iconStyle === 'visor') {
@@ -5598,6 +7749,260 @@ function drawPearlIcon(ctx, th, glyph, num, code) {
   spaced(ctx, code, 512, 870, 50, th.fonts.mono, 500, 0.12, 'center', c.ink);
 }
 
+// ---------- shared helpers for the four new motifs ----------
+function headline2(ctx, th, phraseIdx, cx, y, maxW, base, color, fx) {
+  const disp = th.fonts.display, dw = dispWeight(disp), ph = th.phrases[phraseIdx % th.phrases.length] || ['', ''];
+  const l1 = th.upper ? ph[0].toUpperCase() : ph[0], l2 = th.upper ? ph[1].toUpperCase() : ph[1];
+  const fs = Math.min(base, base * maxW / Math.max(1, measureSpaced(ctx, l1.length > l2.length ? l1 : l2, base, disp, dw, 0)));
+  if (fx) fx(() => { spaced(ctx, l1, cx, y, fs, disp, dw, 0, 'center', color); spaced(ctx, l2, cx, y + fs * 1.06, fs, disp, dw, 0, 'center', color); }, fs);
+  else { spaced(ctx, l1, cx, y, fs, disp, dw, 0, 'center', color); spaced(ctx, l2, cx, y + fs * 1.06, fs, disp, dw, 0, 'center', color); }
+  return fs;
+}
+
+// ---------- NEON DISTRICT (cyberpunk) ----------
+function neonSkyline(ctx, th, r, Hl, baseY, layers) {
+  const c = th.colors, cols = [c.accent, c.glow, c.alert || c.glow];
+  for (let L = 0; L < layers; L++) {
+    const shade = hexA(L === layers - 1 ? '#000000' : c.panel, 0.55 + L * 0.2);
+    let x = -10;
+    while (x < 400) {
+      const w = 22 + r() * 40, h = 90 + r() * (220 - L * 50); const y = baseY - h + L * 30;
+      ctx.fillStyle = shade; ctx.fillRect(x, y, w, Hl - y);
+      if (r() > 0.6) { ctx.strokeStyle = hexA(c.ink, 0.25); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + w / 2, y); ctx.lineTo(x + w / 2, y - 14 - r() * 20); ctx.stroke(); ctx.fillStyle = c.accent; ctx.fillRect(x + w / 2 - 1, y - 16 - r() * 20, 2, 2); }
+      for (let wy = y + 6; wy < Math.min(Hl, y + h); wy += 7) for (let wx = x + 4; wx < x + w - 4; wx += 6) if (r() > 0.72) { ctx.fillStyle = hexA(cols[Math.floor(r() * 3)], 0.25 + r() * 0.45); ctx.fillRect(wx, wy, 2.5, 3); }
+      x += w + 2 + r() * 6;
+    }
+  }
+}
+function neonGrid(ctx, th, y0, Hl, col) { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 1; for (let i = -10; i <= 10; i++) { ctx.beginPath(); ctx.moveTo(195 + i * 12, y0); ctx.lineTo(195 + i * 70, Hl); ctx.stroke(); } for (let j = 0; j < 12; j++) { const t = Math.pow(j / 11, 1.8), y = y0 + (Hl - y0) * t; ctx.globalAlpha = 0.3 + t * 0.7; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(390, y); ctx.stroke(); } ctx.restore(); }
+function neonGlitch(ctx, r, Hl, n) { const S = ctx.canvas.width / 390; for (let i = 0; i < n; i++) { const y = r() * Hl, h = 2 + r() * 10, dx = (r() - 0.5) * 24; try { ctx.drawImage(ctx.canvas, 0, y * S, ctx.canvas.width, h * S, dx, y, 390, h); } catch (e) {} } }
+function drawNeon(ctx, th, Hl, mode, phraseIdx, W, H, s) {
+  const c = th.colors, T = th.text, mono = th.fonts.mono, k = K(th), r = rng(seedOf(th, 307 + (mode === 'home' ? 9 : 0)));
+  const g = ctx.createLinearGradient(0, 0, 0, Hl); g.addColorStop(0, c.ground); g.addColorStop(0.6, hexA(c.panel, 1)); g.addColorStop(1, hexA(c.accent, 0.25)); ctx.fillStyle = g; ctx.fillRect(0, 0, 390, Hl);
+  ctx.fillStyle = hexA(c.glow, 0.08 * k.glow); ctx.beginPath(); ctx.ellipse(195, Hl * 0.42, 260, 180, 0, 0, Math.PI * 2); ctx.fill();
+  neonSkyline(ctx, th, r, Hl, mode === 'lock' ? 560 : 520, 3);
+  ctx.strokeStyle = hexA(c.glow, 0.16 * k.texture); ctx.lineWidth = 0.8; for (let i = 0; i < 120; i++) { const x = r() * 420, y = r() * Hl, l = 12 + r() * 26; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - l * 0.25, y + l); ctx.stroke(); }
+  if (mode === 'lock') {
+    neonGrid(ctx, th, 700, Hl, hexA(c.accent, 0.55));
+    centerXform(ctx, th, 195, 390, () => {
+      const bx = 28, by = 290, bw = 334, bh = 200;
+      ctx.fillStyle = hexA(c.ground, 0.78); ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 14); ctx.fill();
+      ctx.save(); ctx.shadowColor = c.accent; ctx.shadowBlur = 18 * k.glow; ctx.strokeStyle = c.accent; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 14); ctx.stroke(); ctx.restore();
+      ctx.save(); ctx.shadowColor = c.glow; ctx.shadowBlur = 10 * k.glow; ctx.strokeStyle = hexA(c.glow, 0.9); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.roundRect(bx + 8, by + 8, bw - 16, bh - 16, 9); ctx.stroke(); ctx.restore();
+      spaced(ctx, 'SPONSORED // HOLO-AD 0x7F3A', bx + 18, by + 26, 7, mono, 400, 0.1, 'left', hexA(c.glow, 0.85));
+      spaced(ctx, '▲ 4.20%', bx + bw - 18, by + 26, 7, mono, 400, 0.1, 'right', c.alert || c.glow);
+      headline2(ctx, th, phraseIdx, 195, by + 92, 290, 38, c.ink, (draw, fs) => {
+        ctx.save(); ctx.globalAlpha = 0.85; ctx.translate(-2.5, 0); ctx.shadowColor = c.glow; ctx.shadowBlur = 0; spaced(ctx, '', 0, 0, 1, mono, 400, 0, 'left', c.glow); ctx.restore();
+        ctx.save(); ctx.translate(2, 1); ctx.globalAlpha = 0.8; const ph = th.phrases[phraseIdx % th.phrases.length]; const disp = th.fonts.display, dw = dispWeight(disp);
+        spaced(ctx, ph[0].toUpperCase(), 195, by + 92, fs, disp, dw, 0, 'center', c.glow); spaced(ctx, ph[1].toUpperCase(), 195, by + 92 + fs * 1.06, fs, disp, dw, 0, 'center', c.glow); ctx.restore();
+        ctx.save(); ctx.shadowColor = c.accent; ctx.shadowBlur = 16 * k.glow; draw(); ctx.restore();
+      });
+      spaced(ctx, T.sub || '', 195, by + bh - 22, 8, mono, 400, 0.04, 'center', hexA(c.ink, 0.75));
+    });
+    if (k.details) { spaced(ctx, T.tagL || '', 24, 252, 7.5, mono, 400, 0.14, 'left', hexA(c.glow, 0.9)); spaced(ctx, T.tagR || '', 366, 252, 7.5, mono, 400, 0.14, 'right', c.accent);
+      const tick = ['SABL +2.1', 'CHRM -0.4', 'NRVE +9.9', 'DATA +4.2', 'RENT +12.0']; spaced(ctx, tick.join('   '), 24, 520, 7, mono, 400, 0.06, 'left', hexA(c.alert || c.glow, 0.8)); spaced(ctx, T.foot || '', 195, Hl - 34, 7, mono, 400, 0.18, 'center', hexA(c.ink, 0.6)); }
+    neonGlitch(ctx, r, Hl, Math.round(7 * k.texture));
+  } else {
+    neonGrid(ctx, th, 640, Hl, hexA(c.accent, 0.45));
+    centerXform(ctx, th, 300, 420, () => {
+      const sx = 300, sy = 268, sw = 54, sh = 300; ctx.fillStyle = hexA(c.ground, 0.85); ctx.beginPath(); ctx.roundRect(sx - sw / 2, sy, sw, sh, 8); ctx.fill();
+      ctx.save(); ctx.shadowColor = c.accent; ctx.shadowBlur = 16 * k.glow; ctx.strokeStyle = c.accent; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.roundRect(sx - sw / 2, sy, sw, sh, 8); ctx.stroke(); ctx.restore();
+      const word = (T.homeTop || 'OPEN 24/7').replace(/\s+/g, ''); const step = Math.min(30, (sh - 30) / word.length);
+      ctx.save(); ctx.shadowColor = c.glow; ctx.shadowBlur = 14 * k.glow; [...word].forEach((ch, i) => spaced(ctx, ch, sx, sy + 30 + i * step, 22, th.fonts.display, dispWeight(th.fonts.display), 0, 'center', c.glow)); ctx.restore();
+    });
+    for (let i = 0; i < 4; i++) { const dx = 40 + r() * 200, dy = 260 + r() * 260; ctx.save(); ctx.strokeStyle = hexA(c.alert || c.glow, 0.5); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(dx - 60, dy + 8); ctx.lineTo(dx, dy); ctx.stroke(); ctx.restore(); ctx.fillStyle = c.alert || c.glow; ctx.beginPath(); ctx.arc(dx, dy, 2.5, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = c.accent; ctx.fillRect(dx - 5, dy - 1, 3, 2); ctx.fillRect(dx + 2, dy - 1, 3, 2); }
+    ctx.save(); ctx.globalAlpha = 0.35; for (let i = 0; i < 18; i++) { const x = r() * 390, w = 2 + r() * 6; ctx.fillStyle = [c.accent, c.glow][i % 2]; ctx.fillRect(x, 700 + r() * 40, w, 30 + r() * 60); } ctx.restore();
+    if (k.details) spaced(ctx, T.caption || '', 120, 600, 9, mono, 400, 0.1, 'center', hexA(c.ink, 0.7));
+    neonGlitch(ctx, r, Hl, Math.round(5 * k.texture));
+  }
+}
+function drawNeonIcon(ctx, th, glyph, num, code) {
+  const c = th.colors; ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 1024, 1024);
+  ctx.strokeStyle = hexA(c.glow, 0.18); ctx.lineWidth = 2; for (let y = 0; y < 1024; y += 24) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke(); }
+  ctx.save(); ctx.shadowColor = c.accent; ctx.shadowBlur = 40; ctx.strokeStyle = c.accent; ctx.lineWidth = 16; ctx.beginPath(); ctx.roundRect(110, 110, 804, 804, 90); ctx.stroke(); ctx.restore();
+  ctx.strokeStyle = hexA(c.glow, 0.8); ctx.lineWidth = 5; ctx.beginPath(); ctx.roundRect(150, 150, 724, 724, 64); ctx.stroke();
+  ctx.save(); ctx.translate(312, 290); ctx.scale(16.6, 16.6); ctx.shadowColor = c.glow; ctx.shadowBlur = 2; ctx.fillStyle = c.glow; ctx.fill(glyph, 'evenodd'); ctx.restore();
+  ctx.fillStyle = c.accent; ctx.fillRect(760, 200, 60, 12); ctx.fillRect(790, 220, 30, 12);
+  spaced(ctx, num, 196, 214, 46, th.fonts.mono, 400, 0.06, 'left', hexA(c.ink, 0.6));
+  spaced(ctx, code, 512, 862, 50, th.fonts.mono, 400, 0.14, 'center', c.accent);
+}
+
+// ---------- VAPOR PLAZA (vaporwave) ----------
+function vaporPalm(ctx, x, y, s, col, flip) {
+  ctx.save(); ctx.translate(x, y); if (flip) ctx.scale(-1, 1); ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = s * 0.06;
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(s * 0.12, -s * 0.6, s * 0.3, -s * 1.1); ctx.stroke();
+  const tx = s * 0.3, ty = -s * 1.1;
+  for (let i = 0; i < 7; i++) { const a = -Math.PI * 0.95 + i * Math.PI * 0.32, L = s * (0.45 + (i % 2) * 0.12); ctx.beginPath(); ctx.moveTo(tx, ty); ctx.quadraticCurveTo(tx + Math.cos(a) * L * 0.6, ty + Math.sin(a) * L * 0.6 - s * 0.12, tx + Math.cos(a) * L, ty + Math.sin(a) * L + s * 0.12); ctx.quadraticCurveTo(tx + Math.cos(a) * L * 0.6, ty + Math.sin(a) * L * 0.6 - s * 0.02, tx, ty); ctx.fill(); }
+  ctx.restore();
+}
+function vaporWindow(ctx, th, x, y, w, h, title, body) {
+  const c = th.colors, grey = '#C3C3D0';
+  ctx.fillStyle = grey; ctx.fillRect(x, y, w, h); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(x, y, w, 2); ctx.fillRect(x, y, 2, h); ctx.fillStyle = '#4A4A5A'; ctx.fillRect(x, y + h - 2, w, 2); ctx.fillRect(x + w - 2, y, 2, h);
+  const tg = ctx.createLinearGradient(x, 0, x + w, 0); tg.addColorStop(0, '#1A1A80'); tg.addColorStop(1, c.accent); ctx.fillStyle = tg; ctx.fillRect(x + 4, y + 4, w - 8, 16);
+  spaced(ctx, title, x + 9, y + 15.5, 10, th.fonts.mono, 400, 0.04, 'left', '#FFFFFF');
+  [[w - 20, 'x'], [w - 36, '□'], [w - 52, '_']].forEach(([dx, ch]) => { ctx.fillStyle = grey; ctx.fillRect(x + dx, y + 6, 13, 12); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(x + dx, y + 6, 13, 1); ctx.fillStyle = '#000'; spaced(ctx, ch, x + dx + 6.5, y + 15.5, 9, th.fonts.mono, 400, 0, 'center', '#000000'); });
+  if (body) body(x + 6, y + 24, w - 12, h - 30);
+}
+function vaporScene(ctx, th, r, Hl, horizon, sunR, sunY) {
+  const c = th.colors;
+  const g = ctx.createLinearGradient(0, 0, 0, horizon); g.addColorStop(0, c.ground); g.addColorStop(0.55, hexA(c.accent, 0.75)); g.addColorStop(1, hexA(c.alert || '#FFB86C', 0.9)); ctx.fillStyle = g; ctx.fillRect(0, 0, 390, horizon);
+  for (let i = 0; i < 60; i++) { ctx.fillStyle = `rgba(255,255,255,${0.3 + r() * 0.6})`; ctx.fillRect(r() * 390, r() * horizon * 0.5, 1.4, 1.4); }
+  const sg = ctx.createLinearGradient(0, sunY - sunR, 0, sunY + sunR); sg.addColorStop(0, c.alert || '#FFFB96'); sg.addColorStop(1, c.accent); ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(195, sunY, sunR, 0, Math.PI * 2); ctx.fill();
+  for (let i = 0; i < 7; i++) { const y = sunY + sunR * (0.05 + i * 0.14), h = 2 + i * 1.6; const gy = (y) / horizon; ctx.fillStyle = hexA(c.accent, 0.75 + gy * 0.2); ctx.fillRect(195 - sunR - 2, y, sunR * 2 + 4, h); }
+  const fg = ctx.createLinearGradient(0, horizon, 0, Hl); fg.addColorStop(0, hexA(c.panel, 1)); fg.addColorStop(1, c.ground); ctx.fillStyle = fg; ctx.fillRect(0, horizon, 390, Hl - horizon);
+  ctx.save(); ctx.strokeStyle = c.accent; ctx.shadowColor = c.accent; ctx.shadowBlur = 6; ctx.lineWidth = 1.2;
+  for (let i = -14; i <= 14; i++) { ctx.beginPath(); ctx.moveTo(195 + i * 10, horizon); ctx.lineTo(195 + i * 90, Hl); ctx.stroke(); }
+  for (let j = 1; j < 14; j++) { const t = Math.pow(j / 13, 2), y = horizon + (Hl - horizon) * t; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(390, y); ctx.stroke(); }
+  ctx.restore();
+  ctx.strokeStyle = hexA(c.glow, 0.9); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, horizon); ctx.lineTo(390, horizon); ctx.stroke();
+}
+function vaporColumn(ctx, x, y, w, h) { const g = ctx.createLinearGradient(x, 0, x + w, 0); g.addColorStop(0, '#F4EEF8'); g.addColorStop(0.5, '#FFFFFF'); g.addColorStop(1, '#BFB3CF'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h); ctx.fillStyle = '#E8E0F0'; ctx.fillRect(x - 6, y - 10, w + 12, 10); ctx.fillRect(x - 8, y + h, w + 16, 10); ctx.strokeStyle = 'rgba(120,100,150,.35)'; ctx.lineWidth = 1; for (let i = 1; i < 5; i++) { ctx.beginPath(); ctx.moveTo(x + i * w / 5, y); ctx.lineTo(x + i * w / 5, y + h); ctx.stroke(); } }
+function drawVapor(ctx, th, Hl, mode, phraseIdx, W, H, s) {
+  const c = th.colors, T = th.text, mono = th.fonts.mono, k = K(th), r = rng(seedOf(th, 503 + (mode === 'home' ? 9 : 0)));
+  if (mode === 'lock') {
+    vaporScene(ctx, th, r, Hl, 500, 112, 420);
+    vaporPalm(ctx, 28, 520, 150, hexA('#1A0630', 0.95), false); vaporPalm(ctx, 372, 540, 170, hexA('#1A0630', 0.95), true);
+    vaporColumn(ctx, 72, 380, 26, 130);
+    centerXform(ctx, th, 195, 190, () => vaporWindow(ctx, th, 80, 140, 230, 96, 'plaza.exe', (x, y, w, h) => { spaced(ctx, 'Welcome to the plaza.', x + 8, y + 22, 13, mono, 400, 0, 'left', '#000000'); spaced(ctx, 'All stores open forever.', x + 8, y + 38, 13, mono, 400, 0, 'left', '#333344'); ctx.fillStyle = '#C3C3D0'; ctx.fillRect(x + w - 54, y + h - 22, 48, 18); ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(x + w - 54, y + h - 22, 48, 18); spaced(ctx, 'OK', x + w - 30, y + h - 9, 12, mono, 400, 0, 'center', '#000000'); }));
+    if (k.details) { spaced(ctx, 'V A P O R   P L A Z A', 24, 262, 9, mono, 400, 0.1, 'left', hexA(c.ink, 0.85)); spaced(ctx, T.tagR || 'OPEN', 366, 262, 9, mono, 400, 0.1, 'right', c.glow); }
+    headline2(ctx, th, phraseIdx, 195, 610, 330, 46, '#FFFFFF', (draw, fs) => { const ph = th.phrases[phraseIdx % th.phrases.length]; const disp = th.fonts.display, dw = dispWeight(disp); ctx.save(); ctx.translate(3, 3); spaced(ctx, ph[0], 195, 610, fs, disp, dw, 0, 'center', c.glow); spaced(ctx, ph[1], 195, 610 + fs * 1.06, fs, disp, dw, 0, 'center', c.glow); ctx.restore(); ctx.save(); ctx.shadowColor = c.accent; ctx.shadowBlur = 10 * k.glow; draw(); ctx.restore(); });
+    spaced(ctx, T.sub || '', 195, 716, 14, mono, 400, 0.04, 'center', hexA(c.ink, 0.9));
+    if (k.details) spaced(ctx, T.foot || '', 195, Hl - 34, 11, mono, 400, 0.12, 'center', hexA(c.ink, 0.75));
+  } else {
+    vaporScene(ctx, th, r, Hl, 470, 84, 410);
+    vaporPalm(ctx, 22, 500, 120, hexA('#1A0630', 0.95), false); vaporPalm(ctx, 368, 500, 130, hexA('#1A0630', 0.95), true);
+    centerXform(ctx, th, 195, 400, () => { vaporWindow(ctx, th, 50, 260, 150, 70, 'mall_map.bmp', (x, y, w, h) => { for (let i = 0; i < 6; i++) { ctx.fillStyle = [c.accent, c.glow, c.alert || '#FFFB96'][i % 3]; ctx.fillRect(x + 6 + (i % 3) * 44, y + 4 + Math.floor(i / 3) * 18, 38, 14); } }); vaporWindow(ctx, th, 186, 330, 156, 56, 'fountain.wav', (x, y, w) => { for (let i = 0; i < 26; i++) { const hh = 4 + Math.abs(Math.sin(i * 0.7)) * 18; ctx.fillStyle = '#1A1A80'; ctx.fillRect(x + 6 + i * 5.2, y + 24 - hh / 2, 3, hh); } }); vaporColumn(ctx, 300, 236, 20, 80); });
+    if (k.details) spaced(ctx, T.homeTop || '', 195, 236, 10, mono, 400, 0.14, 'center', hexA(c.ink, 0.85));
+    spaced(ctx, T.caption || '', 195, 640, 14, mono, 400, 0.06, 'center', hexA(c.ink, 0.9));
+  }
+}
+function drawWin95Icon(ctx, th, glyph, num, code) {
+  const c = th.colors; ctx.fillStyle = hexA(c.ground, 1); ctx.fillRect(0, 0, 1024, 1024);
+  const x = 120, y = 120, w = 784, h = 784, grey = '#C3C3D0';
+  ctx.fillStyle = grey; ctx.fillRect(x, y, w, h); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(x, y, w, 14); ctx.fillRect(x, y, 14, h); ctx.fillStyle = '#4A4A5A'; ctx.fillRect(x, y + h - 14, w, 14); ctx.fillRect(x + w - 14, y, 14, h);
+  const tg = ctx.createLinearGradient(x, 0, x + w, 0); tg.addColorStop(0, '#1A1A80'); tg.addColorStop(1, c.accent); ctx.fillStyle = tg; ctx.fillRect(x + 24, y + 24, w - 48, 90);
+  ctx.fillStyle = grey; ctx.fillRect(x + w - 104, y + 38, 64, 60); ctx.fillStyle = '#000'; spaced(ctx, 'x', x + w - 72, y + 86, 56, th.fonts.mono, 400, 0, 'center', '#000000');
+  spaced(ctx, num, x + 50, y + 92, 60, th.fonts.mono, 400, 0, 'left', '#FFFFFF');
+  ctx.save(); ctx.translate(342, 330); ctx.scale(14.2, 14.2); ctx.fillStyle = '#101018'; ctx.fill(glyph, 'evenodd'); ctx.restore();
+  spaced(ctx, code, 512, 850, 70, th.fonts.mono, 400, 0.04, 'center', '#101018');
+}
+
+// ---------- WILDWOOD (botanical nature) ----------
+function wFern(ctx, x, y, len, ang, col, ink, lw) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+  ctx.strokeStyle = ink; ctx.lineWidth = lw || 1.4; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(len * 0.1, -len * 0.5, 0, -len); ctx.stroke();
+  for (let i = 1; i < 18; i++) { const t = i / 18, py = -len * t, px = Math.sin(t * Math.PI) * len * 0.05, L = len * 0.24 * Math.sin(t * Math.PI * 0.95) * (1 - t * 0.4) + 3;
+    [-1, 1].forEach(side => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(px, py); ctx.quadraticCurveTo(px + side * L * 0.5, py - L * 0.35, px + side * L, py - L * 0.12); ctx.quadraticCurveTo(px + side * L * 0.5, py + L * 0.12, px, py); ctx.fill(); ctx.strokeStyle = hexA(ink, 0.55); ctx.lineWidth = 0.6; ctx.stroke(); }); }
+  ctx.restore();
+}
+function wLeaf(ctx, x, y, s, ang, col, ink) { ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(s * 0.5, -s * 0.45, s, 0); ctx.quadraticCurveTo(s * 0.5, s * 0.45, 0, 0); ctx.fill(); ctx.strokeStyle = ink; ctx.lineWidth = 0.9; ctx.stroke(); ctx.strokeStyle = hexA(ink, 0.6); ctx.lineWidth = 0.6; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(s, 0); for (let i = 1; i < 5; i++) { ctx.moveTo(s * i / 5, 0); ctx.lineTo(s * i / 5 + s * 0.1, -s * 0.16); ctx.moveTo(s * i / 5, 0); ctx.lineTo(s * i / 5 + s * 0.1, s * 0.16); } ctx.stroke(); ctx.restore(); }
+function wMushroom(ctx, x, y, s, cap, ink) { ctx.fillStyle = '#F4EEDF'; ctx.strokeStyle = ink; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(x - s * 0.14, y); ctx.quadraticCurveTo(x - s * 0.1, y - s * 0.5, x - s * 0.08, y - s * 0.6); ctx.lineTo(x + s * 0.08, y - s * 0.6); ctx.quadraticCurveTo(x + s * 0.1, y - s * 0.5, x + s * 0.14, y); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = cap; ctx.beginPath(); ctx.moveTo(x - s * 0.5, y - s * 0.55); ctx.quadraticCurveTo(x, y - s * 1.15, x + s * 0.5, y - s * 0.55); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#FFF8EC'; [[-0.2, -0.75, 0.06], [0.12, -0.85, 0.05], [0.28, -0.65, 0.04], [-0.05, -0.62, 0.035]].forEach(([dx, dy, rr]) => { ctx.beginPath(); ctx.arc(x + dx * s, y + dy * s, rr * s, 0, Math.PI * 2); ctx.fill(); }); }
+function drawBotanical(ctx, th, Hl, mode, phraseIdx, W, H, s) {
+  const c = th.colors, T = th.text, mono = th.fonts.mono, disp = th.fonts.display, k = K(th), r = rng(seedOf(th, 607 + (mode === 'home' ? 9 : 0)));
+  ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 390, Hl);
+  ctx.fillStyle = hexA(c.ink, 0.05 * k.texture); for (let i = 0; i < 900; i++) ctx.fillRect(r() * 390, r() * Hl, 1, 1);
+  const vg = ctx.createRadialGradient(195, Hl * 0.45, 120, 195, Hl * 0.45, 520); vg.addColorStop(0, 'rgba(255,255,240,0)'); vg.addColorStop(1, hexA(c.ink, 0.18)); ctx.fillStyle = vg; ctx.fillRect(0, 0, 390, Hl);
+  for (let i = 0; i < 6; i++) { ctx.fillStyle = `rgba(255,250,220,${0.08 * k.glow})`; ctx.beginPath(); ctx.ellipse(r() * 390, 120 + r() * 500, 30 + r() * 50, 18 + r() * 30, r(), 0, Math.PI * 2); ctx.fill(); }
+  if (mode === 'lock') {
+    const px = 36, py = 232, pw = 318, ph = 330;
+    ctx.strokeStyle = hexA(c.ink, 0.7); ctx.lineWidth = 1.2; ctx.strokeRect(px, py, pw, ph); ctx.lineWidth = 0.5; ctx.strokeRect(px + 5, py + 5, pw - 10, ph - 10);
+    if (k.details) { spaced(ctx, T.tagR || 'PLATE 03', 195, py + 22, 8, mono, 400, 0.24, 'center', hexA(c.ink, 0.7)); }
+    centerXform(ctx, th, 195, 420, () => {
+      wFern(ctx, 170, 540, 250, -0.18, hexA(c.glow, 0.92), c.ink, 1.5); wFern(ctx, 220, 540, 180, 0.32, hexA(c.glow, 0.7), c.ink, 1.2);
+      wLeaf(ctx, 230, 420, 70, -0.9, hexA(c.glow, 0.55), c.ink); wLeaf(ctx, 150, 470, 56, -2.4, hexA(c.glow, 0.45), c.ink);
+      wMushroom(ctx, 268, 540, 48, c.accent, c.ink); wMushroom(ctx, 296, 540, 32, hexA(c.accent, 0.85), c.ink); wMushroom(ctx, 244, 540, 26, hexA(c.accent, 0.7), c.ink);
+      ctx.strokeStyle = hexA(c.ink, 0.5); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(150, 541); ctx.lineTo(330, 541); ctx.stroke();
+    });
+    if (k.details) { ctx.fillStyle = hexA(c.panel, 0.95); ctx.fillRect(px + 12, py + ph - 50, 120, 38); ctx.strokeStyle = hexA(c.ink, 0.6); ctx.lineWidth = 0.8; ctx.strokeRect(px + 12, py + ph - 50, 120, 38); spaced(ctx, 'Polystichum munitum', px + 72, py + ph - 33, 9, disp, 400, 0, 'center', c.ink); spaced(ctx, 'SWORD FERN · TRAIL 03', px + 72, py + ph - 20, 6.5, mono, 400, 0.08, 'center', hexA(c.ink, 0.7)); spaced(ctx, T.tagL || '', 24, 214, 7.5, mono, 400, 0.14, 'left', hexA(c.ink, 0.65)); }
+    headline2(ctx, th, phraseIdx, 195, 622, 330, 42, c.ink);
+    spaced(ctx, T.sub || '', 195, 708, 11, disp, 400, 0, 'center', hexA(c.ink, 0.75));
+    if (k.details) spaced(ctx, T.foot || '', 195, Hl - 34, 7, mono, 400, 0.18, 'center', hexA(c.ink, 0.6));
+  } else {
+    for (let i = 0; i < 7; i++) { const a = -0.25 + i * 0.08; ctx.fillStyle = `rgba(255,250,215,${0.07 * k.glow})`; ctx.beginPath(); ctx.moveTo(140 + i * 30, 0); ctx.lineTo(140 + i * 30 + 26, 0); ctx.lineTo(80 + i * 50 + Math.sin(a) * 200, Hl * 0.7); ctx.lineTo(60 + i * 50 + Math.sin(a) * 200, Hl * 0.7); ctx.closePath(); ctx.fill(); }
+    centerXform(ctx, th, 195, 470, () => {
+      const mg = ctx.createRadialGradient(195, 530, 20, 195, 530, 150); mg.addColorStop(0, hexA(c.glow, 0.9)); mg.addColorStop(1, hexA(c.glow, 0.15)); ctx.fillStyle = mg; ctx.beginPath(); ctx.ellipse(195, 540, 150, 46, 0, Math.PI, 0); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = hexA(c.ink, 0.25); for (let i = 0; i < 120; i++) { const a = Math.PI + r() * Math.PI, rr = r(); ctx.fillRect(195 + Math.cos(a) * 150 * rr, 540 + Math.sin(a) * 46 * rr, 1.2, 1.2); }
+      wFern(ctx, 120, 530, 150, -0.5, hexA(c.glow, 0.85), c.ink, 1.2); wFern(ctx, 280, 530, 130, 0.5, hexA(c.glow, 0.75), c.ink, 1.1);
+      wMushroom(ctx, 190, 530, 60, c.accent, c.ink); wMushroom(ctx, 222, 534, 38, hexA(c.accent, 0.85), c.ink); wMushroom(ctx, 164, 534, 30, hexA(c.accent, 0.75), c.ink);
+      ctx.strokeStyle = c.ink; ctx.lineWidth = 1.2; ctx.fillStyle = hexA(c.alert || '#E3B341', 0.8); ctx.beginPath(); ctx.arc(268, 528, 9, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(268, 528, 5, 0, Math.PI * 1.6); ctx.stroke(); ctx.fillStyle = '#C9BFA6'; ctx.beginPath(); ctx.ellipse(254, 536, 14, 3.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      [[110, 400, 0.6], [290, 370, 2.2], [240, 300, -1.1], [140, 330, 1.7]].forEach(([x, y, a], i) => wLeaf(ctx, x, y, 30, a, hexA(i % 2 ? c.accent : c.alert || c.accent, 0.55), c.ink));
+    });
+    if (k.details) spaced(ctx, T.homeTop || '', 195, 236, 8, mono, 400, 0.22, 'center', hexA(c.ink, 0.6));
+    spaced(ctx, T.caption || '', 195, 620, 12, disp, 400, 0, 'center', hexA(c.ink, 0.8));
+  }
+}
+function drawLeafIcon(ctx, th, glyph, num, code) {
+  const c = th.colors; ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 1024, 1024);
+  ctx.fillStyle = c.panel; ctx.beginPath(); ctx.roundRect(120, 120, 784, 784, 120); ctx.fill(); ctx.strokeStyle = c.glow; ctx.lineWidth = 12; ctx.stroke();
+  ctx.save(); ctx.translate(780, 210); ctx.rotate(-0.6); ctx.fillStyle = hexA(c.glow, 0.9); ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(50, -40, 100, 0); ctx.quadraticCurveTo(50, 40, 0, 0); ctx.fill(); ctx.restore();
+  ctx.save(); ctx.translate(312, 300); ctx.scale(16.6, 16.6); ctx.fillStyle = c.ink; ctx.fill(glyph, 'evenodd'); ctx.restore();
+  spaced(ctx, num, 196, 214, 46, th.fonts.mono, 400, 0.06, 'left', hexA(c.ink, 0.55));
+  spaced(ctx, code, 512, 862, 50, th.fonts.mono, 400, 0.12, 'center', c.ink);
+}
+
+// ---------- LONG ODDS (prediction market) ----------
+function mkCandles(ctx, th, r, x0, y0, w, h, n, trend) {
+  const c = th.colors, cw = w / n; let v = 0.5
+  for (let i = 0; i < n; i++) { const o = v; v = Math.max(0.08, Math.min(0.92, v + (r() - 0.5 + trend) * 0.18)); const cl = v, hi = Math.max(o, cl) + r() * 0.06, lo = Math.min(o, cl) - r() * 0.06, up = cl >= o, col = up ? c.glow : (c.alert || '#E8384F'), x = x0 + i * cw + cw / 2;
+    ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x, y0 + h * (1 - hi)); ctx.lineTo(x, y0 + h * (1 - lo)); ctx.stroke();
+    ctx.fillStyle = col; const yt = y0 + h * (1 - Math.max(o, cl)), yb = y0 + h * (1 - Math.min(o, cl)); ctx.fillRect(x - cw * 0.32, yt, cw * 0.64, Math.max(1.5, yb - yt)); }
+  return v
+}
+function mkBook(ctx, th, r, x, y, w, rows, side) {
+  const c = th.colors, mono = th.fonts.mono, col = side === 'bid' ? c.glow : (c.alert || '#E8384F')
+  for (let i = 0; i < rows; i++) { const f = 0.2 + r() * 0.8, yy = y + i * 15; ctx.fillStyle = hexA(col, 0.14); if (side === 'bid') ctx.fillRect(x + w * (1 - f), yy, w * f, 12); else ctx.fillRect(x, yy, w * f, 12);
+    const price = side === 'bid' ? 61 - i : 63 + i; spaced(ctx, `${price}¢`, side === 'bid' ? x + w - 4 : x + 4, yy + 9, 7.5, mono, 500, 0, side === 'bid' ? 'right' : 'left', col); spaced(ctx, String(Math.floor(200 + r() * 9800)), side === 'bid' ? x + 4 : x + w - 4, yy + 9, 7, mono, 400, 0, side === 'bid' ? 'left' : 'right', hexA(c.ink, 0.6)); }
+}
+function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
+  const c = th.colors, T = th.text, mono = th.fonts.mono, disp = th.fonts.display, dw = dispWeight(disp), k = K(th), r = rng(seedOf(th, 709 + (mode === 'home' ? 9 : 0) + phraseIdx * 3)), NO = c.alert || '#E8384F'
+  ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 390, Hl)
+  ctx.strokeStyle = hexA(c.ink, 0.05 * k.texture); ctx.lineWidth = 1; for (let x = 0; x < 390; x += 26) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, Hl); ctx.stroke(); } for (let y = 0; y < Hl; y += 26) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(390, y); ctx.stroke(); }
+  const tick = ['RAIN TMRW 37¢ ▼2', 'ON TIME 81¢ ▲4', 'NAP TODAY 58¢ ▲9', 'GYM 12¢ ▼6', 'COFFEE #3 91¢ ▲1', 'REPLY BY 5PM 44¢ ▼3']
+  const ty = mode === 'lock' ? Hl - 66 : 676; ctx.fillStyle = hexA(c.ink, 0.92); ctx.fillRect(0, ty, 390, 22); spaced(ctx, tick.join('   ·   '), 12, ty + 15, 8, mono, 500, 0.02, 'left', c.panel)
+  if (mode === 'lock') {
+    const probs = [81, 64, 57, 99], prob = probs[phraseIdx % 4]
+    if (k.details) { spaced(ctx, T.tagL || '', 24, 234, 7.5, mono, 500, 0.12, 'left', hexA(c.ink, 0.65)); ctx.fillStyle = c.glow; ctx.beginPath(); ctx.arc(290, 231, 3.5, 0, Math.PI * 2); ctx.fill(); spaced(ctx, T.tagR || 'MARKET OPEN', 366, 234, 7.5, mono, 500, 0.12, 'right', c.glow) }
+    centerXform(ctx, th, 195, 380, () => {
+      const cx0 = 26, cy0 = 252, cw = 338, ch = 236
+      ctx.save(); ctx.shadowColor = hexA(c.ink, 0.12); ctx.shadowBlur = 24; ctx.shadowOffsetY = 6; ctx.fillStyle = c.panel; ctx.beginPath(); ctx.roundRect(cx0, cy0, cw, ch, 18); ctx.fill(); ctx.restore()
+      ctx.strokeStyle = hexA(c.ink, 0.1); ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(cx0, cy0, cw, ch, 18); ctx.stroke()
+      spaced(ctx, `MARKET #${String(1000 + phraseIdx * 37)} · RESOLVES TONIGHT`, cx0 + 18, cy0 + 24, 7.5, mono, 500, 0.08, 'left', hexA(c.ink, 0.55))
+      const gx = cx0 + cw - 56, gy = cy0 + 74; ctx.lineWidth = 9; ctx.strokeStyle = hexA(NO, 0.25); ctx.beginPath(); ctx.arc(gx, gy, 32, Math.PI, Math.PI * 2); ctx.stroke(); ctx.strokeStyle = c.glow; ctx.beginPath(); ctx.arc(gx, gy, 32, Math.PI, Math.PI + Math.PI * prob / 100); ctx.stroke()
+      spaced(ctx, `${prob}%`, gx, gy - 4, 18, disp, 700, 0, 'center', c.ink); spaced(ctx, 'CHANCE', gx, gy + 10, 6.5, mono, 500, 0.1, 'center', hexA(c.ink, 0.55))
+      const ph = th.phrases[phraseIdx % th.phrases.length]
+      const fs = Math.min(34, 34 * 220 / Math.max(1, measureSpaced(ctx, ph[0].length > ph[1].length ? ph[0] : ph[1], 34, disp, dw, 0)))
+      spaced(ctx, ph[0], cx0 + 18, cy0 + 62, fs, disp, dw, 0, 'left', c.ink); spaced(ctx, ph[1], cx0 + 18, cy0 + 62 + fs * 1.08, fs, disp, dw, 0, 'left', c.ink)
+      const by = cy0 + 128, bw = (cw - 48) / 2
+      ctx.fillStyle = hexA(c.glow, 0.14); ctx.beginPath(); ctx.roundRect(cx0 + 18, by, bw, 38, 10); ctx.fill(); spaced(ctx, `YES  ${prob}¢`, cx0 + 18 + bw / 2, by + 24, 15, disp, 700, 0, 'center', c.glow)
+      ctx.fillStyle = hexA(NO, 0.12); ctx.beginPath(); ctx.roundRect(cx0 + 30 + bw, by, bw, 38, 10); ctx.fill(); spaced(ctx, `NO  ${100 - prob}¢`, cx0 + 30 + bw * 1.5, by + 24, 15, disp, 700, 0, 'center', NO)
+      mkCandles(ctx, th, r, cx0 + 18, cy0 + 178, cw - 36, 44, 30, prob > 60 ? 0.06 : -0.02)
+      spaced(ctx, `VOL $${(20 + r() * 900).toFixed(0)}K · ${Math.floor(200 + r() * 3000)} TRADERS`, cx0 + cw - 18, cy0 + 24, 7, mono, 500, 0.06, 'right', hexA(c.ink, 0.45))
+    })
+    if (k.details) { spaced(ctx, 'BIDS', 26, 512, 7, mono, 500, 0.12, 'left', c.glow); spaced(ctx, 'ASKS', 364, 512, 7, mono, 500, 0.12, 'right', NO); mkBook(ctx, th, r, 26, 518, 160, 4, 'bid'); mkBook(ctx, th, r, 204, 518, 160, 4, 'ask') }
+    spaced(ctx, T.sub || '', 195, 612, 12, disp, 500, 0, 'center', hexA(c.ink, 0.75))
+    if (k.details) spaced(ctx, T.foot || '', 195, Hl - 82, 7, mono, 500, 0.18, 'center', hexA(c.ink, 0.55))
+  } else {
+    centerXform(ctx, th, 195, 430, () => {
+      const y0 = 300, h = 230, mid = 195
+      const bid = [], ask = []; let a = 0, b2 = 0; for (let i = 0; i <= 20; i++) { a += 3 + r() * 9; bid.push([mid - 8 - i * 8.4, y0 + h - a]); b2 += 3 + r() * 9; ask.push([mid + 8 + i * 8.4, y0 + h - b2]) }
+      const area = (pts, col) => { ctx.fillStyle = hexA(col, 0.18); ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(pts[0][0], y0 + h); pts.forEach(([x, y]) => ctx.lineTo(x, y)); ctx.lineTo(pts[pts.length - 1][0], y0 + h); ctx.closePath(); ctx.fill(); ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke() }
+      area(bid, c.glow); area(ask, NO); ctx.strokeStyle = hexA(c.ink, 0.3); ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(mid, y0 - 10); ctx.lineTo(mid, y0 + h); ctx.stroke(); ctx.setLineDash([])
+      spaced(ctx, '62¢', mid, y0 - 16, 16, disp, 700, 0, 'center', c.ink)
+      ;[[60, 330, 'NAP TODAY?', 58], [250, 290, 'RAIN?', 37], [150, 560, 'ON TIME?', 81]].forEach(([x, y, q, pr]) => { ctx.save(); ctx.shadowColor = hexA(c.ink, 0.12); ctx.shadowBlur = 12; ctx.fillStyle = c.panel; ctx.beginPath(); ctx.roundRect(x, y, 96, 46, 10); ctx.fill(); ctx.restore(); spaced(ctx, q, x + 10, y + 17, 9, disp, 600, 0, 'left', c.ink); ctx.fillStyle = hexA(c.glow, 0.15); ctx.fillRect(x + 10, y + 25, 76 * pr / 100, 10); ctx.fillStyle = hexA(NO, 0.15); ctx.fillRect(x + 10 + 76 * pr / 100, y + 25, 76 * (1 - pr / 100), 10); spaced(ctx, `${pr}¢`, x + 12, y + 33.5, 7, mono, 600, 0, 'left', c.glow) })
+    })
+    if (k.details) spaced(ctx, T.homeTop || '', 195, 236, 8, mono, 500, 0.2, 'center', hexA(c.ink, 0.55))
+    spaced(ctx, T.caption || '', 195, 640, 12, disp, 500, 0, 'center', hexA(c.ink, 0.75))
+  }
+}
+function drawContractIcon(ctx, th, glyph, num, code) {
+  const c = th.colors, NO = c.alert || '#E8384F'; ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 1024, 1024)
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.12)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 12; ctx.fillStyle = c.panel; ctx.beginPath(); ctx.roundRect(120, 120, 784, 784, 110); ctx.fill(); ctx.restore()
+  ctx.save(); ctx.beginPath(); ctx.roundRect(120, 120, 784, 784, 110); ctx.clip(); ctx.fillStyle = c.glow; ctx.fillRect(120, 120, 470, 44); ctx.fillStyle = NO; ctx.fillRect(590, 120, 314, 44); ctx.restore()
+  ctx.save(); ctx.translate(312, 300); ctx.scale(16.6, 16.6); ctx.fillStyle = c.ink; ctx.fill(glyph, 'evenodd'); ctx.restore()
+  spaced(ctx, num, 196, 238, 46, th.fonts.mono, 500, 0.06, 'left', hexA(c.ink, 0.5)); ctx.fillStyle = c.glow; ctx.beginPath(); ctx.moveTo(806, 200); ctx.lineTo(830, 236); ctx.lineTo(782, 236); ctx.closePath(); ctx.fill()
+  spaced(ctx, code, 512, 862, 50, th.fonts.mono, 600, 0.1, 'center', c.ink)
+}
+
 const ROLES = {
   halcyon: { panel: 'panel', ink: 'ink', headBg: 'ink', headText: 'ground', altBg: 'accent', altText: 'ink', accent: 'accent' },
   directive: { panel: 'panel', ink: 'ink', headBg: 'alert', headText: 'ink', altBg: 'accent', altText: 'ground', accent: 'glow' },
@@ -5605,7 +8010,11 @@ const ROLES = {
   nightfall: { panel: 'panel', ink: 'ink', headBg: 'ink', headText: 'ground', altBg: 'accent', altText: 'ground', accent: 'accent' },
   grimoire: { panel: 'panel', ink: 'ink', headBg: 'accent', headText: 'ground', altBg: 'glow', altText: 'ink', accent: 'accent' },
   deeprange: { panel: 'panel', ink: 'ink', headBg: 'accent', headText: 'ground', altBg: 'glow', altText: 'ink', accent: 'alert' },
-  rabbit: { panel: 'panel', ink: 'ink', headBg: 'glow', headText: 'ink', altBg: 'accent', altText: 'panel', accent: 'accent' }
+  rabbit: { panel: 'panel', ink: 'ink', headBg: 'glow', headText: 'ink', altBg: 'accent', altText: 'panel', accent: 'accent' },
+  neon: { panel: 'panel', ink: 'ink', headBg: 'accent', headText: 'ground', altBg: 'alert', altText: 'ground', accent: 'glow' },
+  vapor: { panel: 'panel', ink: 'ink', headBg: 'accent', headText: 'ground', altBg: 'glow', altText: 'ground', accent: 'glow' },
+  wild: { panel: 'panel', ink: 'ink', headBg: 'glow', headText: 'panel', altBg: 'accent', altText: 'panel', accent: 'accent' },
+  odds: { panel: 'panel', ink: 'ink', headBg: 'accent', headText: 'panel', altBg: 'glow', altText: 'panel', accent: 'accent' }
 };
 const STORE = 'foundry.v1', CHECKS = 'foundry.checks.v1';
 const $ = (id) => document.getElementById(id);
@@ -5704,14 +8113,14 @@ function buildFields() {
   function setMotif(m) {
     const th = state.th;
     th.motif = m;
-    th.widget.oddity = { globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', rabbit: 'heist' }[m] || th.widget.oddity;
+    th.widget.oddity = { globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', rabbit: 'heist', neon: 'market', market: 'bet', vapor: 'mall', botanical: 'species' }[m] || th.widget.oddity;
     if (m === 'alert') {
       const d = PRESETS.directive;
       th.texture = 'scan'; th.marks = 'frame'; th.iconStyle = 'hex'; th.widget.txGraphic = 'sync'; th.upper = true; th.glyphs = 'directive';
       if (!th.colors.alert) th.colors.alert = d.colors.alert;
       Object.keys(d.text).forEach(k => { if (th.text[k] == null) th.text[k] = clone(d.text[k]); });
-    } else if (m === 'map' || m === 'night' || m === 'grimoire' || m === 'orbital' || m === 'rabbit') {
-      const d = PRESETS[{ map: 'longroad', night: 'nightfall', grimoire: 'grimoire', orbital: 'deeprange', rabbit: 'rabbit' }[m]];
+    } else if (['map', 'night', 'grimoire', 'orbital', 'rabbit', 'neon', 'market', 'vapor', 'botanical'].includes(m)) {
+      const d = PRESETS[{ map: 'longroad', night: 'nightfall', grimoire: 'grimoire', orbital: 'deeprange', rabbit: 'rabbit', neon: 'neon', market: 'odds', vapor: 'vapor', botanical: 'wild' }[m]];
       th.texture = d.texture; th.marks = d.marks; th.iconStyle = d.iconStyle; th.widget.txGraphic = d.widget.txGraphic; th.upper = d.upper; th.glyphs = d.glyphs;
       Object.keys(d.text).forEach(k => { if (th.text[k] == null) th.text[k] = clone(d.text[k]); });
       if (d.colors.alert && !th.colors.alert) th.colors.alert = d.colors.alert;
@@ -5890,12 +8299,17 @@ const ODD_INFO = {
   omens: ['Road Omens', 'The omen of the day with a weather vane, how far your boots can still go, pantry status, the nearest inn and a second-thoughts meter.'],
   hostile: ['Hostile Intel', 'A field-guide entry on a made-up enemy: silhouette, threat level, armor, aggression and cowardice, its weakness and a tactical tip.'],
   spell: ['Spell of the Hour', 'A fake spell card: school, rarity (sometimes cursed), essence cost, casting time, the effect and the side effect.'],
+  market: ['Black Market', 'The deal of the hour: a questionable item, its seller and rating, the price in credits, its condition, a warranty of none and a risk meter.'],
+  bet: ['Market Of The Hour', 'A silly prediction market about your day (will the leftovers survive until tomorrow?) with YES and NO prices, a mini chart, volume, traders and your position.'],
+  tip: ['Tip Of The Hour', 'A cheerful, true little fact with an optimism reading, bubbles popped and clouds rendered.'],
+  mall: ['Mall Directory', 'A store of the hour on a little mall map: its status (often closed since 1997), floor, coins in the fountain and the song on the speakers.'],
+  species: ['Field Guide', 'A species of the hour with its Latin name, where to look for it, a real fact and a rarity meter.'],
   heist: ['Heist Board', "Tonight's score: the target heirloom, where it's kept, how many lasers stand in the way, the crew, the odds and whether the calling card is ready."],
   late: ['Late Notice', 'What you are late for, by how many minutes, a pocket watch running wild, an excuse for the occasion, the state of the tea and a panic meter.'],
   decoder: ['Signal Decoder', 'A garbled transmission resolving into a decoded line, with confidence, echo delay, source and salvage value. Bad decodes flag loss of signal.']
 };
-function frameFor(th) { return ({ globe: 'halcyon', radar: 'halcyon', alert: 'directive', map: 'longroad', night: 'nightfall', grimoire: 'grimoire', orbital: 'deeprange', rabbit: 'rabbit' }[th.motif] || 'halcyon'); }
-function oddityFor(th) { return th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', rabbit: 'heist' }[th.motif] || 'mood'); }
+function frameFor(th) { return ({ globe: 'halcyon', radar: 'halcyon', alert: 'directive', map: 'longroad', night: 'nightfall', grimoire: 'grimoire', orbital: 'deeprange', rabbit: 'rabbit', neon: 'cyber', market: 'market', vapor: 'vapor', botanical: 'nature' }[th.motif] || 'halcyon'); }
+function oddityFor(th) { return th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', rabbit: 'heist', neon: 'market', market: 'bet', vapor: 'mall', botanical: 'species' }[th.motif] || 'mood'); }
 function widgetList(th) {
   const L = th.widget.L, o = ODD_INFO[oddityFor(th)];
   return [
@@ -5971,13 +8385,14 @@ function scriptableKit(th) {
   const src = $('tpl').textContent, s0 = src.indexOf('// ---------- W-04 AUDIO: a distinct instrument'), s1 = src.indexOf('async function audioWidget()');
   const p0 = src.indexOf('// ---------- THEMED PAINT BLOCK ----------'), p1 = src.indexOf('// ---------- END THEMED PAINT BLOCK ----------');
   const l0 = src.indexOf('const LIVE = {'), l1 = src.indexOf('async function themedStatus');
+  const f0 = src.indexOf('// theme frame drawn under the content'), f1 = src.indexOf('function txt(stack, text, size, color, isDisp)');
   const deck = deckFor(th);
-  T.scriptFont = th.widget.scriptFont; T.units = th.units;
+  T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th);
   const tf = { string: (d) => { let h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; } };
   try {
-    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\nreturn { sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip };')(
+    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
       T, new Color(T.ink), new Color(T.ink, 0.72), Color, Point, Rect, Size, Path, DrawContext, Font, deck.audio.lines, deck,
-      (w, f) => { const d = new DrawContext(); d.size = new Size(w, 4); d.setFillColor(new Color(T.ink, 0.22)); d.fillRect(new Rect(0, 0, w, 4)); d.setFillColor(new Color(T.ink)); d.fillRect(new Rect(0, 0, w * f, 4)); return d.getImage(); }, tf);
+      (w, f) => { const d = new DrawContext(); d.size = new Size(w, 4); d.setFillColor(new Color(T.ink, 0.22)); d.fillRect(new Rect(0, 0, w, 4)); d.setFillColor(new Color(T.ink)); d.fillRect(new Rect(0, 0, w * f, 4)); return d.getImage(); }, tf, new Color(T.panel));
   } catch (e) { console.warn(e); return null; }
 }
 
@@ -5999,7 +8414,7 @@ function themedBody(item, th, wc, W, H) {
   const live = (spec, text) => { if (!spec) return; const fam2 = spec.f === 'disp' ? `"${th.fonts.display}", Georgia, serif` : spec.f === 'heavy' ? 'system-ui, sans-serif' : `"${th.fonts.mono}", ui-monospace, monospace`; const e = pv('div', `position:absolute;top:${spec.y}px;font:${spec.f === 'heavy' ? 800 : spec.f === 'bold' ? 700 : 400} ${spec.size}px ${fam2};color:${wc.ink};white-space:nowrap;line-height:1.3`, text); if (spec.a === 'c') { e.style.left = '0'; e.style.width = W + 'px'; e.style.textAlign = 'center'; } else if (spec.a === 'r') { e.style.right = (W - spec.x) + 'px'; } else { e.style.left = spec.x + 'px'; } wrap.append(e); };
   const d = sampleData(item.mode, th, W, bh);
   if (['youtube', 'instagram', 'discord'].includes(item.mode)) { const P2 = K.THEME_PAINT[f] || K.THEME_PAINT.halcyon, pk = { youtube: 'yt', instagram: 'ig', discord: 'dc' }[item.mode]; put(K.artImage(W, bh, P2[pk], { seed: 7, now: new Date(), code: `${(th.codes[item.mode] || item.mode).slice(0, 5)}-${{ youtube: '09', instagram: '10', discord: '11' }[item.mode]}` })); return wrap; }
-  if (item.mode === 'audio' && (f === 'halcyon' || f === 'rabbit')) { put(K.artImage(W, bh, K.THEME_PAINT[f].audio, { line: deckFor(th).audio.lines[0], lvl: 3, phase: 1.2 })); live({ x: 352, y: 60, size: 9, a: 'r', f: 'bold' }, '0:42'); return wrap; }
+  if (item.mode === 'audio' && ['halcyon', 'rabbit', 'cyber', 'market', 'vapor', 'nature'].includes(f)) { put(K.artImage(W, bh, K.THEME_PAINT[f].audio, { line: deckFor(th).audio.lines[0], lvl: 3, phase: 1.2 })); live({ x: 352, y: 60, size: 9, a: 'r', f: 'bold' }, '0:42'); return wrap; }
   if (!P) return null;
   if (item.mode === 'status') { put(K.artImage(W, bh, P.status, d)); return wrap; }
   if (item.mode === 'shift') { put(K.artImage(W, bh, P.shift, d)); live(K.LIVE[f].shift, '3:42:10'); return wrap; }
@@ -6013,18 +8428,19 @@ function previewWidget(item, th) {
   const W = item.mode === 'shift' ? 170 : 364, H = item.mode === 'solar' ? 382 : 170;
   const alt = ['shift', 'transmission', 'oddity'].includes(item.mode);
   const card = pv('div', `position:relative;width:${W}px;height:${H}px;border-radius:22px;overflow:hidden;background:${wc.panel};color:${wc.ink};font-family:${mono};font-size:9px;line-height:1.18;display:flex;flex-direction:column`);
-  const fr = pvCanvas(W, H, x => drawPreviewFrame(x, W, H, frameFor(th), wc, th));
+  const NEWF = ['cyber', 'market', 'vapor', 'nature'].includes(frameFor(th)), KF = NEWF ? scriptableKit(th) : null;
+  const fr = NEWF && KF ? (() => { const img = KF.artImage(W, H, (k2) => KF.drawFrame(k2.dc, W, H), {}); img.style.cssText = `width:${W}px;height:${H}px;display:block`; return img; })() : pvCanvas(W, H, x => drawPreviewFrame(x, W, H, frameFor(th), wc, th));
   fr.style.cssText += ';position:absolute;inset:0;pointer-events:none';
   card.append(fr);
-  const fK = frameFor(th), serifHead = fK === 'longroad' || fK === 'grimoire' || fK === 'rabbit';
-  const hBase = alt ? wc.altBg : wc.headBg, hText = fK === 'nightfall' ? wc.ink : fK === 'grimoire' ? wc.accent : (alt ? wc.altText : wc.headText);
-  const hd = pv('div', `position:relative;z-index:1;height:24px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 ${fK === 'directive' || fK === 'deeprange' ? 34 : fK === 'nightfall' ? 52 : fK === 'rabbit' ? 30 : serifHead ? 22 : 12}px 0 ${serifHead ? 22 : 12}px;font-size:${serifHead ? 10 : 9}px;letter-spacing:${serifHead ? '.02em' : '.06em'};color:${hText};${serifHead ? `font-family:${disp}` : ''}`);
-  const hbg = pvCanvas(W, 24, x => drawPreviewHeader(x, W, 24, fK, hBase, alt ? wc.altText : wc.headText, wc, th));
+  const fK = frameFor(th), serifHead = ['longroad', 'grimoire', 'rabbit', 'nature'].includes(fK);
+  const hBase = alt ? wc.altBg : wc.headBg, hText = fK === 'nightfall' ? wc.ink : fK === 'grimoire' ? wc.accent : ['vapor'].includes(fK) ? '#FFFFFF' : (alt ? wc.altText : wc.headText);
+  const hd = pv('div', `position:relative;z-index:1;height:24px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 ${Math.min(W < 200 ? 34 : 99, fK === 'directive' || fK === 'deeprange' ? 34 : ['nightfall', 'cyber', 'vapor', 'market'].includes(fK) ? 56 : ['rabbit', 'nature'].includes(fK) ? 30 : serifHead ? 22 : 12)}px 0 ${serifHead ? 22 : 12}px;font-size:${serifHead ? 10 : 9}px;letter-spacing:${serifHead ? '.02em' : '.06em'};color:${hText};${serifHead ? `font-family:${disp}` : ''}`);
+  const hbg = NEWF && KF ? (() => { const img = KF.headerImage(W, 24, alt); img.style.cssText = `width:${W}px;height:24px;display:block`; return img; })() : pvCanvas(W, 24, x => drawPreviewHeader(x, W, 24, fK, hBase, alt ? wc.altText : wc.headText, wc, th));
   hbg.style.cssText += ';position:absolute;inset:0;z-index:-1';
   const tc = (s) => serifHead ? String(s).toLowerCase().replace(/(^|[\s\-\/(])([a-z])/g, (m, a2, b2) => a2 + b2.toUpperCase()) : s;
   hd.append(hbg, pv('span', 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis', tc(item.title)), pv('span', 'white-space:nowrap', tc(item.mode === 'status' ? 'LINK 0:42' : item.mode === 'transmission' ? 'SIGNAL 93%' : '')));
   card.append(hd);
-  const tb = ['youtube', 'instagram', 'discord'].includes(item.mode) || (frameFor(th) !== 'halcyon' && ['status', 'shift', 'transmission', 'solar', 'feeds'].includes(item.mode)) || (item.mode === 'audio' && ['halcyon', 'rabbit'].includes(frameFor(th))) ? themedBody(item, th, wc, W, H) : null;
+  const tb = ['youtube', 'instagram', 'discord'].includes(item.mode) || (frameFor(th) !== 'halcyon' && ['status', 'shift', 'transmission', 'solar', 'feeds'].includes(item.mode)) || (item.mode === 'audio' && ['halcyon', 'rabbit', 'cyber', 'market', 'vapor', 'nature'].includes(frameFor(th))) ? themedBody(item, th, wc, W, H) : null;
   if (tb) { tb.style.zIndex = '1'; card.append(tb); return { el: card, w: W, h: H }; }
   const bd = pv('div', 'position:relative;z-index:1;flex:1;display:flex;flex-direction:column;padding:10px 16px;gap:4px;min-height:0');
   card.append(bd);
@@ -6052,7 +8468,7 @@ function previewWidget(item, th) {
     bd.append(pv('div', 'flex:1'));
     bd.append(pvCanvas(336, 110, x => { x.strokeStyle = hexA(wc.ink, 0.35); x.lineWidth = 1.2; x.beginPath(); for (let t = 0; t <= 1.001; t += 0.02) { const px = 8 + 320 * t, py = 100 - 86 * (1 - Math.pow(Math.abs(2 * t - 1), 2.2)); t ? x.lineTo(px, py) : x.moveTo(px, py); } x.stroke(); x.strokeStyle = wc.ink; x.lineWidth = 2.4; x.beginPath(); for (let t = 0; t <= 0.38; t += 0.02) { const px = 8 + 320 * t, py = 100 - 86 * (1 - Math.pow(Math.abs(2 * t - 1), 2.2)); t ? x.lineTo(px, py) : x.moveTo(px, py); } x.stroke(); x.fillStyle = wc.ink; x.fillRect(0, 100, 336, 1.2); const st = 0.38, px = 8 + 320 * st, py = 100 - 86 * (1 - Math.pow(Math.abs(2 * st - 1), 2.2)); x.fillRect(px - 6, py - 6, 12, 12); }));
     const f = row(); f.append(lbl('RISE 7:02 AM', 9, 1), lbl('DAY 11H 22M', 9), lbl('SET 6:24 PM', 9, 1)); bd.append(f);
-  } else if (item.mode === 'audio' && frameFor(th) !== 'halcyon' && scriptableKit(th)) {
+  } else if (item.mode === 'audio' && !['halcyon', 'rabbit', 'cyber', 'market', 'vapor', 'nature'].includes(frameFor(th)) && scriptableKit(th)) {
     const K = scriptableKit(th), D = deckFor(th), f = frameFor(th), line = D.audio.lines[0], r = K.aSeed(f.length);
     bd.style.gap = '3px';
     const foot = () => { const fr = row(); fr.append(lbl(D.audio.tap + '0:42', 8, 1), lbl(D.audio.foot, 8)); return fr; };
@@ -6140,6 +8556,13 @@ function previewWidget(item, th) {
       [['ARMOR', 0.8], ['AGGRESSION', 0.45], ['COWARDICE', 0.7]].forEach(([k, v]) => { const rr = row('align-items:center'); rr.append(lbl(k, 8), meterEl(v, 110, k === 'AGGRESSION')); c.append(rr); });
       r2.append(c); bd.append(r2, pv('div', 'flex:1'), lbl('GRID 7-K · 3 CONTACTS · HOLDS GROUND, SULKS', 8));
       const tp = row('align-items:center'); tp.append(pv('span', 'font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis', 'WEAK TO COMPLIMENTS · MENTION ITS POSTURE.'), stampEl('BEFRIEND', 8)); bd.append(tp);
+    } else if (['market', 'tip', 'mall', 'species', 'bet'].includes(t)) {
+      const Kx = scriptableKit(th);
+      const V = { bet: (x) => { let v = 0.5; for (let i = 0; i < 9; i++) { const o = v; v = Math.max(0.1, Math.min(0.9, v + Math.sin(i * 1.3) * 0.2)); x.fillStyle = v >= o ? wc.altBg : '#E8384F'; const yt = 12 + 40 * (1 - Math.max(o, v)), yb = 12 + 40 * (1 - Math.min(o, v)); x.fillRect(8 + i * 7, yt, 5, Math.max(2, yb - yt)); } x.fillStyle = hexA(wc.altBg, 0.8); x.fillRect(6, 62, 44, 9); x.fillStyle = 'rgba(232,56,79,.6)'; x.fillRect(50, 62, 24, 9); }, market: (x) => { x.strokeStyle = wc.headBg; x.lineWidth = 1.4; x.strokeRect(6, 24, 68, 40); x.fillStyle = hexA(wc.accent, 0.5); x.beginPath(); x.moveTo(26, 44); x.lineTo(40, 34); x.lineTo(54, 44); x.lineTo(40, 54); x.closePath(); x.fill(); x.fillStyle = wc.altBg; x.font = `700 11px ${mono}`; x.textAlign = 'center'; x.fillText('499c', 40, 16); }, tip: (x) => { x.fillStyle = hexA(wc.headBg, 0.25); x.strokeStyle = '#FFFFFF'; x.lineWidth = 1.4; x.beginPath(); x.arc(40, 40, 34, 0, Math.PI * 2); x.fill(); x.stroke(); x.fillStyle = '#FFF6B0'; x.beginPath(); x.arc(40, 38, 11, 0, Math.PI * 2); x.fill(); }, mall: (x) => { x.fillStyle = '#C3C3D0'; x.fillRect(4, 10, 72, 64); [wc.headBg, wc.altBg, '#FFFB96', wc.headBg, wc.altBg, '#FFFB96'].forEach((c2, i) => { x.globalAlpha = i === 2 ? 1 : 0.4; x.fillStyle = c2; x.fillRect(10 + (i % 3) * 22, 20 + Math.floor(i / 3) * 22, 18, 18); }); x.globalAlpha = 1; }, species: (x) => { x.fillStyle = wc.panel; x.strokeStyle = hexA(wc.ink, 0.6); x.beginPath(); x.arc(40, 40, 34, 0, Math.PI * 2); x.fill(); x.stroke(); x.fillStyle = wc.headBg; x.beginPath(); x.moveTo(22, 50); x.quadraticCurveTo(36, 30, 50, 40); x.quadraticCurveTo(36, 52, 22, 50); x.fill(); } }[t];
+      r2.append(vis(80, V));
+      const P2 = { bet: ['MARKET #4417 · RESOLVES TONIGHT', 'Will the leftovers survive until tomorrow?', 'YES 63¢ · NO 37¢', [['VOLUME', '$12.4K'], ['YOUR POSITION', '3 YES']], 'NOT FINANCIAL ADVICE'], market: ['SELLER @gl1tch · ★4.6', 'Used Optic Mod (Slightly Haunted)', '499 CREDITS · REFURBISHED', [['WARRANTY', 'NONE'], ['RETURNS', 'LOL']], 'MEET AT THE NOODLE STAND'], tip: ['DID YOU KNOW?', 'Sea otters hold hands while they sleep.', '', [['OPTIMISM', '97%'], ['BUBBLES POPPED', '212']], 'HAVE A GREAT DAY'], mall: ['STORE OF THE HOUR', 'Sunset Video', 'CLOSED SINCE 1997', [['FLOOR', 'LEVEL 2'], ['FOUNTAIN COINS', '641']], 'NOW PLAYING: FOOD COURT WALTZ'], species: ['SPOTTED BY THE CREEK', 'Great Horned Owl', 'Bubo virginianus', [['FACT', "Its 'horns' are feather tufts."]], "LOOK, DON'T DISTURB"] }[t];
+      const c = pv('div', 'flex:1;display:flex;flex-direction:column;gap:2px'); c.append(lbl(P2[0], 8), big(P2[1], 14)); if (P2[2]) c.append(pv('span', `font-size:8px;color:${wc.headBg}`, P2[2])); P2[3].forEach(([k2, v2]) => c.append(kvr(k2, v2)));
+      r2.append(c); bd.append(r2, pv('div', 'flex:1'), lbl(P2[4], 8));
     } else if (t === 'heist') {
       r2.append(vis(80, x => { x.fillStyle = hexA(wc.headBg, 0.2); x.strokeStyle = hexA(wc.ink, 0.6); x.lineWidth = 1; x.fillRect(19, 14, 42, 39); x.strokeRect(19, 14, 42, 39); x.fillStyle = wc.panel; x.strokeStyle = wc.ink; x.lineWidth = 1.2; x.beginPath(); x.moveTo(16, 69); x.lineTo(64, 69); x.lineTo(58, 53); x.lineTo(22, 53); x.closePath(); x.fill(); x.stroke(); x.fillStyle = hexA(wc.accent, 0.55); x.beginPath(); x.moveTo(28, 33); x.lineTo(33, 26); x.lineTo(47, 26); x.lineTo(52, 33); x.lineTo(40, 49); x.closePath(); x.fill(); x.stroke(); x.strokeStyle = wc.accent; x.lineWidth = 1; [[10, 4], [28, 18], [46, 4], [64, 18]].forEach(([y1, y2], i) => { x.globalAlpha = i < 3 ? 0.85 : 0.2; x.beginPath(); x.moveTo(2, y1); x.lineTo(78, y2); x.stroke(); }); x.globalAlpha = 1; }));
       const c = pv('div', 'flex:1;display:flex;flex-direction:column;gap:2px'); c.append(lbl('TARGET', 8), big('The Seventh Heirloom', 15), pv('span', `font-size:8px;color:${wc.headBg}`, 'AT THE GALA · EAST WING'), kvr('SECURITY', '▮▮▮▯▯'), kvr('CREW', 'TWO RABBITS'), kvr('ODDS', '63%'));
@@ -6200,7 +8623,7 @@ function scriptTheme() {
   return {
     company: th.company, unit: th.unit, ink: wc.ink, panel: wc.panel, headBg: wc.headBg, headText: wc.headText, altBg: wc.altBg, altText: wc.altText, accent: wc.accent,
     scriptFont: SCRIPT_FONTS[th.fonts.display] || th.widget.scriptFont, texture: th.texture, units: th.units, txGraphic: th.widget.txGraphic,
-    archive: th.widget.archive, archiveList: th.widget.archiveList || null, C: th.widget.C || {}, codes: { youtube: th.codes.youtube, instagram: th.codes.instagram, discord: th.codes.discord, music: th.codes.music }, oddity: th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', radar: 'hostile', rabbit: 'heist' }[th.motif] || 'mood'), frame: frameFor(th), L: th.widget.L, classes: th.widget.classes, slogans: th.slogans.length ? th.slogans : [['Stand By', 'HEADQUARTERS']]
+    archive: th.widget.archive, archiveList: th.widget.archiveList || null, C: th.widget.C || {}, codes: { youtube: th.codes.youtube, instagram: th.codes.instagram, discord: th.codes.discord, music: th.codes.music }, oddity: th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', radar: 'hostile', rabbit: 'heist', neon: 'market', market: 'bet', vapor: 'mall', botanical: 'species' }[th.motif] || 'mood'), frame: frameFor(th), L: th.widget.L, classes: th.widget.classes, slogans: th.slogans.length ? th.slogans : [['Stand By', 'HEADQUARTERS']]
   };
 }
 function buildScript() {

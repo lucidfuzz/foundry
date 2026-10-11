@@ -6,7 +6,7 @@ Design a whole phone theme (lock screens, a home wallpaper, icons and live widge
 
 ## Themes
 
-Seven reference themes, each with five color variants and full customization (colors, fonts, headlines, slogans, icon frames and symbols, centerpiece size and position, texture, glow, fine print):
+Eleven reference themes, each with five color variants and full customization (colors, fonts, headlines, slogans, icon frames and symbols, centerpiece size and position, texture, glow, fine print):
 
 - **Halcyon Biofab** — technocratic biotech, wireframe globe, mint and lavender.
 - **Directive Zero** — defense-agency terminal, heavy serif, amber alerts and hex arrays.
@@ -24,7 +24,7 @@ Every theme exports one Scriptable script that holds all of its widgets, drawn i
 |---|---|---|---|
 | `status` | Status | medium | Next calendar event, live weather, feels-like, high/low, battery, date |
 | `shift` | Shift | small | Live countdown and progress for your current or next event |
-| `transmission` | Transmission | any | In-world slogans and public-domain quotes over a themed graphic |
+| `transmission` | Transmission | any | 30+ in-world slogans per theme plus real quotes from public-domain works, drawn in the theme's own style |
 | `solar` | Solar + Atmos | large | Daylight left, sunset countdown, sun arc; large adds temperature, humidity, UV, visibility, dew point, wind, rain chart |
 | `audio` | Audio | medium | A styled launcher for your music app |
 | `feeds` | Neural Link | medium | YouTube and Instagram launchers with joke brain-chemistry meters |
