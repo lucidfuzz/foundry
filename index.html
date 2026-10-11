@@ -9145,7 +9145,7 @@ function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
     NEWS.forEach((txt, i) => { const ny = 656 + i * 50; ctx.save(); ctx.fillStyle = hexA(c.panel, 0.88); ctx.shadowColor = hexA('#000000', 0.4); ctx.shadowBlur = 12; ctx.beginPath(); ctx.roundRect(14, ny, 362, 44, 14); ctx.fill(); ctx.restore(); ctx.strokeStyle = hexA(V, 0.35); ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(14, ny, 362, 44, 14); ctx.stroke()
       ctx.fillStyle = V; ctx.beginPath(); ctx.roundRect(24, ny + 8, 28, 28, 7); ctx.fill(); spaced(ctx, 'LO', 38, ny + 26, 10, disp, 800, 0, 'center', '#FFFFFF')
       spaced(ctx, i ? 'LONG ODDS · MARKETS' : 'LONG ODDS · BREAKING', 60, ny + 18, 7.5, mono, 700, 0.08, 'left', i ? hexA(c.ink, 0.6) : NO); spaced(ctx, i ? `${3 + phraseIdx}m ago` : 'now', 366, ny + 18, 7.5, mono, 500, 0, 'right', hexA(c.ink, 0.5))
-      let t2 = txt; while (measureSpaced(ctx, t2, 10, mono, 500, 0) > 300 && t2.length > 8) t2 = t2.slice(0, -2); if (t2 !== txt) t2 = t2.trimEnd() + '…'; spaced(ctx, t2, 60, ny + 34, 10, mono, 500, 0, 'left', c.ink) })
+      const tw2 = measureSpaced(ctx, txt, 10, mono, 500, 0), fs2 = Math.min(10, 10 * 300 / Math.max(1, tw2)); if (fs2 >= 7.8) spaced(ctx, txt, 60, ny + 34, fs2, mono, 500, 0, 'left', c.ink); else wrapLines(ctx, txt, 300, 8.4, mono, 0, 2).forEach((ln, j) => spaced(ctx, ln, 60, ny + 31 + j * 10, 8.4, mono, 500, 0, 'left', c.ink)) })
   } else {
     // home: a full prediction-market terminal, Bloomberg-dense, behind the icons
     const G = '#FFD84A', ink = (al) => hexA(c.ink, al), PANEL = hexA(c.panel, dark ? 0.82 : 0.9)
