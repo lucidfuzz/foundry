@@ -306,7 +306,7 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
 // Set each widget's Parameter to one of:
 //   status (medium) · shift (small) · transmission (any) · solar (large is best) · audio (medium)
 //   feeds (medium) · youtube / instagram / discord (any) · oddity (small or medium, just for fun)
-//   game (any size, Halcyon, Deep Range and The Long Road): a little game that plays itself, one turn per refresh
+//   game (any size, medium or large best): a little idle game for this theme that plays itself, one turn per refresh
 // Add :alt or :main after the mode to flip the header color, e.g. shift:main
 const T = __THEME__
 
@@ -1924,7 +1924,7 @@ const ODD = {
   },
   bet: {
     title: "W-08 // LONGSHOT OF THE HOUR", right: "LIVE ODDS",
-    qs: ["Will a raccoon be elected mayor by Friday?", "Will the moon file for bankruptcy?", "Will your toaster achieve sentience and demand rights?", "Will geese form a labor union this week?", "Will Tuesday be officially cancelled?", "Will a pigeon steal your identity?", "Will gravity take the weekend off?", "Will a dolphin outbid you on a house?", "Will your houseplant sue you for neglect?", "Will aliens leave Earth a one-star review?", "Will the ocean start a group chat?", "Will a squirrel corner the acorn market?", "Will you accidentally adopt a llama?", "Will the sun ghost us tomorrow?", "Will your Wi-Fi achieve enlightenment?", "Will a seagull win the lottery?", "Will your sandwich become a celebrity?", "Will a horse headline a music festival?", "Will your fridge start a podcast?", "Will the moon start charging rent?", "Will clouds unionize and refuse to rain?", "Will a goose be knighted?", "Will your cat be appointed to a board of directors?", "Will socks finally reveal where they go?"],
+    qs: ["Will today happen twice?", "Does the void take bets?", "Will you remember this Tuesday in forty years?", "Is tomorrow already priced in?", "Will your reflection blink first?", "Will the color blue be discontinued?", "Will time move sideways this weekend?", "Will the moon admit it was a dream?", "Will the sea forget its name?", "Will gravity ask for something in return?", "Will the clocks agree on anything?", "Will you meet the version of you who stayed?", "Will meaning reprice above 40¢?", "Will an eighth day appear on the calendar?", "Will the horizon hold still for one hour?", "Will silence be louder than expected?", "Will the past reopen to visitors?", "Will you become a rumor in someone else's dream?", "Will the last echo come back?", "Will Sunday refuse to end?", "Will a minute last an hour somewhere near you?", "Will the stars move closer, just once?", "Will your shadow arrive before you?", "Will the fog make a statement?", "Will the universe read your message?", "Will déjà vu happen again?", "Will infinity be revised downward?", "Will the ocean finish its diary?", "Will the present moment ever arrive?", "Will the door you never opened still be waiting?"],
     pos: ["3 YES", "1 NO", "FLAT (RARE)", "40 YES (UNWISE)", "2 NO (HEDGED)", "ALL IN"]
   },
   tip: {
@@ -3174,6 +3174,10 @@ const RB = {
     k.t("PLAYING", W - 70, 52, 6.5, k.S, { w: 60 })
   }
 }
+// ---------- LONG ODDS: existential markets and fake news alerts ----------
+const MK_QS = ["Will today happen twice?", "Does the void take bets?", "Will you remember this Tuesday in forty years?", "Is tomorrow already priced in?", "Will your reflection blink first?", "Will the color blue be discontinued?", "Will time move sideways this weekend?", "Will the moon admit it was a dream?", "Will the sea forget its name?", "Will gravity ask for something in return?", "Will the clocks agree on anything?", "Will you meet the version of you who stayed?", "Will meaning reprice above 40¢?", "Will an eighth day appear on the calendar?", "Will the horizon hold still for one hour?", "Will silence be louder than expected?", "Will the past reopen to visitors?", "Will you become a rumor in someone else's dream?", "Will the last echo come back?", "Will Sunday refuse to end?", "Will a minute last an hour somewhere near you?", "Will the stars move closer, just once?", "Will your shadow arrive before you?", "Will the fog make a statement?", "Will the universe read your message?", "Will déjà vu happen again?", "Will infinity be revised downward?", "Will the ocean finish its diary?", "Will the present moment ever arrive?", "Will you dream in a language you don't speak?", "Will the map add a place no one has been?", "Will morning arrive early and apologize?", "Will the door you never opened still be waiting?", "Will coincidences outnumber plans today?", "Will a forgotten word come back?", "Will light from a dead star arrive on time?", "Will the sky be renewed for another season?", "Will Wednesday merge with Thursday?", "Will you notice the exact moment it changes?", "Will the hourglass run out of sand, or patience?"]
+const MK_NEWS = ["Tuesday delisted after failing to happen twice.", "Scientists confirm the void is accepting limit orders.", "Meaning trades flat as the universe declines to comment.", "Local man learns he has been a background character all along.", "The color blue enters a quiet period ahead of earnings.", "Sunday extended indefinitely pending review.", "Your reflection files for independence.", "Time briefly moved sideways near the frozen food aisle.", "Clocks reach consensus for the first time. Experts alarmed.", "The sea quietly forgets its name. Tides unaffected.", "Moon confirms it was a dream. Dreamers asked to remain calm.", "Gravity requests something in return.", "Last Thursday reported missing. Last seen being Thursday.", "Study: 4 in 5 memories are from a slightly different timeline.", "Silence now fully priced in.", "Nostalgia futures spike as the present underperforms.", "Everything is happening at once, again.", "The horizon has moved. No one was consulted.", "Déjà vu rally enters its second day. Its second day.", "Infinity revised downward.", "Tomorrow postponed for lack of interest.", "The past is still there, just closed to visitors.", "The void announces a loyalty program.", "Stars report being slightly further away than yesterday.", "Your childhood home has been asking about you.", "Entropy beats estimates for the 13.8 billionth year running.", "A minute somewhere lasted an hour. Investigation ongoing.", "Philosophers short meaning, go long on snacks.", "The fog has hired a press secretary.", "Morning arrives early, apologizes.", "Shadows lengthen. Shadows deny it.", "Wednesday and Thursday merge in all-stock deal.", "Report: you have been here before.", "Dreams move to a subscription model.", "The ocean has started keeping a diary.", "The present moment is already over.", "Lighthouses report seeing something. Decline to elaborate.", "Hourglass sand declared a finite resource.", "Echo replies before the call. Physicists concerned.", "Inflation hits the number seven.", "The sky renewed for another season.", "Sleep exits beta.", "Rain falls upward in one town. Locals 'not surprised'.", "Mirror market halted after everyone bought themselves.", "Your name is trending in a dream you weren't invited to.", "Map adds a place nobody has been. Demand surges.", "Reality beta ends Friday. Feedback welcome.", "The moon is now taking questions.", "Elevator stuck between floors of meaning.", "Calendar adds an eighth day, refuses to name it.", "Light from a dead star arrives on time anyway.", "Wind announces a direction change, then denies it.", "A forgotten word is reportedly 'almost back'.", "Coincidences up 40% year over year.", "Weekend sentiment collapses as Monday is priced in.", "Fate tightens the spread on everything.", "A door you never opened is still waiting.", "The universe has read your message. No reply.", "Gravity issues statement: 'still here'.", "Analysts unable to locate the present."]
+const mkNews = (i) => MK_NEWS[((i % MK_NEWS.length) + MK_NEWS.length) % MK_NEWS.length]
 // ---------- shared bits for the four new themes ----------
 function nBars(k, x, y, w, h, n, f, on, off, gap) { k.segs(x, y, w, h, n, f, on, off, gap == null ? 2 : gap) }
 function glowLn(k, pts, col, w) { k.ln(pts, k.a(col, 0.25), (w || 1) * 4); k.ln(pts, k.a(col, 1), w || 1) }
@@ -3495,15 +3499,15 @@ const MK = {
     const wx = d.wx || {}, r = k.rng(dayOfYear(d.now) * 3 + d.now.getHours()), p = d.ev ? (d.ev.active ? 0.91 : 0.6 + r() * 0.35) : 0.5
     mkLive(k, 10, 4); k.t(d.ev ? "RESOLVES TODAY" : "NO OPEN BETS", 50, 4, 7, k.S, { w: 120 })
     mkCard(k, 10, 16, 214, H - 32)
-    const QS = [(t) => `WILL A GOOSE CRASH "${t}"?`, (t) => `WILL "${t}" END IN A DANCE-OFF?`, (t) => `WILL "${t}" BE MOVED TO THE MOON?`, (t) => `WILL PIGEONS LIVESTREAM "${t}"?`, (t) => `WILL "${t}" GET A SEQUEL?`, (t) => `WILL A MARIACHI BAND HIJACK "${t}"?`]
-    k.para(d.ev ? QS[(dayOfYear(d.now) + d.now.getHours()) % QS.length](d.ev.title.toUpperCase()) : "WILL A RACCOON BE ELECTED MAYOR TODAY?", 18, 22, 140, 11, k.I, "disp", 3, 1.08)
+    const QS = [(t) => `WILL "${t}" HAPPEN IN ANOTHER TIMELINE TOO?`, (t) => `WILL "${t}" MATTER IN 10,000 YEARS?`, (t) => `WILL YOU ATTEND "${t}" AS YOURSELF?`, (t) => `WILL THE ROOM REMEMBER "${t}"?`, (t) => `WILL "${t}" END BEFORE IT BEGINS?`, (t) => `IS "${t}" ALREADY PRICED INTO THE UNIVERSE?`]
+    k.para(d.ev ? QS[(dayOfYear(d.now) + d.now.getHours()) % QS.length](d.ev.title.toUpperCase()) : MK_QS[(dayOfYear(d.now) + d.now.getHours()) % MK_QS.length].toUpperCase(), 18, 22, 140, 11, k.I, "disp", 3, 1.08)
     k.t(`${Math.round(p * 100)}%`, 216, 20, 22, k.a(T.altBg, 1), { f: "disp", a: "r", w: 70 }); k.t(`▲${(r() * 40).toFixed(0)}% · 1H`, 216, 46, 6.5, k.a(T.altBg, 1), { a: "r", w: 70 })
     mkLev(k, 18, 62, 3, true)
     mkYesNo(k, 18, 78, 198, 16, p)
     k.t("PAYOUT IF YES", 18, 99, 6, k.S, { w: 80 }); k.t(`$${(1000 / Math.max(0.05, p) * (1 + r())).toFixed(0)}`, 18, 106, 13, mkGold(), { f: "disp", w: 100 }); mkArea(k, 120, 98, 96, 22, r, true)
     const rx = 232
-    ;[["IT RAINS FROGS?", wx.cond && /RAIN|SHOWER|DRIZZLE|STORM/.test(wx.cond) ? 0.41 : 0.04], [`SUN GHOSTS US TMRW?`, 0.06 + r() * 0.2], ["PHONE DIES MID-FLEX?", Math.max(0.03, Math.min(0.97, 1 - d.batt))]].forEach(([q, pr], i) => { const y = 16 + i * 38; mkCard(k, rx, y, W - rx - 10, 33, i === 1 ? "#FF2D55" : T.accent); k.t(q, rx + 6, y + 5, 6.5, k.I, { f: "bold", w: W - rx - 50 }); k.t(`${Math.round(pr * 100)}%`, W - 16, y + 3, 10, pr > 0.5 ? k.a(T.altBg, 1) : mkNo(), { f: "disp", a: "r", w: 40 }); k.rect(rx + 6, y + 21, (W - rx - 22) * pr, 5, k.a(T.altBg, 1)); k.rect(rx + 6 + (W - rx - 22) * pr, y + 21, (W - rx - 22) * (1 - pr), 5, mkNo()) })
-    mkWhale(k, 10, H - 13, W - 20, `WHALE ALERT · @moby_${dayOfYear(d.now) % 90} BET $${(50 + r() * 900).toFixed(0)}K THAT BIRDS AREN'T REAL`)
+    ;[["THE RAIN REMEMBERS YOU?", wx.cond && /RAIN|SHOWER|DRIZZLE|STORM/.test(wx.cond) ? 0.62 : 0.09], ["TOMORROW ARRIVES ON TIME?", 0.88 + r() * 0.1], ["BATTERY OUTLASTS THE DAY?", Math.max(0.03, Math.min(0.97, d.batt))]].forEach(([q, pr], i) => { const y = 16 + i * 38; mkCard(k, rx, y, W - rx - 10, 33, i === 1 ? "#FF2D55" : T.accent); k.para(q, rx + 6, y + 4, W - rx - 52, 6, k.I, "bold", 2, 1.15); k.t(`${Math.round(pr * 100)}%`, W - 16, y + 3, 10, pr > 0.5 ? k.a(T.altBg, 1) : mkNo(), { f: "disp", a: "r", w: 40 }); k.rect(rx + 6, y + 21, (W - rx - 22) * pr, 5, k.a(T.altBg, 1)); k.rect(rx + 6 + (W - rx - 22) * pr, y + 21, (W - rx - 22) * (1 - pr), 5, mkNo()) })
+    mkWhale(k, 10, H - 13, W - 20, `BREAKING · ${mkNews(Math.floor(Date.now() / 1800000)).toUpperCase()}`)
   },
   shift(k, W, H, d) {
     const r = k.rng(7), f = d.ev ? d.frac : 0
@@ -3523,7 +3527,7 @@ const MK = {
     const tw = W - (small ? 32 : 120), fs = fitFs(k, d.text.toUpperCase(), tw, small ? 4 : 3, small ? 13 : (big ? 20 : 17), "disp"), n = k.para(d.text.toUpperCase(), 16, 32, tw, fs, k.I, "disp", small ? 4 : 3, 1.08)
     k.t(`— ${d.by}`, 16, 36 + n * fs * 1.08, small ? 6.5 : 7.5, k.S, { w: W - 32 })
     if (!small) { mkArea(k, W - 98, 34, 80, 44, r, true); k.t(`▲ ${(10 + r() * 190).toFixed(0)}%`, W - 18, 82, 8, k.a(T.altBg, 1), { a: "r", w: 80, f: "bold" }) }
-    if (!small && H - 28 > 44 + n * fs * 1.08 + 14) mkYesNo(k, 16, H - 28, W - 32, 14, 0.55 + r() * 0.4)
+    if (!small && H - 28 > 44 + n * fs * 1.08 + 14) mkWhale(k, 16, H - 27, W - 32, `BREAKING · ${mkNews(parseInt(d.hex, 16)).toUpperCase()}`)
   },
   solar(k, W, H, d) {
     const small = W < 200, big = H > 200, r = k.rng(dayOfYear(d.now)), top = 30, ch = small ? 62 : 70
@@ -3536,15 +3540,15 @@ const MK = {
     k.ln([[10, top + ch * 0.92], [W - 10, top + ch * 0.92]], k.a("#FF2D55", 0.5), 0.8); if (!small) k.t("LIQUIDATION", W - 12, top + ch * 0.92 - 9, 6, mkNo(), { a: "r", w: 70 })
     k.t(`OPEN ${shortT(d.rise)}`, 12, top + ch + 5, 7, k.S, { w: 90 }); k.t(`CLOSE ${shortT(d.set)}`, W - 12, top + ch + 5, 7, k.S, { a: "r", w: 90 })
     if (big && d.atm) {
-      k.t("SKY CASINO // WILL THE WEATHER BETRAY US?", 12, 132, 6.5, k.a(T.accent, 1), { w: 260, f: "bold" })
+      k.t("SKY CASINO // DOES THE SKY KNOW WE ARE BETTING?", 12, 132, 6.5, k.a(T.accent, 1), { w: 300, f: "bold" })
       atmItems(d.atm).forEach(([l, v], i) => { const x = 12 + (i % 3) * 114, y = 146 + Math.floor(i / 3) * 78, pr = 0.15 + ((i * 37 + dayOfYear(d.now)) % 75) / 100; mkCard(k, x, y, 106, 68, i % 2 ? "#FF2D55" : T.accent); k.t(l, x + 8, y + 7, 6.5, k.S, { w: 60, f: "bold" }); k.t(v, x + 8, y + 19, String(v).length > 4 ? 13 : 16, k.I, { f: "disp", w: 60 }); inst(k, i, x + 70, y + 12, d.atm, { ink: k.a(T.altBg, 1), hot: mkNo(), faint: k.ia(0.12) }); mkYesNo(k, x + 8, y + 48, 90, 13, pr) })
-      mkWhale(k, 12, H - 30, W - 24, "NOT FINANCIAL ADVICE · NOT WEATHER ADVICE · BARELY ADVICE")
+      mkWhale(k, 12, H - 30, W - 24, `BREAKING · ${mkNews(Math.floor(Date.now() / 1800000) + 13).toUpperCase()}`)
     }
   },
   feed(k, W, H, d) {
     const m = 8, r = k.rng(d.side.length * 17), up = d.side === "yt", p = up ? 0.64 : 0.38
     mkCard(k, m, 8, W - m * 2, H * 0.5, up ? T.altBg : "#FF2D55")
-    k.t(up ? "AI DIRECTS A FILM ABOUT YOU?" : "YOUR POST GETS KNIGHTED?", m + 8, 13, 6.5, k.S, { w: W - m * 2 - 70 }); k.t(up ? "▲ PUMPING" : "▼ DUMPING", W - m - 8, 13, 7, up ? k.a(T.altBg, 1) : mkNo(), { a: "r", w: 70, f: "bold" })
+    k.t(up ? "YOUR DOUBLE GOES VIRAL?" : "YOUR POST IS FOUND IN 3026?", m + 8, 13, 6.5, k.S, { w: W - m * 2 - 70 }); k.t(up ? "▲ PUMPING" : "▼ DUMPING", W - m - 8, 13, 7, up ? k.a(T.altBg, 1) : mkNo(), { a: "r", w: 70, f: "bold" })
     k.t(up ? "+34%" : "-12%", m + 8, 22, 18, up ? k.a(T.altBg, 1) : mkNo(), { f: "disp", w: 90 }); mkArea(k, m + 84, 24, W - m * 2 - 92, 22, r, up)
     mkYesNo(k, m + 8, 8 + H * 0.5 - 22, W - m * 2 - 16, 14, p)
     k.t(d.line.toUpperCase(), m, 8 + H * 0.5 + 5, 11, k.I, { f: "disp", w: W - m * 2 })
@@ -3552,7 +3556,7 @@ const MK = {
     k.t(d.tag, m, H - 13, 6.5, up ? k.a(T.altBg, 1) : mkNo(), { w: W - m * 2, f: "bold" })
   },
   yt(k, W, H, d) {
-    const r = sRng(d, 71), small = W < 200, rows = [["THE ALGORITHM FALLS IN LOVE?", 0.22, "25X"], ["A CAT HOSTS THE NEWS?", 0.71, "100X"], ["YOU WATCH 400 MORE?", 0.97, "5X"], ["THE AD SKIPS YOU?", 0.08, "50X"]]
+    const r = sRng(d, 71), small = W < 200, rows = [["THE ALGORITHM DREAMS OF YOU?", 0.22, "25X"], ["YOU WATCH UNTIL THE STARS DIM?", 0.71, "100X"], ["THE NEXT VIDEO KNOWS YOUR NAME?", 0.37, "5X"], ["THE AD WATCHES BACK?", 0.64, "50X"]]
     mkLive(k, 12, 4); k.t("WATCH & BET", 52, 4, 7, k.a(T.accent, 1), { f: "bold", w: 140 })
     rows.slice(0, small ? 3 : 4).forEach(([q, p, lev], i) => { const y = 17 + i * (small ? 38 : 28), w = small ? W - 24 : 214; mkCard(k, 12, y, w, small ? 33 : 24, p > 0.5 ? T.altBg : "#FF2D55"); k.t(q, 18, y + 4, 7, k.I, { w: w - 60, f: "bold" }); k.t(lev, 12 + w - 6, y + 3, 7, k.a(T.accent, 1), { a: "r", w: 40, f: "bold" }); const pp = Math.max(0.03, Math.min(0.97, p + (r() - 0.5) * 0.1)); k.rect(18, y + (small ? 18 : 15), (w - 12) * pp, small ? 9 : 5, k.a(T.altBg, 1)); k.rect(18 + (w - 12) * pp, y + (small ? 18 : 15), (w - 12) * (1 - pp), small ? 9 : 5, mkNo()) })
     if (small) return
@@ -3566,7 +3570,7 @@ const MK = {
     if (small) return
     k.t("HYPE INDEX // YOUR FEED, LEVERAGED", 12, 66, 7, k.a(T.accent, 1), { f: "bold", w: 260 })
     ;[["POSTS PRICED", `${40 + Math.floor(r() * 300)}`, k.I], ["MOONING", `${50 + Math.floor(r() * 40)}%`, k.a(T.altBg, 1)], ["REKT", `${5 + Math.floor(r() * 30)}%`, mkNo()]].forEach(([l, v, col], i) => { const x = 12 + i * 112; k.t(l, x, 80, 6.5, k.S, { w: 100 }); k.t(v, x, 90, 16, col, { f: "disp", w: 100 }) })
-    mkWhale(k, 12, 114, W - 24, "@influencer_9 CAUGHT POSTING A REAL PHOTO · -88% · HYPE FLEEING")
+    mkWhale(k, 12, 114, W - 24, `BREAKING · ${mkNews(Math.floor(Date.now() / 1800000) + 7).toUpperCase()}`)
   },
   dc(k, W, H, d) {
     const r = sRng(d, 73), small = W < 200, traders = [["@moby_whale", 1], ["@paperhands", -1], ["@kelly_k", 1], ["@rekt_again", -1], ["@moonboi", 1], ["@priced_in", 1]]
@@ -3575,7 +3579,7 @@ const MK = {
     if (small) return
     const rx = 186
     mkCard(k, rx, 16, W - rx - 12, 112)
-    ;["# raccoon-for-mayor", "# moon-bankruptcy-watch", "# sentient-toaster-truthers", "🔊 the trading pit"].forEach((c2, i) => { const y = 24 + i * 16; k.t(c2, rx + 8, y, 8.5, i === 3 ? k.a(T.accent, 1) : k.I, { w: 150 }); if (r() > 0.4) k.circ(W - 24, y + 5, 3, mkNo()) })
+    ;["# is-time-real", "# void-market-makers", "# remember-tuesday", "🔊 the trading pit"].forEach((c2, i) => { const y = 24 + i * 16; k.t(c2, rx + 8, y, 8.5, i === 3 ? k.a(T.accent, 1) : k.I, { w: 150 }); if (r() > 0.4) k.circ(W - 24, y + 5, 3, mkNo()) })
     k.t(`OPEN INTEREST $${(10 + r() * 990).toFixed(0)}M`, rx + 8, 92, 7, mkGold(), { w: 160, f: "bold" }); mkYesNo(k, rx + 8, 106, W - rx - 28, 14, 0.57)
   },
   audio(k, W, H, d) {
@@ -3786,6 +3790,304 @@ function gameSample(f) {
   for (let i = 0; i < 26; i++) { const inp = { charging: i % 9 === 4, batt: 0.7, hour: 9 + (i % 10), busy: i % 5 === 0 ? 5 : 1 }; G.step(st, inp); ins.push(inp) }
   return { st, inp: ins[ins.length - 1] }
 }
+// ---------- W-10 GAMES, part two: one idle game per remaining prefab ----------
+// shared layout: a scene on the left (or top on large), a status panel, bars and a short log
+function gFrame(k, W, H, st, o) {
+  const small = W < 200, big = H > 200, I = k.I, S = k.S
+  const vx = 10, vy = 6, vw = small ? W - 20 : big ? W - 20 : 200, vh = small ? 84 : big ? 172 : H - 14
+  o.scene(k, vx, vy, vw, vh, small, big)
+  const hot = o.hot || k.H, f = o.font || "disp"
+  if (small) { (o.bars || []).slice(0, 2).forEach(([l, v, c], i) => { const y = vy + vh + 6 + i * 13; k.t(`${l} ${Math.round(v * 100)}`, vx, y, 6.5, I, { w: 70 }); gBar(k, vx + 64, y + 2, W - vx * 2 - 64, 5, v, c || I, k.ia(0.12)) }); return }
+  const x0 = big ? vx : vx + vw + 12, y0 = big ? vy + vh + 8 : vy, rw = big ? W - 20 : W - x0 - 10
+  k.t(o.kicker || "", x0, y0, 6.5, hot, { f: "bold", w: rw })
+  k.t(o.title || "", x0, y0 + 9, big ? 18 : 14, I, { f, w: rw })
+  k.t(o.sub || "", x0, y0 + (big ? 30 : 26), 6.5, S, { w: rw })
+  const bars = o.bars || [], bw = big ? rw * 0.46 : rw
+  bars.forEach(([l, v, c], i) => { const y = y0 + (big ? 42 : 37) + i * 13; k.t(l, x0, y, 6, S, { w: 70 }); k.t(`${Math.round(v * 100)}`, x0 + bw, y, 6, I, { a: "r", w: 30 }); gBar(k, x0, y + 7, bw, 3.5, v, c || I, k.ia(0.12)) })
+  const logs = (st.log || []).slice(big ? -7 : -2).reverse()
+  if (big) { const lx = x0 + rw * 0.52, lw = rw * 0.48; k.t(o.logTitle || "LOG", lx, y0 + 42, 6, S, { w: lw }); logs.forEach((l, i) => k.t(l.m, lx, y0 + 52 + i * 11, f === "disp" ? 8 : 6.3, i ? S : I, { f: f === "disp" ? "disp" : "mono", w: lw })); if (o.hint) k.t(o.hint, W / 2, H - 13, 6, S, { a: "c", w: W - 20 }) }
+  else logs.forEach((l, i) => k.t(l.m, x0, y0 + 37 + bars.length * 13 + 3 + i * 10, f === "disp" ? 7.5 : 6, i ? S : I, { f: f === "disp" ? "disp" : "mono", w: rw }))
+}
+const gRun = (prev, extra) => Object.assign({ v: 1, run: prev ? prev.run + 1 : 1, best: prev ? prev.best : 0, turn: prev ? prev.turn : 0, log: prev ? prev.log : [], last: prev ? prev.last : 0 }, extra)
+
+// DIRECTIVE ZERO: keep Shelter 9 running underground
+GAMES.directive = {
+  title: "W-10 // SHELTER 9",
+  init(now, prev) { return gRun(prev, { game: "directive", seed: (now % 233280) || 19, shelter: prev ? prev.shelter + 1 : 9, day: 1, pop: 12, food: 70, power: 80, morale: 65, threat: 20 }) },
+  right(st, inp) { return inp.charging ? "GRID RESTORED" : `DAY ${st.day}` },
+  step(st, inp) {
+    const r = gRng(st), G = GAMES.directive; st.turn++; if (st.turn % 4 === 0) st.day++
+    if (inp.charging) { st.power += 25; gLog(st, "Grid restored. Generators charging.") } else st.power -= 6
+    st.food -= st.pop * 0.25
+    const e = r()
+    if (e < 0.14) { const n = 1 + Math.floor(r() * 4); st.pop += n; gLog(st, `${n} survivors admitted at the blast door.`) }
+    else if (e < 0.26) { st.food += 18; gLog(st, "Supply drop recovered from the surface.") }
+    else if (e < 0.36) { st.threat += 18; gLog(st, "Sirens. Seismic contact to the north.") }
+    else if (e < 0.44) { st.morale += 8; gLog(st, "Drill completed in 41 seconds. Record.") }
+    else if (e < 0.52) { st.threat -= 12; gLog(st, "All clear issued. Temporary condition.") }
+    else if (e < 0.6) { st.morale -= 6; gLog(st, "Radio static spelled a word. Morale wobbled.") }
+    else if (e < 0.66) { st.power -= 8; gLog(st, "Power flicker on Level 3.") }
+    else gLog(st, gPick(r, ["Ration cards reissued.", "Someone painted a window on the wall.", "Air filters swapped. Air tastes newer.", "Card game in the mess hall. Nobody won."]))
+    if (st.food <= 0) { st.food = 0; st.morale -= 8; gLog(st, "Food stores empty. Rations halved.") }
+    if (st.power <= 10) st.morale -= 4
+    st.threat = gClamp(st.threat - 3); st.food = gClamp(st.food); st.power = gClamp(st.power); st.morale = gClamp(st.morale)
+    if (st.morale <= 0 || st.power <= 0) { const old = st.shelter, best = Math.max(st.best || 0, st.day); Object.assign(st, G.init(Date.now() + st.turn, st)); st.best = best; gLog(st, `Shelter ${old} evacuated. Shelter ${st.shelter} unsealed.`) }
+  },
+  paint(k, W, H, st, inp) {
+    const TM = Date.now() / 60000, A = k.a(T.accent, 1), Hh = k.H
+    gFrame(k, W, H, st, { font: "heavy", hot: Hh, kicker: inp.charging ? "GRID RESTORED // CHARGING" : st.threat > 60 ? "THREAT ELEVATED" : "SHELTER SEALED", title: `SHELTER ${st.shelter}`, sub: `DAY ${st.day} · POP ${st.pop} · BEST ${st.best || 0} DAYS`, bars: [["FOOD", st.food / 100, A], ["POWER", st.power / 100, k.I], ["MORALE", st.morale / 100, A], ["THREAT", st.threat / 100, Hh]], logTitle: "SHELTER LOG", hint: "CHARGE THE PHONE TO RESTORE THE GRID",
+      scene(k, x, y, w, h, small) {
+        const gy = y + h * 0.22; k.rect(x, y, w, gy - y, k.ia(0.04)); k.stripes(x, gy - 4, w, 4, Hh, 8); k.ln([[x, gy], [x + w, gy]], k.I, 1)
+        for (let i = 0; i < 3; i++) k.rect(x + w * (0.15 + i * 0.3), gy - 10 - i * 4, w * 0.12, 10 + i * 4, k.ia(0.25))
+        const lv = 4, lh = (y + h - gy - 6) / lv
+        for (let i = 0; i < lv; i++) { const ly = gy + 4 + i * lh, lit = st.power > i * 22; k.rect(x + 6, ly, w - 12, lh - 4, lit ? k.a(T.accent, 0.08) : k.ia(0.03), k.ia(0.4), 0.8); k.t(`L${i + 1}`, x + 9, ly + 2, 5.5, k.S, { w: 20 }); const n = Math.max(0, Math.min(10, Math.round(st.pop / lv) + (i % 2))); for (let j = 0; j < n; j++) k.circ(x + 26 + j * ((w - 40) / 10) + Math.sin(TM / 3 + j + i) * 2, ly + lh * 0.55, 2, lit ? A : k.ia(0.3)) }
+        k.ln([[x + w / 2, gy], [x + w / 2, y + h - 4]], k.ia(0.3), 1)
+        const sir = st.threat > 50 && Math.floor(TM) % 2 === 0; k.circ(x + w - 14, y + 10, 5, sir ? Hh : k.ia(0.15), k.I, 0.8)
+        k.hex(x + 14, y + 12, 8, k.ia(0.05), Hh, 1); k.t(String(Math.max(1, 5 - Math.floor(st.threat / 21))), x + 14, y + 7, 8, Hh, { f: "heavy", a: "c", w: 16 })
+      } })
+  }
+}
+
+// NIGHTFALL: a four-trooper squad running night patrols
+GAMES.nightfall = {
+  title: "W-10 // NIGHT PATROL",
+  roster: ["ALPHA-1", "ALPHA-2", "BRAVO-3", "BRAVO-4"],
+  init(now, prev) { return gRun(prev, { game: "nightfall", seed: (now % 233280) || 23, squad: prev ? prev.squad + 1 : 7, hp: [100, 100, 100, 100], ammo: 90, intel: 0, sectors: 0, path: [[0.1, 0.8]], recruits: 0 }) },
+  right(st, inp) { return inp.charging ? "RESUPPLY INBOUND" : `SQUAD ${st.squad}` },
+  step(st, inp) {
+    const r = gRng(st), G = GAMES.nightfall; st.turn++
+    if (inp.charging) { st.ammo = 100; st.hp = st.hp.map(h => Math.min(100, h + 30)); gLog(st, "Resupply drop. Ammo full, medkits restocked."); return }
+    st.ammo -= 4; const last = st.path[st.path.length - 1]; st.path = st.path.concat([[Math.max(0.06, Math.min(0.94, last[0] + 0.08 + r() * 0.08)), Math.max(0.1, Math.min(0.9, last[1] + (r() - 0.55) * 0.3))]]).slice(-12)
+    if (st.path[st.path.length - 1][0] > 0.9) { st.sectors++; st.path = [[0.08, 0.3 + r() * 0.5]]; gLog(st, `Sector ${st.sectors} cleared. Moving up.`) }
+    const e = r(), who = Math.floor(r() * 4)
+    if (e < 0.2) { const d = 10 + Math.floor(r() * 30); st.hp[who] -= d; st.ammo -= 12; gLog(st, `Contact. ${G.roster[who]} hit, -${d}. Contact broken.`) }
+    else if (e < 0.32) { st.intel++; gLog(st, "Recovered a data spike. Intel +1.") }
+    else if (e < 0.4) gLog(st, "Rain thickening. Thermal only.")
+    else if (e < 0.48) { st.ammo += 15; gLog(st, "Found an ammo cache in a parking garage.") }
+    else if (e < 0.55) gLog(st, "Motion tracker ping. Just a cat. Probably.")
+    else gLog(st, gPick(r, ["Holding position under a billboard.", "Visor fogging. Wiped. Moving.", "Quiet street. Too quiet. Moving anyway."]))
+    st.hp = st.hp.map((h, i) => { if (h <= 0) { st.recruits++; gLog(st, `${G.roster[i]} evacuated. Replacement inbound.`); return 70 } return Math.max(0, Math.min(100, h)) })
+    st.ammo = gClamp(st.ammo)
+    if (st.ammo <= 0) { const old = st.squad, best = Math.max(st.best || 0, st.sectors); Object.assign(st, G.init(Date.now() + st.turn, st)); st.best = best; gLog(st, `Squad ${old} out of ammo. Extracted. Squad ${st.squad} deploying.`) }
+  },
+  paint(k, W, H, st, inp) {
+    const G = GAMES.nightfall, TM = Date.now() / 60000, A = k.a(T.accent, 1)
+    gFrame(k, W, H, st, { font: "bold", hot: A, kicker: inp.charging ? "RESUPPLY // CHARGING" : "PATROL ACTIVE", title: `SQUAD ${st.squad}`, sub: `SECTORS ${st.sectors} · INTEL ${st.intel} · BEST ${st.best || 0}`, bars: [["AMMO", st.ammo / 100, A]].concat(st.hp.map((h, i) => [G.roster[i], h / 100, k.I])), logTitle: "COMMS", hint: "CHARGE THE PHONE FOR A RESUPPLY DROP",
+      scene(k, x, y, w, h, small) {
+        k.rect(x, y, w, h, k.ia(0.05)); for (let i = 1; i < 8; i++) k.ln([[x + w * i / 8, y], [x + w * i / 8, y + h]], k.ia(0.07), 0.5); for (let i = 1; i < 5; i++) k.ln([[x, y + h * i / 5], [x + w, y + h * i / 5]], k.ia(0.07), 0.5)
+        const rr = k.rng(st.squad * 11 + st.sectors); for (let i = 0; i < 9; i++) { const bx = x + rr() * w, bh = 8 + rr() * h * 0.3; k.rect(bx, y + h - bh, 6 + rr() * 14, bh, k.ia(0.08)) }
+        nfBrackets(k, x + 2, y + 2, w - 4, h - 4, 8, A, 1)
+        const P = (p) => [x + p[0] * w, y + p[1] * h], pts = st.path.map(P); if (pts.length > 1) k.ln(pts, k.a(T.accent, 0.8), 1.2)
+        const cur = pts[pts.length - 1]; for (let i = 0; i < 4; i++) { const ox = cur[0] - 8 + (i % 2) * 8, oy = cur[1] - 4 + Math.floor(i / 2) * 8; k.poly([[ox, oy - 3], [ox + 3, oy], [ox, oy + 3], [ox - 3, oy]], st.hp[i] > 30 ? A : k.H) }
+        const tx = x + w - 30, ty = y + h - 10, sw = TM / 2; k.arc(tx, ty, 22, Math.PI, Math.PI * 2, k.ia(0.4), 0.8); k.ln([[tx, ty], [tx + 22 * Math.cos(Math.PI + (sw % Math.PI)), ty + 22 * Math.sin(Math.PI + (sw % Math.PI))]], A, 0.8)
+        for (let i = 0; i < 3; i++) { const a = Math.PI + rr() * Math.PI, d2 = 6 + rr() * 14; k.circ(tx + d2 * Math.cos(a), ty + d2 * Math.sin(a), 1.5, k.H) }
+      } })
+  }
+}
+
+// PLANAR GRIMOIRE: an apprentice studying the arcane
+GAMES.grimoire = {
+  title: "W-10 // THE APPRENTICE",
+  ranks: ["NOVICE", "ADEPT", "MAGUS", "ARCHMAGUS", "STARBOUND"],
+  spells: ["Lesser Light", "Whisper Ward", "Candle Tongue", "Mirror Step", "Comet Call", "Moonroot", "Hour Lock", "Star Seal", "Veil Thread", "Ember Script", "Owl Sight", "Tide Word"],
+  init(now, prev) { return gRun(prev, { game: "grimoire", seed: (now % 233280) || 29, name: gPick(() => (now % 997) / 997, ["Ivo", "Sable", "Wren", "Corin", "Maud", "Elspeth"]), rank: 0, mana: 70, lore: 0, known: [], familiar: null, mishaps: 0 }) },
+  right(st, inp) { return inp.charging ? "MOONWELL FULL" : GAMES.grimoire.ranks[st.rank] },
+  step(st, inp) {
+    const r = gRng(st), G = GAMES.grimoire; st.turn++
+    if (inp.charging) { st.mana = 100; gLog(st, "The moonwell overflows. Mana restored.") } else st.mana -= 7
+    st.lore += 3 + Math.floor(r() * 5)
+    const e = r()
+    if (e < 0.2 && st.mana > 20) { const left = G.spells.filter(s => !st.known.includes(s)); if (left.length) { const s = gPick(r, left); st.known.push(s); st.mana -= 15; gLog(st, `Learned ${s}.`) } }
+    else if (e < 0.28 && !st.familiar) { st.familiar = gPick(r, ["an owl", "a black cat", "a toad of opinion", "a moth the size of a hand"]); gLog(st, `A familiar arrived: ${st.familiar}.`) }
+    else if (e < 0.38) { st.mana -= 12; st.mishaps++; gLog(st, gPick(r, ["Cauldron mishap. Eyebrows regrowing.", "Summoned the wrong thing. Sent it back.", "Read a page twice. It read me back."])) }
+    else if (e < 0.46) gLog(st, "Charted a new constellation. Named it after soup.")
+    else if (e < 0.54) { st.lore += 8; gLog(st, "Found a margin note in an old tome. Lore +8.") }
+    else gLog(st, gPick(r, ["Practiced runes by candlelight.", "The tower creaked approvingly.", "Meditated. The stars meditated back."]))
+    if (st.rank < 4 && st.lore >= (st.rank + 1) * 60) { st.rank++; gLog(st, `Ascended to ${G.ranks[st.rank]}.`) }
+    st.mana = gClamp(st.mana)
+    if (st.mana <= 0) { const name = st.name, best = Math.max(st.best || 0, st.known.length); Object.assign(st, G.init(Date.now() + st.turn, st)); st.best = best; gLog(st, `${name} burned out and returned to farming. ${st.name} takes the oath.`) }
+  },
+  paint(k, W, H, st, inp) {
+    const G = GAMES.grimoire, TM = Date.now() / 60000, A = k.a(T.accent, 1), L = k.a(T.altBg, 1)
+    gFrame(k, W, H, st, { font: "disp", hot: A, kicker: inp.charging ? "MOONWELL // CHARGING" : "STUDYING", title: `${st.name}, ${G.ranks[st.rank].toLowerCase()}`, sub: `SPELLS ${st.known.length}/12 · ${st.familiar ? st.familiar.toUpperCase() : "NO FAMILIAR"} · BEST ${st.best || 0}`, bars: [["MANA", st.mana / 100, A], ["LORE", Math.min(1, (st.lore % 60) / 60), k.I]], logTitle: "SPELLBOOK", hint: "Charge the phone to fill the moonwell.",
+      scene(k, x, y, w, h, small) {
+        const cx = x + w / 2, cy = y + h / 2, R = Math.min(w, h) * 0.42
+        k.circ(cx, cy, R, k.a(T.altBg, 0.25), A, 1.1); k.circ(cx, cy, R * 0.82, null, k.a(T.accent, 0.5), 0.6)
+        for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2 + TM / 30; k.ln([[cx + R * 0.86 * Math.cos(a), cy + R * 0.86 * Math.sin(a)], [cx + R * 0.95 * Math.cos(a), cy + R * 0.95 * Math.sin(a)]], k.a(T.accent, 0.7), 0.6) }
+        const pts = G.spells.map((s, i) => { const a = i / 12 * Math.PI * 2 - Math.PI / 2, rr = R * (0.38 + (i % 3) * 0.14); return [cx + rr * Math.cos(a), cy + rr * Math.sin(a), st.known.includes(s)] })
+        pts.forEach((p, i) => { const q = pts[(i + 5) % 12]; if (p[2] && q[2]) k.ln([[p[0], p[1]], [q[0], q[1]]], k.a(T.accent, 0.6), 0.7) })
+        pts.forEach(([px, py, on]) => on ? gmStar(k, px, py, 4 + Math.sin(TM / 2 + px) * 0.8, A, 0.8) : k.circ(px, py, 1.2, k.ia(0.3)))
+        gmStar(k, cx, cy, R * 0.18, A, 1); k.circ(cx, cy, R * 0.07 + (TM % 3), null, k.a(T.accent, 0.4), 0.6)
+        for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + i / 5 * Math.PI * 2, x2 = cx + R * 1.08 * Math.cos(a), y2 = cy + R * 1.08 * Math.sin(a); k.rect(x2 - 2, y2 - 1, 4, 7, k.ia(0.8)); k.poly([[x2, y2 - 6 - Math.sin(TM + i) * 1.5], [x2 + 1.8, y2 - 2], [x2 - 1.8, y2 - 2]], A) }
+      } })
+  }
+}
+
+// WHITE RABBIT: the legion's long con for all seven heirlooms
+GAMES.rabbit = {
+  title: "W-10 // THE LONG CON",
+  lots: ["The Gala Necklace", "The Jeweled Egg", "The Ambassador's Ring", "The Crown Nobody Wears", "The Clockwork Brooch", "The Pearl Compass", "The Seventh Heirloom"],
+  init(now, prev) { return gRun(prev, { game: "rabbit", seed: (now % 233280) || 31, season: prev ? prev.season + (prev.taken >= 7 ? 1 : 0) : 1, taken: 0, heat: 10, crew: 3, loot: prev ? prev.loot : 0, intel: 0 }) },
+  right(st, inp) { return inp.charging ? "LAYING LOW" : `LOT ${st.taken}/07` },
+  step(st, inp) {
+    const r = gRng(st), G = GAMES.rabbit; st.turn++
+    if (inp.charging) { st.heat -= 18; gLog(st, "Laying low at the safehouse. Heat cooling."); st.heat = gClamp(st.heat); return }
+    st.heat -= 2
+    const e = r()
+    if (e < 0.24) { st.intel++; gLog(st, `Cased ${G.lots[st.taken] || "the vault"}. Intel ${st.intel}.`) }
+    else if (e < 0.4 && st.intel >= 2) { const val = 50 + Math.floor(r() * 400); st.taken++; st.loot += val; st.intel = 0; st.heat += 16; gLog(st, `${G.lots[st.taken - 1]} lifted. Calling card left. +$${val}K.`) }
+    else if (e < 0.5) { st.heat += 12; gLog(st, "Close call on the rooftop. Ears down.") }
+    else if (e < 0.58) { st.crew++; gLog(st, "A copycat asked to join. Recruited.") }
+    else if (e < 0.64 && st.crew > 1) { st.crew--; st.heat += 6; gLog(st, "A crew member got sloppy. Cut loose.") }
+    else gLog(st, gPick(r, ["Pressed a fresh calling card.", "Rehearsed the gala exit twice.", "Tea at the safehouse. Plans drawn in sugar."]))
+    st.heat = gClamp(st.heat)
+    if (st.taken >= 7) { const best = Math.max(st.best || 0, 7); Object.assign(st, G.init(Date.now() + st.turn, st)); st.best = best; gLog(st, `All seven heirlooms taken. Season ${st.season} begins.`) }
+    else if (st.heat >= 100) { const best = Math.max(st.best || 0, st.taken); Object.assign(st, G.init(Date.now() + st.turn, st)); st.best = best; gLog(st, "Too hot. The legion scatters. New masks, new plan.") }
+  },
+  paint(k, W, H, st, inp) {
+    const G = GAMES.rabbit, TM = Date.now() / 60000, A = k.a(T.accent, 1), L = k.a(T.headBg, 1)
+    gFrame(k, W, H, st, { font: "disp", hot: A, kicker: inp.charging ? "SAFEHOUSE // CHARGING" : st.heat > 70 ? "HEAT RISING" : "ON THE JOB", title: G.lots[Math.min(6, st.taken)], sub: `SEASON ${st.season} · CREW ${st.crew} · LOOT $${st.loot}K`, bars: [["HEAT", st.heat / 100, A], ["INTEL", Math.min(1, st.intel / 2), k.I], ["LOTS", st.taken / 7, L]], logTitle: "THE LEDGER", hint: "Charge the phone to lay low and cool the heat.",
+      scene(k, x, y, w, h, small) {
+        k.rect(x, y, w, h, k.a(T.panel, 0.6), k.a(T.headBg, 1), 0.8)
+        for (let i = 0; i < 4; i++) { const yy = y + 12 + ((TM * 4 + i * h / 4) % (h - 20)); k.ln([[x + 2, yy], [x + w - 2, yy + (i % 2 ? 8 : -8)]], k.a(T.accent, 0.55), 0.8) }
+        const pw = (w - 16) / 7
+        for (let i = 0; i < 7; i++) { const px = x + 8 + i * pw + pw / 2, py = y + h * 0.72; k.rect(px - pw * 0.32, py, pw * 0.64, h * 0.2, k.PN, k.I, 0.8); k.rect(px - pw * 0.38, py - 2, pw * 0.76, 3, k.I); if (i >= st.taken) { k.poly([[px - 5, py - 9], [px - 3, py - 13], [px + 3, py - 13], [px + 5, py - 9], [px, py - 2]], k.a(T.accent, 0.6), k.I, 0.7) } else { k.rect(px - 6, py - 14, 12, 12, null, k.ia(0.3), 0.6); rbSpark(k, px, py - 8, 2.5, A) } k.t(String(i + 1), px, py + h * 0.2 - 8, 5.5, k.S, { a: "c", w: 12 }) }
+        const hx = x + 8 + Math.min(6, st.taken) * pw + pw / 2; rbRabbit(k, hx - pw * 0.6, y + h * 0.42 + Math.sin(TM / 3) * 2, small ? 18 : 24, k.PN, k.I)
+      } })
+  }
+}
+
+// NEON DISTRICT: a netrunner climbing a corp tower one floor at a time
+GAMES.cyber = {
+  title: "W-10 // TOWER RUN",
+  init(now, prev) { return gRun(prev, { game: "cyber", seed: (now % 233280) || 37, handle: gPick(() => ((now / 7) % 991) / 991, ["v0idkid", "rainwire", "gl1tch", "kitsune", "n30n_m0m", "sable_x"]), floor: 1, ram: 80, trace: 10, creds: prev ? prev.creds : 0, chrome: 0, tower: prev ? prev.tower + (prev.floor >= 100 ? 1 : 0) : 1 }) },
+  right(st, inp) { return inp.charging ? "JACKED IN · RAM UP" : `FLOOR ${st.floor}/100` },
+  step(st, inp) {
+    const r = gRng(st), G = GAMES.cyber; st.turn++
+    if (inp.charging) { st.ram = 100; st.trace -= 10; gLog(st, "Jacked into a wall socket. RAM full, trace scrubbed."); st.trace = gClamp(st.trace); return }
+    st.ram -= 6
+    const e = r()
+    if (e < 0.32) { const f = 1 + Math.floor(r() * 4); st.floor += f; st.trace += 6; gLog(st, `Breached ICE. Up ${f} floors.`) }
+    else if (e < 0.44) { const c = 100 + Math.floor(r() * 900); st.creds += c; gLog(st, `Paydata extracted. +${c}c.`) }
+    else if (e < 0.54) { st.trace += 15; gLog(st, "Trace spike. Black ICE sniffing.") }
+    else if (e < 0.62 && st.creds >= 800) { st.creds -= 800; st.chrome++; st.ram += 20; gLog(st, `Bought chrome mk.${st.chrome}. RAM +20.`) }
+    else if (e < 0.7) { st.trace -= 8; gLog(st, "Spoofed a security daemon. Trace down.") }
+    else gLog(st, gPick(r, ["Elevator music in the server room.", "Found a sysadmin's lunch order. Ominous.", "Neon flicker on floor " + st.floor + "."]))
+    st.ram = gClamp(st.ram); st.trace = gClamp(st.trace)
+    if (st.floor >= 100) { const best = Math.max(st.best || 0, 100); Object.assign(st, G.init(Date.now() + st.turn, st)); st.best = best; gLog(st, "Penthouse server cracked. On to the next tower.") }
+    else if (st.trace >= 100 || st.ram <= 0) { const h = st.handle, best = Math.max(st.best || 0, st.floor); Object.assign(st, G.init(Date.now() + st.turn, st)); st.best = best; gLog(st, `@${h} traced and burned. New handle: @${st.handle}.`) }
+  },
+  paint(k, W, H, st, inp) {
+    const TM = Date.now() / 60000, P = k.a(T.headBg, 1), C = k.a(T.accent, 1)
+    gFrame(k, W, H, st, { font: "disp", hot: P, kicker: inp.charging ? "JACKED IN // CHARGING" : st.trace > 70 ? "TRACE CRITICAL" : "RUNNING", title: `@${st.handle}`.toUpperCase(), sub: `TOWER ${st.tower} · ${st.creds}c · CHROME MK.${st.chrome} · BEST ${st.best || 0}F`, bars: [["RAM", st.ram / 100, C], ["TRACE", st.trace / 100, P], ["FLOOR", st.floor / 100, k.I]], logTitle: "RUN LOG", hint: "CHARGE THE PHONE TO RECHARGE RAM",
+      scene(k, x, y, w, h, small) {
+        cySky(k, w, y + h - 40, 40, k.rng(st.tower * 7)); const tw = w * 0.34, tx = x + w / 2 - tw / 2
+        k.rect(tx, y + 6, tw, h - 6, k.a(T.ground, 0.9)); notch(k, tx, y + 6, tw, h - 6, 8, T.accent, 1, null)
+        const fl = 20, fh = (h - 14) / fl, curI = Math.floor((st.floor % 100) / 5)
+        for (let i = 0; i < fl; i++) { const fy = y + h - 4 - (i + 1) * fh; for (let j = 0; j < 5; j++) k.rect(tx + 5 + j * (tw - 10) / 5, fy + 1, (tw - 10) / 5 - 2, fh - 2, i < curI ? k.a(T.accent, 0.35) : i === curI ? P : k.ia(0.05)) }
+        const gy = y + h - 4 - (curI + 0.5) * fh; k.rect(tx - 4 + Math.sin(TM) * 3, gy - 2, tw + 8, 3, k.a(T.headBg, 0.6))
+        k.t(`F${st.floor}`, tx + tw + 6, gy - 5, 7, P, { f: "bold", w: 40 })
+        for (let i = 0; i < 6; i++) { const yy = y + ((TM * 13 + i * 23) % h); k.rect(x + 4 + (i * 37) % (w - 30), yy, 18 + (i % 3) * 10, 1.5, k.a(i % 2 ? T.headBg : T.accent, 0.5)) }
+      } })
+  }
+}
+
+// VAPOR PLAZA: keep the eternal mall open
+GAMES.vapor = {
+  title: "W-10 // MALL.EXE",
+  shops: ["Sunset Video", "Pretzel Paradise", "Cassette Corner", "Laser Tag Galaxy", "Palm Imports", "Fountain Court", "Neon Nails", "Pager World", "Teal Tees", "Arcade 95", "Smoothie Cove", "Gift Grotto"],
+  init(now, prev) { return gRun(prev, { game: "vapor", seed: (now % 233280) || 41, mall: gPick(() => ((now / 3) % 983) / 983, ["Plaza Del Sol", "Crystal Galleria", "Dreamway Mall", "Palm Court Center", "Mirage Plaza"]), open: [0, 1], shoppers: 40, coins: prev ? prev.coins : 0, vibe: 70, day: 1 }) },
+  right(st, inp) { return inp.charging ? "LIGHTS ON" : `${st.open.length}/12 OPEN` },
+  step(st, inp) {
+    const r = gRng(st), G = GAMES.vapor; st.turn++; if (st.turn % 4 === 0) st.day++
+    if (inp.charging) { st.vibe += 15; st.shoppers += 20; gLog(st, "Mall lights on. Escalators humming.") } else st.vibe -= 4
+    st.coins += Math.floor(st.shoppers / 10)
+    const e = r()
+    if (e < 0.2 && st.open.length < 12) { const left = G.shops.map((_, i) => i).filter(i => !st.open.includes(i)); const i = gPick(r, left); st.open.push(i); gLog(st, `${G.shops[i]} is now open.`) }
+    else if (e < 0.3) { st.shoppers += 25; gLog(st, "Food court rush. Fountain glittering.") }
+    else if (e < 0.38) { st.vibe -= 10; gLog(st, "Escalator stuck between floors again.") }
+    else if (e < 0.46) { st.vibe += 8; gLog(st, "Ghost shoppers spotted. Very polite.") }
+    else if (e < 0.52 && st.open.length > 1) { const i = st.open.splice(Math.floor(r() * st.open.length), 1)[0]; gLog(st, `${G.shops[i]}: closed since 1997.`) }
+    else gLog(st, gPick(r, ["Mallsoft hour on the speakers.", "Someone made a wish at the fountain.", "The skylight turned pink. Nobody knows why."]))
+    st.shoppers = Math.max(0, Math.round(st.shoppers * 0.92)); st.vibe = gClamp(st.vibe)
+    if (st.vibe <= 0) { const old = st.mall, best = Math.max(st.best || 0, st.open.length); Object.assign(st, G.init(Date.now() + st.turn, st)); st.best = best; gLog(st, `${old} dims for good. ${st.mall} opens forever.`) }
+  },
+  paint(k, W, H, st, inp) {
+    const G = GAMES.vapor, TM = Date.now() / 60000
+    gFrame(k, W, H, st, { font: "disp", hot: k.a(T.altBg, 1), kicker: inp.charging ? "LIGHTS ON // CHARGING" : "NOW OPEN", title: st.mall, sub: `DAY ${st.day} · ${st.shoppers} SHOPPERS · ${st.coins} COINS`, bars: [["VIBE", st.vibe / 100, k.a(T.headBg, 1)], ["STORES", st.open.length / 12, k.a(T.altBg, 1)]], logTitle: "MALL PA", hint: "Charge the phone to switch the mall lights on.",
+      scene(k, x, y, w, h, small) {
+        winBox(k, x, y, w, h, "mall.exe")
+        const gx = x + 6, gy = y + 20, gw = w - 12, gh = h - 26, cw = gw / 4, ch = gh / 3
+        G.shops.forEach((s, i) => { const cx = gx + (i % 4) * cw, cy = gy + Math.floor(i / 4) * ch, on = st.open.includes(i); k.rect(cx + 2, cy + 2, cw - 4, ch - 4, on ? k.a([T.headBg, T.altBg, "#FFFB96"][i % 3], 0.85) : k.a("#101018", 0.12), k.a("#4A4A5A", 1), 0.6); if (!small && on) k.t(s.split(" ")[0], cx + cw / 2, cy + ch / 2 - 4, 5.5, k.a("#101018", 1), { a: "c", w: cw - 4 }) })
+        const fx = gx + gw / 2, fy = gy + gh / 2; k.circ(fx, fy, 6, k.a("#7FE3F0", 0.9), k.a("#101018", 1), 0.8); for (let i = 0; i < 4; i++) { const a = -Math.PI / 2 + (i - 1.5) * 0.5, l = 4 + Math.abs(Math.sin(TM + i)) * 4; k.ln([[fx, fy - 2], [fx + l * Math.cos(a), fy - 2 + l * Math.sin(a)]], k.a("#FFFFFF", 0.9), 0.8) }
+      } })
+  }
+}
+
+// WILDWOOD: tend a grove from seed to bloom
+GAMES.nature = {
+  title: "W-10 // The Grove",
+  visitors: ["a wren", "a red fox", "two deer", "a box turtle", "a great horned owl", "a hummingbird", "a rabbit", "a heron"],
+  init(now, prev) { return gRun(prev, { game: "nature", seed: (now % 233280) || 43, plants: [0, 0, 0, 0, 0, 0, 0, 0].map((_, i) => i < 2 ? 1 : 0), water: 70, sun: 60, sightings: [], season: 0, year: prev ? prev.year + 1 : 1 }) },
+  right(st, inp) { return inp.charging ? "Rain on the grove" : ["Spring", "Summer", "Autumn", "Winter"][st.season] },
+  step(st, inp) {
+    const r = gRng(st), G = GAMES.nature, night = inp.hour < 6 || inp.hour >= 21; st.turn++; if (st.turn % 12 === 0) st.season = (st.season + 1) % 4
+    if (inp.charging) { st.water += 25; gLog(st, "Rain fell on the grove. Soil soaked.") } else st.water -= 6
+    st.sun = night ? Math.max(0, st.sun - 10) : Math.min(100, st.sun + 8)
+    const e = r()
+    if (e < 0.3 && st.water > 25 && st.season !== 3) { const i = Math.floor(r() * 8); if (st.plants[i] < 4) { st.plants[i]++; gLog(st, st.plants[i] === 1 ? "A seed broke the soil." : st.plants[i] === 4 ? "Something bloomed overnight." : "New leaves unfurled.") } }
+    else if (e < 0.44) { const v = gPick(r, G.visitors); st.sightings = (st.sightings || []).concat([v]).slice(-6); gLog(st, `Spotted ${v} at the edge of the grove.`) }
+    else if (e < 0.52) { st.water -= 10; gLog(st, "Dry spell. The moss went quiet.") }
+    else if (e < 0.58 && st.season === 2) gLog(st, "Leaves turning. The grove smells like rain.")
+    else gLog(st, gPick(r, ["Listened. A woodpecker answered.", "Mushrooms after the night.", "A bee checked every flower twice."]))
+    if (st.water <= 0) { st.water = 0; const i = st.plants.findIndex(p => p > 0); if (i >= 0) { st.plants[i]--; gLog(st, "Thirsty. A plant wilted back.") } }
+    st.water = gClamp(st.water)
+    if (st.plants.every(p => p === 0) && st.turn > 3) { const best = Math.max(st.best || 0, st.sightings.length); Object.assign(st, G.init(Date.now() + st.turn, st)); st.best = best; gLog(st, "The grove rests. New seeds scattered on the wind.") }
+  },
+  paint(k, W, H, st, inp) {
+    const TM = Date.now() / 60000, A = k.a(T.altBg, 1), Gn = k.a(T.headBg, 1), blooms = st.plants.filter(p => p === 4).length
+    gFrame(k, W, H, st, { font: "disp", hot: A, kicker: inp.charging ? "RAIN // CHARGING" : ["SPRING", "SUMMER", "AUTUMN", "WINTER"][st.season], title: "The Grove", sub: `YEAR ${st.year} · BLOOMS ${blooms}/8 · ${(st.sightings || []).length} SIGHTINGS`, bars: [["WATER", st.water / 100, k.a("#5B8DB8", 1)], ["SUN", st.sun / 100, k.a("#E3B341", 1)], ["GROWTH", st.plants.reduce((a, b) => a + b, 0) / 32, Gn]], logTitle: "FIELD NOTES", hint: "Charge the phone to bring rain to the grove.",
+      scene(k, x, y, w, h, small) {
+        k.rect(x, y, w, h, k.a("#FFFDF6", 1), k.ia(0.25), 0.8); naTape(k, x + w / 2, y, 0)
+        const gy = y + h - 14; k.rect(x + 1, gy, w - 2, 13, k.a("#8B6A44", 0.35)); k.ln([[x, gy], [x + w, gy]], k.I, 0.8)
+        if (inp.charging) for (let i = 0; i < 18; i++) { const rx = x + 6 + (i * 37) % (w - 12), ry = y + 8 + ((TM * 10 + i * 13) % (gy - y - 12)); k.ln([[rx, ry], [rx - 1, ry + 4]], k.a("#5B8DB8", 0.7), 0.8) }
+        else { const sx = x + w - 20, sy = y + 16; for (let j = 0; j < 8; j++) { const a = j / 8 * Math.PI * 2 + TM / 10; k.ln([[sx + 7 * Math.cos(a), sy + 7 * Math.sin(a)], [sx + 10 * Math.cos(a), sy + 10 * Math.sin(a)]], k.a("#E3B341", 1), 0.9) } k.circ(sx, sy, 5, k.a("#E3B341", 1)) }
+        const sc = small ? 0.75 : Math.max(1, h / 80); st.plants.forEach((p, i) => { const px = x + 14 + i * (w - 28) / 7, sway = Math.sin(TM / 3 + i) * 1.5 * sc; if (p === 0) { k.circ(px, gy + 3, 1.5, k.ia(0.5)); return } const ht = [0, 10, 20, 32, 42][p] * sc; k.ln([[px, gy], [px + sway, gy - ht]], Gn, 1.2 * Math.min(1.6, sc)); for (let j = 1; j <= p; j++) { nLeaf(k, px + sway * j / p, gy - ht * j / (p + 1), (6 + j) * sc, -0.6, k.a(T.headBg, 0.85)); nLeaf(k, px + sway * j / p, gy - ht * j / (p + 1) + 2, (5 + j) * sc, Math.PI + 0.6, k.a(T.headBg, 0.7)) } if (p === 4) { for (let j = 0; j < 5; j++) { const a = j / 5 * Math.PI * 2; k.circ(px + sway + 3.2 * sc * Math.cos(a), gy - ht + 3.2 * sc * Math.sin(a), 2.4 * sc, A) } k.circ(px + sway, gy - ht, 1.8 * sc, k.a("#E3B341", 1)) } })
+        const v = (st.sightings || []).slice(-1)[0]; if (v) { const bx = x + 20 + ((TM * 5) % (w - 40)); k.ell(bx, y + 30 + Math.sin(TM) * 4, 4, 2.5, k.I); k.poly([[bx - 2, y + 30 + Math.sin(TM) * 4], [bx - 7, y + 26 + Math.sin(TM * 3) * 3], [bx + 1, y + 29]], k.I) }
+      } })
+  }
+}
+
+// LONG ODDS: a bankroll trading existential markets
+GAMES.market = {
+  title: "W-10 // THE BANKROLL",
+  init(now, prev) { const st = gRun(prev, { game: "market", seed: (now % 233280) || 47, bank: 1000, peak: 1000, streak: 0, wins: 0, losses: 0, pos: [], curve: [1000] }); for (let i = 0; i < 3; i++) GAMES.market.open(st, gRng(st)); return st },
+  open(st, r) { const q = gPick(r, MK_QS), p = 0.06 + r() * 0.88, side = r() < 0.6 ? "YES" : "NO", stake = Math.round(Math.max(20, st.bank * (0.05 + r() * 0.15))); st.pos.push({ q, p, side, stake }); st.bank -= stake },
+  right(st, inp) { return inp.charging ? "MARGIN TOP-UP" : `$${Math.round(st.bank)}` },
+  step(st, inp) {
+    const r = gRng(st), G = GAMES.market; st.turn++
+    if (inp.charging) { st.bank += 500; gLog(st, "Margin topped up. +$500. The void approves.") }
+    if (st.pos.length) { const ps = st.pos.shift(), price = ps.side === "YES" ? ps.p : 1 - ps.p, won = r() < price * 0.98; if (won) { const pay = Math.round(ps.stake / price); st.bank += pay; st.wins++; st.streak = Math.max(1, st.streak + 1); gLog(st, `"${ps.q}" resolved ${ps.side}. +$${pay - ps.stake}.`) } else { st.losses++; st.streak = Math.min(-1, st.streak - 1); gLog(st, `"${ps.q}" resolved ${ps.side === "YES" ? "NO" : "YES"}. -$${ps.stake}.`) } }
+    if (r() < 0.35) gLog(st, `BREAKING: ${mkNews(Math.floor(r() * 60))}`)
+    while (st.pos.length < 3 && st.bank > 20) G.open(st, r)
+    st.peak = Math.max(st.peak, st.bank + st.pos.reduce((a, b) => a + b.stake, 0)); st.curve = (st.curve || []).concat([st.bank + st.pos.reduce((a, b) => a + b.stake, 0)]).slice(-30)
+    if (st.bank <= 20 && st.pos.length === 0) { const best = Math.max(st.best || 0, Math.round(st.peak)); Object.assign(st, G.init(Date.now() + st.turn, st)); st.best = best; gLog(st, "LIQUIDATED. The universe opens you a new account.") }
+  },
+  paint(k, W, H, st, inp) {
+    const TM = Date.now() / 60000, Y = k.a(T.altBg, 1), V = k.a(T.accent, 1), NO = mkNo(), eq = st.bank + st.pos.reduce((a, b) => a + b.stake, 0)
+    gFrame(k, W, H, st, { font: "disp", hot: V, kicker: inp.charging ? "MARGIN TOP-UP // CHARGING" : st.streak >= 3 ? `HOT STREAK · ${st.streak} 🔥` : st.streak <= -3 ? "COLD STREAK" : "POSITIONS OPEN", title: `$${Math.round(eq).toLocaleString("en-US")}`, sub: `W ${st.wins} · L ${st.losses} · PEAK $${Math.round(st.peak)} · BEST $${st.best || 0}`, bars: st.pos.slice(0, 3).map(p => [p.side + " " + p.q.replace("Will ", "").slice(0, 26).toUpperCase(), p.side === "YES" ? p.p : 1 - p.p, p.side === "YES" ? Y : NO]), logTitle: "RESOLUTIONS", hint: "CHARGE THE PHONE TO TOP UP YOUR MARGIN",
+      scene(k, x, y, w, h, small) {
+        mkCard(k, x, y, w, h)
+        const c = st.curve || [eq], mn = Math.min(...c), mx = Math.max(...c, mn + 1), base = small ? y + h - 8 : y + h - 16, pts = c.map((v, i) => [x + 8 + i * (w - 16) / Math.max(1, c.length - 1), base - (v - mn) / (mx - mn) * (base - y - 22)])
+        const up = c[c.length - 1] >= c[0], col = up ? T.altBg : "#FF2D55"
+        if (pts.length > 1) { k.poly(pts.concat([[pts[pts.length - 1][0], base], [pts[0][0], base]]), k.a(col, 0.14)); k.ln(pts, k.a(col, 0.35), 3); k.ln(pts, k.a(col, 1), 1.3) }
+        const last = pts[pts.length - 1]; k.circ(last[0], last[1], 3 + (TM % 3), null, k.a(col, 0.5), 1); k.circ(last[0], last[1], 2, k.a(col, 1))
+        k.t("EQUITY // LAST 30 RESOLUTIONS", x + 8, y + 6, 6, k.S, { w: w - 16 })
+        if (!small) mkWhale(k, x + 6, y + h - 9, w - 12, `BREAKING · ${mkNews(Math.floor(TM / 30)).toUpperCase()}`)
+      } })
+  }
+}
+function gameSample2(f) { return gameSample(f) }
 const THEME_PAINT = { directive: DIR, longroad: LR, nightfall: NF, grimoire: GM, deeprange: DRG, halcyon: HAL, rabbit: RB, cyber: CY, vapor: VP, nature: NA, market: MK }
 Object.keys(GAMES).forEach(f => { if (THEME_PAINT[f]) { THEME_PAINT[f].game = (k, W, H, d) => GAMES[f].paint(k, W, H, d.st, d.inp); THEME_PAINT[f].gameSample = () => gameSample(f) } })
 
@@ -4474,7 +4776,7 @@ const PRESETS = {
     colors: { ground: '#06070B', ink: '#F2F4F8', accent: '#8B5CF6', glow: '#00FF88', panel: '#10121A', alert: '#FF2D55' },
     fonts: { display: 'Archivo', mono: 'JetBrains Mono' },
     motif: 'market', texture: 'scan', marks: 'none', iconStyle: 'contract', glyphs: 'market', units: 'fahrenheit', upper: true,
-    phrases: [['Raccoon Elected', 'Mayor?'], ['Moon Files For', 'Bankruptcy?'], ['Your Toaster', 'Gains Sentience?'], ['Gravity Takes', 'Friday Off?']],
+    phrases: [['Will Today', 'Happen Twice?'], ['Does The Void', 'Take Bets?'], ['Will You Remember', 'This Tuesday?'], ['Is Tomorrow', 'Priced In?']],
     text: { tagL: 'LONG ODDS // DEGEN EXCHANGE', tagR: 'LIVE', sub: 'Not financial advice. Barely advice.', foot: 'LONG ODDS // 24/7/365 // NO BRAKES', homeTop: 'WHALES ARE MOVING', caption: 'Bet small. Dream huge.' },
     codes: { camera: 'SCOUT', photos: 'PNL', maps: 'ROUTE', calendar: 'EXPIRY', phone: 'WHALE', messages: 'ALPHA', browser: 'MARKETS', music: 'PUMP', youtube: 'REPLAY', instagram: 'HYPE', discord: 'PIT' },
     widget: {
@@ -5824,6 +6126,226 @@ const QUOTE_PACKS = {
 "odds": {
 "slogans": [
 [
+"Everything Resolves Eventually",
+"CLEARING HOUSE"
+],
+[
+"The Void Is A Counterparty",
+"MARKET MAKING"
+],
+[
+"Meaning Is Thinly Traded",
+"RESEARCH"
+],
+[
+"Price The Unpriceable",
+"EXOTICS DESK"
+],
+[
+"Time Is Not Financial Advice",
+"COMPLIANCE"
+],
+[
+"Tomorrow Is A Derivative Of Today",
+"QUANT DESK"
+],
+[
+"Hedge Against Yesterday",
+"RISK OFFICE"
+],
+[
+"The Universe Has No Stop Loss",
+"RISK OFFICE"
+],
+[
+"Your Odds Are Someone Else's Certainty",
+"STRATEGY"
+],
+[
+"Nothing Is Settled Until It Is",
+"CLEARING HOUSE"
+],
+[
+"Bet On The Present. It Expires Soon.",
+"LIVE DESK"
+],
+[
+"Infinity Trades At A Discount",
+"TREASURY"
+],
+[
+"Fate Accepts Limit Orders",
+"EXOTICS DESK"
+],
+[
+"Every Moment Is A Market",
+"LIVE DESK"
+],
+[
+"You Are The Long Shot",
+"LONGSHOT DESK"
+],
+[
+"The Sun Is Also A Position",
+"ASTRO DESK"
+],
+[
+"Probability Loves A Mystery",
+"QUANT DESK"
+],
+[
+"Doubt Has Excellent Liquidity",
+"MARKET MAKING"
+],
+[
+"The Past Is Closed For Trading",
+"CLEARING HOUSE"
+],
+[
+"Certainty Has Been Delisted",
+"COMPLIANCE"
+],
+[
+"Even Silence Has A Spread",
+"MARKET MAKING"
+],
+[
+"Entropy Always Wins The Close",
+"RESEARCH"
+],
+[
+"Your Shadow Is Short",
+"TECHNICAL ANALYSIS"
+],
+[
+"Today Is Volatile. So Are You.",
+"LIVE DESK"
+],
+[
+"Long The Mystery, Short The Answer",
+"STRATEGY"
+],
+[
+"Odds Are Just Stories With Numbers",
+"RESEARCH"
+],
+[
+"The Clock Is A Market Maker",
+"CLEARING HOUSE"
+],
+[
+"Dreams Settle At Dawn",
+"NIGHT DESK"
+],
+[
+"Bet On Yourself, Then Forget",
+"BEHAVIORAL DESK"
+],
+[
+"Nothing Lasts. Price Accordingly.",
+"RISK OFFICE"
+],
+[
+"Nobody Knows. Everyone Trades.",
+"TRADING FLOOR"
+],
+[
+"The Moon Doesn't Hedge",
+"ASTRO DESK"
+],
+[
+"Tuesday Is Not Guaranteed",
+"CLEARING HOUSE"
+],
+[
+"Reality Is In Price Discovery",
+"RESEARCH"
+],
+[
+"Yes, No, Maybe, Forever",
+"PRODUCT"
+],
+[
+"The Universe Settles In Cash",
+"TREASURY"
+],
+[
+"Uncertainty Is The Only Asset",
+"STRATEGY"
+],
+[
+"Consciousness Is A Bull Market",
+"HYPE DEPARTMENT"
+],
+[
+"Every Ending Is Just An Expiry",
+"CLEARING HOUSE"
+],
+[
+"The Void Never Sleeps Either",
+"NIGHT DESK"
+],
+[
+"Ask The Stars. They Charge Fees.",
+"ASTRO DESK"
+],
+[
+"Somewhere It Already Resolved",
+"CLEARING HOUSE"
+],
+[
+"Your Future Self Is Watching The Chart",
+"BEHAVIORAL DESK"
+],
+[
+"Odds Are, You're Still Here",
+"WELLNESS DESK"
+],
+[
+"History Is A Settled Market",
+"RESEARCH"
+],
+[
+"The Present Is Thinly Traded",
+"LIVE DESK"
+],
+[
+"Gravity Never Misses A Margin Call",
+"RISK OFFICE"
+],
+[
+"The Infinite Is Out Of Stock",
+"TREASURY"
+],
+[
+"Bet Small. Wonder Big.",
+"HYPE DEPARTMENT"
+],
+[
+"The Horizon Is A Moving Average",
+"TECHNICAL ANALYSIS"
+],
+[
+"We Trade In Maybes",
+"MARKET MAKING"
+],
+[
+"Time Is The Only Whale",
+"WHALE WATCH"
+],
+[
+"Every Yes Contains A No",
+"COMPLIANCE"
+],
+[
+"The Answer Is Pending Review",
+"CLEARING HOUSE"
+],
+[
+"Long Wonder",
+"STRATEGY"
+],
+[
 "Sleep Is For People With Stop Losses",
 "NIGHT DESK"
 ],
@@ -5945,6 +6467,42 @@ const QUOTE_PACKS = {
 ]
 ],
 "archive": [
+{
+"t": "Man is only a reed, the weakest in nature, but he is a thinking reed.",
+"by": "BLAISE PASCAL · PENSÉES · 1670"
+},
+{
+"t": "All of humanity's problems stem from man's inability to sit quietly in a room alone.",
+"by": "BLAISE PASCAL · PENSÉES · 1670 (TR.)"
+},
+{
+"t": "Life can only be understood backwards; but it must be lived forwards.",
+"by": "SØREN KIERKEGAARD · JOURNALS · 1843"
+},
+{
+"t": "He who has a why to live can bear almost any how.",
+"by": "FRIEDRICH NIETZSCHE · TWILIGHT OF THE IDOLS · 1889"
+},
+{
+"t": "To live is the rarest thing in the world. Most people exist, that is all.",
+"by": "OSCAR WILDE · 1891"
+},
+{
+"t": "All the world's a stage, and all the men and women merely players.",
+"by": "SHAKESPEARE · AS YOU LIKE IT · 1599"
+},
+{
+"t": "To be, or not to be, that is the question.",
+"by": "SHAKESPEARE · HAMLET · 1603"
+},
+{
+"t": "Life's but a walking shadow, a poor player that struts and frets his hour upon the stage.",
+"by": "SHAKESPEARE · MACBETH · 1606"
+},
+{
+"t": "Loss is nothing else but change, and change is Nature's delight.",
+"by": "MARCUS AURELIUS · MEDITATIONS · TR. LONG 1862"
+},
 {
 "t": "In this world nothing can be said to be certain, except death and taxes.",
 "by": "BENJAMIN FRANKLIN · LETTER · 1789"
@@ -8201,7 +8759,7 @@ function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
   ctx.fillStyle = hexA(c.ink, 0.035 * k.texture); for (let y = 0; y < Hl; y += 3) ctx.fillRect(0, y, 390, 1)
   for (let i = 0; i < 70; i++) { ctx.fillStyle = hexA([YES, V, NO, '#FFD84A'][i % 4], 0.35 + r() * 0.5); const x = r() * 390, y = r() * Hl, w = 2 + r() * 3; ctx.save(); ctx.translate(x, y); ctx.rotate(r() * 3); ctx.fillRect(-w / 2, -1, w, 2); ctx.restore() }
   const glowText = (str, x, y, size, col, align, fam, wt) => { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = 14 * k.glow; spaced(ctx, str, x, y, size, fam || disp, wt || dw, 0, align || 'center', col); ctx.restore() }
-  const tick = ['RACCOON MAYOR 37¢ ▲12', 'MOON BANKRUPT 9¢ ▼4', 'TOASTER SENTIENT 58¢ ▲31', 'GEESE UNIONIZE 81¢ ▲9', 'TUESDAY CANCELLED 44¢ ▼3', 'SUN GHOSTS US 3¢ ▲1', 'PIGEON HEIST 66¢ ▲22', 'WHALE BUYS YES $250K']
+  const tick = ['TODAY HAPPENS TWICE 12¢ ▲4', 'VOID TAKES BETS 61¢ ▲9', 'MEANING > 40¢ 33¢ ▼6', 'BLUE DISCONTINUED 8¢ ▲2', 'YOU ARE A RUMOR 47¢ ▲11', 'TIME MOVES SIDEWAYS 19¢ ▲3', 'SEA FORGETS ITS NAME 5¢ ▼1', 'TOMORROW PRICED IN 71¢ ▲8']
   const ty = mode === 'lock' ? Hl - 66 : 676; ctx.fillStyle = hexA(V, 0.9); ctx.fillRect(0, ty, 390, 22); spaced(ctx, tick.join('   ★   '), 12, ty + 15, 8.5, mono, 600, 0.02, 'left', '#FFFFFF')
   const lev = ['1X', '5X', '25X', '100X']
   if (mode === 'lock') {
@@ -8233,11 +8791,14 @@ function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
     })
     if (k.details) {
       const bets = [['@degen_42', '$1,200', 'YES', '25X', YES], ['@paperhands', '$40', 'NO', '1X', NO], ['@moonboi', '$9,999', 'YES', '100X', YES], ['@rekt_again', '$300', 'NO', '50X', NO]]
-      spaced(ctx, 'LIVE BETS · ' + ['RACCOON FOR MAYOR', 'LUNAR BANKRUPTCY', 'SENTIENT TOASTER', 'GRAVITY STRIKE'][phraseIdx % 4], 22, 556, 7.5, mono, 700, 0.12, 'left', V)
+      spaced(ctx, 'LIVE BETS · ' + ['TODAY, TWICE', 'THE VOID', 'THIS TUESDAY', 'TOMORROW'][phraseIdx % 4], 22, 556, 7.5, mono, 700, 0.12, 'left', V)
       bets.forEach(([u, amt, side, l, col], i) => { const y = 572 + i * 16; spaced(ctx, u, 22, y, 8, mono, 500, 0, 'left', hexA(c.ink, 0.75)); spaced(ctx, amt, 170, y, 8, mono, 700, 0, 'left', c.ink); spaced(ctx, side, 236, y, 8, mono, 800, 0, 'left', col); spaced(ctx, l, 280, y, 8, mono, 700, 0, 'left', V); spaced(ctx, `${1 + i * 3}s`, 368, y, 7.5, mono, 500, 0, 'right', hexA(c.ink, 0.45)) })
     }
-    spaced(ctx, T.sub || '', 195, 652, 9, mono, 600, 0.06, 'center', hexA(c.ink, 0.6))
-    if (k.details) spaced(ctx, T.foot || '', 195, Hl - 82, 7, mono, 600, 0.18, 'center', hexA(c.ink, 0.5))
+    const NEWS = [['Tuesday delisted after failing to happen twice.', 'The void announces a loyalty program.'], ['Scientists confirm the void is accepting limit orders.', 'Your reflection files for independence.'], ['Study: 4 in 5 memories are from a slightly different timeline.', 'The past is still there, just closed to visitors.'], ['Tomorrow postponed for lack of interest.', 'Analysts unable to locate the present.']][phraseIdx % 4]
+    NEWS.forEach((txt, i) => { const ny = 656 + i * 50; ctx.save(); ctx.fillStyle = hexA(c.panel, 0.88); ctx.shadowColor = hexA('#000000', 0.4); ctx.shadowBlur = 12; ctx.beginPath(); ctx.roundRect(14, ny, 362, 44, 14); ctx.fill(); ctx.restore(); ctx.strokeStyle = hexA(V, 0.35); ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(14, ny, 362, 44, 14); ctx.stroke()
+      ctx.fillStyle = V; ctx.beginPath(); ctx.roundRect(24, ny + 8, 28, 28, 7); ctx.fill(); spaced(ctx, 'LO', 38, ny + 26, 10, disp, 800, 0, 'center', '#FFFFFF')
+      spaced(ctx, i ? 'LONG ODDS · MARKETS' : 'LONG ODDS · BREAKING', 60, ny + 18, 7.5, mono, 700, 0.08, 'left', i ? hexA(c.ink, 0.6) : NO); spaced(ctx, i ? `${3 + phraseIdx}m ago` : 'now', 366, ny + 18, 7.5, mono, 500, 0, 'right', hexA(c.ink, 0.5))
+      let t2 = txt; while (measureSpaced(ctx, t2, 10, mono, 500, 0) > 300 && t2.length > 8) t2 = t2.slice(0, -2); if (t2 !== txt) t2 = t2.trimEnd() + '…'; spaced(ctx, t2, 60, ny + 34, 10, mono, 500, 0, 'left', c.ink) })
   } else {
     centerXform(ctx, th, 195, 430, () => {
       const rx = 70, ry = 286, rw = 250, rh = 74
@@ -8247,7 +8808,7 @@ function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
       const y0 = 400, h = 150, mid = 195, bid = [], ask = []; let a = 0, b2 = 0
       for (let i = 0; i <= 20; i++) { a += 2 + r() * 7; bid.push([mid - 8 - i * 8.4, y0 + h - a]); b2 += 2 + r() * 7; ask.push([mid + 8 + i * 8.4, y0 + h - b2]) }
       const area = (pts, col) => { ctx.fillStyle = hexA(col, 0.2); ctx.beginPath(); ctx.moveTo(pts[0][0], y0 + h); pts.forEach(([x, y]) => ctx.lineTo(x, y)); ctx.lineTo(pts[pts.length - 1][0], y0 + h); ctx.closePath(); ctx.fill(); ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.shadowColor = col; ctx.shadowBlur = 10 * k.glow; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.restore() }
-      area(bid, YES); area(ask, NO); glowText('62¢', mid, y0 - 8, 16, c.ink); spaced(ctx, 'WILL GEESE UNIONIZE BY FRIDAY?', mid, y0 - 30, 10, disp, dw, 0.02, 'center', hexA(c.ink, 0.85))
+      area(bid, YES); area(ask, NO); glowText('62¢', mid, y0 - 8, 16, c.ink); spaced(ctx, 'WILL THE SEA FORGET ITS NAME?', mid, y0 - 30, 10, disp, dw, 0.02, 'center', hexA(c.ink, 0.85))
       ctx.save(); ctx.translate(285, 520); ctx.rotate(-0.22); ctx.strokeStyle = NO; ctx.lineWidth = 2.5; ctx.strokeRect(-56, -16, 112, 30); spaced(ctx, 'LIQUIDATED', 0, 5, 14, mono, 800, 0.1, 'center', NO); ctx.restore()
     })
     if (k.details) spaced(ctx, T.homeTop || '', 195, 236, 8, mono, 700, 0.2, 'center', V)
@@ -8564,7 +9125,7 @@ const ODD_INFO = {
   hostile: ['Hostile Intel', 'A field-guide entry on a made-up enemy: silhouette, threat level, armor, aggression and cowardice, its weakness and a tactical tip.'],
   spell: ['Spell of the Hour', 'A fake spell card: school, rarity (sometimes cursed), essence cost, casting time, the effect and the side effect.'],
   market: ['Black Market', 'The deal of the hour: a questionable item, its seller and rating, the price in credits, its condition, a warranty of none and a risk meter.'],
-  bet: ['Longshot Of The Hour', 'An outrageous prediction market (will the moon file for bankruptcy?) with YES and NO prices, the payout multiplier, volume, leverage and your position.'],
+  bet: ['Longshot Of The Hour', 'An existential prediction market (does the void take bets?) with YES and NO prices, the payout multiplier, volume, leverage and your position.'],
   tip: ['Tip Of The Hour', 'A cheerful, true little fact with an optimism reading, bubbles popped and clouds rendered.'],
   mall: ['Mall Directory', 'A store of the hour on a little mall map: its status (often closed since 1997), floor, coins in the fountain and the song on the speakers.'],
   species: ['Field Guide', 'A species of the hour with its Latin name, where to look for it, a real fact and a rarity meter.'],
@@ -8574,6 +9135,19 @@ const ODD_INFO = {
 };
 function frameFor(th) { return ({ globe: 'halcyon', radar: 'halcyon', alert: 'directive', map: 'longroad', night: 'nightfall', grimoire: 'grimoire', orbital: 'deeprange', rabbit: 'rabbit', neon: 'cyber', market: 'market', vapor: 'vapor', botanical: 'nature' }[th.motif] || 'halcyon'); }
 function oddityFor(th) { return th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', rabbit: 'heist', neon: 'market', market: 'bet', vapor: 'mall', botanical: 'species' }[th.motif] || 'mood'); }
+const GAME_META = {
+  halcyon: ['W-10 // SPECIMEN VAT', 'Specimen Vat', 'A specimen grows in a vat, one cycle per refresh. Plugging your phone in feeds it, busy calendar days stress it, nights let it rest. It mutates, climbs five stages and gets recycled if neglected.'],
+  deeprange: ['W-10 // SALVAGE RUN', 'Salvage Run', 'An autonomous drone jumps across the sector each refresh: derelicts, asteroids, pirates, signals, cargo. Charging docks it to refuel. Lose the hull or fuel and a new drone launches.'],
+  longroad: ['W-10 // THE EXPEDITION', 'The Expedition', 'A traveller walks the map one stretch per refresh and keeps a journal: villages, bandits, wolves, merchants. Charging (or nightfall) makes camp. If they fall, someone new sets out.'],
+  directive: ['W-10 // SHELTER 9', 'Shelter 9', 'Keep an underground shelter running: survivors arrive, supplies drop, sirens sound and morale rises and falls. Charging restores the power grid. Lose power or morale and the next shelter is unsealed.'],
+  nightfall: ['W-10 // NIGHT PATROL', 'Night Patrol', 'A four-trooper squad patrols the rainy city sector by sector, trading fire, finding intel and caches. Charging calls a resupply drop. Run out of ammo and the squad is extracted.'],
+  grimoire: ['W-10 // THE APPRENTICE', 'The Apprentice', 'An apprentice studies through the night: spells join a constellation, familiars arrive, cauldrons misbehave, ranks rise to Starbound. Charging fills the moonwell with mana.'],
+  rabbit: ['W-10 // THE LONG CON', 'The Long Con', 'The legion cases and lifts all seven heirlooms, leaving a calling card each time, while the heat climbs. Charging lays low at the safehouse. Too much heat and the legion scatters.'],
+  cyber: ['W-10 // TOWER RUN', 'Tower Run', 'A netrunner climbs a 100-floor corp tower by breaching ICE, pulling paydata and buying chrome while the trace closes in. Charging recharges RAM. Get traced and a new handle takes over.'],
+  vapor: ['W-10 // MALL.EXE', 'Mall.exe', 'Keep the eternal mall open: stores open (and close since 1997), shoppers drift, the fountain fills with coins. Charging switches the lights on. Let the vibe die and a new mall opens forever.'],
+  nature: ['W-10 // THE GROVE', 'The Grove', 'Seeds sprout, leaves unfurl and flowers bloom across the seasons while wrens, foxes and owls stop by. Charging brings rain. If everything wilts, new seeds scatter on the wind.'],
+  market: ['W-10 // THE BANKROLL', 'The Bankroll', 'Your bankroll trades existential markets on its own: positions open and resolve each refresh, with breaking news in between. Charging tops up your margin. Hit zero and the universe opens a new account.']
+};
 function widgetList(th) {
   const L = th.widget.L, o = ODD_INFO[oddityFor(th)];
   return [
@@ -8585,7 +9159,7 @@ function widgetList(th) {
     { mode: 'feeds', size: 'medium', title: labelFor(th, 'feeds', 'W-06 // NEURAL LINK'), name: niceName(labelFor(th, 'feeds', 'Neural Link')), tap: 'Each half opens its own app', desc: 'Two halves that open YouTube and Instagram, each with made-up in-world meters and a live trace.' },
     { mode: 'youtube', size: 'any size', title: labelFor(th, 'vid', 'W-06 // VID'), name: niceName(labelFor(th, 'vid', 'YouTube')), tap: 'Open URL youtube://', desc: 'A YouTube launcher drawn as its own in-world object, with a rotating line and made-up viewing stats. Changes about every 30 minutes.' },
     { mode: 'instagram', size: 'any size', title: labelFor(th, 'obs', 'W-07 // OBS'), name: niceName(labelFor(th, 'obs', 'Instagram')), tap: 'Open URL instagram://app', desc: 'An Instagram launcher with its own design: a gallery of in-world portraits or cards and tongue-in-cheek social stats.' },
-    ...(['halcyon', 'deeprange', 'longroad'].includes(frameFor(th)) ? [{ mode: 'game', size: 'any size (medium or large best)', title: { halcyon: 'W-10 // SPECIMEN VAT', deeprange: 'W-10 // SALVAGE RUN', longroad: 'W-10 // THE EXPEDITION' }[frameFor(th)], name: { halcyon: 'Specimen Vat', deeprange: 'Salvage Run', longroad: 'The Expedition' }[frameFor(th)], tap: 'Leave as is (it opens Scriptable; the game plays itself)', desc: { halcyon: 'A specimen grows in a vat, one cycle per refresh. Plugging your phone in feeds it, busy calendar days stress it, nights let it rest. It mutates, levels up through five stages, and gets recycled if neglected.', deeprange: 'An autonomous salvage drone jumps across the sector each refresh, finding derelicts, dodging asteroids and pirates, decoding signals and selling cargo. Plugging your phone in docks it to refuel. Lose the hull or fuel and a new drone launches.', longroad: 'A traveller walks the map one stretch per refresh, meeting villages, bandits, wolves and merchants, and keeping a journal. Plugging your phone in (or nightfall) makes camp to heal. If they fall, a new traveller sets out.' }[frameFor(th)] }] : []),
+    ...(GAME_META[frameFor(th)] ? [{ mode: 'game', size: 'any size (medium or large best)', title: GAME_META[frameFor(th)][0], name: GAME_META[frameFor(th)][1], tap: 'Leave as is (it opens Scriptable; the game plays itself)', desc: GAME_META[frameFor(th)][2] }] : []),
     { mode: 'discord', size: 'any size', title: labelFor(th, 'dc', 'W-09 // SYNC'), name: niceName(labelFor(th, 'dc', 'Discord')), tap: 'Open URL discord://', desc: 'A Discord launcher shown as an in-world gathering, with who is around, a few channels and unread marks. All for show; nothing is read from your account.' },
     { mode: 'oddity', size: 'small or medium', title: 'W-08 // ' + o[0].toUpperCase(), name: o[0], tap: 'Leave as is', desc: o[1] + ' Purely for fun, and it changes about every 30 minutes.' }
   ];
@@ -8826,7 +9400,7 @@ function previewWidget(item, th) {
       const Kx = scriptableKit(th);
       const V = { bet: (x) => { let v = 0.5; for (let i = 0; i < 9; i++) { const o = v; v = Math.max(0.1, Math.min(0.9, v + Math.sin(i * 1.3) * 0.2)); x.fillStyle = v >= o ? wc.altBg : '#E8384F'; const yt = 12 + 40 * (1 - Math.max(o, v)), yb = 12 + 40 * (1 - Math.min(o, v)); x.fillRect(8 + i * 7, yt, 5, Math.max(2, yb - yt)); } x.fillStyle = hexA(wc.altBg, 0.8); x.fillRect(6, 62, 44, 9); x.fillStyle = 'rgba(232,56,79,.6)'; x.fillRect(50, 62, 24, 9); }, market: (x) => { x.strokeStyle = wc.headBg; x.lineWidth = 1.4; x.strokeRect(6, 24, 68, 40); x.fillStyle = hexA(wc.accent, 0.5); x.beginPath(); x.moveTo(26, 44); x.lineTo(40, 34); x.lineTo(54, 44); x.lineTo(40, 54); x.closePath(); x.fill(); x.fillStyle = wc.altBg; x.font = `700 11px ${mono}`; x.textAlign = 'center'; x.fillText('499c', 40, 16); }, tip: (x) => { x.fillStyle = hexA(wc.headBg, 0.25); x.strokeStyle = '#FFFFFF'; x.lineWidth = 1.4; x.beginPath(); x.arc(40, 40, 34, 0, Math.PI * 2); x.fill(); x.stroke(); x.fillStyle = '#FFF6B0'; x.beginPath(); x.arc(40, 38, 11, 0, Math.PI * 2); x.fill(); }, mall: (x) => { x.fillStyle = '#C3C3D0'; x.fillRect(4, 10, 72, 64); [wc.headBg, wc.altBg, '#FFFB96', wc.headBg, wc.altBg, '#FFFB96'].forEach((c2, i) => { x.globalAlpha = i === 2 ? 1 : 0.4; x.fillStyle = c2; x.fillRect(10 + (i % 3) * 22, 20 + Math.floor(i / 3) * 22, 18, 18); }); x.globalAlpha = 1; }, species: (x) => { x.fillStyle = wc.panel; x.strokeStyle = hexA(wc.ink, 0.6); x.beginPath(); x.arc(40, 40, 34, 0, Math.PI * 2); x.fill(); x.stroke(); x.fillStyle = wc.headBg; x.beginPath(); x.moveTo(22, 50); x.quadraticCurveTo(36, 30, 50, 40); x.quadraticCurveTo(36, 52, 22, 50); x.fill(); } }[t];
       r2.append(vis(80, V));
-      const P2 = { bet: ['MARKET #4417 · RESOLVES TONIGHT', 'Will a raccoon be elected mayor by Friday?', 'YES 37¢ · NO 63¢', [['PAYOUT', 'x1.6'], ['LEVERAGE', '25X'], ['YOUR POSITION', 'ALL IN']], 'NOT FINANCIAL ADVICE'], market: ['SELLER @gl1tch · ★4.6', 'Used Optic Mod (Slightly Haunted)', '499 CREDITS · REFURBISHED', [['WARRANTY', 'NONE'], ['RETURNS', 'LOL']], 'MEET AT THE NOODLE STAND'], tip: ['DID YOU KNOW?', 'Sea otters hold hands while they sleep.', '', [['OPTIMISM', '97%'], ['BUBBLES POPPED', '212']], 'HAVE A GREAT DAY'], mall: ['STORE OF THE HOUR', 'Sunset Video', 'CLOSED SINCE 1997', [['FLOOR', 'LEVEL 2'], ['FOUNTAIN COINS', '641']], 'NOW PLAYING: FOOD COURT WALTZ'], species: ['SPOTTED BY THE CREEK', 'Great Horned Owl', 'Bubo virginianus', [['FACT', "Its 'horns' are feather tufts."]], "LOOK, DON'T DISTURB"] }[t];
+      const P2 = { bet: ['MARKET #4417 · RESOLVES TONIGHT', 'Will today happen twice?', 'YES 12¢ · NO 88¢', [['PAYOUT', 'x1.6'], ['LEVERAGE', '25X'], ['YOUR POSITION', 'ALL IN']], 'NOT FINANCIAL ADVICE'], market: ['SELLER @gl1tch · ★4.6', 'Used Optic Mod (Slightly Haunted)', '499 CREDITS · REFURBISHED', [['WARRANTY', 'NONE'], ['RETURNS', 'LOL']], 'MEET AT THE NOODLE STAND'], tip: ['DID YOU KNOW?', 'Sea otters hold hands while they sleep.', '', [['OPTIMISM', '97%'], ['BUBBLES POPPED', '212']], 'HAVE A GREAT DAY'], mall: ['STORE OF THE HOUR', 'Sunset Video', 'CLOSED SINCE 1997', [['FLOOR', 'LEVEL 2'], ['FOUNTAIN COINS', '641']], 'NOW PLAYING: FOOD COURT WALTZ'], species: ['SPOTTED BY THE CREEK', 'Great Horned Owl', 'Bubo virginianus', [['FACT', "Its 'horns' are feather tufts."]], "LOOK, DON'T DISTURB"] }[t];
       const c = pv('div', 'flex:1;display:flex;flex-direction:column;gap:2px'); c.append(lbl(P2[0], 8), big(P2[1], 14)); if (P2[2]) c.append(pv('span', `font-size:8px;color:${wc.headBg}`, P2[2])); P2[3].forEach(([k2, v2]) => c.append(kvr(k2, v2)));
       r2.append(c); bd.append(r2, pv('div', 'flex:1'), lbl(P2[4], 8));
     } else if (t === 'heist') {

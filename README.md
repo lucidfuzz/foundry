@@ -30,7 +30,7 @@ Every theme exports one Scriptable script that holds all of its widgets, drawn i
 | `feeds` | Neural Link | medium | YouTube and Instagram launchers with joke brain-chemistry meters |
 | `youtube` | YouTube | any | A YouTube launcher drawn as its own in-world object |
 | `instagram` | Instagram | any | An Instagram launcher with its own gallery design |
-| `game` | Game (Halcyon, Deep Range, The Long Road) | medium or large | A little game that plays itself, one turn per refresh. Plugging your phone in is the only control |
+| `game` | Idle game (every theme) | medium or large | A little game that plays itself, one turn per refresh. Plugging your phone in is the only control |
 | `discord` | Discord | any | A Discord launcher shown as an in-world gathering (nothing is read from your account) |
 | `oddity` | Theme oddity | small or medium | A useless, on-theme joke widget that changes about every 30 minutes |
 
