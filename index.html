@@ -81,6 +81,7 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
 .btn.primary { background: var(--accent); color: var(--accent-ink); box-shadow: 3px 3px 0 var(--text); }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
 .btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.btns[hidden] { display: none; }
 .status { font-size: 14px; color: var(--muted); min-height: 1.4em; }
 .stage-card { background: var(--surface); border: 2px solid var(--text); border-radius: 22px; padding: 14px; }
 .fab, .stage-head { display: none; }
@@ -282,7 +283,7 @@ body.insp-open { overflow: hidden; }
           </div>
           <div class="exp-group">
             <h3>Everything at once</h3>
-            <p>One zip with all four lock screens, the home wallpaper and its six rotating frames, eleven icons, the widget script and an install guide.</p>
+            <p>One zip with all four lock screens, the home wallpaper (plus six rotating frames for themes that have them), eleven icons, the widget script and an install guide.</p>
             <div class="btns"><button type="button" class="btn primary" id="btn-zip">Download theme pack</button></div>
           </div>
           <div class="exp-group">
@@ -328,7 +329,7 @@ body.insp-open { overflow: hidden; }
         </div>
         <div id="view-home" hidden>
           <div class="phone" id="home-phone"><canvas id="pv-home" width="390" height="844"></canvas><div class="ui" id="home-ui"></div><span class="zoom-chip" aria-hidden="true">⤢ Tap to inspect</span></div>
-          <div class="btns" style="justify-content:center;margin-top:10px" role="group" aria-label="Home frame">
+          <div class="btns" id="home-frames" style="justify-content:center;margin-top:10px" role="group" aria-label="Home frame (this theme draws six different ones)">
             <button type="button" class="btn" data-frame="0">1</button><button type="button" class="btn" data-frame="1">2</button><button type="button" class="btn" data-frame="2">3</button><button type="button" class="btn" data-frame="3">4</button><button type="button" class="btn" data-frame="4">5</button><button type="button" class="btn" data-frame="5">6</button>
           </div>
           <div class="btns" style="justify-content:center;margin-top:8px"><button type="button" class="btn" id="toggle-icons" aria-pressed="true">Hide icons</button></div>
@@ -6730,6 +6731,7 @@ Object.keys(QUOTE_PACKS).forEach(id => {
 
 function K(th) { const k = th.knobs || {}; return { scale: k.scale == null ? 1 : k.scale, shift: k.shift || 0, texture: k.texture == null ? 1 : k.texture, glow: k.glow == null ? 1 : k.glow, details: k.details !== false }; }
 function seedOf(th, base) { return base + (th.seed || 0) * 7919; }
+function xfBegin(ctx, th, cx, cy) { const k = K(th); ctx.save(); ctx.translate(cx, cy + k.shift); ctx.scale(k.scale, k.scale); ctx.translate(-cx, -cy); }
 function centerXform(ctx, th, cx, cy, fn) { const k = K(th); ctx.save(); ctx.translate(cx, cy + k.shift); ctx.scale(k.scale, k.scale); ctx.translate(-cx, -cy); fn(); ctx.restore(); }
 function hexA(hex, a) {
   const h = (hex || '#000000').replace('#', '');
@@ -7115,6 +7117,7 @@ function alertRed(th) { return th.colors.alert || '#E3242B'; }
 function alertGround(ctx, th, Hl, pxW, pxH, s) {
   const c = th.colors;
   ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 390, Hl);
+  { const gg = ctx.createRadialGradient(195, Hl * 0.5, 20, 195, Hl * 0.5, 380); gg.addColorStop(0, hexA(c.accent, Math.min(0.5, 0.09 * K(th).glow))); gg.addColorStop(1, hexA(c.accent, 0)); ctx.fillStyle = gg; ctx.fillRect(0, 0, 390, Hl) }
   ctx.strokeStyle = hexA(c.accent, 0.05); ctx.lineWidth = 0.6; ctx.beginPath();
   for (let y = 0; y < Hl; y += 26) { ctx.moveTo(0, y); ctx.lineTo(390, y); }
   for (let x = 0; x < 390; x += 26) { ctx.moveTo(x, 0); ctx.lineTo(x, Hl); }
@@ -7212,6 +7215,7 @@ function drawAlert(ctx, th, Hl, mode, phraseIdx, W, H, s) {
   alertGround(ctx, th, Hl, W, H, s);
   const lab = (str, x, y, size, align, col, sp) => spaced(ctx, str, x, y, size, mono, 500, sp == null ? 0.12 : sp, align, col || c.ink);
   if (mode === 'lock') {
+    xfBegin(ctx, th, 195, 470);
     lab(T.topL, 22, 244, 7, 'left', c.accent);
     lab(T.topR, 368, 244, 7, 'right', c.accent);
     ctx.fillStyle = red; ctx.fillRect(22, 258, 62, 15);
@@ -7250,6 +7254,7 @@ function drawAlert(ctx, th, Hl, mode, phraseIdx, W, H, s) {
       spaced(ctx, st[1], x, ry + 20, 18, mono, 700, 0.02, 'left', i === 2 ? red : c.ink);
     });
     lab(T.foot, 195, Hl - 30, 7, 'center', c.accent, 0.2);
+    ctx.restore();
   } else {
     ctx.save(); ctx.globalAlpha = 0.07;
     ctx.translate(60, Hl - 60); ctx.rotate(-Math.PI / 2);
@@ -7481,7 +7486,7 @@ function drawMap(ctx, th, Hl, mode, phraseIdx, W, H, s) {
     fell(ctx, T.mapTitle, 195, 248, 11, sc, c.ink, 'center', false, 0.08);
     centerXform(ctx, th, 195, 423, () => mapScene(ctx, th, 28, 258, 334, 330, seedOf(th, 7), { compass: 22, scale: true, label: 9.5 }));
     const ph = th.phrases[phraseIdx % th.phrases.length] || ['', ''];
-    const l1 = ph[0] || '', l2 = ph[1] || '';
+    const l1 = th.upper ? (ph[0] || '').toUpperCase() : (ph[0] || ''), l2 = th.upper ? (ph[1] || '').toUpperCase() : (ph[1] || '');
     ctx.font = `400 46px "${fam}", Georgia, serif`;
     const wmax = Math.max(ctx.measureText(l1).width, ctx.measureText(l2).width, 1);
     const size = Math.min(46, 46 * 330 / wmax);
@@ -8238,10 +8243,11 @@ function hudNav(ctx, th, x, y, label) {
 function drawNight(ctx, th, Hl, mode, phraseIdx) {
   const c = th.colors, T = th.text, mono = th.fonts.mono;
   const ph = th.phrases[phraseIdx % th.phrases.length] || ['', ''];
-  const obj = `${ph[0]} ${ph[1]}`.trim().toUpperCase();
+  const obj = th.upper ? `${ph[0]} ${ph[1]}`.trim().toUpperCase() : `${ph[0]} ${ph[1]}`.trim();
   bokehCity(ctx, Hl, seedOf(th, mode === 'lock' ? 31 : 37), th);
   filmGrain(ctx, Hl, 9, K(th).texture);
   visorEdge(ctx, th, Hl);
+  xfBegin(ctx, th, 195, 440);
   if (mode === 'lock') {
     hudVitals(ctx, th, 228, 8);
     hudCompass(ctx, th, 262);
@@ -8270,6 +8276,7 @@ function drawNight(ctx, th, Hl, mode, phraseIdx) {
     hudTracker(ctx, th, 84, 548, 30);
     hudWeapon(ctx, th, 348, 508, T);
   }
+  ctx.restore();
 }
 
 // ---------- GRIMOIRE motif (arcane card deck) ----------
@@ -8338,6 +8345,7 @@ function drawGrimoire(ctx, th, Hl, mode, phraseIdx) {
   const c = th.colors, T = th.text, fam = th.fonts.display, sc = th.fonts.mono, gems = T.gems || ['#E9E1C8', '#3A7BD5', '#5B4A8A', '#D23A4A', '#2FAE7A'];
   starGround(ctx, th, Hl);
   if (mode === 'lock') {
+    xfBegin(ctx, th, 195, 500);
     const x = 44, y = 252, w = 302, h = Math.min(Hl - 342, 500);
     cardFrame(ctx, th, x, y, w, h);
     const cn = T.cardNo || '';
@@ -8354,7 +8362,7 @@ function drawGrimoire(ctx, th, Hl, mode, phraseIdx) {
     ctx.restore();
     ctx.strokeStyle = c.accent; ctx.lineWidth = 1.2; ctx.strokeRect(ax, ay, aw, ah);
     const ph = th.phrases[phraseIdx % th.phrases.length] || ['', ''];
-    const name = `${ph[0]} ${ph[1]}`.trim();
+    const name = th.upper ? `${ph[0]} ${ph[1]}`.trim().toUpperCase() : `${ph[0]} ${ph[1]}`.trim();
     const by = ay + ah + 14;
     ctx.beginPath(); ctx.moveTo(ax - 6, by); ctx.lineTo(ax + aw + 6, by); ctx.lineTo(ax + aw - 2, by + 17); ctx.lineTo(ax + aw + 6, by + 34); ctx.lineTo(ax - 6, by + 34); ctx.lineTo(ax + 2, by + 17); ctx.closePath();
     ctx.fillStyle = c.ground; ctx.fill(); ctx.strokeStyle = c.accent; ctx.lineWidth = 1.2; ctx.stroke();
@@ -8362,8 +8370,7 @@ function drawGrimoire(ctx, th, Hl, mode, phraseIdx) {
     const ns = Math.min(26, 26 * (aw - 30) / Math.max(1, ctx.measureText(name).width));
     fell(ctx, name, 195, by + 17 + ns * 0.33, ns, fam, c.ink, 'center');
     const sy = by + 52;
-    fell(ctx, (T.school || '').toUpperCase(), 195, sy, 9.5, sc, c.accent, 'center', false, 0.14);
-    gem(ctx, th, 92, sy - 3, 3.2, c.accent); gem(ctx, th, 298, sy - 3, 3.2, c.accent);
+    if (K(th).details) { fell(ctx, (T.school || '').toUpperCase(), 195, sy, 9.5, sc, c.accent, 'center', false, 0.14); gem(ctx, th, 92, sy - 3, 3.2, c.accent); gem(ctx, th, 298, sy - 3, 3.2, c.accent); }
     seg(ctx, ax + 30, sy + 10, ax + aw - 30, sy + 10, hexA(c.accent, 0.5), 0.7);
     ctx.font = `italic 500 15px "${fam}", Georgia, serif`;
     const words = (T.flavor || '').split(' '); const lines = []; let cur = '';
@@ -8381,7 +8388,8 @@ function drawGrimoire(ctx, th, Hl, mode, phraseIdx) {
     }
     const gy = y + h - 26;
     gems.forEach((col, i) => gem(ctx, th, 195 + (i - 2) * 26, gy, 7, col));
-    fell(ctx, T.foot, 195, Hl - 34, 9.5, sc, c.accent, 'center', false, 0.16);
+    ctx.restore();
+    if (K(th).details) fell(ctx, T.foot, 195, Hl - 34, 9.5, sc, c.accent, 'center', false, 0.16);
   } else {
     fell(ctx, T.homeTop, 195, 226, 10, sc, c.accent, 'center', false, 0.16);
     centerXform(ctx, th, 195, 410, () => sigil(ctx, th, 195, 410, 140));
@@ -8817,15 +8825,17 @@ function vaporWindow(ctx, th, x, y, w, h, title, body) {
 function vaporScene(ctx, th, r, Hl, horizon, sunR, sunY) {
   const c = th.colors;
   const g = ctx.createLinearGradient(0, 0, 0, horizon); g.addColorStop(0, c.ground); g.addColorStop(0.55, hexA(c.accent, 0.75)); g.addColorStop(1, hexA(c.alert || '#FFB86C', 0.9)); ctx.fillStyle = g; ctx.fillRect(0, 0, 390, horizon);
-  for (let i = 0; i < 60; i++) { ctx.fillStyle = `rgba(255,255,255,${0.3 + r() * 0.6})`; ctx.fillRect(r() * 390, r() * horizon * 0.5, 1.4, 1.4); }
+  const kv = K(th); for (let i = 0; i < Math.round(60 * kv.texture); i++) { ctx.fillStyle = `rgba(255,255,255,${0.3 + r() * 0.6})`; ctx.fillRect(r() * 390, r() * horizon * 0.5, 1.4, 1.4); }
+  for (let g2 = 4; g2 >= 1; g2--) { ctx.fillStyle = hexA(c.alert || '#FFFB96', Math.min(0.4, 0.05 * kv.glow)); ctx.beginPath(); ctx.arc(195, sunY, sunR + g2 * 14, 0, Math.PI * 2); ctx.fill() }
   const sg = ctx.createLinearGradient(0, sunY - sunR, 0, sunY + sunR); sg.addColorStop(0, c.alert || '#FFFB96'); sg.addColorStop(1, c.accent); ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(195, sunY, sunR, 0, Math.PI * 2); ctx.fill();
   for (let i = 0; i < 7; i++) { const y = sunY + sunR * (0.05 + i * 0.14), h = 2 + i * 1.6; const gy = (y) / horizon; ctx.fillStyle = hexA(c.accent, 0.75 + gy * 0.2); ctx.fillRect(195 - sunR - 2, y, sunR * 2 + 4, h); }
   const fg = ctx.createLinearGradient(0, horizon, 0, Hl); fg.addColorStop(0, hexA(c.panel, 1)); fg.addColorStop(1, c.ground); ctx.fillStyle = fg; ctx.fillRect(0, horizon, 390, Hl - horizon);
-  ctx.save(); ctx.strokeStyle = c.accent; ctx.shadowColor = c.accent; ctx.shadowBlur = 6; ctx.lineWidth = 1.2;
+  ctx.save(); ctx.strokeStyle = c.accent; ctx.shadowColor = c.accent; ctx.shadowBlur = 6 * kv.glow; ctx.lineWidth = 1.2;
   for (let i = -14; i <= 14; i++) { ctx.beginPath(); ctx.moveTo(195 + i * 10, horizon); ctx.lineTo(195 + i * 90, Hl); ctx.stroke(); }
   for (let j = 1; j < 14; j++) { const t = Math.pow(j / 13, 2), y = horizon + (Hl - horizon) * t; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(390, y); ctx.stroke(); }
   ctx.restore();
   ctx.strokeStyle = hexA(c.glow, 0.9); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, horizon); ctx.lineTo(390, horizon); ctx.stroke();
+  ctx.fillStyle = hexA('#000000', Math.min(0.25, 0.06 * kv.texture)); for (let y = 0; y < Hl; y += 3) ctx.fillRect(0, y, 390, 1);
 }
 function vaporColumn(ctx, x, y, w, h) { const g = ctx.createLinearGradient(x, 0, x + w, 0); g.addColorStop(0, '#F4EEF8'); g.addColorStop(0.5, '#FFFFFF'); g.addColorStop(1, '#BFB3CF'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h); ctx.fillStyle = '#E8E0F0'; ctx.fillRect(x - 6, y - 10, w + 12, 10); ctx.fillRect(x - 8, y + h, w + 16, 10); ctx.strokeStyle = 'rgba(120,100,150,.35)'; ctx.lineWidth = 1; for (let i = 1; i < 5; i++) { ctx.beginPath(); ctx.moveTo(x + i * w / 5, y); ctx.lineTo(x + i * w / 5, y + h); ctx.stroke(); } }
 function drawVapor(ctx, th, Hl, mode, phraseIdx, W, H, s) {
@@ -9226,10 +9236,12 @@ function refresh(fontsChanged) {
   cancelAnimationFrame(raf);
   raf = requestAnimationFrame(async () => {
     if (fontsChanged) await fontsFor(state.th);
-    renderPreview(); renderChecklist(); renderScript(); buildGallery();
+    renderPreview(); renderChecklist(); renderScript(); buildGallery(); buildSingles();
   });
 }
 
+// home frames: only the motifs that draw genuinely different frames get the 1–6 picker, frame exports and the rotation guide
+function homeFrameCount(th) { return ['orbital', 'market'].includes((th || state.th).motif) ? 6 : 1; }
 // canvas pixel density for previews; the inspector raises it so zoomed views stay sharp
 function pvD() { return Math.min(9, (window.devicePixelRatio || 2) * (window.__pvRes || 1)); }
 function sizeCanvas(cv) {
@@ -9247,6 +9259,7 @@ function renderPreview() {
   document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === state.view)));
   document.querySelectorAll('[data-lock]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.lock === state.lock)));
   if (state.view === 'lock') { const cv = $('pv-lock'); sizeCanvas(cv); drawWallpaper(cv, th, 'lock', state.lock); }
+  const nf = homeFrameCount(th); if ((state.frame || 0) >= nf) state.frame = 0; $('home-frames').hidden = nf < 2;
   if (state.view === 'home') { const cv = $('pv-home'); sizeCanvas(cv); drawWallpaper(cv, th, 'home', state.frame || 0); buildHomeUI(); }
   if (state.view === 'widgets') { const full = state.wgMode === 'full'; $('wg-phone').hidden = full; $('wg-list').hidden = !full; $('wg-note').textContent = full ? 'Every widget at full size. Tap any widget to inspect it up close.' : 'Every widget on your home screen, in your colors. Scroll inside the phone, tap a widget to inspect it.'; document.querySelectorAll('[data-wgmode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.wgmode === (state.wgMode || 'phone')))); if (full) buildWidgetList(); else { const cv = $('pv-wg'); sizeCanvas(cv); drawWallpaper(cv, th, 'home', 0); buildWidgetPhone(); } }
   document.querySelectorAll('[data-frame]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.frame === (state.frame || 0))));
@@ -9682,7 +9695,7 @@ function fitGallery() {
 // ---------- inspector: full-screen, zoomable view of any screen, widget or icon ----------
 const insp = { items: [], i: 0, z: 1, opener: null };
 function screenItems(mode) {
-  const th = state.th, n = mode === 'lock' ? 4 : 6
+  const th = state.th, n = mode === 'lock' ? 4 : homeFrameCount(th)
   return Array.from({ length: n }, (_, i) => ({ title: mode === 'lock' ? `Lock screen ${i + 1}` : `Home screen ${i + 1}`, file: `${th.id}-${mode}-${i + 1}.png`, png: true,
     render(z, aw, ah) { const base = aw < 600 ? aw : Math.min(aw, Math.max(320, ah * 390 / 844)), dw = base * z, px = Math.min(2700, Math.round(dw * Math.min(3, window.devicePixelRatio || 2))); const cv = document.createElement('canvas'); cv.width = px; cv.height = Math.round(px * 844 / 390); drawWallpaper(cv, th, mode, i); cv.style.cssText = `width:${dw}px;height:${dw * 844 / 390}px;display:block;border-radius:${18 * z}px`; return cv } }))
 }
@@ -9751,12 +9764,12 @@ function renderChecklist() {
       `Name it with its code: ${codes}.`,
       'Duplicate the shortcut for the next app to go faster. Move the original apps to a hidden page or App Library.'
     ]],
-    ['rotate', 'Optional: rotate the home screen through the day', [
+    ...(homeFrameCount(th) > 1 ? [['rotate', 'Optional: rotate the home screen through the day', [
       'The theme pack includes six home frames, each with different readings. Save them to a new Photos album called Foundry Home.',
       'Open Shortcuts, tap Automation, then + and choose Time of Day. Pick a time, set it to Daily and choose Run Immediately.',
       'Add the action Find Photos: Album is Foundry Home, sort Random, limit 1. Then add Set Wallpaper Photo and choose Home Screen.',
       'Repeat for a few more times of day (for example 9 AM, noon, 3 PM, 6 PM, 9 PM) so the readings change as the day goes on.'
-    ]],
+    ]]] : []),
     ['widgets', 'Add the live widgets', [
       'Install Scriptable (free) from the App Store and open it once.',
       `Tap +, paste the widget script from step 4 and name it ${slug(th.company)}-widgets.`,
@@ -9836,7 +9849,7 @@ function buildSingles() {
   const add = (label, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.textContent = label; b.addEventListener('click', fn); host.append(b); };
   for (let i = 0; i < 4; i++) add(`Lock screen ${i + 1}`, async () => saveFile(`${slug(state.th.company)}-lock-${i + 1}.png`, await renderBlob('lock', i)));
   add('Home wallpaper', async () => saveFile(`${slug(state.th.company)}-home.png`, await renderBlob('home', 0)));
-  add('Home frames (6, zip)', async () => {
+  if (homeFrameCount() > 1) add('Home frames (6, zip)', async () => {
     if (typeof JSZip === 'undefined') { setStatus('The zip tool did not load.'); return; }
     setStatus('Building home frames…');
     const z = new JSZip();
@@ -9851,7 +9864,7 @@ async function exportZip() {
     const z = new JSZip(), base = slug(state.th.company);
     for (let i = 0; i < 4; i++) z.file(`wallpapers/lock-${i + 1}.png`, await renderBlob('lock', i));
     z.file('wallpapers/home.png', await renderBlob('home', 0));
-    for (let i = 0; i < 6; i++) z.file(`wallpapers/home-frames/home-frame-${i + 1}.png`, await renderBlob('home', i));
+    if (homeFrameCount() > 1) for (let i = 0; i < 6; i++) z.file(`wallpapers/home-frames/home-frame-${i + 1}.png`, await renderBlob('home', i));
     for (let i = 0; i < APPS.length; i++) { const [k, n] = APPS[i]; z.file(`icons/${state.th.codes[k]}-${String(i + 1).padStart(2, '0')}_${n}.png`, await iconBlob(k, i)); }
     z.file(`${base}-widgets.js`, buildScript());
     z.file('INSTALL.txt', `${state.th.company} theme — made with Foundry\n\n${installText()}\n`);
