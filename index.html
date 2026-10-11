@@ -8275,7 +8275,8 @@ function drawNight(ctx, th, Hl, mode, phraseIdx) {
   const c = th.colors, T = th.text, mono = th.fonts.mono;
   const ph = th.phrases[phraseIdx % th.phrases.length] || ['', ''];
   const obj = th.upper ? `${ph[0]} ${ph[1]}`.trim().toUpperCase() : `${ph[0]} ${ph[1]}`.trim();
-  bokehCity(ctx, Hl, seedOf(th, mode === 'lock' ? 31 : 37), th);
+  if (mode === 'home') { drawNightMap(ctx, th, Hl, obj); return; }
+  bokehCity(ctx, Hl, seedOf(th, 31), th);
   filmGrain(ctx, Hl, 9, K(th).texture);
   visorEdge(ctx, th, Hl);
   xfBegin(ctx, th, 195, 440);
@@ -8308,6 +8309,70 @@ function drawNight(ctx, th, Hl, mode, phraseIdx) {
     hudWeapon(ctx, th, 348, 508, T);
   }
   ctx.restore();
+}
+
+
+// Nightfall home: an objective map. A vector city grid under a radar sweep, with hostile hot spots, intel, a route and a lock.
+function drawNightMap(ctx, th, Hl, obj) {
+  const c = th.colors, k = K(th), mono = th.fonts.mono, disp = th.fonts.display, ink = c.ink, acc = c.accent, red = c.alert || '#FF4D4D', blue = c.glow, r = rng(seedOf(th, 913));
+  const lab = (str, x, y, size, col, align, sp) => spaced(ctx, str, x, y, size, mono, 500, sp == null ? 0.12 : sp, align || 'left', col);
+  ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 390, Hl);
+  const vg = ctx.createRadialGradient(195, 450, 40, 195, 450, 520); vg.addColorStop(0, hexA(blue, 0.18 * k.glow)); vg.addColorStop(1, hexA(blue, 0)); ctx.fillStyle = vg; ctx.fillRect(0, 0, 390, Hl);
+  // the city: streets, blocks, a river and a park, drawn on a tilted grid
+  ctx.save(); ctx.translate(195, 450); ctx.rotate(-0.38); ctx.translate(-195, -450);
+  ctx.fillStyle = hexA(blue, 0.16); ctx.beginPath(); ctx.moveTo(-200, 300); ctx.bezierCurveTo(60, 340, 120, 470, 260, 520); ctx.bezierCurveTo(360, 556, 470, 600, 620, 640); ctx.lineTo(620, 700); ctx.bezierCurveTo(450, 660, 340, 618, 240, 586); ctx.bezierCurveTo(100, 540, 40, 410, -200, 372); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = hexA(ink, 0.35); ctx.lineWidth = 1; ctx.stroke();
+  const xs = [], ys = []; for (let x = -260; x < 660; x += 30 + Math.floor(r() * 26)) xs.push(x); for (let y = -120; y < Hl + 160; y += 30 + Math.floor(r() * 26)) ys.push(y);
+  for (let i = 0; i < xs.length - 1; i++) for (let j = 0; j < ys.length - 1; j++) { if (r() < 0.55) { const pad = 4 + r() * 3; ctx.fillStyle = hexA(ink, 0.035 + r() * 0.05); ctx.fillRect(xs[i] + pad, ys[j] + pad, xs[i + 1] - xs[i] - pad * 2, ys[j + 1] - ys[j] - pad * 2); } }
+  ctx.fillStyle = hexA(blue, 0.12); ctx.fillRect(xs[3] + 4, ys[5] + 4, xs[5] - xs[3] - 8, ys[7] - ys[5] - 8);
+  xs.forEach((x, i) => { const major = i % 4 === 0; ctx.strokeStyle = hexA(ink, major ? 0.3 : 0.13); ctx.lineWidth = major ? 2.2 : 1; ctx.beginPath(); ctx.moveTo(x, -200); ctx.lineTo(x, Hl + 200); ctx.stroke(); });
+  ys.forEach((y, j) => { const major = j % 4 === 1; ctx.strokeStyle = hexA(ink, major ? 0.3 : 0.13); ctx.lineWidth = major ? 2.2 : 1; ctx.beginPath(); ctx.moveTo(-300, y); ctx.lineTo(700, y); ctx.stroke(); });
+  ctx.strokeStyle = hexA(ink, 0.28); ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(-200, 760); ctx.bezierCurveTo(80, 640, 260, 420, 640, 120); ctx.stroke(); ctx.strokeStyle = hexA(c.ground, 0.9); ctx.lineWidth = 1.2; ctx.setLineDash([6, 6]); ctx.stroke(); ctx.setLineDash([]);
+  ctx.restore();
+  ctx.fillStyle = hexA(ink, 0.14); for (let x = 26; x < 390; x += 52) for (let y = 186; y < 700; y += 52) { ctx.fillRect(x - 3, y, 7, 1); ctx.fillRect(x, y - 3, 1, 7); }
+  xfBegin(ctx, th, 195, 450);
+  // radar: rings, bezel, crosshair and a sweep
+  const RX = 195, RY = 452, R = 148;
+  ctx.fillStyle = hexA(blue, 0.08); ctx.beginPath(); ctx.arc(RX, RY, R, 0, Math.PI * 2); ctx.fill();
+  const sweep = -0.95, wedge = 0.95, NS = 28;
+  for (let i = 0; i < NS; i++) { const a0 = sweep - wedge + wedge * i / NS, a1 = a0 + wedge / NS + 0.004; ctx.fillStyle = hexA(ink, Math.min(0.5, 0.3 * k.glow) * Math.pow((i + 1) / NS, 1.6)); ctx.beginPath(); ctx.moveTo(RX, RY); ctx.arc(RX, RY, R, a0, a1); ctx.closePath(); ctx.fill(); }
+  ctx.save(); ctx.shadowColor = ink; ctx.shadowBlur = 8 * k.glow; seg(ctx, RX, RY, RX + R * Math.cos(sweep), RY + R * Math.sin(sweep), hexA(ink, 0.95), 1.6); ctx.restore();
+  [1, 0.66, 0.33].forEach((f, i) => { ctx.strokeStyle = hexA(ink, i ? 0.25 : 0.55); ctx.lineWidth = i ? 1 : 1.6; if (i === 1) ctx.setLineDash([3, 5]); ctx.beginPath(); ctx.arc(RX, RY, R * f, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); });
+  seg(ctx, RX - R - 12, RY, RX + R + 12, RY, hexA(ink, 0.3), 1); seg(ctx, RX, RY - R - 12, RX, RY + R + 12, hexA(ink, 0.3), 1);
+  for (let d = 0; d < 360; d += 5) { const a = (d - 90) * Math.PI / 180, l = d % 30 === 0 ? 9 : 4; seg(ctx, RX + (R + 4) * Math.cos(a), RY + (R + 4) * Math.sin(a), RX + (R + 4 + l) * Math.cos(a), RY + (R + 4 + l) * Math.sin(a), hexA(ink, d % 30 === 0 ? 0.7 : 0.35), 1); }
+  if (k.details) for (let d = 0; d < 360; d += 30) { const a = (d - 90) * Math.PI / 180; lab(String(d).padStart(3, '0'), RX + (R + 22) * Math.cos(a), RY + (R + 22) * Math.sin(a) + 3, 6.5, hexA(ink, 0.65), 'center', 0.04); }
+  // route from the squad to the objective
+  const route = [[150, 560], [122, 492], [166, 430], [232, 396], [262, 330], [290, 282]];
+  ctx.save(); ctx.strokeStyle = hexA(acc, 0.9); ctx.lineWidth = 2; ctx.setLineDash([7, 5]); ctx.shadowColor = acc; ctx.shadowBlur = 6 * k.glow; ctx.beginPath(); route.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.restore();
+  route.slice(1, -1).forEach(([x, y]) => { ctx.strokeStyle = hexA(acc, 0.9); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2); ctx.stroke(); });
+  ctx.save(); ctx.translate(150, 560); ctx.fillStyle = ink; ctx.shadowColor = ink; ctx.shadowBlur = 8 * k.glow; ctx.beginPath(); ctx.moveTo(0, -9); ctx.lineTo(7, 7); ctx.lineTo(0, 3); ctx.lineTo(-7, 7); ctx.closePath(); ctx.fill(); ctx.restore();
+  if (k.details) lab('SQUAD 7', 162, 576, 6.5, ink);
+  // hot spots
+  const hot = (x, y, col, rad, label, left) => { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = 12 * k.glow; const g = ctx.createRadialGradient(x, y, 0, x, y, rad * 2.2); g.addColorStop(0, hexA(col, 0.55)); g.addColorStop(1, hexA(col, 0)); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, rad * 2.2, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, 3.2, 0, Math.PI * 2); ctx.fill(); ctx.restore(); ctx.strokeStyle = hexA(col, 0.9); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2); ctx.stroke(); ctx.strokeStyle = hexA(col, 0.45); ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.arc(x, y, rad + 6, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); if (label && k.details) { const s2 = left ? -1 : 1, ex = x + s2 * (rad + 12), ey = y - rad - 10; seg(ctx, x + s2 * rad * 0.7, y - rad * 0.7, ex, ey, hexA(col, 0.8), 1); seg(ctx, ex, ey, ex + s2 * 56, ey, hexA(col, 0.8), 1); lab(label, ex + s2 * 2, ey - 4, 6.5, col, left ? 'right' : 'left', 0.08); } };
+  hot(64, 276, red, 12, 'HOSTILE · 3'); hot(318, 548, red, 14, 'HOSTILE · 5', true); hot(118, 650, red, 9, null); hot(252, 470, acc, 9, 'INTEL'); hot(64, 528, acc, 7, null);
+  // objective reticle
+  ctx.save(); ctx.translate(290, 282); ctx.shadowColor = acc; ctx.shadowBlur = 10 * k.glow; ctx.strokeStyle = acc; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, -14); ctx.lineTo(14, 0); ctx.lineTo(0, 14); ctx.lineTo(-14, 0); ctx.closePath(); ctx.stroke();
+  for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + 0.4; ctx.beginPath(); ctx.arc(0, 0, 26, a, a + 0.9); ctx.stroke(); } ctx.restore();
+  lab('OBJECTIVE', 290, 240, 6.5, hexA(acc, 0.85), 'center', 0.2); spaced(ctx, obj, 290, 324, Math.min(9, 9 * 150 / Math.max(1, measureSpaced(ctx, obj, 9, disp, dispWeight(disp), 0.1))), disp, dispWeight(disp), 0.1, 'center', acc);
+  // the lock on the nearest hostile
+  const LX = 318, LY = 548; [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sy]) => { seg(ctx, LX + sx * 26, LY + sy * 26, LX + sx * 26, LY + sy * 16, red, 1.6); seg(ctx, LX + sx * 26, LY + sy * 26, LX + sx * 16, LY + sy * 26, red, 1.6); });
+  ctx.save(); ctx.shadowColor = red; ctx.shadowBlur = 8 * k.glow; lab('LOCKED', LX, LY + 42, 8, red, 'center', 0.2); ctx.restore();
+  ctx.restore();
+  // panels along the edges, clear of the icon rows and the dock
+  if (k.details) {
+    ctx.strokeStyle = hexA(ink, 0.55); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(18, 172); ctx.lineTo(200, 172); ctx.lineTo(210, 182); ctx.stroke();
+    ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(24, 186, 3.5, 0, Math.PI * 2); ctx.fill(); lab('SECTOR 9-K // CITY GRID', 34, 189, 7.5, ink, 'left', 0.14); lab('RAIN · VIS 1.2 KM · NIGHT', 34, 202, 6, hexA(ink, 0.6), 'left', 0.12);
+    for (let i = 0; i < 9; i++) { const h = 6 + r() * 22; ctx.fillStyle = hexA(ink, 0.25); ctx.fillRect(280 + i * 10, 178, 7, 30); ctx.fillStyle = hexA(ink, 0.75); ctx.fillRect(280 + i * 10, 208 - h, 7, h); }
+    lab('THREAT 0.72', 370, 220, 6, hexA(red, 0.9), 'right', 0.12);
+    for (let y = 250; y < 660; y += 12) seg(ctx, 10, y, y % 60 === 10 ? 20 : 15, y, hexA(ink, 0.4), 1);
+    for (let y = 250; y < 660; y += 12) seg(ctx, 380, y, y % 60 === 10 ? 370 : 375, y, hexA(ink, 0.4), 1);
+    const sy = 688; ctx.strokeStyle = hexA(ink, 0.6); ctx.strokeRect(54, sy, 150, 18); ctx.fillStyle = hexA(ink, 0.3); ctx.fillRect(55, sy + 1, 150 * 0.62, 16);
+    for (let i = 0; i < 4; i++) { const x = 20 + i * 8; ctx.strokeStyle = hexA(ink, 0.3 + i * 0.18); ctx.beginPath(); ctx.moveTo(x + 6, sy + 2); ctx.lineTo(x, sy + 9); ctx.lineTo(x + 6, sy + 16); ctx.stroke(); }
+    lab('SCANNING...', 129, sy + 12.5, 7, ink, 'center', 0.18);
+    ctx.strokeStyle = hexA(ink, 0.6); ctx.strokeRect(222, sy - 10, 150, 38); ctx.strokeStyle = hexA(ink, 0.85); ctx.lineWidth = 1.2; ctx.beginPath(); for (let x = 0; x <= 146; x += 3) { const y = sy + 9 + Math.sin(x * 0.12) * 5 + Math.sin(x * 0.37) * 3 * (x / 146); x ? ctx.lineTo(224 + x, y) : ctx.moveTo(224, y); } ctx.stroke();
+    lab('412 M · ETA 04:12', 297, sy + 40, 6, hexA(ink, 0.65), 'center', 0.12);
+  }
+  filmGrain(ctx, Hl, 9, k.texture * 0.6);
 }
 
 // ---------- GRIMOIRE motif (arcane card deck) ----------
