@@ -7384,34 +7384,11 @@ function tree(ctx, th, x, y, r) {
 }
 
 function mapScene(ctx, th, bx, by, bw, bh, seed, opts) {
-  const c = th.colors, r = rng(seed), P = (th.text.places || []);
+  // A clean journey map: nothing crosses anything. The Wending Way runs from Brindle (I) to the pass in the Fells (VI).
+  const c = th.colors, r = rng(seed), P = (th.text.places || []), k = K(th);
   const X = (u) => bx + u * bw, Y = (v) => by + v * bh;
+  const fam = th.fonts.display, sz = opts.label || 10, small = sz * 0.8;
   ctx.save(); ctx.beginPath(); ctx.rect(bx, by, bw, bh); ctx.clip();
-  // coastline (sea lower-left)
-  const ctrl = [[0, 0.3], [0.12, 0.38], [0.22, 0.52], [0.16, 0.66], [0.3, 0.76], [0.42, 0.9], [0.62, 0.96], [0.78, 1.04]];
-  const coast = [];
-  for (let i = 0; i < ctrl.length - 1; i++) {
-    const [u0, v0] = ctrl[i], [u1, v1] = ctrl[i + 1];
-    for (let k = 0; k < 8; k++) { const t = k / 8; coast.push([X(u0 + (u1 - u0) * t) + (r() - 0.5) * 6, Y(v0 + (v1 - v0) * t) + (r() - 0.5) * 6]); }
-  }
-  coast.push([X(0.78), Y(1.04)]);
-  for (let k = 5; k >= 1; k--) {
-    ctx.strokeStyle = hexA(c.ink, 0.12 + 0.08 * (5 - k) / 5); ctx.lineWidth = 0.5; ctx.beginPath();
-    coast.forEach(([x, y], i) => { const xx = x - k * 4.2, yy = y + k * 4.2; i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); });
-    ctx.stroke();
-  }
-  ctx.beginPath(); coast.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
-  ctx.strokeStyle = c.ink; ctx.lineWidth = 1.2; ctx.stroke();
-  // lake
-  ctx.beginPath(); ctx.ellipse(X(0.8), Y(0.56), bw * 0.07, bh * 0.045, -0.3, 0, Math.PI * 2);
-  ctx.strokeStyle = c.ink; ctx.lineWidth = 0.9; ctx.stroke();
-  for (let k = 1; k <= 3; k++) { ctx.beginPath(); ctx.ellipse(X(0.8), Y(0.56), bw * 0.07 - k * 3, Math.max(1, bh * 0.045 - k * 2.2), -0.3, 0, Math.PI * 2); ctx.strokeStyle = hexA(c.ink, 0.25); ctx.lineWidth = 0.4; ctx.stroke(); }
-  // river from fells to sea
-  ctx.beginPath(); ctx.moveTo(X(0.52), Y(0.3));
-  ctx.bezierCurveTo(X(0.48), Y(0.42), X(0.36), Y(0.48), X(0.34), Y(0.6));
-  ctx.bezierCurveTo(X(0.32), Y(0.7), X(0.24), Y(0.72), X(0.2), Y(0.78));
-  ctx.strokeStyle = c.ink; ctx.lineWidth = 1.1; ctx.stroke();
-  // mountain range: a dense chain of jagged peaks, lit on the left, solid ink in shadow on the right
   const peak = (x, y, h, w) => {
     const tx = x + (r() - 0.5) * w * 0.12, ty = y - h
     ctx.beginPath(); ctx.moveTo(x - w / 2, y); ctx.lineTo(tx, ty); ctx.lineTo(x + w / 2, y); ctx.closePath(); ctx.fillStyle = c.panel; ctx.fill()
@@ -7423,11 +7400,6 @@ function mapScene(ctx, th, bx, by, bw, bh, seed, opts) {
     ctx.strokeStyle = hexA(c.ink, 0.55); ctx.lineWidth = 0.45
     for (let k = 1; k <= 2; k++) { const t = k / 3; ctx.beginPath(); ctx.moveTo(x - w / 2 + (tx - (x - w / 2)) * t + 1, y + (ty - y) * t + 1); ctx.lineTo(x - w / 2 + (tx - (x - w / 2)) * t + 3, y + (ty - y) * t + 5); ctx.stroke() }
   }
-  const range = []
-  for (let i = 0; i < 26; i++) { const t = i / 25, u = 0.27 + t * 0.52 + (r() - 0.5) * 0.01, v = 0.27 - Math.sin(t * Math.PI) * 0.075 + (r() - 0.5) * 0.02; range.push([u, v, 12 + r() * 14 + Math.sin(t * Math.PI) * 6, 9 + r() * 7]) }
-  for (let i = 0; i < 14; i++) { const t = i / 13, u = 0.33 + t * 0.4 + (r() - 0.5) * 0.015, v = 0.315 - Math.sin(t * Math.PI) * 0.035 + (r() - 0.5) * 0.015; range.push([u, v, 7 + r() * 7, 7 + r() * 5]) }
-  range.sort((a2, b2) => a2[1] - b2[1]).forEach(([u, v, h, w]) => peak(X(u), Y(v), h, w))
-  // forest mass: packed tree crowns filling an irregular region
   const forestMass = (u0, v0, ru, rv, seedK) => {
     const pts = []; for (let i = 0; i < 26; i++) { const a = i / 26 * Math.PI * 2, q = 0.82 + r() * 0.3; pts.push([X(u0) + Math.cos(a) * bw * ru * q, Y(v0) + Math.sin(a) * bh * rv * q]) }
     ctx.save(); ctx.beginPath(); pts.forEach(([px, py], i) => i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)); ctx.closePath(); ctx.fillStyle = c.panel; ctx.fill(); ctx.clip()
@@ -7439,21 +7411,6 @@ function mapScene(ctx, th, bx, by, bw, bh, seed, opts) {
     ctx.strokeStyle = c.ink; ctx.lineWidth = 0.7
     for (let i = 0; i < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length]; const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, ln = Math.hypot(x2 - x1, y2 - y1); const nn = Math.max(1, Math.round(ln / 5)); for (let k = 0; k < nn; k++) { const t = (k + 0.5) / nn; ctx.beginPath(); ctx.arc(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t, 2.4, Math.atan2(y2 - y1, x2 - x1) + Math.PI, Math.atan2(y2 - y1, x2 - x1) + Math.PI * 2); ctx.stroke() } }
   }
-  forestMass(0.77, 0.79, 0.15, 0.08, 1)
-  // route (red dotted)
-  const route = [[0.9, 0.95], [0.82, 0.78], [0.72, 0.66], [0.6, 0.52], [0.5, 0.42], [0.4, 0.34], [0.26, 0.24], [0.14, 0.14]];
-  ctx.setLineDash([2.5, 3.5]); ctx.strokeStyle = c.accent; ctx.lineWidth = 1.5; ctx.beginPath();
-  route.forEach(([u, v], i) => {
-    if (!i) { ctx.moveTo(X(u), Y(v)); return; }
-    const [pu, pv] = route[i - 1]; ctx.quadraticCurveTo(X((pu + u) / 2 + 0.03), Y((pv + v) / 2 - 0.02), X(u), Y(v));
-  });
-  ctx.stroke(); ctx.setLineDash([]);
-  [route[0], route[3], route[5]].forEach(([u, v]) => { ctx.fillStyle = c.accent; ctx.beginPath(); ctx.arc(X(u), Y(v), 2.6, 0, Math.PI * 2); ctx.fill(); });
-  const [du, dv] = route[route.length - 1];
-  ctx.strokeStyle = c.accent; ctx.lineWidth = 2; ctx.beginPath();
-  ctx.moveTo(X(du) - 5, Y(dv) - 5); ctx.lineTo(X(du) + 5, Y(dv) + 5); ctx.moveTo(X(du) + 5, Y(dv) - 5); ctx.lineTo(X(du) - 5, Y(dv) + 5); ctx.stroke();
-  // labels
-  // ---- extra topography ----
   const ink = c.ink, inkS = hexA(c.ink, 0.55)
   const hill = (x, y, w) => { const hh = w * 0.5; ctx.beginPath(); ctx.moveTo(x - w / 2, y); ctx.bezierCurveTo(x - w * 0.3, y - hh, x + w * 0.2, y - hh * 1.05, x + w / 2, y); ctx.closePath(); ctx.fillStyle = c.panel; ctx.fill(); ctx.beginPath(); ctx.moveTo(x - w / 2, y); ctx.bezierCurveTo(x - w * 0.3, y - hh, x + w * 0.2, y - hh * 1.05, x + w / 2, y); ctx.strokeStyle = ink; ctx.lineWidth = 0.8; ctx.stroke(); ctx.lineWidth = 0.5; ctx.strokeStyle = inkS; for (let k = 0; k < 4; k++) { const sx = x + w * 0.08 + k * w * 0.08; ctx.beginPath(); ctx.moveTo(sx, y - hh * (0.62 - k * 0.12)); ctx.lineTo(sx + 1.2, y - 0.8); ctx.stroke(); } }
   const pine = (x, y, h) => { ctx.beginPath(); ctx.moveTo(x, y - h); for (let k = 1; k <= 3; k++) { const yy = y - h + k * h * 0.27, ww = h * (0.14 + k * 0.1); ctx.lineTo(x + ww, yy); ctx.lineTo(x + ww * 0.45, yy - h * 0.04) } ctx.lineTo(x + h * 0.1, y - h * 0.1); ctx.lineTo(x - h * 0.1, y - h * 0.1); for (let k = 3; k >= 1; k--) { const yy = y - h + k * h * 0.27, ww = h * (0.14 + k * 0.1); ctx.lineTo(x - ww * 0.45, yy - h * 0.04); ctx.lineTo(x - ww, yy) } ctx.closePath(); ctx.fillStyle = ink; ctx.fill(); ctx.strokeStyle = ink; ctx.lineWidth = 0.6; ctx.beginPath(); ctx.moveTo(x, y - h * 0.1); ctx.lineTo(x, y); ctx.stroke(); }
@@ -7463,52 +7420,83 @@ function mapScene(ctx, th, bx, by, bw, bh, seed, opts) {
   const ruin = (x, y) => { ctx.strokeStyle = ink; ctx.lineWidth = 0.9; [[-6, 9], [-2, 5], [2, 7], [6, 3]].forEach(([dx, h]) => { ctx.beginPath(); ctx.moveTo(x + dx, y); ctx.lineTo(x + dx, y - h); ctx.stroke(); }); ctx.beginPath(); ctx.moveTo(x - 8, y); ctx.lineTo(x + 8, y); ctx.stroke(); }
   const islet = (x, y, rr) => { const pts = []; for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2, q = rr * (0.7 + r() * 0.5); pts.push([x + q * Math.cos(a) * 1.4, y + q * Math.sin(a)]) } ctx.beginPath(); pts.forEach(([px, py], i) => i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)); ctx.closePath(); ctx.fillStyle = c.panel; ctx.fill(); ctx.strokeStyle = ink; ctx.lineWidth = 0.9; ctx.stroke(); ctx.strokeStyle = hexA(c.ink, 0.25); ctx.lineWidth = 0.5; ctx.beginPath(); ctx.ellipse(x, y, rr * 1.9, rr * 1.4, 0, 0, Math.PI * 2); ctx.stroke(); }
   const wave = (x, y) => { ctx.strokeStyle = hexA(c.ink, 0.45); ctx.lineWidth = 0.6; ctx.beginPath(); ctx.arc(x - 2.5, y, 2.5, Math.PI, 0); ctx.arc(x + 2.5, y, 2.5, Math.PI, 0); ctx.stroke(); }
-  // tributaries and lake outflow (with a bridge where the route crosses)
-  ctx.strokeStyle = ink; ctx.lineWidth = 0.8
-  ctx.beginPath(); ctx.moveTo(X(0.43), Y(0.34)); ctx.bezierCurveTo(X(0.45), Y(0.4), X(0.41), Y(0.44), X(0.4), Y(0.49)); ctx.stroke()
-  ctx.beginPath(); ctx.moveTo(X(0.74), Y(0.58)); ctx.bezierCurveTo(X(0.64), Y(0.6), X(0.5), Y(0.56), X(0.35), Y(0.6)); ctx.stroke()
-  const brx = X(0.62), bry = Y(0.585); ctx.strokeStyle = ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(brx - 3, bry - 6); ctx.lineTo(brx - 3, bry + 6); ctx.moveTo(brx + 3, bry - 6); ctx.lineTo(brx + 3, bry + 6); ctx.stroke(); ctx.fillStyle = c.panel; ctx.fillRect(brx - 2.4, bry - 5.5, 4.8, 11); ctx.lineWidth = 0.5; for (let k = -4; k <= 4; k += 2) { ctx.beginPath(); ctx.moveTo(brx - 3, bry + k); ctx.lineTo(brx + 3, bry + k); ctx.stroke() }
-  // hills
-  const hillPts = [[0.27, 0.425], [0.31, 0.415], [0.35, 0.43], [0.29, 0.46], [0.33, 0.455], [0.37, 0.465], [0.405, 0.44], [0.64, 0.37], [0.68, 0.36], [0.72, 0.375], [0.66, 0.405], [0.7, 0.4]]
-  hillPts.sort((a, b) => a[1] - b[1]).forEach(([u, v]) => hill(X(u + (r() - 0.5) * 0.012), Y(v + (r() - 0.5) * 0.008), 12 + r() * 6))
-  // pine forest in the north-west
-  const pines = []; for (let i = 0; i < 40; i++) { const u = 0.03 + r() * 0.17, v = 0.19 + r() * 0.105; pines.push([u, v]) }
-  pines.sort((a2, b2) => a2[1] - b2[1]).forEach(([u, v]) => pine(X(u), Y(v), 8 + r() * 4))
-  // marsh by the river mouth
-  for (let i = 0; i < 14; i++) tuft(X(0.31 + r() * 0.11), Y(0.67 + r() * 0.07))
-  // islands, waves and a ship in the sound
-  islet(X(0.07), Y(0.52), 5); islet(X(0.11), Y(0.57), 3); islet(X(0.33), Y(0.965), 4)
-  ;[[0.05, 0.4], [0.09, 0.72], [0.18, 0.8], [0.24, 0.92], [0.04, 0.66], [0.14, 0.62]].forEach(([u, v]) => wave(X(u), Y(v)))
-  { const sxp = X(0.1), syp = Y(0.69); ctx.fillStyle = c.panel; ctx.strokeStyle = ink; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(sxp - 7, syp); ctx.lineTo(sxp + 7, syp); ctx.lineTo(sxp + 5, syp + 3); ctx.lineTo(sxp - 5, syp + 3); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(sxp, syp); ctx.lineTo(sxp, syp - 10); ctx.stroke(); ctx.beginPath(); ctx.moveTo(sxp, syp - 10); ctx.lineTo(sxp + 6, syp - 3); ctx.lineTo(sxp, syp - 3); ctx.closePath(); ctx.fillStyle = c.accent; ctx.fill(); ctx.stroke() }
-  // settlements and landmarks
-  house(X(0.9), Y(0.95) - 2, 1.1)
-  house(X(0.53), Y(0.9), 0.85); house(X(0.565), Y(0.885), 0.85); house(X(0.545), Y(0.925), 0.85)
-  tower(X(0.26), Y(0.31))
-  ruin(X(0.47), Y(0.63))
-  const fam = th.fonts.display, sz = opts.label || 10;
-  fell(ctx, P[0] || '', X(0.87), Y(0.95) + 3, sz, fam, c.accent, 'right', false);
-  ctx.save(); ctx.translate(X(0.77), Y(0.8)); ctx.rotate(-0.12); { const nm = (P[1] || '').toUpperCase(); [[-1.2, 0], [1.2, 0], [0, -1.2], [0, 1.2], [-0.9, -0.9], [0.9, 0.9], [0.9, -0.9], [-0.9, 0.9]].forEach(([dx, dy]) => fell(ctx, nm, dx, 4 + dy, sz * 1.25, fam, c.panel, 'center', false, 0.55)); fell(ctx, nm, 0, 4, sz * 1.25, fam, c.accent, 'center', false, 0.55); } ctx.restore();
-  fell(ctx, (P[2] || '').toUpperCase(), X(0.53), Y(0.075), sz * 1.05, fam, c.accent, 'center', false, 0.32);
-  fell(ctx, P[3] || '', X(0.8), Y(0.56) + bh * 0.045 + 12, sz, fam, c.accent, 'center', false);
-  ctx.save(); ctx.translate(X(0.5), Y(0.5)); ctx.rotate(-0.62); fell(ctx, P[4] || '', 0, -6, sz * 0.95, fam, c.accent, 'center', true, 0.12); ctx.restore();
-  fell(ctx, P[5] || '', X(0.12), Y(0.86), sz, fam, hexA(c.ink, 0.8), 'center', true, 0.1);
-  const small = sz * 0.82;
-  if (K(th).details) {
-    fell(ctx, P[6] || '', X(0.33), Y(0.385), small, fam, hexA(c.ink, 0.85), 'center', true, 0.08);
-    fell(ctx, P[7] || '', X(0.38), Y(0.775), small, fam, hexA(c.ink, 0.85), 'center', true, 0.08);
-    fell(ctx, P[8] || '', X(0.26), Y(0.31) + 11, small, fam, c.accent, 'center', false);
-    fell(ctx, P[9] || '', X(0.47), Y(0.63) + 10, small, fam, hexA(c.ink, 0.85), 'center', true);
-    fell(ctx, P[10] || '', X(0.55), Y(0.925) + 10, small, fam, c.accent, 'center', false);
-    ctx.save(); ctx.translate(X(0.085), Y(0.44)); ctx.rotate(-1.15); fell(ctx, P[11] || '', 0, 0, sz * 1.0, fam, hexA(c.ink, 0.7), 'center', true, 0.22); ctx.restore();
-    fell(ctx, P[12] || '', X(0.145), Y(0.33), small, fam, hexA(c.ink, 0.85), 'center', true, 0.06);
+  // coastline, sea to the west
+  const ctrl = [[0, 0.4], [0.07, 0.46], [0.11, 0.56], [0.09, 0.66], [0.13, 0.76], [0.18, 0.86], [0.22, 0.94], [0.25, 1.02]], coast = [];
+  for (let i = 0; i < ctrl.length - 1; i++) { const [u0, v0] = ctrl[i], [u1, v1] = ctrl[i + 1]; for (let j = 0; j < 8; j++) { const t = j / 8; coast.push([X(u0 + (u1 - u0) * t) + (r() - 0.5) * 3.5, Y(v0 + (v1 - v0) * t) + (r() - 0.5) * 3.5]); } }
+  coast.push([X(0.25), Y(1.02)]);
+  for (let j = 4; j >= 1; j--) { ctx.strokeStyle = hexA(c.ink, 0.1 + 0.06 * (4 - j) / 4); ctx.lineWidth = 0.5; ctx.beginPath(); coast.forEach(([x, y], i) => { const xx = x - j * 3.6, yy = y + j * 2.2; i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }); ctx.stroke(); }
+  ctx.beginPath(); coast.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.strokeStyle = c.ink; ctx.lineWidth = 1.2; ctx.stroke();
+  // the sea: two names along the shore, a ship, islets and waves, each with its own room
+  ctx.save(); ctx.translate(X(0.035), Y(0.53)); ctx.rotate(-Math.PI / 2 + 0.06); fell(ctx, P[11] || '', 0, 0, small, fam, hexA(c.ink, 0.7), 'center', true, 0.18); ctx.restore();
+  ctx.save(); ctx.translate(X(0.055), Y(0.74)); ctx.rotate(-Math.PI / 2 + 0.25); fell(ctx, P[5] || '', 0, 0, small, fam, hexA(c.ink, 0.7), 'center', true, 0.1); ctx.restore();
+  { const sxp = X(0.1), syp = Y(0.9); ctx.fillStyle = c.panel; ctx.strokeStyle = c.ink; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(sxp - 7, syp); ctx.lineTo(sxp + 7, syp); ctx.lineTo(sxp + 5, syp + 3); ctx.lineTo(sxp - 5, syp + 3); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(sxp, syp); ctx.lineTo(sxp, syp - 11); ctx.stroke(); ctx.fillStyle = c.accent; ctx.beginPath(); ctx.moveTo(sxp + 1, syp - 10); ctx.lineTo(sxp + 7, syp - 2); ctx.lineTo(sxp + 1, syp - 2); ctx.closePath(); ctx.fill(); }
+  islet(X(0.04), Y(0.965), 3.2); islet(X(0.16), Y(0.975), 2.6);
+  [[0.03, 0.43], [0.05, 0.85], [0.15, 0.93]].forEach(([u, v]) => wave(X(u), Y(v)));
+  // river from the Fells into Hollowmere and out to the east
+  ctx.strokeStyle = c.ink; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(X(0.62), Y(0.285)); ctx.bezierCurveTo(X(0.64), Y(0.36), X(0.72), Y(0.38), X(0.765), Y(0.47)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X(0.93), Y(0.545)); ctx.bezierCurveTo(X(0.96), Y(0.56), X(0.98), Y(0.6), X(1.02), Y(0.6)); ctx.stroke();
+  // Hollowmere
+  const LX = X(0.84), LY = Y(0.53), lrx = bw * 0.085, lry = bh * 0.05;
+  ctx.fillStyle = c.panel; ctx.beginPath(); ctx.ellipse(LX, LY, lrx, lry, -0.15, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = c.ink; ctx.lineWidth = 0.9; ctx.stroke();
+  for (let j = 1; j <= 3; j++) { ctx.beginPath(); ctx.ellipse(LX, LY, lrx - j * 3, Math.max(1, lry - j * 2.2), -0.15, 0, Math.PI * 2); ctx.strokeStyle = hexA(c.ink, 0.25); ctx.lineWidth = 0.4; ctx.stroke(); }
+  // the Greyhallow Fells, with a clear pass where the journey ends
+  const range = [];
+  for (let i = 0; i < 28; i++) { const t = i / 27, u = 0.22 + t * 0.58 + (r() - 0.5) * 0.01; if (u > 0.44 && u < 0.6) continue; const v = 0.255 - Math.sin(t * Math.PI) * 0.05 + (r() - 0.5) * 0.015; range.push([u, v, 12 + r() * 12 + Math.sin(t * Math.PI) * 6, 9 + r() * 6]); }
+  for (let i = 0; i < 12; i++) { const t = i / 11, u = 0.28 + t * 0.46 + (r() - 0.5) * 0.01; if (u > 0.42 && u < 0.62) continue; range.push([u, 0.285 + (r() - 0.5) * 0.01, 6 + r() * 5, 7 + r() * 4]); }
+  range.sort((a2, b2) => a2[1] - b2[1]).forEach(([u, v, h, w]) => peak(X(u), Y(v), h, w));
+  // Pinewatch, a pine wood in the north-west
+  const pines = []; for (let i = 0; i < 30; i++) pines.push([0.03 + r() * 0.15, 0.17 + r() * 0.12]);
+  pines.sort((a2, b2) => a2[1] - b2[1]).forEach(([u, v]) => pine(X(u), Y(v), 8 + r() * 4));
+  // hills: Sheepcote in the west, an unnamed rise east of the river
+  [[0.19, 0.53], [0.235, 0.52], [0.28, 0.535], [0.21, 0.56], [0.255, 0.555]].forEach(([u, v]) => hill(X(u), Y(v), 13 + r() * 4));
+  [[0.72, 0.33], [0.765, 0.32], [0.81, 0.335], [0.745, 0.355]].forEach(([u, v]) => hill(X(u), Y(v), 12 + r() * 4));
+  // Ashwood and Fenwick Marsh
+  forestMass(0.895, 0.705, 0.09, 0.05, 1);
+  for (let i = 0; i < 9; i++) tuft(X(0.33 + r() * 0.12), Y(0.7 + r() * 0.04));
+  // landmarks
+  tower(X(0.262), Y(0.405)); ruin(X(0.5), Y(0.56));
+  house(X(0.235), Y(0.895), 0.85); house(X(0.258), Y(0.875), 0.85); house(X(0.25), Y(0.92), 0.85);
+  { const ix = X(0.585), iy = Y(0.75); house(ix, iy, 1.25); ctx.strokeStyle = c.ink; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(ix + 6, iy - 6); ctx.lineTo(ix + 10, iy - 6); ctx.lineTo(ix + 10, iy - 3); ctx.stroke(); ctx.fillStyle = '#F2B33D'; ctx.beginPath(); ctx.arc(ix + 10, iy - 1.5, 1.8, 0, Math.PI * 2); ctx.fill(); }
+  // THE WENDING WAY: a smooth route through six stages, with direction chevrons
+  const WP = [[0.3, 0.9], [0.62, 0.78], [0.745, 0.6], [0.52, 0.52], [0.3, 0.4], [0.5, 0.205]].map(([u, v]) => [X(u), Y(v)]);
+  const ctrlPts = [WP[0]].concat(WP).concat([WP[WP.length - 1]]), path = [];
+  for (let i = 1; i < ctrlPts.length - 2; i++) { const p0 = ctrlPts[i - 1], p1 = ctrlPts[i], p2 = ctrlPts[i + 1], p3 = ctrlPts[i + 2]; for (let j = 0; j < 16; j++) { const t = j / 16, t2 = t * t, t3 = t2 * t; path.push([0.5 * ((2 * p1[0]) + (-p0[0] + p2[0]) * t + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3), 0.5 * ((2 * p1[1]) + (-p0[1] + p2[1]) * t + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3)]); } }
+  path.push(WP[WP.length - 1]);
+  ctx.strokeStyle = hexA(c.panel, 0.9); ctx.lineWidth = 5; ctx.beginPath(); path.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
+  ctx.setLineDash([4, 3.2]); ctx.strokeStyle = c.accent; ctx.lineWidth = 1.8; ctx.beginPath(); path.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.setLineDash([]);
+  let acc = 0, next = 26;
+  for (let i = 1; i < path.length; i++) { const x0 = path[i - 1][0], y0 = path[i - 1][1], x1 = path[i][0], y1 = path[i][1]; acc += Math.hypot(x1 - x0, y1 - y0); if (acc >= next) { next += 30; if (WP.some(([wx, wy]) => Math.hypot(wx - x1, wy - y1) < 13)) continue; const a = Math.atan2(y1 - y0, x1 - x0); ctx.strokeStyle = c.accent; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(x1 - 4 * Math.cos(a - 0.6), y1 - 4 * Math.sin(a - 0.6)); ctx.lineTo(x1, y1); ctx.lineTo(x1 - 4 * Math.cos(a + 0.6), y1 - 4 * Math.sin(a + 0.6)); ctx.stroke(); } }
+  const NUM = ['I', 'II', 'III', 'IV', 'V'];
+  WP.slice(0, 5).forEach(([x, y], i) => { ctx.fillStyle = c.accent; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = c.panel; ctx.lineWidth = 1.2; ctx.stroke(); spaced(ctx, NUM[i], x, y + 2.3, i === 2 || i === 3 ? 5.4 : 6.2, th.fonts.mono, 700, 0, 'center', c.panel); });
+  { const dx = WP[5][0], dy = WP[5][1]; ctx.strokeStyle = c.accent; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(dx - 6, dy - 6); ctx.lineTo(dx + 6, dy + 6); ctx.moveTo(dx + 6, dy - 6); ctx.lineTo(dx - 6, dy + 6); ctx.stroke(); ctx.strokeStyle = c.ink; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(dx + 9, dy + 2); ctx.lineTo(dx + 9, dy - 16); ctx.stroke(); ctx.fillStyle = c.accent; ctx.beginPath(); ctx.moveTo(dx + 9, dy - 16); ctx.lineTo(dx + 18, dy - 12.5); ctx.lineTo(dx + 9, dy - 9); ctx.closePath(); ctx.fill(); }
+  // a small traveller on the road between the inn and the lake
+  { const tx = X(0.668), ty = Y(0.735); ctx.fillStyle = c.ink; ctx.beginPath(); ctx.arc(tx, ty - 9, 1.9, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.moveTo(tx - 2.6, ty - 6.6); ctx.lineTo(tx + 2.6, ty - 6.6); ctx.lineTo(tx + 3.2, ty); ctx.lineTo(tx - 3.2, ty); ctx.closePath(); ctx.fill(); ctx.fillStyle = c.accent; ctx.fillRect(tx - 2.2, ty - 6, 4.4, 3.6); ctx.strokeStyle = c.ink; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(tx + 4.5, ty - 10); ctx.lineTo(tx + 5.5, ty + 0.5); ctx.stroke(); if (k.details) fell(ctx, 'you are here', tx + 9, ty - 1, small * 0.9, fam, hexA(c.ink, 0.8), 'left', true); }
+  // labels, each placed in its own clear space
+  fell(ctx, (P[2] || '').toUpperCase(), X(0.47), Y(0.075), sz * 1.05, fam, c.accent, 'center', false, 0.32);
+  fell(ctx, P[0] || '', X(0.655), Y(0.795), sz * 0.95, fam, c.accent, 'left', false);
+  fell(ctx, P[3] || '', X(0.86), Y(0.625), sz * 0.95, fam, c.accent, 'center', false);
+  fell(ctx, P[10] || '', X(0.33), Y(0.965), sz * 0.95, fam, c.accent, 'center', false);
+  ctx.save(); ctx.translate(X(0.9), Y(0.705)); ctx.rotate(-0.06); { const nm = (P[1] || '').toUpperCase(); ctx.fillStyle = hexA(c.panel, 0.9); const w2 = nm.length * sz * 0.55; ctx.fillRect(-w2 / 2, -sz * 0.55, w2, sz * 0.95); fell(ctx, nm, 0, 3, sz * 0.78, fam, c.accent, 'center', false, 0.16); } ctx.restore();
+  { const a = Math.atan2(WP[1][1] - WP[0][1], WP[1][0] - WP[0][0]); ctx.save(); ctx.translate((WP[0][0] + WP[1][0]) / 2 + 4, (WP[0][1] + WP[1][1]) / 2 + 16); ctx.rotate(a); fell(ctx, P[4] || '', 0, 0, sz * 0.95, fam, c.accent, 'center', true, 0.12); ctx.restore(); }
+  if (k.details) {
+    fell(ctx, P[12] || '', X(0.11), Y(0.335), small, fam, hexA(c.ink, 0.85), 'center', true, 0.06);
+    fell(ctx, P[8] || '', X(0.335), Y(0.425), small, fam, c.accent, 'left', false);
+    fell(ctx, P[6] || '', X(0.235), Y(0.6), small, fam, hexA(c.ink, 0.85), 'center', true, 0.06);
+    fell(ctx, P[9] || '', X(0.5), Y(0.6), small, fam, hexA(c.ink, 0.85), 'center', true);
+    fell(ctx, P[7] || '', X(0.39), Y(0.775), small, fam, hexA(c.ink, 0.85), 'center', true, 0.06);
+    fell(ctx, 'the pass', X(0.5) + 6, Y(0.205) + 22, small, fam, c.accent, 'left', true);
   }
-  if (opts.compass) compassRose(ctx, th, X(0.86), Y(0.16), opts.compass);
+  // legend cartouche: the stages of the journey, and the scale
   if (opts.scale) {
-    const sx = X(0.06), sy = Y(0.95);
-    for (let i = 0; i < 4; i++) { ctx.fillStyle = i % 2 ? c.panel : c.ink; ctx.fillRect(sx + i * 14, sy, 14, 3.5); }
-    ctx.strokeStyle = c.ink; ctx.lineWidth = 0.6; ctx.strokeRect(sx, sy, 56, 3.5);
-    spaced(ctx, th.text.scale || 'LEAGUES', sx, sy - 4, 5.6, th.fonts.mono, 400, 0.18, 'left', c.ink);
+    const lx = X(0.625), ly = Y(0.85), lw = X(0.985) - lx, lh = Y(0.985) - ly;
+    ctx.fillStyle = hexA(c.panel, 0.95); ctx.fillRect(lx, ly, lw, lh); ctx.strokeStyle = c.ink; ctx.lineWidth = 0.7; ctx.strokeRect(lx, ly, lw, lh); ctx.lineWidth = 0.3; ctx.strokeRect(lx + 2, ly + 2, lw - 4, lh - 4);
+    spaced(ctx, 'THE JOURNEY', lx + lw / 2, ly + 9, 5.2, th.fonts.mono, 400, 0.2, 'center', c.accent);
+    const st = [P[10] || 'Brindle', P[0] || 'The Lantern Inn', P[3] || 'Hollowmere', P[9] || 'Calder Ruins', P[8] || 'Old Tower', 'The Pass'];
+    st.forEach((nm, i) => { const col = i < 3 ? 0 : 1, row = i % 3, x = lx + 6 + col * lw / 2, y = ly + 18 + row * 8; spaced(ctx, ['I', 'II', 'III', 'IV', 'V', 'VI'][i], x + 7, y, 5, th.fonts.mono, 700, 0, 'right', c.accent); fell(ctx, nm.replace(/^The /, ''), x + 10, y, 5.8, fam, c.ink, 'left', false); });
+    const sx = lx + 6, sy = ly + lh - 6; for (let i = 0; i < 4; i++) { ctx.fillStyle = i % 2 ? c.panel : c.ink; ctx.fillRect(sx + i * 9, sy, 9, 2.6); } ctx.strokeStyle = c.ink; ctx.lineWidth = 0.5; ctx.strokeRect(sx, sy, 36, 2.6);
+    spaced(ctx, th.text.scale || 'LEAGUES', sx + 40, sy + 2.6, 4.6, th.fonts.mono, 400, 0.16, 'left', c.ink);
   }
+  if (opts.compass) compassRose(ctx, th, X(0.9), Y(0.17), opts.compass * 0.9);
   ctx.restore();
   ctx.strokeStyle = c.ink; ctx.lineWidth = 1; ctx.strokeRect(bx, by, bw, bh);
   ctx.lineWidth = 0.4; ctx.strokeRect(bx + 3, by + 3, bw - 6, bh - 6);
