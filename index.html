@@ -1923,7 +1923,7 @@ const ODD = {
   },
   bet: {
     title: "W-08 // LONGSHOT OF THE HOUR", right: "LIVE ODDS",
-    qs: ["Will your cat knock something off a table today?", "Will you say 'quick question' and ask a long one?", "Will the group chat plan actually happen?", "Will you find the TV remote in under a minute?", "Will it rain the moment you leave without an umbrella?", "Will you remember why you walked into this room?", "Will the leftovers survive until tomorrow?", "Will you finish the show tonight?"],
+    qs: ["Will a raccoon be elected mayor by Friday?", "Will the moon file for bankruptcy?", "Will your toaster achieve sentience and demand rights?", "Will geese form a labor union this week?", "Will Tuesday be officially cancelled?", "Will a pigeon steal your identity?", "Will gravity take the weekend off?", "Will a dolphin outbid you on a house?", "Will your houseplant sue you for neglect?", "Will aliens leave Earth a one-star review?", "Will the ocean start a group chat?", "Will a squirrel corner the acorn market?", "Will you accidentally adopt a llama?", "Will the sun ghost us tomorrow?", "Will your Wi-Fi achieve enlightenment?", "Will a seagull win the lottery?", "Will your sandwich become a celebrity?", "Will a horse headline a music festival?", "Will your fridge start a podcast?", "Will the moon start charging rent?", "Will clouds unionize and refuse to rain?", "Will a goose be knighted?", "Will your cat be appointed to a board of directors?", "Will socks finally reveal where they go?"],
     pos: ["3 YES", "1 NO", "FLAT (RARE)", "40 YES (UNWISE)", "2 NO (HEDGED)", "ALL IN"]
   },
   tip: {
@@ -3494,14 +3494,15 @@ const MK = {
     const wx = d.wx || {}, r = k.rng(dayOfYear(d.now) * 3 + d.now.getHours()), p = d.ev ? (d.ev.active ? 0.91 : 0.6 + r() * 0.35) : 0.5
     mkLive(k, 10, 4); k.t(d.ev ? "RESOLVES TODAY" : "NO OPEN BETS", 50, 4, 7, k.S, { w: 120 })
     mkCard(k, 10, 16, 214, H - 32)
-    k.para(d.ev ? `WILL YOU MAKE "${d.ev.title.toUpperCase()}" ON TIME?` : "WILL TODAY BE QUIET?", 18, 22, 140, 11, k.I, "disp", 3, 1.08)
+    const QS = [(t) => `WILL A GOOSE CRASH "${t}"?`, (t) => `WILL "${t}" END IN A DANCE-OFF?`, (t) => `WILL "${t}" BE MOVED TO THE MOON?`, (t) => `WILL PIGEONS LIVESTREAM "${t}"?`, (t) => `WILL "${t}" GET A SEQUEL?`, (t) => `WILL A MARIACHI BAND HIJACK "${t}"?`]
+    k.para(d.ev ? QS[(dayOfYear(d.now) + d.now.getHours()) % QS.length](d.ev.title.toUpperCase()) : "WILL A RACCOON BE ELECTED MAYOR TODAY?", 18, 22, 140, 11, k.I, "disp", 3, 1.08)
     k.t(`${Math.round(p * 100)}%`, 216, 20, 22, k.a(T.altBg, 1), { f: "disp", a: "r", w: 70 }); k.t(`▲${(r() * 40).toFixed(0)}% · 1H`, 216, 46, 6.5, k.a(T.altBg, 1), { a: "r", w: 70 })
     mkLev(k, 18, 62, 3, true)
     mkYesNo(k, 18, 78, 198, 16, p)
     k.t("PAYOUT IF YES", 18, 99, 6, k.S, { w: 80 }); k.t(`$${(1000 / Math.max(0.05, p) * (1 + r())).toFixed(0)}`, 18, 106, 13, mkGold(), { f: "disp", w: 100 }); mkArea(k, 120, 98, 96, 22, r, true)
     const rx = 232
-    ;[["RAIN TODAY?", wx.cond && /RAIN|SHOWER|DRIZZLE|STORM/.test(wx.cond) ? 0.82 : 0.12], [`OVER ${wx.hi != null ? wx.hi - 3 : 70}°?`, 0.4 + r() * 0.4], ["BATTERY 50%+ AT 9PM?", Math.min(0.97, d.batt + 0.1)]].forEach(([q, pr], i) => { const y = 16 + i * 38; mkCard(k, rx, y, W - rx - 10, 33, i === 1 ? "#FF2D55" : T.accent); k.t(q, rx + 6, y + 5, 6.5, k.I, { f: "bold", w: W - rx - 50 }); k.t(`${Math.round(pr * 100)}%`, W - 16, y + 3, 10, pr > 0.5 ? k.a(T.altBg, 1) : mkNo(), { f: "disp", a: "r", w: 40 }); k.rect(rx + 6, y + 21, (W - rx - 22) * pr, 5, k.a(T.altBg, 1)); k.rect(rx + 6 + (W - rx - 22) * pr, y + 21, (W - rx - 22) * (1 - pr), 5, mkNo()) })
-    mkWhale(k, 10, H - 13, W - 20, `WHALE ALERT · @moby_${dayOfYear(d.now) % 90} BET $${(50 + r() * 900).toFixed(0)}K ON YES · ${wx.temp != null ? wx.temp + "°" : ""}`)
+    ;[["IT RAINS FROGS?", wx.cond && /RAIN|SHOWER|DRIZZLE|STORM/.test(wx.cond) ? 0.41 : 0.04], [`SUN GHOSTS US TMRW?`, 0.06 + r() * 0.2], ["PHONE DIES MID-FLEX?", Math.max(0.03, Math.min(0.97, 1 - d.batt))]].forEach(([q, pr], i) => { const y = 16 + i * 38; mkCard(k, rx, y, W - rx - 10, 33, i === 1 ? "#FF2D55" : T.accent); k.t(q, rx + 6, y + 5, 6.5, k.I, { f: "bold", w: W - rx - 50 }); k.t(`${Math.round(pr * 100)}%`, W - 16, y + 3, 10, pr > 0.5 ? k.a(T.altBg, 1) : mkNo(), { f: "disp", a: "r", w: 40 }); k.rect(rx + 6, y + 21, (W - rx - 22) * pr, 5, k.a(T.altBg, 1)); k.rect(rx + 6 + (W - rx - 22) * pr, y + 21, (W - rx - 22) * (1 - pr), 5, mkNo()) })
+    mkWhale(k, 10, H - 13, W - 20, `WHALE ALERT · @moby_${dayOfYear(d.now) % 90} BET $${(50 + r() * 900).toFixed(0)}K THAT BIRDS AREN'T REAL`)
   },
   shift(k, W, H, d) {
     const r = k.rng(7), f = d.ev ? d.frac : 0
@@ -3534,7 +3535,7 @@ const MK = {
     k.ln([[10, top + ch * 0.92], [W - 10, top + ch * 0.92]], k.a("#FF2D55", 0.5), 0.8); if (!small) k.t("LIQUIDATION", W - 12, top + ch * 0.92 - 9, 6, mkNo(), { a: "r", w: 70 })
     k.t(`OPEN ${shortT(d.rise)}`, 12, top + ch + 5, 7, k.S, { w: 90 }); k.t(`CLOSE ${shortT(d.set)}`, W - 12, top + ch + 5, 7, k.S, { a: "r", w: 90 })
     if (big && d.atm) {
-      k.t("WEATHER BETS // RESOLVE TONIGHT", 12, 132, 6.5, k.a(T.accent, 1), { w: 240, f: "bold" })
+      k.t("SKY CASINO // WILL THE WEATHER BETRAY US?", 12, 132, 6.5, k.a(T.accent, 1), { w: 260, f: "bold" })
       atmItems(d.atm).forEach(([l, v], i) => { const x = 12 + (i % 3) * 114, y = 146 + Math.floor(i / 3) * 78, pr = 0.15 + ((i * 37 + dayOfYear(d.now)) % 75) / 100; mkCard(k, x, y, 106, 68, i % 2 ? "#FF2D55" : T.accent); k.t(l, x + 8, y + 7, 6.5, k.S, { w: 60, f: "bold" }); k.t(v, x + 8, y + 19, String(v).length > 4 ? 13 : 16, k.I, { f: "disp", w: 60 }); inst(k, i, x + 70, y + 12, d.atm, { ink: k.a(T.altBg, 1), hot: mkNo(), faint: k.ia(0.12) }); mkYesNo(k, x + 8, y + 48, 90, 13, pr) })
       mkWhale(k, 12, H - 30, W - 24, "NOT FINANCIAL ADVICE · NOT WEATHER ADVICE · BARELY ADVICE")
     }
@@ -3542,7 +3543,7 @@ const MK = {
   feed(k, W, H, d) {
     const m = 8, r = k.rng(d.side.length * 17), up = d.side === "yt", p = up ? 0.64 : 0.38
     mkCard(k, m, 8, W - m * 2, H * 0.5, up ? T.altBg : "#FF2D55")
-    k.t(d.code, m + 8, 13, 6.5, k.S, { w: 60 }); k.t(up ? "▲ PUMPING" : "▼ DUMPING", W - m - 8, 13, 7, up ? k.a(T.altBg, 1) : mkNo(), { a: "r", w: 90, f: "bold" })
+    k.t(up ? "AI DIRECTS A FILM ABOUT YOU?" : "YOUR POST GETS KNIGHTED?", m + 8, 13, 6.5, k.S, { w: W - m * 2 - 70 }); k.t(up ? "▲ PUMPING" : "▼ DUMPING", W - m - 8, 13, 7, up ? k.a(T.altBg, 1) : mkNo(), { a: "r", w: 70, f: "bold" })
     k.t(up ? "+34%" : "-12%", m + 8, 22, 18, up ? k.a(T.altBg, 1) : mkNo(), { f: "disp", w: 90 }); mkArea(k, m + 84, 24, W - m * 2 - 92, 22, r, up)
     mkYesNo(k, m + 8, 8 + H * 0.5 - 22, W - m * 2 - 16, 14, p)
     k.t(d.line.toUpperCase(), m, 8 + H * 0.5 + 5, 11, k.I, { f: "disp", w: W - m * 2 })
@@ -3550,7 +3551,7 @@ const MK = {
     k.t(d.tag, m, H - 13, 6.5, up ? k.a(T.altBg, 1) : mkNo(), { w: W - m * 2, f: "bold" })
   },
   yt(k, W, H, d) {
-    const r = sRng(d, 71), small = W < 200, rows = [["NEXT VIDEO UNDER 10 MIN?", 0.22, "25X"], ["YOU WATCH ONE MORE?", 0.97, "100X"], ["ALGORITHM SERVES A CAT?", 0.71, "5X"], ["AD IS SKIPPABLE?", 0.48, "1X"]]
+    const r = sRng(d, 71), small = W < 200, rows = [["THE ALGORITHM FALLS IN LOVE?", 0.22, "25X"], ["A CAT HOSTS THE NEWS?", 0.71, "100X"], ["YOU WATCH 400 MORE?", 0.97, "5X"], ["THE AD SKIPS YOU?", 0.08, "50X"]]
     mkLive(k, 12, 4); k.t("WATCH & BET", 52, 4, 7, k.a(T.accent, 1), { f: "bold", w: 140 })
     rows.slice(0, small ? 3 : 4).forEach(([q, p, lev], i) => { const y = 17 + i * (small ? 38 : 28), w = small ? W - 24 : 214; mkCard(k, 12, y, w, small ? 33 : 24, p > 0.5 ? T.altBg : "#FF2D55"); k.t(q, 18, y + 4, 7, k.I, { w: w - 60, f: "bold" }); k.t(lev, 12 + w - 6, y + 3, 7, k.a(T.accent, 1), { a: "r", w: 40, f: "bold" }); const pp = Math.max(0.03, Math.min(0.97, p + (r() - 0.5) * 0.1)); k.rect(18, y + (small ? 18 : 15), (w - 12) * pp, small ? 9 : 5, k.a(T.altBg, 1)); k.rect(18 + (w - 12) * pp, y + (small ? 18 : 15), (w - 12) * (1 - pp), small ? 9 : 5, mkNo()) })
     if (small) return
@@ -3564,7 +3565,7 @@ const MK = {
     if (small) return
     k.t("HYPE INDEX // YOUR FEED, LEVERAGED", 12, 66, 7, k.a(T.accent, 1), { f: "bold", w: 260 })
     ;[["POSTS PRICED", `${40 + Math.floor(r() * 300)}`, k.I], ["MOONING", `${50 + Math.floor(r() * 40)}%`, k.a(T.altBg, 1)], ["REKT", `${5 + Math.floor(r() * 30)}%`, mkNo()]].forEach(([l, v, col], i) => { const x = 12 + i * 112; k.t(l, x, 80, 6.5, k.S, { w: 100 }); k.t(v, x, 90, 16, col, { f: "disp", w: 100 }) })
-    mkWhale(k, 12, 114, W - 24, "@influencer_9 JUST GOT REKT · -88% · HYPE MIGRATING")
+    mkWhale(k, 12, 114, W - 24, "@influencer_9 CAUGHT POSTING A REAL PHOTO · -88% · HYPE FLEEING")
   },
   dc(k, W, H, d) {
     const r = sRng(d, 73), small = W < 200, traders = [["@moby_whale", 1], ["@paperhands", -1], ["@kelly_k", 1], ["@rekt_again", -1], ["@moonboi", 1], ["@priced_in", 1]]
@@ -3573,7 +3574,7 @@ const MK = {
     if (small) return
     const rx = 186
     mkCard(k, rx, 16, W - rx - 12, 112)
-    ;["# 100x-or-nothing", "# whale-watching", "# cope-and-seethe", "🔊 the trading pit"].forEach((c2, i) => { const y = 24 + i * 16; k.t(c2, rx + 8, y, 8.5, i === 3 ? k.a(T.accent, 1) : k.I, { w: 150 }); if (r() > 0.4) k.circ(W - 24, y + 5, 3, mkNo()) })
+    ;["# raccoon-for-mayor", "# moon-bankruptcy-watch", "# sentient-toaster-truthers", "🔊 the trading pit"].forEach((c2, i) => { const y = 24 + i * 16; k.t(c2, rx + 8, y, 8.5, i === 3 ? k.a(T.accent, 1) : k.I, { w: 150 }); if (r() > 0.4) k.circ(W - 24, y + 5, 3, mkNo()) })
     k.t(`OPEN INTEREST $${(10 + r() * 990).toFixed(0)}M`, rx + 8, 92, 7, mkGold(), { w: 160, f: "bold" }); mkYesNo(k, rx + 8, 106, W - rx - 28, 14, 0.57)
   },
   audio(k, W, H, d) {
@@ -4253,7 +4254,7 @@ const PRESETS = {
     colors: { ground: '#06070B', ink: '#F2F4F8', accent: '#8B5CF6', glow: '#00FF88', panel: '#10121A', alert: '#FF2D55' },
     fonts: { display: 'Archivo', mono: 'JetBrains Mono' },
     motif: 'market', texture: 'scan', marks: 'none', iconStyle: 'contract', glyphs: 'market', units: 'fahrenheit', upper: true,
-    phrases: [['Ape Into', 'Today'], ['Will You', 'Get Up Today?'], ['Max Leverage', 'On Coffee'], ['All In On', 'Yourself']],
+    phrases: [['Raccoon Elected', 'Mayor?'], ['Moon Files For', 'Bankruptcy?'], ['Your Toaster', 'Gains Sentience?'], ['Gravity Takes', 'Friday Off?']],
     text: { tagL: 'LONG ODDS // DEGEN EXCHANGE', tagR: 'LIVE', sub: 'Not financial advice. Barely advice.', foot: 'LONG ODDS // 24/7/365 // NO BRAKES', homeTop: 'WHALES ARE MOVING', caption: 'Bet small. Dream huge.' },
     codes: { camera: 'SCOUT', photos: 'PNL', maps: 'ROUTE', calendar: 'EXPIRY', phone: 'WHALE', messages: 'ALPHA', browser: 'MARKETS', music: 'PUMP', youtube: 'REPLAY', instagram: 'HYPE', discord: 'PIT' },
     widget: {
@@ -7977,7 +7978,7 @@ function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
   ctx.fillStyle = hexA(c.ink, 0.035 * k.texture); for (let y = 0; y < Hl; y += 3) ctx.fillRect(0, y, 390, 1)
   for (let i = 0; i < 70; i++) { ctx.fillStyle = hexA([YES, V, NO, '#FFD84A'][i % 4], 0.35 + r() * 0.5); const x = r() * 390, y = r() * Hl, w = 2 + r() * 3; ctx.save(); ctx.translate(x, y); ctx.rotate(r() * 3); ctx.fillRect(-w / 2, -1, w, 2); ctx.restore() }
   const glowText = (str, x, y, size, col, align, fam, wt) => { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = 14 * k.glow; spaced(ctx, str, x, y, size, fam || disp, wt || dw, 0, align || 'center', col); ctx.restore() }
-  const tick = ['RAIN TMRW 37¢ ▼2', 'ON TIME 81¢ ▲34', 'NAP TODAY 58¢ ▲9', 'GYM 12¢ ▼46', 'COFFEE #3 99¢ ▲1', 'REPLY BY 5PM 44¢ ▼3', 'WHALE BUYS YES $250K']
+  const tick = ['RACCOON MAYOR 37¢ ▲12', 'MOON BANKRUPT 9¢ ▼4', 'TOASTER SENTIENT 58¢ ▲31', 'GEESE UNIONIZE 81¢ ▲9', 'TUESDAY CANCELLED 44¢ ▼3', 'SUN GHOSTS US 3¢ ▲1', 'PIGEON HEIST 66¢ ▲22', 'WHALE BUYS YES $250K']
   const ty = mode === 'lock' ? Hl - 66 : 676; ctx.fillStyle = hexA(V, 0.9); ctx.fillRect(0, ty, 390, 22); spaced(ctx, tick.join('   ★   '), 12, ty + 15, 8.5, mono, 600, 0.02, 'left', '#FFFFFF')
   const lev = ['1X', '5X', '25X', '100X']
   if (mode === 'lock') {
@@ -8009,7 +8010,7 @@ function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
     })
     if (k.details) {
       const bets = [['@degen_42', '$1,200', 'YES', '25X', YES], ['@paperhands', '$40', 'NO', '1X', NO], ['@moonboi', '$9,999', 'YES', '100X', YES], ['@rekt_again', '$300', 'NO', '50X', NO]]
-      spaced(ctx, 'LIVE BETS', 22, 556, 7.5, mono, 700, 0.12, 'left', V)
+      spaced(ctx, 'LIVE BETS · ' + ['RACCOON FOR MAYOR', 'LUNAR BANKRUPTCY', 'SENTIENT TOASTER', 'GRAVITY STRIKE'][phraseIdx % 4], 22, 556, 7.5, mono, 700, 0.12, 'left', V)
       bets.forEach(([u, amt, side, l, col], i) => { const y = 572 + i * 16; spaced(ctx, u, 22, y, 8, mono, 500, 0, 'left', hexA(c.ink, 0.75)); spaced(ctx, amt, 170, y, 8, mono, 700, 0, 'left', c.ink); spaced(ctx, side, 236, y, 8, mono, 800, 0, 'left', col); spaced(ctx, l, 280, y, 8, mono, 700, 0, 'left', V); spaced(ctx, `${1 + i * 3}s`, 368, y, 7.5, mono, 500, 0, 'right', hexA(c.ink, 0.45)) })
     }
     spaced(ctx, T.sub || '', 195, 652, 9, mono, 600, 0.06, 'center', hexA(c.ink, 0.6))
@@ -8023,7 +8024,7 @@ function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
       const y0 = 400, h = 150, mid = 195, bid = [], ask = []; let a = 0, b2 = 0
       for (let i = 0; i <= 20; i++) { a += 2 + r() * 7; bid.push([mid - 8 - i * 8.4, y0 + h - a]); b2 += 2 + r() * 7; ask.push([mid + 8 + i * 8.4, y0 + h - b2]) }
       const area = (pts, col) => { ctx.fillStyle = hexA(col, 0.2); ctx.beginPath(); ctx.moveTo(pts[0][0], y0 + h); pts.forEach(([x, y]) => ctx.lineTo(x, y)); ctx.lineTo(pts[pts.length - 1][0], y0 + h); ctx.closePath(); ctx.fill(); ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.shadowColor = col; ctx.shadowBlur = 10 * k.glow; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.restore() }
-      area(bid, YES); area(ask, NO); glowText('62¢', mid, y0 - 8, 16, c.ink)
+      area(bid, YES); area(ask, NO); glowText('62¢', mid, y0 - 8, 16, c.ink); spaced(ctx, 'WILL GEESE UNIONIZE BY FRIDAY?', mid, y0 - 30, 10, disp, dw, 0.02, 'center', hexA(c.ink, 0.85))
       ctx.save(); ctx.translate(285, 520); ctx.rotate(-0.22); ctx.strokeStyle = NO; ctx.lineWidth = 2.5; ctx.strokeRect(-56, -16, 112, 30); spaced(ctx, 'LIQUIDATED', 0, 5, 14, mono, 800, 0.1, 'center', NO); ctx.restore()
     })
     if (k.details) spaced(ctx, T.homeTop || '', 195, 236, 8, mono, 700, 0.2, 'center', V)
@@ -8340,7 +8341,7 @@ const ODD_INFO = {
   hostile: ['Hostile Intel', 'A field-guide entry on a made-up enemy: silhouette, threat level, armor, aggression and cowardice, its weakness and a tactical tip.'],
   spell: ['Spell of the Hour', 'A fake spell card: school, rarity (sometimes cursed), essence cost, casting time, the effect and the side effect.'],
   market: ['Black Market', 'The deal of the hour: a questionable item, its seller and rating, the price in credits, its condition, a warranty of none and a risk meter.'],
-  bet: ['Longshot Of The Hour', 'A silly prediction market about your day (will the leftovers survive until tomorrow?) with YES and NO prices, the payout multiplier, volume, leverage and your position.'],
+  bet: ['Longshot Of The Hour', 'An outrageous prediction market (will the moon file for bankruptcy?) with YES and NO prices, the payout multiplier, volume, leverage and your position.'],
   tip: ['Tip Of The Hour', 'A cheerful, true little fact with an optimism reading, bubbles popped and clouds rendered.'],
   mall: ['Mall Directory', 'A store of the hour on a little mall map: its status (often closed since 1997), floor, coins in the fountain and the song on the speakers.'],
   species: ['Field Guide', 'A species of the hour with its Latin name, where to look for it, a real fact and a rarity meter.'],
@@ -8600,7 +8601,7 @@ function previewWidget(item, th) {
       const Kx = scriptableKit(th);
       const V = { bet: (x) => { let v = 0.5; for (let i = 0; i < 9; i++) { const o = v; v = Math.max(0.1, Math.min(0.9, v + Math.sin(i * 1.3) * 0.2)); x.fillStyle = v >= o ? wc.altBg : '#E8384F'; const yt = 12 + 40 * (1 - Math.max(o, v)), yb = 12 + 40 * (1 - Math.min(o, v)); x.fillRect(8 + i * 7, yt, 5, Math.max(2, yb - yt)); } x.fillStyle = hexA(wc.altBg, 0.8); x.fillRect(6, 62, 44, 9); x.fillStyle = 'rgba(232,56,79,.6)'; x.fillRect(50, 62, 24, 9); }, market: (x) => { x.strokeStyle = wc.headBg; x.lineWidth = 1.4; x.strokeRect(6, 24, 68, 40); x.fillStyle = hexA(wc.accent, 0.5); x.beginPath(); x.moveTo(26, 44); x.lineTo(40, 34); x.lineTo(54, 44); x.lineTo(40, 54); x.closePath(); x.fill(); x.fillStyle = wc.altBg; x.font = `700 11px ${mono}`; x.textAlign = 'center'; x.fillText('499c', 40, 16); }, tip: (x) => { x.fillStyle = hexA(wc.headBg, 0.25); x.strokeStyle = '#FFFFFF'; x.lineWidth = 1.4; x.beginPath(); x.arc(40, 40, 34, 0, Math.PI * 2); x.fill(); x.stroke(); x.fillStyle = '#FFF6B0'; x.beginPath(); x.arc(40, 38, 11, 0, Math.PI * 2); x.fill(); }, mall: (x) => { x.fillStyle = '#C3C3D0'; x.fillRect(4, 10, 72, 64); [wc.headBg, wc.altBg, '#FFFB96', wc.headBg, wc.altBg, '#FFFB96'].forEach((c2, i) => { x.globalAlpha = i === 2 ? 1 : 0.4; x.fillStyle = c2; x.fillRect(10 + (i % 3) * 22, 20 + Math.floor(i / 3) * 22, 18, 18); }); x.globalAlpha = 1; }, species: (x) => { x.fillStyle = wc.panel; x.strokeStyle = hexA(wc.ink, 0.6); x.beginPath(); x.arc(40, 40, 34, 0, Math.PI * 2); x.fill(); x.stroke(); x.fillStyle = wc.headBg; x.beginPath(); x.moveTo(22, 50); x.quadraticCurveTo(36, 30, 50, 40); x.quadraticCurveTo(36, 52, 22, 50); x.fill(); } }[t];
       r2.append(vis(80, V));
-      const P2 = { bet: ['MARKET #4417 · RESOLVES TONIGHT', 'Will the leftovers survive until tomorrow?', 'YES 63¢ · NO 37¢', [['PAYOUT', 'x1.6'], ['LEVERAGE', '25X'], ['YOUR POSITION', 'ALL IN']], 'NOT FINANCIAL ADVICE'], market: ['SELLER @gl1tch · ★4.6', 'Used Optic Mod (Slightly Haunted)', '499 CREDITS · REFURBISHED', [['WARRANTY', 'NONE'], ['RETURNS', 'LOL']], 'MEET AT THE NOODLE STAND'], tip: ['DID YOU KNOW?', 'Sea otters hold hands while they sleep.', '', [['OPTIMISM', '97%'], ['BUBBLES POPPED', '212']], 'HAVE A GREAT DAY'], mall: ['STORE OF THE HOUR', 'Sunset Video', 'CLOSED SINCE 1997', [['FLOOR', 'LEVEL 2'], ['FOUNTAIN COINS', '641']], 'NOW PLAYING: FOOD COURT WALTZ'], species: ['SPOTTED BY THE CREEK', 'Great Horned Owl', 'Bubo virginianus', [['FACT', "Its 'horns' are feather tufts."]], "LOOK, DON'T DISTURB"] }[t];
+      const P2 = { bet: ['MARKET #4417 · RESOLVES TONIGHT', 'Will a raccoon be elected mayor by Friday?', 'YES 37¢ · NO 63¢', [['PAYOUT', 'x1.6'], ['LEVERAGE', '25X'], ['YOUR POSITION', 'ALL IN']], 'NOT FINANCIAL ADVICE'], market: ['SELLER @gl1tch · ★4.6', 'Used Optic Mod (Slightly Haunted)', '499 CREDITS · REFURBISHED', [['WARRANTY', 'NONE'], ['RETURNS', 'LOL']], 'MEET AT THE NOODLE STAND'], tip: ['DID YOU KNOW?', 'Sea otters hold hands while they sleep.', '', [['OPTIMISM', '97%'], ['BUBBLES POPPED', '212']], 'HAVE A GREAT DAY'], mall: ['STORE OF THE HOUR', 'Sunset Video', 'CLOSED SINCE 1997', [['FLOOR', 'LEVEL 2'], ['FOUNTAIN COINS', '641']], 'NOW PLAYING: FOOD COURT WALTZ'], species: ['SPOTTED BY THE CREEK', 'Great Horned Owl', 'Bubo virginianus', [['FACT', "Its 'horns' are feather tufts."]], "LOOK, DON'T DISTURB"] }[t];
       const c = pv('div', 'flex:1;display:flex;flex-direction:column;gap:2px'); c.append(lbl(P2[0], 8), big(P2[1], 14)); if (P2[2]) c.append(pv('span', `font-size:8px;color:${wc.headBg}`, P2[2])); P2[3].forEach(([k2, v2]) => c.append(kvr(k2, v2)));
       r2.append(c); bd.append(r2, pv('div', 'flex:1'), lbl(P2[4], 8));
     } else if (t === 'heist') {
