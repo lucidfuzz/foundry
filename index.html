@@ -2327,7 +2327,7 @@ const NF = {
   },
   solar(k, W, H, d) {
     const small = W < 200, big = H > 200, cx = W / 2, hy = small ? 92 : 96, scale = small ? 1.2 : 1.6
-    for (let p = (H > 200 ? -20 : -10); p <= 30; p += 10) { const y = hy - p * scale; if (p === 0) continue; const w = p % 20 === 0 ? 70 : 44; k.ln([[cx - w, y], [cx - 12, y]], k.ia(0.45), 0.8); k.ln([[cx + 12, y], [cx + w, y]], k.ia(0.45), 0.8); if (!small) { k.t(String(p), cx - w - 4, y - 4, 6.5, k.S, { a: "r", w: 20 }); k.t(String(p), cx + w + 4, y - 4, 6.5, k.S, { w: 20 }) } }
+    for (let p = -10; p <= 30; p += 10) { const y = hy - p * scale; if (p === 0) continue; const w = p % 20 === 0 ? 70 : 44; k.ln([[cx - w, y], [cx - 12, y]], k.ia(0.45), 0.8); k.ln([[cx + 12, y], [cx + w, y]], k.ia(0.45), 0.8); if (!small) { k.t(String(p), cx - w - 4, y - 4, 6.5, k.S, { a: "r", w: 20 }); k.t(String(p), cx + w + 4, y - 4, 6.5, k.S, { w: 20 }) } }
     k.ln([[8, hy], [W - 8, hy]], k.I, 1.4)
     const elev = d.up ? Math.sin(Math.PI * d.frac) * 30 : -8, sx = 18 + (W - 36) * (d.up ? d.frac : 0.5), sy = hy - elev * scale
     k.circ(sx, sy, small ? 6 : 8, null, k.A, 1.6); k.circ(sx, sy, 2, k.A); k.ln([[sx, sy + 10], [sx, hy]], k.a(T.accent, 0.5), 0.8)
@@ -2336,7 +2336,20 @@ const NF = {
     if (!small) k.t(d.up ? C.solar.setIn : C.solar.riseIn, W - 10, 26, 7, k.S, { a: "r", w: 120 })
     k.t(`RISE ${shortT(d.rise)}`, 10, hy + 8, 7, k.S, { w: 90 }); k.t(`SET ${shortT(d.set)}`, W - 10, hy + 8, 7, k.S, { a: "r", w: 90 })
     if (!small) { const az = Math.round(90 + 180 * (d.up ? d.frac : 0.5)), el = Math.round(d.up ? Math.sin(Math.PI * d.frac) * 52 : -6), sh = el > 2 ? (1 / Math.tan(el * Math.PI / 180)).toFixed(1) : "--"; nfBrackets(k, W - 130, hy + 20, 120, 26, 5, k.ia(0.6), 1); k.t(`SUN AZ ${az}° · EL ${el}°`, W - 122, hy + 24, 7, k.I, { f: "bold", w: 110 }); k.t(`SHADOW ×${sh} · NVG AT DUSK`, W - 122, hy + 35, 6.5, k.A, { w: 110 }) }
-    if (big && d.atm) { const cells = [["PRECIP", d.atm.pmax != null ? `${d.atm.pmax}%` : "--"], ["HUMIDITY", d.atm.rh != null ? `${d.atm.rh}%` : "--"], ["UV", d.atm.uv != null ? `${Math.round(d.atm.uv)}` : "--"], ["VISIBILITY", d.atm.vis || "--"], ["DEW", d.atm.dew != null ? `${d.atm.dew}°` : "--"], ["WIND", d.atm.wind || "--"]]; cells.forEach(([l, v], i) => { const x = 14 + (i % 3) * 114, y = 170 + Math.floor(i / 3) * 64; nfBrackets(k, x, y, 104, 50, 7, k.I, 1); k.t(l, x + 10, y + 8, 7, k.S, { w: 90 }); k.t(v, x + 10, y + 21, 16, k.I, { f: "bold", w: 90 }) })
+    if (big && d.atm) { const cells = [["PRECIP", d.atm.pmax != null ? `${d.atm.pmax}%` : "--"], ["HUMIDITY", d.atm.rh != null ? `${d.atm.rh}%` : "--"], ["UV", d.atm.uv != null ? `${Math.round(d.atm.uv)}` : "--"], ["VISIBILITY", d.atm.vis || "--"], ["DEW", d.atm.dew != null ? `${d.atm.dew}°` : "--"], ["WIND", d.atm.wind || "--"]];       for (let gx = 10; gx < W - 10; gx += 19) k.ln([[gx, 152], [gx, H - 54]], k.ia(0.05), 0.5)
+      for (let gy = 152; gy < H - 54; gy += 16) k.ln([[10, gy], [W - 10, gy]], k.ia(0.05), 0.5)
+      ;[[60, 160], [180, 160], [300, 160], [120, 296], [240, 296]].forEach(([px, py]) => { k.ln([[px - 3, py], [px + 3, py]], k.ia(0.35), 0.6); k.ln([[px, py - 3], [px, py + 3]], k.ia(0.35), 0.6) })
+      k.t("SECTOR 9-K // ATMOSPHERIC PICTURE", 14, 154, 6, k.ia(0.4), { w: 220 }); k.t("N40.82 W74.21 · ALT 97M", W - 14, 154, 6, k.ia(0.4), { a: "r", w: 160 })
+      const A2 = d.atm
+      cells.forEach(([l, v], i) => { const x = 14 + (i % 3) * 114, y = 170 + Math.floor(i / 3) * 64; nfBrackets(k, x, y, 104, 50, 7, k.I, 1); k.t(l, x + 10, y + 8, 7, k.S, { w: 56 }); k.t(v, x + 10, y + 21, 16, k.I, { f: "bold", w: 56 })
+        const gx = x + 66, gy = y + 9, gw = 30, gh = 32
+        if (i === 0) { (A2.probs || []).slice(0, 6).forEach((p, j) => { const bh = Math.max(1.5, gh * (p || 0) / 100); k.rect(gx + j * 5, gy + gh - bh, 3.5, bh, (p || 0) > 50 ? k.A : k.ia(0.75)) }); k.ln([[gx, gy + gh + 1], [gx + gw, gy + gh + 1]], k.ia(0.4), 0.6) }
+        if (i === 1) { const cx2 = gx + 15, f2 = Math.max(0, Math.min(1, (A2.rh || 0) / 100)); k.poly([[cx2, gy], [cx2 + 11, gy + 18], [cx2 + 9, gy + 28], [cx2, gy + 32], [cx2 - 9, gy + 28], [cx2 - 11, gy + 18]], null, k.I, 1); k.rect(cx2 - 8, gy + 32 - 26 * f2, 16, 26 * f2 - 2, k.a(T.ink, 0.35)); k.t(`${Math.round(f2 * 100)}`, cx2, gy + 14, 6.5, k.I, { a: "c", w: 20 }) }
+        if (i === 2) { const u = Math.round(A2.uv || 0); for (let j = 0; j < 6; j++) k.rect(gx + 6, gy + gh - (j + 1) * 5.4, 18, 4, j < Math.min(6, Math.ceil(u / 2)) ? (j >= 3 ? k.A : k.I) : k.ia(0.12)); k.t(u < 3 ? "LOW" : u < 6 ? "MOD" : "HIGH", gx + 15, gy + gh + 1, 5.5, k.S, { a: "c", w: 30 }) }
+        if (i === 3) { const vm = Math.max(0, Math.min(10, A2.visMi || 0)); for (let j = 0; j < 4; j++) { const on = j < Math.ceil(vm / 2.5), yy = gy + 6 + j * 7; k.ln([[gx + 4 + j * 3, yy], [gx + 15, yy + 6], [gx + 26 - j * 3, yy]], on ? k.ia(0.85 - j * 0.15) : k.ia(0.12), 1) } }
+        if (i === 4) { const tx = gx + 15; k.rect(tx - 3, gy, 6, 24, null, k.I, 0.9); k.circ(tx, gy + 28, 5, k.I); const f3 = Math.max(0.1, Math.min(1, ((A2.dew || 0) + 10) / 90)); k.rect(tx - 1.5, gy + 24 - 22 * f3, 3, 22 * f3 + 2, k.I); for (let j = 0; j < 4; j++) k.ln([[tx + 4, gy + 3 + j * 6], [tx + 7, gy + 3 + j * 6]], k.ia(0.5), 0.6) }
+        if (i === 5) { const cx3 = gx + 15, cy3 = gy + 16, rr = 14; k.circ(cx3, cy3, rr, null, k.ia(0.6), 0.9); ["N", "E", "S", "W"].forEach((c2, j) => { const a3 = -Math.PI / 2 + j * Math.PI / 2; k.t(c2, cx3 + (rr - 5) * Math.cos(a3), cy3 + (rr - 5) * Math.sin(a3) - 3, 5, k.ia(0.5), { a: "c", w: 8 }) }); const wd = ((A2.wd || 0) + 180) * Math.PI / 180 - Math.PI / 2; k.ln([[cx3 - rr * 0.7 * Math.cos(wd), cy3 - rr * 0.7 * Math.sin(wd)], [cx3 + rr * 0.8 * Math.cos(wd), cy3 + rr * 0.8 * Math.sin(wd)]], k.A, 1.4); k.circ(cx3 + rr * 0.8 * Math.cos(wd), cy3 + rr * 0.8 * Math.sin(wd), 2, k.A) }
+      })
       const probs = d.atm.probs || [], py = H - 30; k.t("PRECIP // NEXT 12H", 14, py - 22, 7, k.S, { w: 140 }); k.t(`THREAT WINDOW ${probs.findIndex(p => p > 50) >= 0 ? "+" + probs.findIndex(p => p > 50) + "H" : "NONE"}`, W - 14, py - 22, 7, k.A, { a: "r", w: 160 })
       probs.slice(0, 12).forEach((p, i) => { const x = 14 + i * 28, segsOn = Math.round((p || 0) / 100 * 6); for (let j = 0; j < 6; j++) k.rect(x, py + 8 - j * 4, 22, 3, j < segsOn ? ((p || 0) > 50 ? k.A : k.I) : k.ia(0.1)); if (i % 3 === 0) k.t(`+${i}`, x + 11, py + 12, 6, k.S, { a: "c", w: 22 }) }) }
   },
@@ -2412,7 +2425,7 @@ const GM = {
     const sx = cx + (R - 4) * Math.cos(a), sy = cy + (R - 4) * Math.sin(a); k.circ(sx, sy, 5, d.up ? k.A : k.a(T.altBg, 1), k.I, 0.8)
     k.circ(cx, cy, 3, k.I)
     if (!small) { const r4 = k.rng(31); for (let i = 0; i < 14; i++) { const sx3 = 180 + r4() * 40, sy3 = 8 + r4() * 130; if (Math.hypot(sx3 - cx, sy3 - cy) < R + 14) continue; k.circ(sx3, sy3, 0.6 + r4(), k.a(T.accent, 0.4 + r4() * 0.5)) }
-      const mp = ((d.now.valueOf() / 86400000 - 10962.75) % 29.53 + 29.53) % 29.53 / 29.53, mx2 = 12, my2 = (H > 200 ? 128 : 139); k.circ(mx2 + 6, my2, 6, k.a(T.ink, 0.9)); k.circ(mx2 + 6 + (mp < 0.5 ? -1 : 1) * 12 * Math.abs(0.5 - mp) * 2 - (mp < 0.5 ? 0 : 0), my2, 6, mp > 0.45 && mp < 0.55 ? null : k.GR)
+      const mp = ((d.now.valueOf() / 86400000 - 10962.75) % 29.53 + 29.53) % 29.53 / 29.53, mx2 = 12, my2 = 139; k.circ(mx2 + 6, my2, 6, k.a(T.ink, 0.9)); k.circ(mx2 + 6 + (mp < 0.5 ? -1 : 1) * 12 * Math.abs(0.5 - mp) * 2 - (mp < 0.5 ? 0 : 0), my2, 6, mp > 0.45 && mp < 0.55 ? null : k.GR)
       k.t(mp < 0.03 || mp > 0.97 ? "THE MOON SLEEPS" : mp < 0.5 ? "THE MOON GROWS" : mp < 0.53 ? "THE MOON IS FULL" : "THE MOON WANES", mx2 + 18, my2 - 4, 7, k.A, { w: 130 }) }
     k.t(d.up ? C.solar.day : C.solar.night, 12, small ? 6 : 10, 7, k.A, { w: 160 }); k.t(pct(d.up ? d.frac : 1 - d.frac), 12, small ? 16 : 22, small ? 20 : 28, k.I, { f: "disp", w: 120 })
     if (!small) { k.t(`The sun rose at ${shortT(d.rise)}`, 12, 64, 9.5, k.S, { f: "disp", w: 170 }); k.t(`and shall set at ${shortT(d.set)}`, 12, 78, 9.5, k.S, { f: "disp", w: 170 }); k.t(d.up ? C.solar.setIn : C.solar.riseIn, 12, 98, 7, k.A, { w: 140 }) }
@@ -2487,7 +2500,18 @@ const DRG = {
     k.t(d.up ? C.solar.day : C.solar.night, mx, 6, 7, k.S, { w: 150 }); k.t(pct(d.up ? d.frac : 1 - d.frac), mx, 15, small ? 18 : 22, k.I, { f: "heavy", w: 100 })
     if (!small) k.t(d.up ? C.solar.setIn : C.solar.riseIn, W - 10, 6, 7, k.S, { a: "r", w: 150 })
     k.t(`AOS ${shortT(d.rise)}`, mx, my + mh + 5, 7, k.I, { w: 90 }); k.t(`LOS ${shortT(d.set)}`, W - 10, my + mh + 5, 7, k.I, { a: "r", w: 90 })
-    if (big && d.atm) { const cells = [["PRECIP", d.atm.pmax != null ? `${d.atm.pmax}%` : "--"], ["HUMIDITY", d.atm.rh != null ? `${d.atm.rh}%` : "--"], ["UV", d.atm.uv != null ? `${Math.round(d.atm.uv)}` : "--"], ["VISIBILITY", d.atm.vis || "--"], ["DEW", d.atm.dew != null ? `${d.atm.dew}°` : "--"], ["WIND", d.atm.wind || "--"]]; cells.forEach(([l, v], i) => { const x = 12 + (i % 3) * 114, y = 150 + Math.floor(i / 3) * 70; k.rect(x, y, 4, 50, k.H); k.t(l, x + 10, y + 4, 7, k.S, { w: 90 }); k.t(v, x + 10, y + 18, 20, k.I, { f: "heavy", w: 96 }) }); const probs = d.atm.probs || []; probs.slice(0, 12).forEach((p, i) => { const bh = Math.max(2, 30 * (p || 0) / 100); k.rect(14 + i * 28, H - 20 - bh, 18, bh, (p || 0) > 50 ? k.H : k.a(T.altBg, 1)); if (i % 3 === 0) k.t(`T+${i}`, 23 + i * 28, H - 16, 6, k.S, { a: "c", w: 28 }) })
+    if (big && d.atm) { const cells = [["PRECIP", d.atm.pmax != null ? `${d.atm.pmax}%` : "--"], ["HUMIDITY", d.atm.rh != null ? `${d.atm.rh}%` : "--"], ["UV", d.atm.uv != null ? `${Math.round(d.atm.uv)}` : "--"], ["VISIBILITY", d.atm.vis || "--"], ["DEW", d.atm.dew != null ? `${d.atm.dew}°` : "--"], ["WIND", d.atm.wind || "--"]]; const rs = k.rng(77); for (let i = 0; i < 60; i++) k.circ(12 + rs() * (W - 24), 146 + rs() * 140, 0.5 + rs() * 0.8, k.ia(0.12 + rs() * 0.3))
+      ;[60, 95, 130].forEach((rr, j) => k.arc(W - 20, 286, rr, Math.PI, Math.PI * 1.5, k.a(T.altBg, 0.5 - j * 0.12), 0.8)); k.ln([[W - 20, 286], [W - 20 - 130 * Math.cos(0.7), 286 - 130 * Math.sin(0.7)]], k.a(T.headBg, 0.5), 0.8)
+      for (let gy = 150; gy < 286; gy += 34) k.t(`${(40.8 + (gy - 150) / 600).toFixed(2)}N`, W - 12, gy, 5.5, k.ia(0.3), { a: "r", w: 50 })
+      ;[[110, 148], [224, 148], [110, 218], [224, 218]].forEach(([bx, by]) => { k.rect(bx - 1, by - 1, 2, 2, k.H) })
+      const A3 = d.atm, rt = k.rng(dayOfYear(d.now))
+      cells.forEach(([l, v], i) => { const x = 12 + (i % 3) * 114, y = 150 + Math.floor(i / 3) * 70; k.rect(x, y, 4, 50, k.H); k.t(l, x + 10, y + 4, 7, k.S, { w: 60 }); k.t(v, x + 10, y + 18, String(v).length > 4 ? 16 : 20, k.I, { f: "heavy", w: 62 })
+        const gx = x + 70, gy = y + 8, gw = 32, gh = 26
+        k.rect(gx, gy, gw, gh, k.ia(0.04), k.ia(0.25), 0.6)
+        if (i === 0) (A3.probs || []).slice(0, 8).forEach((p, j) => { const bh = Math.max(1, (gh - 2) * (p || 0) / 100); k.rect(gx + 1 + j * 4, gy + gh - 1 - bh, 3, bh, (p || 0) > 50 ? k.H : k.a(T.altBg, 1)) })
+        else { const pts = []; let val = 0.5; for (let j = 0; j <= 16; j++) { val = Math.max(0.1, Math.min(0.9, val + (rt() - 0.5) * 0.25)); pts.push([gx + j * gw / 16, gy + gh - val * gh]) } k.ln(pts, i === 5 ? k.H : k.I, 1); k.circ(pts[16][0], pts[16][1], 1.6, k.H) }
+        k.t(["12H", "RH", "IDX", "RNG", "DEW", "KT"][i], gx + gw, gy + gh + 2, 5.5, k.ia(0.45), { a: "r", w: 30 })
+      }); const probs = d.atm.probs || []; probs.slice(0, 12).forEach((p, i) => { const bh = Math.max(2, 30 * (p || 0) / 100); k.rect(14 + i * 28, H - 20 - bh, 18, bh, (p || 0) > 50 ? k.H : k.a(T.altBg, 1)); if (i % 3 === 0) k.t(`T+${i}`, 23 + i * 28, H - 16, 6, k.S, { a: "c", w: 28 }) })
       const ty4 = 290; k.ln([[12, ty4], [W - 12, ty4]], k.ia(0.3), 0.8); k.t("PRECIP // DOWNLINK FORECAST", 12, ty4 + 5, 7, k.S, { w: 180 }); k.t(`TELEMETRY NOMINAL · ORBIT ${4000 + dayOfYear(d.now) * 3}`, W - 12, ty4 + 5, 7, k.H, { a: "r", w: 200 }) }
   },
   feed(k, W, H, d) {
@@ -2601,7 +2625,7 @@ async function themedSolar(P) {
         const k2 = await new Request(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=relative_humidity_2m,wind_speed_10m,wind_direction_10m&hourly=precipitation_probability,visibility,uv_index,dew_point_2m&forecast_hours=12&timezone=auto&temperature_unit=${T.units}&wind_speed_unit=mph`).loadJSON()
         const hr = k2.hourly || {}, cur = k2.current || {}, first = (a) => (a && a.length) ? a[0] : null, probs = hr.precipitation_probability || []
         const vis = first(hr.visibility)
-        atm = { probs, pmax: probs.length ? Math.max(...probs) : null, rh: cur.relative_humidity_2m != null ? Math.round(cur.relative_humidity_2m) : null, uv: first(hr.uv_index), vis: vis != null ? `${Math.round(vis / 1609)} MI` : null, dew: first(hr.dew_point_2m) != null ? Math.round(first(hr.dew_point_2m)) : null, wind: cur.wind_speed_10m != null ? `${Math.round(cur.wind_speed_10m)} ${compass(cur.wind_direction_10m || 0)}` : null }
+        atm = { wd: cur.wind_direction_10m != null ? cur.wind_direction_10m : null, ws: cur.wind_speed_10m != null ? cur.wind_speed_10m : null, visMi: vis != null ? vis / 1609 : null, probs, pmax: probs.length ? Math.max(...probs) : null, rh: cur.relative_humidity_2m != null ? Math.round(cur.relative_humidity_2m) : null, uv: first(hr.uv_index), vis: vis != null ? `${Math.round(vis / 1609)} MI` : null, dew: first(hr.dew_point_2m) != null ? Math.round(first(hr.dew_point_2m)) : null, wind: cur.wind_speed_10m != null ? `${Math.round(cur.wind_speed_10m)} ${compass(cur.wind_direction_10m || 0)}` : null }
       } catch (e) {}
     }
   } catch (e) {}
@@ -5312,7 +5336,7 @@ function sampleData(mode, th, W, H) {
   if (mode === 'status') return { ev: { title: 'Your next calendar event', start: at(9), end: at(17), active: false }, wx: { temp: T2(69), cond: 'PARTLY CLOUDY', feels: T2(68), hi: T2(75), lo: T2(54) }, batt: 0.82, now, unit: th.unit, L };
   if (mode === 'shift') return { ev: { title: 'Your current event', start: at(9), end: at(17), active: true }, frac: 0.46, now, L };
   if (mode === 'transmission') { const s = th.slogans[0] || ['Stand By', 'HQ']; return { text: s[0], by: `${th.company.toUpperCase()} · ${s[1]}`, cls: th.widget.classes[0] || 'DIRECTIVE', hex: '7F3A', archival: false, unit: th.unit, mo: now.getMonth(), day: now.getDate() }; }
-  if (mode === 'solar') { const rise = at(7, 2), set = at(18, 24), nn = at(14, 30); return { rise, set, now: nn, up: true, frac: (nn - rise) / (set - rise), atm: { probs: [0, 5, 10, 30, 60, 80, 40, 20, 10, 0, 0, 5], pmax: 80, rh: 47, uv: 3, vis: '10 MI', dew: T2(45), wind: '7 NE' } }; }
+  if (mode === 'solar') { const rise = at(7, 2), set = at(18, 24), nn = at(14, 30); return { rise, set, now: nn, up: true, frac: (nn - rise) / (set - rise), atm: { probs: [0, 5, 10, 30, 60, 80, 40, 20, 10, 0, 0, 5], pmax: 80, rh: 47, uv: 3, vis: '10 MI', visMi: 10, dew: T2(45), wind: '7 NE', wd: 45, ws: 7 } }; }
   const ch = (key, compact) => ({ side: key === 'youtube' ? 'yt' : 'ig', code: `${(th.codes[key] || key).slice(0, 5)}-${key === 'youtube' ? '09' : '10'}`, line: key === 'youtube' ? deck.feeds.yt.line : deck.feeds.ig.line, meters: (key === 'youtube' ? deck.feeds.yt.meters : deck.feeds.ig.meters).map((n, i) => [n, [0.86, 0.55, 0.12][i] - (key === 'youtube' ? 0 : 0.08)]), tag: key === 'youtube' ? deck.feeds.yt.tag : deck.feeds.ig.tag, compact });
   return { yt: ch('youtube', false), ig: ch('instagram', false), single: ch('youtube', true) };
 }
