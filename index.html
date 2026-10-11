@@ -85,12 +85,15 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
 .stage-card { background: var(--surface); border: 2px solid var(--text); border-radius: 22px; padding: 14px; }
 .stage .seg { margin-bottom: 12px; }
 .phone { position: relative; width: 100%; max-width: 360px; margin: 0 auto; aspect-ratio: 390 / 844; border-radius: 36px; overflow: hidden; border: 3px solid var(--text); background: #000; }
-.phone canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.phone > canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .phone .ui { position: absolute; left: 0; top: 0; width: 390px; height: 844px; transform-origin: 0 0; }
 .icon-sheet { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
 .icon-sheet figure { margin: 0; display: grid; gap: 4px; justify-items: center; font-size: 12px; color: var(--muted); }
 .icon-sheet img { width: 100%; border-radius: 22%; display: block; }
 .exports { display: grid; gap: 14px; }
+.wg-scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.wg-scroll::-webkit-scrollbar { display: none; }
+.wg-scroll:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
 .gallery { display: grid; gap: 18px; }
 .wg { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 14px; border: 2px solid var(--line); border-radius: 16px; background: var(--surface); }
 @media (min-width: 720px) { .wg { grid-template-columns: minmax(0, 380px) 1fr; align-items: start; } }
@@ -242,6 +245,7 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
         <div class="seg" role="group" aria-label="Preview view">
           <button type="button" data-view="lock" aria-pressed="true">Lock</button>
           <button type="button" data-view="home">Home</button>
+          <button type="button" data-view="widgets">Widgets</button>
           <button type="button" data-view="icons">Icons</button>
         </div>
         <div id="view-lock">
@@ -255,7 +259,12 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
           <div class="btns" style="justify-content:center;margin-top:10px" role="group" aria-label="Home frame">
             <button type="button" class="btn" data-frame="0">1</button><button type="button" class="btn" data-frame="1">2</button><button type="button" class="btn" data-frame="2">3</button><button type="button" class="btn" data-frame="3">4</button><button type="button" class="btn" data-frame="4">5</button><button type="button" class="btn" data-frame="5">6</button>
           </div>
-          <p class="note">Widgets and icons are a preview of what the steps in Install will set up.</p>
+          <div class="btns" style="justify-content:center;margin-top:8px"><button type="button" class="btn" id="toggle-icons" aria-pressed="true">Hide icons</button></div>
+          <p class="note">Icons sit in the top row and the dock so the artwork stays clear. Arrange your own the same way for the best look.</p>
+        </div>
+        <div id="view-widgets" hidden>
+          <div class="phone" id="wg-phone"><canvas id="pv-wg" width="390" height="844"></canvas><div class="wg-scroll" id="wg-scroll" tabindex="0" aria-label="Widget preview, scrollable"></div></div>
+          <p class="note">Every widget on your home screen, in your colors. Scroll inside the phone to see them all.</p>
         </div>
         <div id="view-icons" hidden>
           <div class="icon-sheet" id="icon-sheet"></div>
@@ -5199,11 +5208,12 @@ function iconURL(app, i, size) {
 
 function renderPreview() {
   const th = state.th;
-  ['lock', 'home', 'icons'].forEach(v => { $('view-' + v).hidden = state.view !== v; });
+  ['lock', 'home', 'widgets', 'icons'].forEach(v => { $('view-' + v).hidden = state.view !== v; });
   document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === state.view)));
   document.querySelectorAll('[data-lock]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.lock === state.lock)));
   if (state.view === 'lock') { const cv = $('pv-lock'); sizeCanvas(cv); drawWallpaper(cv, th, 'lock', state.lock); }
   if (state.view === 'home') { const cv = $('pv-home'); sizeCanvas(cv); drawWallpaper(cv, th, 'home', state.frame || 0); buildHomeUI(); }
+  if (state.view === 'widgets') { const cv = $('pv-wg'); sizeCanvas(cv); drawWallpaper(cv, th, 'home', 0); buildWidgetPhone(); }
   document.querySelectorAll('[data-frame]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.frame === (state.frame || 0))));
   if (state.view === 'icons') {
     const sh = $('icon-sheet'); sh.textContent = '';
@@ -5225,45 +5235,45 @@ function widgetColors(th) {
 function el(tag, style, text) { const e = document.createElement(tag); if (style) e.style.cssText = style; if (text != null) e.textContent = text; return e; }
 
 function buildHomeUI() {
-  const th = state.th, wc = widgetColors(th), L = th.widget.L, ui = $('home-ui'), phone = $('home-phone');
+  const th = state.th, ui = $('home-ui'), phone = $('home-phone');
   ui.textContent = '';
   ui.style.transform = `scale(${phone.clientWidth / 390})`;
-  const mono = `"${th.fonts.mono}", ui-monospace, monospace`, disp = `"${th.fonts.display}", Georgia, serif`;
-  const card = (top, h, headTxt, right, alt) => {
-    const c = el('div', `position:absolute;left:26px;right:26px;top:${top}px;height:${h}px;border-radius:22px;overflow:hidden;background:${wc.panel};color:${wc.ink};font-family:${mono};display:flex;flex-direction:column`);
-    const hd = el('div', `display:flex;justify-content:space-between;padding:6px 12px;font-size:9px;letter-spacing:.06em;background:${alt ? wc.altBg : wc.headBg};color:${alt ? wc.altText : wc.headText}`);
-    hd.append(el('span', '', headTxt), el('span', '', right || ''));
-    c.append(hd); ui.append(c); return c;
-  };
-  const s = card(64, 158, L.status, `LINK 0:42 · ${th.unit}`, false);
-  const sb = el('div', 'flex:1;display:flex;padding:9px 14px 0;gap:12px');
-  const l = el('div', 'flex:1;display:flex;flex-direction:column;gap:3px');
-  l.append(el('span', 'font-size:8px;opacity:.75', L.next), el('span', `font-family:${disp};font-size:17px;line-height:1.1`, '[Your next calendar event]'), el('span', 'font-size:10px', '9:00 AM — 5:00 PM'));
-  const r = el('div', `display:flex;flex-direction:column;gap:2px;padding-left:12px;border-left:1px solid ${hexA(wc.ink, 0.3)}`);
-  r.append(el('span', 'font-size:8px;opacity:.75', L.ext), el('span', `font-family:${disp};font-size:32px;line-height:1`, th.units === 'celsius' ? '21°' : '69°'), el('span', 'font-size:9px', 'CLEAR'));
-  sb.append(l, r); s.append(sb);
-  const ro = el('div', 'display:flex;justify-content:space-between;padding:0 14px 12px');
-  [[L.dur, '8H 00M'], [L.state, L.queued], [L.feels, th.units === 'celsius' ? '20°' : '68°'], [L.hilo, th.units === 'celsius' ? '24° / 12°' : '75° / 54°']].forEach(([k, v]) => {
-    const c = el('div', 'display:flex;flex-direction:column'); c.append(el('span', 'font-size:7.5px;opacity:.75', k), el('span', 'font-size:10px', v)); ro.append(c);
-  });
-  s.append(ro);
-  const icons = el('div', 'position:absolute;left:27px;right:27px;top:244px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px');
+  if (state.hideIcons) return;
+  const lab = th.colors.ink;
+  const time = el('div', 'position:absolute;left:34px;top:14px;font:600 15px -apple-system,system-ui,sans-serif;color:' + lab, '9:41');
+  ui.append(time);
+  const icons = el('div', 'position:absolute;left:24px;right:24px;top:60px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px');
   APPS.slice(0, 4).forEach(([k], i) => {
     const b = el('div', 'display:flex;flex-direction:column;align-items:center;gap:4px');
-    const img = el('img', 'width:60px;height:60px;border-radius:14px'); img.src = iconURL(k, i, 120); img.alt = '';
-    b.append(img, el('span', `font-family:-apple-system,system-ui,sans-serif;font-size:10px;color:${th.colors.ink}`, `${th.codes[k]}-${String(i + 1).padStart(2, '0')}`));
+    const img = el('img', 'width:60px;height:60px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,.25)'); img.src = iconURL(k, i, 120); img.alt = '';
+    b.append(img, el('span', `font-family:-apple-system,system-ui,sans-serif;font-size:10px;color:${lab};text-shadow:0 1px 2px ${hexA(th.colors.ground, 0.8)}`, `${th.codes[k]}-${String(i + 1).padStart(2, '0')}`));
     icons.append(b);
   });
   ui.append(icons);
-  const tx = card(574, 140, L.tx, 'SIGNAL 93%', true);
-  const tb = el('div', 'flex:1;display:flex;flex-direction:column;padding:8px 14px 10px;gap:3px');
-  const sl = th.slogans[0] || ['Stand By', 'HQ'];
-  tb.append(el('span', 'font-size:8px;opacity:.75', `MSG 0x7F3A // INBOUND · CLASS: ${th.widget.classes[0]}`), el('span', `font-family:${disp};font-size:19px;line-height:1.1`, sl[0]), el('span', 'font-size:7.5px;opacity:.75', `— ${th.company.toUpperCase()} · ${sl[1]}`));
-  const g = el('div', `margin-top:auto;height:20px;background:repeating-linear-gradient(90deg, ${hexA(wc.ink, 0.6)} 0 1.5px, transparent 1.5px 5px)`);
-  tb.append(g); tx.append(tb);
-  const dock = el('div', `position:absolute;left:12px;right:12px;bottom:14px;height:88px;border-radius:30px;background:${hexA(th.colors.panel, 0.45)};display:grid;grid-template-columns:repeat(4,1fr);align-items:center;justify-items:center`);
+  const dock = el('div', `position:absolute;left:12px;right:12px;bottom:14px;height:86px;border-radius:30px;background:${hexA(th.colors.panel, 0.32)};backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:grid;grid-template-columns:repeat(4,1fr);align-items:center;justify-items:center`);
   APPS.slice(4, 8).forEach(([k], i) => { const img = el('img', 'width:58px;height:58px;border-radius:14px'); img.src = iconURL(k, i + 4, 120); img.alt = ''; dock.append(img); });
   ui.append(dock);
+}
+
+// Widgets tab: every widget stacked on the home wallpaper, scrollable inside the phone
+function buildWidgetPhone() {
+  const th = state.th, phone = $('wg-phone'), scr = $('wg-scroll');
+  const sig = `${th.id}:${th.variant || 0}:${th.motif}`, keep = state.wgSig === sig ? scr.scrollTop : 0; state.wgSig = sig;
+  scr.textContent = '';
+  const k = phone.clientWidth / 390, S = 338 / 364;
+  const inner = el('div', `width:390px;transform:scale(${k});transform-origin:0 0;padding:58px 0 40px;box-sizing:border-box`);
+  const list = widgetList(th), by = (m) => list.find(x => x.mode === m);
+  const slot = (item) => { const p = previewWidget(item, th); const wrap = el('div', `width:${p.w * S}px;height:${p.h * S}px;flex:none`); p.el.style.transform = `scale(${S})`; p.el.style.transformOrigin = '0 0'; p.el.style.boxShadow = '0 6px 16px rgba(0,0,0,.28)'; wrap.append(p.el); return wrap; };
+  const row = (kids, gap) => { const r = el('div', `display:flex;justify-content:center;gap:${gap || 22}px;margin:0 0 20px`); kids.forEach(c => r.append(c)); inner.append(r); };
+  const lbl = (t) => inner.append(el('div', `text-align:center;margin:-12px 0 16px;font:600 11px -apple-system,system-ui,sans-serif;color:${th.colors.ink};text-shadow:0 1px 2px ${hexA(th.colors.ground, 0.85)}`, t));
+  row([slot(by('status'))]); lbl('status');
+  const grid = el('div', 'width:158px;height:158px;display:grid;grid-template-columns:repeat(2,1fr);place-items:center;flex:none');
+  APPS.slice(0, 4).forEach(([key], i) => { const img = el('img', 'width:60px;height:60px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,.25)'); img.src = iconURL(key, i, 120); img.alt = ''; grid.append(img); });
+  row([slot(by('shift')), grid]); lbl('shift');
+  ;['audio', 'transmission', 'solar', 'feeds', 'youtube', 'oddity'].forEach(m => { const it = by(m); if (!it) return; row([slot(it)]); lbl(m === 'youtube' ? 'youtube / instagram' : m); });
+  const sizer = el('div', 'width:1px');
+  scr.append(inner, sizer);
+  requestAnimationFrame(() => { sizer.style.height = (inner.offsetHeight * k) + 'px'; inner.style.position = 'absolute'; inner.style.top = '0'; inner.style.left = '0'; scr.scrollTop = keep; });
 }
 
 // ---------- widget guide + gallery ----------
@@ -5539,6 +5549,7 @@ function previewWidget(item, th) {
       bd.append(pv('div', 'flex:1')); const g = row(); g.append(ro('CONFIDENCE', '64%'), ro('ECHO DELAY', '4.2 YR'), ro('SOURCE', 'BEHIND YOU (UNLIKELY)'), ro('SALVAGE', 'PRICELESS (DISPUTED)')); bd.append(g);
     }
   }
+  [...bd.children].forEach(c => { if (!/flex:\s*1/.test(c.style.cssText)) c.style.flexShrink = '0'; });
   return { el: card, w: W, h: H };
 }
 function buildGallery() {
@@ -5725,6 +5736,7 @@ async function copyScript() {
 
 // ---------- boot ----------
 document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { state.view = b.dataset.view; renderPreview(); }));
+$('toggle-icons').addEventListener('click', () => { state.hideIcons = !state.hideIcons; $('toggle-icons').textContent = state.hideIcons ? 'Show icons' : 'Hide icons'; $('toggle-icons').setAttribute('aria-pressed', String(!state.hideIcons)); renderPreview(); });
 document.querySelectorAll('[data-lock]').forEach(b => b.addEventListener('click', () => { state.lock = +b.dataset.lock; renderPreview(); }));
 document.querySelectorAll('[data-frame]').forEach(b => b.addEventListener('click', () => { state.frame = +b.dataset.frame; renderPreview(); }));
 $('btn-zip').addEventListener('click', exportZip);
