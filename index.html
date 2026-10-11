@@ -3619,71 +3619,161 @@ function gLogBlock(k, logs, x, y, w, maxY, size, f, c1, c2, prefix) {
 }
 function gSafe(k) { if (k.__safe) return k; const s = Object.assign({}, k); s.__safe = true; s.t = (text, x, y, size, col, o) => { gT(k, text, x, y, size, col, o) }; return s }
 const GAMES = {
-  // HALCYON: a specimen in a containment vat that grows, mutates and sometimes gets recycled
+  // HALCYON: an abstract organism grown in a containment vat. Not a pet. A product.
   halcyon: {
     title: "W-10 // SPECIMEN VAT",
     stages: ["SPORE", "LARVA", "JUVENILE", "SPECIMEN", "ASCENDANT"], th: [0, 6, 18, 40, 80],
-    init(now, prev) { const run = prev ? prev.run + 1 : 1; return { v: 1, game: "halcyon", run, lot: `HB-2893-${String(13 + run).padStart(2, "0")}`, stage: 0, age: 0, nut: 62, vit: 80, stress: 18, traits: [], hist: [80], best: prev ? prev.best : 0, turn: prev ? prev.turn : 0, log: prev ? prev.log : [], seed: (now % 233280) || 11, last: prev ? prev.last : 0 } },
+    morph: ["SEED NUCLEUS", "HELICAL STRAND", "MEMBRANE LATTICE", "RADIAL BLOOM", "LATTICE SPHERE"],
+    TRAITS: ["secondary nucleus", "bioluminescence", "redundant heart", "sensory filaments", "unauthorized opinions", "crystalline lattice", "neural bloom"],
+    OLD: { "a second eye": "secondary nucleus", "an extra heart": "redundant heart", "feelers": "sensory filaments", "opinions": "unauthorized opinions", "a tiny crown": "crystalline lattice", "gills": "neural bloom" },
+    init(now, prev) { const run = prev ? prev.run + 1 : 1; return { v: 1, game: "halcyon", run, lot: `HB-2893-${String(13 + run).padStart(2, "0")}`, stage: 0, age: 0, nut: 62, vit: 80, stress: 18, traits: [], hist: [80], shist: [18], best: prev ? prev.best : 0, turn: prev ? prev.turn : 0, log: prev ? prev.log : [], seed: (now % 233280) || 11, last: prev ? prev.last : 0 } },
+    migrate(st) { const G = GAMES.halcyon; st.traits = (st.traits || []).map(t => G.OLD[t] || t); st.shist = st.shist || [st.stress]; return st },
     right(st, inp) { return inp.charging ? "FEEDING · CHARGING" : `LOT ${st.lot}` },
     step(st, inp) {
       const r = gRng(st), G = GAMES.halcyon, night = inp.hour < 6 || inp.hour >= 23
       st.turn++; st.age++
-      if (inp.charging) { st.nut += 22; gLog(st, "Fed through the charging port. Nutrient +22.") } else st.nut -= 5
-      if (night) { st.stress -= 8; st.vit += 3; if (r() < 0.5) gLog(st, "Night cycle. Dormant. Dreaming of protein.") }
+      if (inp.charging) { st.nut += 22; gLog(st, "Nutrient line open via charging port. +22.") } else st.nut -= 5
+      if (night) { st.stress -= 8; st.vit += 3; if (r() < 0.5) gLog(st, gPick(r, ["Night cycle. Dormant. Dreaming of protein.", "Night cycle. Metabolism throttled to 12%.", "Lights down. Specimen counting something."])) }
       if (inp.busy >= 4 && !night) { st.stress += 7; gLog(st, `${inp.busy} allocations today. Specimen agitated.`) }
-      if (inp.batt < 0.2 && !inp.charging) { st.vit -= 6; gLog(st, "Low power. Specimen dimming.") }
+      if (inp.batt < 0.2 && !inp.charging) { st.vit -= 6; gLog(st, "Low power. Luminance falling.") }
       st.vit += (st.nut > 40 ? 2 : -6) - (st.stress > 70 ? 5 : 0)
       const e = r()
-      if (e < 0.12) { const left = ["a second eye", "bioluminescence", "an extra heart", "feelers", "opinions", "a tiny crown", "gills"].filter(t => !st.traits.includes(t)); if (left.length) { const t = gPick(r, left); st.traits.push(t); gLog(st, `Mutation logged: ${t}.`) } }
-      else if (e < 0.2) gLog(st, "Specimen tapped on the glass twice. Noted.")
-      else if (e < 0.26) { st.stress += 6; gLog(st, "Escape attempt. Lid secured.") }
-      else if (e < 0.33) { st.vit += 4; gLog(st, "Specimen is humming the compliance anthem.") }
-      else if (e < 0.38) { st.stress -= 5; gLog(st, "Lab tech said goodnight to it. Morale up.") }
+      if (e < 0.12) { const left = G.TRAITS.filter(t => !st.traits.includes(t)); if (left.length) { const t = gPick(r, left); st.traits.push(t); gLog(st, `Mutation logged: ${t}. Filed under assets.`) } }
+      else if (e < 0.19) gLog(st, gPick(r, ["Specimen pattern-matched a technician's face. Logged.", "Unscheduled cognition detected. Flagged for review.", "Specimen requested a name. Request denied."]))
+      else if (e < 0.25) { st.stress += 6; gLog(st, "Containment breach probability 4%. Lid re-sealed.") }
+      else if (e < 0.31) { st.vit += 4; gLog(st, "Specimen emitted the compliance anthem at 40 Hz.") }
+      else if (e < 0.36) { st.stress -= 5; gLog(st, "Technician lingered at the glass. Stress -5.") }
+      else if (e < 0.42) gLog(st, gPick(r, ["Membrane resequenced. Integrity holding.", "Mass gain within projection.", "Lattice self-repair complete."]))
       st.nut = gClamp(st.nut); st.vit = gClamp(st.vit); st.stress = gClamp(st.stress)
-      if (st.stage < 4 && st.age >= G.th[st.stage + 1] && st.vit > 45) { st.stage++; gLog(st, `Growth milestone: ${G.stages[st.stage]}.`) }
-      st.hist = (st.hist || []).concat([st.vit]).slice(-24)
-      if (st.vit <= 0) { const best = Math.max(st.best || 0, st.age), old = st.lot; Object.assign(st, G.init(Date.now(), st)); st.best = best; gLog(st, `Lot ${old} recycled. New lot ${st.lot} opened.`) }
+      if (st.stage < 4 && st.age >= G.th[st.stage + 1] && st.vit > 45) { st.stage++; gLog(st, `Growth milestone: ${G.stages[st.stage]}. Morphology: ${G.morph[st.stage].toLowerCase()}.`) }
+      st.hist = (st.hist || []).concat([st.vit]).slice(-24); st.shist = (st.shist || []).concat([st.stress]).slice(-24)
+      if (st.vit <= 0) { const best = Math.max(st.best || 0, st.age), old = st.lot; Object.assign(st, G.init(Date.now(), st)); st.best = best; gLog(st, `Lot ${old} recycled into feedstock. Lot ${st.lot} opened.`) }
+    },
+    // abstract organism, drawn as Halcyon line work: one morphology per stage, traits as modifications
+    organism(k, cx, cy, R, st, inp, TM) {
+      const I = k.I, LAV = (T.altBg || "#9D8CF2"), ICE = "#7FE3F0", has = (t) => st.traits.includes(t), pulse = 1 + 0.06 * Math.sin(TM / 2)
+      const glow = has("bioluminescence") || inp.charging
+      if (glow) for (let g = 4; g >= 1; g--) k.circ(cx, cy, R * (1.05 + g * 0.18), k.a(LAV, 0.07))
+      // containment field: rotating dashed rings and tick marks
+      for (let i = 0; i < 48; i += 2) { const a0 = i / 48 * Math.PI * 2 + TM / 18, a1 = a0 + Math.PI / 48; k.ln(k.arcPts(cx, cy, R * 1.32, a0, a1, 3), k.ia(0.35), 0.7) }
+      for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2 - TM / 25, l = i % 6 ? 2 : 5; k.ln([[cx + R * 1.45 * Math.cos(a), cy + R * 1.45 * Math.sin(a)], [cx + (R * 1.45 + l) * Math.cos(a), cy + (R * 1.45 + l) * Math.sin(a)]], k.ia(0.45), 0.6) }
+      // orbiting particles; neural bloom wires them together
+      const parts = []; for (let i = 0; i < 7 + st.stage * 2; i++) { const a = i / (7 + st.stage * 2) * Math.PI * 2 + TM / (8 + i % 3 * 3), rr = R * (1.12 + 0.12 * Math.sin(i * 1.7 + TM / 6)); parts.push([cx + rr * Math.cos(a), cy + rr * 0.86 * Math.sin(a)]) }
+      if (has("neural bloom")) parts.forEach((p, i) => { const q = parts[(i + 3) % parts.length]; k.ln([p, q], k.a(LAV, 0.35), 0.5) })
+      parts.forEach((p, i) => k.circ(p[0], p[1], i % 3 ? 0.9 : 1.6, i % 3 ? k.ia(0.6) : k.a(LAV, 1)))
+      const s = st.stage
+      if (s === 0) {
+        ;[1, 0.72, 0.46].forEach((f, i) => k.circ(cx, cy, R * f * (i === 0 ? pulse : 1), i === 1 ? k.a(LAV, 0.25) : null, I, i === 0 ? 1 : 0.7))
+        k.circ(cx, cy, R * 0.2 * pulse, k.a(LAV, 1), I, 0.8)
+      } else if (s === 1) {
+        const L = R * 1.15
+        for (let j = 0; j <= 22; j++) { const t = j / 22, y = cy - L + 2 * L * t, ph = t * Math.PI * 4 + TM / 3, x1 = cx + Math.sin(ph) * R * 0.42, x2 = cx - Math.sin(ph) * R * 0.42; if (j % 2 === 0) k.ln([[x1, y], [x2, y]], k.ia(0.35), 0.6); if (j < 22) { const t2 = (j + 1) / 22, y2 = cy - L + 2 * L * t2, ph2 = t2 * Math.PI * 4 + TM / 3; k.ln([[x1, y], [cx + Math.sin(ph2) * R * 0.42, y2]], I, 1.1); k.ln([[x2, y], [cx - Math.sin(ph2) * R * 0.42, y2]], k.a(LAV, 1), 1.1) } if (j % 4 === 0) k.circ(x1, y, 1.4, I) }
+        k.circ(cx, cy, R * 0.16 * pulse, k.a(LAV, 1), I, 0.8)
+      } else if (s === 2) {
+        const hr = R * 0.36 * pulse, cells = [[0, 0]].concat([0, 1, 2, 3, 4, 5].map(i => [Math.cos(i * Math.PI / 3 + Math.PI / 6) * hr * 1.75, Math.sin(i * Math.PI / 3 + Math.PI / 6) * hr * 1.75]))
+        k.circ(cx, cy, R * 0.98, k.a(LAV, 0.12), I, 0.9)
+        cells.forEach(([dx, dy], i) => { k.hex(cx + dx, cy + dy, hr, i === 0 ? k.a(LAV, 0.5) : k.a(T.panel, 0.9), I, 0.9, 0); k.circ(cx + dx + Math.sin(TM / 4 + i) * hr * 0.2, cy + dy, hr * 0.22, i === 0 ? I : k.a(LAV, 1)) })
+      } else if (s === 3) {
+        for (let i = 0; i < 14; i++) { const a = i / 14 * Math.PI * 2 + TM / 30, pts = []; for (let j = 0; j <= 10; j++) { const t = j / 10, rr = R * (0.32 + 0.78 * t), bend = Math.sin(t * 3 + TM / 3 + i) * 0.25 * t; pts.push([cx + rr * Math.cos(a + bend), cy + rr * Math.sin(a + bend)]) } k.ln(pts, i % 2 ? I : k.a(LAV, 1), i % 2 ? 0.9 : 1.2); const e = pts[pts.length - 1]; k.circ(e[0], e[1], 1.5, i % 2 ? I : k.a(LAV, 1)) }
+        ;[0.36, 0.26].forEach((f, i) => { k.circ(cx, cy, R * f, i ? k.a(LAV, 0.5) : k.a(T.panel, 0.95), I, 1); for (let j = 0; j < 8; j++) { const a = j / 8 * Math.PI * 2 + (i ? -TM / 6 : TM / 8); k.ln([[cx + R * f * 0.7 * Math.cos(a), cy + R * f * 0.7 * Math.sin(a)], [cx + R * f * Math.cos(a), cy + R * f * Math.sin(a)]], I, 0.6) } })
+        k.circ(cx, cy, R * 0.1 * pulse, I)
+      } else {
+        const rot = TM / 10
+        k.circ(cx, cy, R, k.a(LAV, 0.14), I, 1.1)
+        for (let i = 1; i < 6; i++) { const lat = -Math.PI / 2 + i * Math.PI / 6; k.ell(cx, cy + R * Math.sin(lat), R * Math.cos(lat), R * 0.14 * Math.cos(lat), null, k.ia(0.45), 0.6) }
+        for (let i = 0; i < 6; i++) { const ph = rot + i * Math.PI / 6, w = Math.abs(Math.cos(ph)) * R; if (w > 1) k.ell(cx, cy, w, R, null, i === 0 ? k.a(LAV, 1) : k.ia(0.45), i === 0 ? 1.1 : 0.6) }
+        k.ell(cx, cy, R * 1.25, R * 0.28, null, k.a(LAV, 1), 1); const oa = TM / 4; k.circ(cx + R * 1.25 * Math.cos(oa), cy + R * 0.28 * Math.sin(oa), 2.4, k.a(LAV, 1), I, 0.6)
+        k.circ(cx, cy, R * 0.12 * pulse, I)
+      }
+      // trait modifications
+      if (has("secondary nucleus")) { const a = TM / 5; k.circ(cx + R * 0.55 * Math.cos(a), cy + R * 0.45 * Math.sin(a), R * 0.1, k.a(LAV, 1), I, 0.7) }
+      if (has("redundant heart")) { const p2 = 1 + 0.25 * Math.max(0, Math.sin(TM * 1.3)); k.circ(cx - R * 0.22, cy + R * 0.3, R * 0.07 * p2, k.a("#E35D8F", 0.9)); k.circ(cx + R * 0.22, cy + R * 0.3, R * 0.07 * (2.2 - p2), k.a("#E35D8F", 0.9)) }
+      if (has("sensory filaments")) for (let i = 0; i < 5; i++) { const x = cx - R * 0.5 + i * R * 0.25, pts = []; for (let j = 0; j <= 8; j++) pts.push([x + Math.sin(TM / 2 + i + j * 0.6) * 3, cy - R * 0.9 - j * R * 0.11]); k.ln(pts, k.ia(0.7), 0.6); k.circ(pts[8][0], pts[8][1], 1, k.a(LAV, 1)) }
+      if (has("crystalline lattice")) for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 + TM / 40; k.poly([[cx + R * 0.9 * Math.cos(a), cy + R * 0.9 * Math.sin(a)], [cx + R * 1.12 * Math.cos(a + 0.18), cy + R * 1.12 * Math.sin(a + 0.18)], [cx + R * 0.9 * Math.cos(a + 0.36), cy + R * 0.9 * Math.sin(a + 0.36)]], k.a(ICE, 0.5), I, 0.6) }
+      if (has("unauthorized opinions")) { const jit = []; for (let i = 0; i <= 36; i++) { const a = i / 36 * Math.PI * 2; jit.push([cx + R * (1.2 + (i % 2 ? 0.06 : -0.02) * (1 + Math.sin(TM + i))) * Math.cos(a), cy + R * (1.2 + (i % 2 ? 0.06 : -0.02)) * 0.86 * Math.sin(a)]) } k.ln(jit, k.a("#E35D8F", 0.6), 0.6) }
+      if (st.stress > 60) for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2 + TM; k.ln([[cx + R * 1.02 * Math.cos(a), cy + R * 1.02 * Math.sin(a)], [cx + R * 1.12 * Math.cos(a + 0.08), cy + R * 1.12 * Math.sin(a + 0.08)]], I, 0.8) }
+    },
+    vat(k, vx, vy, vw, vh, st, inp, TM, small) {
+      const I = k.I, LAV = (T.altBg || "#9D8CF2")
+      k.rect(vx + vw * 0.28, vy - 3, 4, 9, I); k.rect(vx + vw * 0.64, vy - 3, 4, 9, I)
+      if (inp.charging) { k.rect(vx + vw * 0.28 + 1, vy - 3, 2, 9, k.a(LAV, 1)); for (let i = 0; i < 5; i++) { const dy = (TM * 14 + i * 22) % (vh * 0.45); k.circ(vx + vw * 0.28 + 2, vy + 10 + dy, 1.5, k.a(LAV, 0.9)) } }
+      k.rect(vx, vy + 6, vw, vh - 14, k.a(LAV, 0.12), I, 1.2)
+      for (let i = 0; i < 8; i++) k.rect(vx + 1, vy + 7 + i * (vh - 16) / 8, vw - 2, (vh - 16) / 16, k.a(LAV, 0.03 + i * 0.012))
+      k.ell(vx + vw / 2, vy + 6, vw / 2, 4, k.a(T.panel, 1), I, 1.2)
+      // glass graduations, reflections and condensation
+      for (let i = 0; i <= 10; i++) { const y = vy + 14 + i * (vh - 30) / 10; k.ln([[vx + vw - (i % 5 ? 4 : 8), y], [vx + vw - 1, y]], k.ia(0.55), 0.6); if (!small && i % 5 === 0) k.t(`${100 - i * 10}`, vx + vw - 10, y - 3, 4.5, k.ia(0.5), { a: "r", w: 14, nofit: true }) }
+      k.ln([[vx + 5, vy + 12], [vx + 5, vy + vh - 14]], k.a("#FFFFFF", 0.7), 1.5); k.ln([[vx + 9, vy + 12], [vx + 9, vy + vh * 0.4]], k.a("#FFFFFF", 0.45), 0.8)
+      const cr = k.rng(st.run * 3 + 1); for (let i = 0; i < (small ? 8 : 18); i++) k.circ(vx + 3 + cr() * (vw - 6), vy + 10 + cr() * 18, 0.5 + cr() * 0.7, k.a("#FFFFFF", 0.7))
+      // bubbles
+      const r = k.rng(st.run * 7 + 3)
+      for (let i = 0; i < (small ? 8 : 16); i++) { const bx = vx + 8 + r() * (vw - 16), span = vh - 24, by = vy + vh - 14 - ((r() * span + TM * (6 + i % 3)) % span); k.circ(bx + Math.sin(TM / 3 + i) * 2, by, 0.8 + r() * 1.8, null, k.ia(0.4), 0.6) }
+      // scanning laser sweeping the tank
+      const sy = vy + 10 + ((TM * 9) % (vh - 24)); k.ln([[vx + 1, sy], [vx + vw - 1, sy]], k.a(LAV, 0.85), 0.9); k.rect(vx + 1, sy - 3, vw - 2, 3, k.a(LAV, 0.1))
+      // base with status LEDs
+      k.rect(vx - 3, vy + vh - 10, vw + 6, 12, I)
+      for (let i = 0; i < 4; i++) { const on = (Math.floor(TM / (2 + i)) + i) % 2 === 0; k.circ(vx + 4 + i * 6, vy + vh - 4, 1.5, on ? k.a(i === 3 && inp.charging ? LAV : (T.ground || "#A6F3CC"), 1) : k.a("#FFFFFF", 0.2)) }
+      k.t(st.lot, vx + vw - 2, vy + vh - 8, small ? 5 : 6, k.a(T.panel, 1), { a: "r", w: vw - 26, nofit: true })
     },
     paint(k, W, H, st, inp) {
       k = gSafe(k)
-      const G = GAMES.halcyon, TM = Date.now() / 60000, small = W < 200, big = H > 200, LAV = T.altBg || "#9D8CF2", I = k.I
-      const vx = 12, vw = small ? 62 : big ? 120 : 76, vy = 8, vh = small ? H - 20 : big ? 214 : H - 18
-      // vat glass, liquid, tubes, bubbles
-      k.rect(vx + vw * 0.3, vy - 2, 4, 8, I); k.rect(vx + vw * 0.62, vy - 2, 4, 8, I)
-      k.rect(vx, vy + 6, vw, vh - 14, k.a(LAV, 0.16), I, 1.2); k.ell(vx + vw / 2, vy + 6, vw / 2, 4, k.PN, I, 1.2); k.rect(vx - 3, vy + vh - 10, vw + 6, 10, I)
-      for (let i = 0; i < 5; i++) k.rect(vx + 1, vy + 8 + i * (vh - 18) / 5, vw - 2, (vh - 18) / 10, k.a(LAV, 0.05 + i * 0.02))
-      const r = k.rng(st.run * 7 + 3)
-      for (let i = 0; i < (big ? 14 : 8); i++) { const bx = vx + 6 + r() * (vw - 12), span = vh - 22, by = vy + vh - 14 - ((r() * span + TM * (6 + i % 3)) % span); k.circ(bx + Math.sin(TM / 3 + i) * 2, by, 1 + r() * 2, null, k.ia(0.45), 0.7) }
-      for (let i = 0; i < 6; i++) k.ln([[vx + vw + 1, vy + 14 + i * (vh - 30) / 6], [vx + vw + 4, vy + 14 + i * (vh - 30) / 6]], k.ia(0.6), 0.7)
-      // the organism
-      const cx = vx + vw / 2, cy = vy + vh * 0.48 + Math.sin(TM / 4) * 3, sc = (small ? 0.75 : big ? 1.5 : 0.95), R = (6 + st.stage * 4.5) * sc
-      const glow = st.traits.includes("bioluminescence"); if (glow) for (let g = 3; g >= 1; g--) k.circ(cx, cy, R + g * 4, k.a(LAV, 0.12))
-      const nT = 2 + st.stage * 2; for (let i = 0; i < nT; i++) { const a = Math.PI * (0.15 + 0.7 * i / Math.max(1, nT - 1)), pts = []; for (let j = 0; j <= 8; j++) { const t = j / 8, L = R * (1.2 + st.stage * 0.25); pts.push([cx + Math.cos(a) * (R * 0.7 + L * t) + Math.sin(TM / 2 + i + t * 3) * 3 * t, cy + Math.sin(a) * (R * 0.6 + L * t)]) } k.ln(pts, I, 1.2) }
-      if (st.traits.includes("feelers")) { k.ln([[cx - R * 0.4, cy - R * 0.8], [cx - R * 0.9, cy - R * 1.8]], I, 1); k.ln([[cx + R * 0.4, cy - R * 0.8], [cx + R * 0.9, cy - R * 1.8]], I, 1); k.circ(cx - R * 0.9, cy - R * 1.8, 1.8, k.a(LAV, 1)); k.circ(cx + R * 0.9, cy - R * 1.8, 1.8, k.a(LAV, 1)) }
-      k.ell(cx, cy, R, R * 0.85, k.a(LAV, 0.85), I, 1.3)
-      if (st.stress > 60) for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + i * 0.5 - 1.2; k.ln([[cx + R * 1.1 * Math.cos(a), cy + R * 1.0 * Math.sin(a)], [cx + R * 1.35 * Math.cos(a), cy + R * 1.2 * Math.sin(a)]], I, 0.8) }
-      const eyes = st.traits.includes("a second eye") ? [-0.32, 0.32] : [0]; eyes.forEach(o => { k.circ(cx + R * o, cy - R * 0.15, Math.max(1.6, R * 0.22), k.PN, I, 0.8); k.circ(cx + R * o + Math.sin(TM / 5) * R * 0.06, cy - R * 0.15, Math.max(0.8, R * 0.1), I) })
-      if (st.traits.includes("a tiny crown")) k.poly([[cx - R * 0.35, cy - R * 0.8], [cx - R * 0.35, cy - R * 1.15], [cx - R * 0.12, cy - R * 0.95], [cx, cy - R * 1.25], [cx + R * 0.12, cy - R * 0.95], [cx + R * 0.35, cy - R * 1.15], [cx + R * 0.35, cy - R * 0.8]], k.a("#F2C94C", 1), I, 0.8)
-      if (st.traits.includes("gills")) for (let i = 0; i < 3; i++) { k.ln([[cx - R * 0.95, cy - R * 0.1 + i * 3], [cx - R * 0.7, cy - R * 0.1 + i * 3]], I, 0.7); k.ln([[cx + R * 0.7, cy - R * 0.1 + i * 3], [cx + R * 0.95, cy - R * 0.1 + i * 3]], I, 0.7) }
-      k.t(st.lot, cx, vy + vh - 9, 6, k.PN, { a: "c", w: vw, nofit: true })
-      // readouts
+      const G = GAMES.halcyon, TM = Date.now() / 60000, small = W < 200, big = H > 200, LAV = (T.altBg || "#9D8CF2"), I = k.I, S = k.S
+      const vx = 12, vw = small ? 62 : big ? 128 : 76, vy = 8, vh = small ? H - 20 : big ? 250 : H - 18
+      G.vat(k, vx, vy, vw, vh, st, inp, TM, small)
+      const cx = vx + vw / 2, cy = vy + vh * 0.46 + Math.sin(TM / 4) * 2, R = (small ? 13 : big ? 30 : 17) * (0.75 + st.stage * 0.08)
+      G.organism(k, cx, cy, R, st, inp, TM)
+      if (!small) {
+        // holographic bracket around the specimen with live readouts
+        const bw = R * 1.75, bh = R * 1.75
+        ;[[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sy2]) => { const x = cx + sx * bw, y = cy + sy2 * bh; k.ln([[x, y + -sy2 * 6], [x, y], [x + -sx * 6, y]], k.a(LAV, 0.9), 0.9) })
+        k.t(`${G.morph[st.stage]}`, cx, cy - bh - 11, big ? 6.5 : 6, k.ia(0.75), { a: "c", w: vw - 6, lines: 1 })
+        k.t(`M ${(0.02 + st.age * 0.015 * (1 + st.stage)).toFixed(2)}mg`, cx, cy + bh + 3, big ? 6.5 : 6, k.ia(0.75), { a: "c", w: vw - 6, lines: 1 })
+      }
       const x0 = vx + vw + 14, rw = W - x0 - 12
-      k.t(inp.charging ? "FEEDING // CHARGING PORT" : "CONTAINMENT // NOMINAL", x0, 4, 6.5, inp.charging ? k.a(LAV, 1) : k.S, { w: rw, f: "bold" })
-      k.t(G.stages[st.stage], x0, 13, small ? 14 : 18, I, { f: "disp", w: rw })
-      k.t(`AGE ${st.age} CYCLES · RUN ${st.run}${st.best ? " · BEST " + st.best : ""}`, x0, small ? 31 : 36, 6, k.S, { w: rw })
-      const bars = [["NUTRIENT", st.nut], ["VITALITY", st.vit], ["STRESS", st.stress]]
-      bars.forEach(([l, v], i) => { const y = (small ? 44 : 50) + i * (small ? 16 : 15); k.t(l, x0, y, 6, k.S, { w: 60 }); k.t(`${Math.round(v)}`, x0 + rw, y, 6.5, I, { a: "r", w: 30 }); gBar(k, x0, y + 8, rw, 4, v / 100, i === 2 ? k.a(LAV, 1) : I, k.ia(0.12)) })
-      if (small) return
-      const ty = 98
-      const trl = gT(k, st.traits.length ? `TRAITS: ${st.traits.join(", ").toUpperCase()}` : "TRAITS: NONE YET", x0, ty, 6.5, k.S, { w: rw, lines: 2 }).lines
-      const lines = (st.log || []).slice(big ? -7 : -2).reverse()
-      if (!big) { gLogBlock(k, (st.log || []).slice().reverse(), x0, ty + 4 + trl * 8, rw, H - 3, 7, "mono", I, k.S, "· "); return }
-      gLogBlock(k, (st.log || []).slice().reverse(), x0, ty + 5 + trl * 8, rw, 230, 7, "mono", I, k.S, "· ")
-      const hy = 236, hw = W - 24, hist = st.hist || []
-      k.t("VITALITY // LAST 24 CYCLES", 12, hy, 6.5, k.S, { w: 200 }); k.t(`LINEAGE: ${st.run - 1} RECYCLED`, W - 12, hy, 6.5, k.S, { a: "r", w: 160 })
-      for (let i = 0; i < 24; i++) { const v = hist[hist.length - 24 + i]; if (v == null) continue; const bh = Math.max(1, 52 * v / 100); k.rect(12 + i * (hw / 24) + 1, hy + 66 - bh, hw / 24 - 3, bh, i === 23 ? k.a(LAV, 1) : k.ia(0.55)) }
-      k.ln([[12, hy + 66], [W - 12, hy + 66]], I, 0.8)
-      k.t("Plug the phone in to feed it. Busy days stress it. Nights let it rest.", W / 2, H - 14, 6.5, k.S, { a: "c", w: W - 20 })
+      const cog = Math.min(100, st.stage * 18 + st.traits.length * 6 + (st.age % 7)), bpm = Math.round(48 + st.stress * 0.6 + (inp.charging ? 8 : 0))
+      k.t(inp.charging ? "FEEDING // NUTRIENT LINE OPEN" : st.stress > 60 ? "CONTAINMENT // AGITATED" : "CONTAINMENT // NOMINAL", x0, 4, 7, inp.charging || st.stress > 60 ? k.a(LAV, 1) : S, { w: rw, f: "bold", lines: 1 })
+      k.t(G.stages[st.stage], x0, 13, small ? 13 : big ? 20 : 16, I, { f: "disp", w: rw })
+      if (small) {
+        ;[["VIT", st.vit], ["NUT", st.nut]].forEach(([l, v], i) => { const y = 36 + i * 17; k.t(`${l} ${Math.round(v)}`, x0, y, 6.8, S, { w: rw, lines: 1 }); gBar(k, x0, y + 9, rw, 4, v / 100, I, k.ia(0.12)) })
+        k.t(`AGE ${st.age}`, x0, 74, 6.8, S, { w: rw, lines: 1 }); return
+      }
+      k.t(`AGE ${st.age} CYCLES · RUN ${st.run}${st.best ? " · BEST " + st.best : ""}`, x0, big ? 37 : 31, 6.5, S, { w: rw, lines: 1 })
+      if (big) {
+        // growth ladder
+        const ly = 50, lw = rw - 8; k.ln([[x0 + 4, ly], [x0 + 4 + lw, ly]], k.ia(0.25), 1)
+        const nxt = st.stage < 4 ? (st.age - G.th[st.stage]) / (G.th[st.stage + 1] - G.th[st.stage]) : 1
+        k.ln([[x0 + 4, ly], [x0 + 4 + lw * Math.min(1, (st.stage + Math.min(1, nxt)) / 4), ly]], I, 1.6)
+        G.stages.forEach((nm, i) => { const x = x0 + 4 + lw * i / 4; k.circ(x, ly, i === st.stage ? 3.5 : 2.4, i <= st.stage ? (i === st.stage ? k.a(LAV, 1) : I) : k.a(T.panel, 1), I, 0.8); k.t(nm.slice(0, 3), x, ly + 5, 6.2, i === st.stage ? I : S, { a: "c", w: 26, lines: 1 }) })
+      }
+      const bars = [["NUTRIENT", st.nut, I], ["VITALITY", st.vit, I], ["STRESS", st.stress, k.a(LAV, 1)]].concat(big ? [["COGNITION", cog, k.a("#7FE3F0", 1)]] : [])
+      const by0 = big ? 66 : 42
+      bars.forEach(([l, v, c], i) => { const y = by0 + i * 14; k.t(l, x0, y, 6.5, S, { w: rw - 34, lines: 1 }); k.t(`${Math.round(v)}`, x0 + rw, y, 6.8, I, { a: "r", w: 30 }); gBar(k, x0, y + 8, rw, 3.5, v / 100, c, k.ia(0.12)); for (let t = 1; t < 10; t++) k.ln([[x0 + rw * t / 10, y + 8], [x0 + rw * t / 10, y + 11.5]], k.a(T.panel, 0.8), 0.5) })
+      // neural trace: EEG drifting with the clock
+      const ey = big ? 128 : 86, eh = big ? 18 : 14
+      k.t(`NEURAL // ${bpm} BPM`, x0, ey, 6.3, S, { w: rw - 60, lines: 1 }); k.t(inp.charging ? "INTAKE" : st.stress > 60 ? "SPIKING" : "STABLE", x0 + rw, ey, 6.3, inp.charging || st.stress > 60 ? k.a(LAV, 1) : S, { a: "r", w: 56, lines: 1 })
+      const tr = []; for (let x = 0; x <= rw; x += 1.5) { const ph = (x + TM * 11) % 52; let y = Math.sin(x * 0.4 + TM) * 1.2 * (1 + st.stress / 60); if (ph > 34 && ph < 42) { const kk = (ph - 34) / 8; y -= Math.sin(kk * Math.PI * 2) * (eh / 2 - 1) * (kk < 0.5 ? 1 : 0.5) } tr.push([x0 + x, ey + 8 + eh / 2 + y]) }
+      k.ln([[x0, ey + 8 + eh / 2], [x0 + rw, ey + 8 + eh / 2]], k.ia(0.12), 0.5); k.ln(tr, I, 0.9)
+      if (!big) { gLogBlock(k, (st.log || []).slice().reverse(), x0, ey + eh + 11, rw, H - 3, 6.8, "mono", I, S, "· "); return }
+      // genome read: a barcode with a read head that moves each refresh
+      const gy = 166, gr = k.rng(parseInt(st.lot.replace(/\D/g, "").slice(-4), 10) || 7)
+      k.t(`GENOME // ${st.lot}-SEQ`, x0, gy, 6.3, S, { w: rw - 62, lines: 1 }); k.t(`${Math.round(60 + (TM * 3) % 40)}% READ`, x0 + rw, gy, 6.3, S, { a: "r", w: 58, lines: 1 })
+      let gx = x0; while (gx < x0 + rw) { const w2 = 0.8 + gr() * 2.4; k.rect(gx, gy + 8, w2, 10, gr() > 0.35 ? I : k.a(LAV, 0.8)); gx += w2 + 0.8 + gr() * 1.4 }
+      const rh = x0 + ((TM * 6) % rw); k.rect(rh - 1, gy + 6, 2, 14, k.a(LAV, 1)); k.rect(rh - 6, gy + 6, 12, 14, k.a(LAV, 0.12))
+      // physiology readouts
+      const ry = 194, cells = [["MASS", `${(0.02 + st.age * 0.015 * (1 + st.stage)).toFixed(2)}mg`], ["MEMBRANE", `${(100 - st.stress * 0.3).toFixed(1)}%`], ["SIGNAL", `${(-40 + st.vit * 0.2).toFixed(1)}dB`], ["CORE", `${(37 + st.stress * 0.02).toFixed(1)}°C`]]
+      cells.forEach(([l, v], i) => { const x = x0 + i * rw / 4; k.t(l, x, ry - 1, 6, S, { w: rw / 4 - 3, lines: 1 }); k.t(v, x, ry + 7, 7.3, I, { w: rw / 4 - 3, lines: 1 }) })
+      const tl = gT(k, st.traits.length ? `TRAITS // ${st.traits.join(" · ").toUpperCase()}` : "TRAITS // NONE ON FILE", x0, 214, 6.3, k.a(LAV, 1), { w: rw, lines: 2 }).lines
+      gLogBlock(k, (st.log || []).slice().reverse(), x0, 216 + tl * 8.5, rw, 263, 6.8, "mono", I, S, "· ")
+      // vitality and stress history, with empty cycles shown as a dotted baseline
+      const hy = 268, hw = W - 24, hh = 54, hist = st.hist || [], sh = st.shist || []
+      k.t("VITALITY + STRESS // LAST 24 CYCLES", 12, hy, 6.5, S, { w: 180, lines: 1 }); k.t(st.stage < 4 ? `NEXT MILESTONE IN ${Math.max(0, G.th[st.stage + 1] - st.age)} CYCLES` : "TERMINAL MORPHOLOGY", W - 12, hy, 6.5, S, { a: "r", w: 150, lines: 1 })
+      for (let y = 0; y <= 4; y++) k.ln([[12, hy + 10 + hh * y / 4], [W - 12, hy + 10 + hh * y / 4]], k.ia(0.06), 0.5)
+      const bw2 = hw / 24, spts = []
+      for (let i = 0; i < 24; i++) { const v = hist[hist.length - 24 + i], x = 12 + i * bw2; if (v == null) { k.ln([[x + 1, hy + 10 + hh], [x + bw2 - 2, hy + 10 + hh]], k.ia(0.25), 0.8); continue } const bh = Math.max(1, hh * v / 100); k.rect(x + 1, hy + 10 + hh - bh, bw2 - 3, bh, i === 23 ? k.a(LAV, 1) : k.ia(0.5)); const sv = sh[sh.length - 24 + i]; if (sv != null) spts.push([x + bw2 / 2, hy + 10 + hh - hh * sv / 100]) }
+      if (spts.length > 1) { k.ln(spts, k.a(LAV, 0.9), 1.1); spts.forEach(p => k.circ(p[0], p[1], 1.2, k.a(LAV, 1))) }
+      k.ln([[12, hy + 10 + hh], [W - 12, hy + 10 + hh]], I, 0.8)
+      const sweep = 12 + ((TM * 4) % hw); k.ln([[sweep, hy + 10], [sweep, hy + 10 + hh]], k.a(LAV, 0.4), 0.7)
+      k.t(`LINEAGE // ${st.run - 1} RECYCLED`, 12, H - 13, 6.5, S, { w: 120, lines: 1 }); for (let i = 0; i < Math.min(8, st.run - 1); i++) k.rect(112 + i * 6, H - 11, 4, 5, k.ia(0.4))
+      k.t("CHARGE TO FEED · BUSY DAYS STRESS IT · NIGHTS REST", W - 12, H - 13, 6.3, S, { a: "r", w: 196, lines: 1 })
     }
   },
 
@@ -4228,6 +4318,7 @@ async function gameWidget() {
   try { fm = FileManager.local(); path = fm.joinPath(fm.documentsDirectory(), `foundry-game-${f}.json`); if (fm.fileExists(path)) st = JSON.parse(fm.readString(path)) } catch (e) {}
   const now = Date.now()
   if (!st || st.v !== 1 || st.game !== f) st = G.init(now)
+  if (G.migrate) G.migrate(st)
   const inp = { charging: false, batt: 1, hour: new Date().getHours(), busy: 0 }
   try { inp.charging = !!Device.isCharging() } catch (e) {}
   try { inp.batt = Device.batteryLevel() } catch (e) {}
@@ -9157,7 +9248,7 @@ const ODD_INFO = {
 function frameFor(th) { return ({ globe: 'halcyon', radar: 'halcyon', alert: 'directive', map: 'longroad', night: 'nightfall', grimoire: 'grimoire', orbital: 'deeprange', rabbit: 'rabbit', neon: 'cyber', market: 'market', vapor: 'vapor', botanical: 'nature' }[th.motif] || 'halcyon'); }
 function oddityFor(th) { return th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', rabbit: 'heist', neon: 'market', market: 'bet', vapor: 'mall', botanical: 'species' }[th.motif] || 'mood'); }
 const GAME_META = {
-  halcyon: ['W-10 // SPECIMEN VAT', 'Specimen Vat', 'A specimen grows in a vat, one cycle per refresh. Plugging your phone in feeds it, busy calendar days stress it, nights let it rest. It mutates, climbs five stages and gets recycled if neglected.'],
+  halcyon: ['W-10 // SPECIMEN VAT', 'Specimen Vat', 'An abstract organism grows in a containment vat, one cycle per refresh, through five morphologies from seed nucleus to lattice sphere. Charging opens the nutrient line, busy days stress it, nights let it rest. Mutations are filed under assets; neglected lots are recycled into feedstock.'],
   deeprange: ['W-10 // SALVAGE RUN', 'Salvage Run', 'An autonomous drone jumps across the sector each refresh: derelicts, asteroids, pirates, signals, cargo. Charging docks it to refuel. Lose the hull or fuel and a new drone launches.'],
   longroad: ['W-10 // THE EXPEDITION', 'The Expedition', 'A traveller walks the map one stretch per refresh and keeps a journal: villages, bandits, wolves, merchants. Charging (or nightfall) makes camp. If they fall, someone new sets out.'],
   directive: ['W-10 // SHELTER 9', 'Shelter 9', 'Keep an underground shelter running: survivors arrive, supplies drop, sirens sound and morale rises and falls. Charging restores the power grid. Lose power or morale and the next shelter is unsealed.'],
@@ -9273,7 +9364,7 @@ function themedBody(item, th, wc, W, H) {
   const put = (c, x) => { c.style.position = 'absolute'; c.style.left = (x || 0) + 'px'; c.style.top = '0'; wrap.append(c); };
   const live = (spec, text) => { if (!spec) return; const fam2 = spec.f === 'disp' ? `"${th.fonts.display}", Georgia, serif` : spec.f === 'heavy' ? 'system-ui, sans-serif' : `"${th.fonts.mono}", ui-monospace, monospace`; const e = pv('div', `position:absolute;top:${spec.y}px;font:${spec.f === 'heavy' ? 800 : spec.f === 'bold' ? 700 : 400} ${spec.size}px ${fam2};color:${spec.color || wc.ink};white-space:nowrap;line-height:1.3`, text); if (spec.a === 'c') { e.style.left = '0'; e.style.width = W + 'px'; e.style.textAlign = 'center'; } else if (spec.a === 'r') { e.style.right = (W - spec.x) + 'px'; } else { e.style.left = spec.x + 'px'; } wrap.append(e); };
   const d = sampleData(item.mode, th, W, bh);
-  if (item.mode === 'game') { const P2 = K.THEME_PAINT[f]; if (P2 && P2.game) { put(K.artImage(W, bh, P2.game, P2.gameSample())); return wrap; } }
+  if (item.mode === 'game') { const P2 = K.THEME_PAINT[f]; if (P2 && P2.game) { let smp = P2.gameSample(); if (item.tweak) smp = item.tweak(smp); put(K.artImage(W, bh, P2.game, smp)); return wrap; } }
   if (['youtube', 'instagram', 'discord'].includes(item.mode)) { const P2 = K.THEME_PAINT[f] || K.THEME_PAINT.halcyon, pk = { youtube: 'yt', instagram: 'ig', discord: 'dc' }[item.mode]; put(K.artImage(W, bh, P2[pk], { seed: 7, now: new Date(), code: `${(th.codes[item.mode] || item.mode).slice(0, 5)}-${{ youtube: '09', instagram: '10', discord: '11' }[item.mode]}` })); return wrap; }
   if (item.mode === 'audio' && ['halcyon', 'rabbit', 'cyber', 'market', 'vapor', 'nature'].includes(f)) { put(K.artImage(W, bh, K.THEME_PAINT[f].audio, { line: deckFor(th).audio.lines[0], lvl: 3, phase: 1.2 })); live({ x: 352, y: 60, size: 9, a: 'r', f: 'bold' }, '0:42'); return wrap; }
   if (!P) return null;
@@ -9286,7 +9377,7 @@ function themedBody(item, th, wc, W, H) {
 }
 function previewWidget(item, th) {
   const wc = widgetColors(th), mono = `"${th.fonts.mono}", ui-monospace, monospace`, disp = `"${th.fonts.display}", Georgia, serif`;
-  const W = item.mode === 'shift' ? 170 : 364, H = item.mode === 'solar' ? 382 : 170;
+  const W = item.mode === 'shift' ? 170 : 364, H = item.mode === 'solar' || item.big ? 382 : 170;
   const alt = ['shift', 'transmission', 'oddity'].includes(item.mode);
   const card = pv('div', `position:relative;width:${W}px;height:${H}px;border-radius:22px;overflow:hidden;background:${wc.panel};color:${wc.ink};font-family:${mono};font-size:9px;line-height:1.18;display:flex;flex-direction:column`);
   const NEWF = ['cyber', 'market', 'vapor', 'nature'].includes(frameFor(th)), KF = NEWF ? scriptableKit(th) : null;
