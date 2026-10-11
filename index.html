@@ -306,6 +306,7 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
 // Set each widget's Parameter to one of:
 //   status (medium) · shift (small) · transmission (any) · solar (large is best) · audio (medium)
 //   feeds (medium) · youtube / instagram / discord (any) · oddity (small or medium, just for fun)
+//   game (any size, Halcyon, Deep Range and The Long Road): a little game that plays itself, one turn per refresh
 // Add :alt or :main after the mode to flip the header color, e.g. shift:main
 const T = __THEME__
 
@@ -3586,7 +3587,207 @@ const MK = {
     k.t("PLAYING", W - 70, 52, 6.5, mkNo(), { w: 60, f: "bold" })
   }
 }
+// ---------- W-10 GAMES THAT PLAY THEMSELVES ----------
+// Each refresh is a turn. State is saved on the phone, and plugging the phone in is the one real control:
+// it feeds the Halcyon specimen, docks the Deep Range drone, and makes camp on the Long Road.
+function gRng(st) { return () => { st.seed = (st.seed * 9301 + 49297) % 233280; return st.seed / 233280 } }
+function gLog(st, m) { st.log = (st.log || []).concat([{ m, n: st.turn }]).slice(-8) }
+const gClamp = (v) => Math.max(0, Math.min(100, v))
+const gPick = (r, a) => a[Math.floor(r() * a.length) % a.length]
+function gBar(k, x, y, w, h, f, on, off) { k.rect(x, y, w, h, off); k.rect(x, y, Math.max(1, w * Math.max(0, Math.min(1, f))), h, on) }
+
+const GAMES = {
+  // HALCYON: a specimen in a containment vat that grows, mutates and sometimes gets recycled
+  halcyon: {
+    title: "W-10 // SPECIMEN VAT",
+    stages: ["SPORE", "LARVA", "JUVENILE", "SPECIMEN", "ASCENDANT"], th: [0, 6, 18, 40, 80],
+    init(now, prev) { const run = prev ? prev.run + 1 : 1; return { v: 1, game: "halcyon", run, lot: `HB-2893-${String(13 + run).padStart(2, "0")}`, stage: 0, age: 0, nut: 62, vit: 80, stress: 18, traits: [], hist: [80], best: prev ? prev.best : 0, turn: prev ? prev.turn : 0, log: prev ? prev.log : [], seed: (now % 233280) || 11, last: prev ? prev.last : 0 } },
+    right(st, inp) { return inp.charging ? "FEEDING · CHARGING" : `LOT ${st.lot}` },
+    step(st, inp) {
+      const r = gRng(st), G = GAMES.halcyon, night = inp.hour < 6 || inp.hour >= 23
+      st.turn++; st.age++
+      if (inp.charging) { st.nut += 22; gLog(st, "Fed through the charging port. Nutrient +22.") } else st.nut -= 5
+      if (night) { st.stress -= 8; st.vit += 3; if (r() < 0.5) gLog(st, "Night cycle. Dormant. Dreaming of protein.") }
+      if (inp.busy >= 4 && !night) { st.stress += 7; gLog(st, `${inp.busy} allocations today. Specimen agitated.`) }
+      if (inp.batt < 0.2 && !inp.charging) { st.vit -= 6; gLog(st, "Low power. Specimen dimming.") }
+      st.vit += (st.nut > 40 ? 2 : -6) - (st.stress > 70 ? 5 : 0)
+      const e = r()
+      if (e < 0.12) { const left = ["a second eye", "bioluminescence", "an extra heart", "feelers", "opinions", "a tiny crown", "gills"].filter(t => !st.traits.includes(t)); if (left.length) { const t = gPick(r, left); st.traits.push(t); gLog(st, `Mutation logged: ${t}.`) } }
+      else if (e < 0.2) gLog(st, "Specimen tapped on the glass twice. Noted.")
+      else if (e < 0.26) { st.stress += 6; gLog(st, "Escape attempt. Lid secured.") }
+      else if (e < 0.33) { st.vit += 4; gLog(st, "Specimen is humming the compliance anthem.") }
+      else if (e < 0.38) { st.stress -= 5; gLog(st, "Lab tech said goodnight to it. Morale up.") }
+      st.nut = gClamp(st.nut); st.vit = gClamp(st.vit); st.stress = gClamp(st.stress)
+      if (st.stage < 4 && st.age >= G.th[st.stage + 1] && st.vit > 45) { st.stage++; gLog(st, `Growth milestone: ${G.stages[st.stage]}.`) }
+      st.hist = (st.hist || []).concat([st.vit]).slice(-24)
+      if (st.vit <= 0) { const best = Math.max(st.best || 0, st.age), old = st.lot; Object.assign(st, G.init(Date.now(), st)); st.best = best; gLog(st, `Lot ${old} recycled. New lot ${st.lot} opened.`) }
+    },
+    paint(k, W, H, st, inp) {
+      const G = GAMES.halcyon, TM = Date.now() / 60000, small = W < 200, big = H > 200, LAV = T.altBg || "#9D8CF2", I = k.I
+      const vx = 12, vw = small ? 62 : big ? 120 : 76, vy = 8, vh = small ? H - 20 : big ? 214 : H - 18
+      // vat glass, liquid, tubes, bubbles
+      k.rect(vx + vw * 0.3, vy - 2, 4, 8, I); k.rect(vx + vw * 0.62, vy - 2, 4, 8, I)
+      k.rect(vx, vy + 6, vw, vh - 14, k.a(LAV, 0.16), I, 1.2); k.ell(vx + vw / 2, vy + 6, vw / 2, 4, k.PN, I, 1.2); k.rect(vx - 3, vy + vh - 10, vw + 6, 10, I)
+      for (let i = 0; i < 5; i++) k.rect(vx + 1, vy + 8 + i * (vh - 18) / 5, vw - 2, (vh - 18) / 10, k.a(LAV, 0.05 + i * 0.02))
+      const r = k.rng(st.run * 7 + 3)
+      for (let i = 0; i < (big ? 14 : 8); i++) { const bx = vx + 6 + r() * (vw - 12), span = vh - 22, by = vy + vh - 14 - ((r() * span + TM * (6 + i % 3)) % span); k.circ(bx + Math.sin(TM / 3 + i) * 2, by, 1 + r() * 2, null, k.ia(0.45), 0.7) }
+      for (let i = 0; i < 6; i++) k.ln([[vx + vw + 1, vy + 14 + i * (vh - 30) / 6], [vx + vw + 4, vy + 14 + i * (vh - 30) / 6]], k.ia(0.6), 0.7)
+      // the organism
+      const cx = vx + vw / 2, cy = vy + vh * 0.48 + Math.sin(TM / 4) * 3, sc = (small ? 0.75 : big ? 1.5 : 0.95), R = (6 + st.stage * 4.5) * sc
+      const glow = st.traits.includes("bioluminescence"); if (glow) for (let g = 3; g >= 1; g--) k.circ(cx, cy, R + g * 4, k.a(LAV, 0.12))
+      const nT = 2 + st.stage * 2; for (let i = 0; i < nT; i++) { const a = Math.PI * (0.15 + 0.7 * i / Math.max(1, nT - 1)), pts = []; for (let j = 0; j <= 8; j++) { const t = j / 8, L = R * (1.2 + st.stage * 0.25); pts.push([cx + Math.cos(a) * (R * 0.7 + L * t) + Math.sin(TM / 2 + i + t * 3) * 3 * t, cy + Math.sin(a) * (R * 0.6 + L * t)]) } k.ln(pts, I, 1.2) }
+      if (st.traits.includes("feelers")) { k.ln([[cx - R * 0.4, cy - R * 0.8], [cx - R * 0.9, cy - R * 1.8]], I, 1); k.ln([[cx + R * 0.4, cy - R * 0.8], [cx + R * 0.9, cy - R * 1.8]], I, 1); k.circ(cx - R * 0.9, cy - R * 1.8, 1.8, k.a(LAV, 1)); k.circ(cx + R * 0.9, cy - R * 1.8, 1.8, k.a(LAV, 1)) }
+      k.ell(cx, cy, R, R * 0.85, k.a(LAV, 0.85), I, 1.3)
+      if (st.stress > 60) for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + i * 0.5 - 1.2; k.ln([[cx + R * 1.1 * Math.cos(a), cy + R * 1.0 * Math.sin(a)], [cx + R * 1.35 * Math.cos(a), cy + R * 1.2 * Math.sin(a)]], I, 0.8) }
+      const eyes = st.traits.includes("a second eye") ? [-0.32, 0.32] : [0]; eyes.forEach(o => { k.circ(cx + R * o, cy - R * 0.15, Math.max(1.6, R * 0.22), k.PN, I, 0.8); k.circ(cx + R * o + Math.sin(TM / 5) * R * 0.06, cy - R * 0.15, Math.max(0.8, R * 0.1), I) })
+      if (st.traits.includes("a tiny crown")) k.poly([[cx - R * 0.35, cy - R * 0.8], [cx - R * 0.35, cy - R * 1.15], [cx - R * 0.12, cy - R * 0.95], [cx, cy - R * 1.25], [cx + R * 0.12, cy - R * 0.95], [cx + R * 0.35, cy - R * 1.15], [cx + R * 0.35, cy - R * 0.8]], k.a("#F2C94C", 1), I, 0.8)
+      if (st.traits.includes("gills")) for (let i = 0; i < 3; i++) { k.ln([[cx - R * 0.95, cy - R * 0.1 + i * 3], [cx - R * 0.7, cy - R * 0.1 + i * 3]], I, 0.7); k.ln([[cx + R * 0.7, cy - R * 0.1 + i * 3], [cx + R * 0.95, cy - R * 0.1 + i * 3]], I, 0.7) }
+      k.t(st.lot, cx, vy + vh - 9, 6, k.PN, { a: "c", w: vw, nofit: true })
+      // readouts
+      const x0 = vx + vw + 14, rw = W - x0 - 12
+      k.t(inp.charging ? "FEEDING // CHARGING PORT" : "CONTAINMENT // NOMINAL", x0, 4, 6.5, inp.charging ? k.a(LAV, 1) : k.S, { w: rw, f: "bold" })
+      k.t(G.stages[st.stage], x0, 13, small ? 14 : 18, I, { f: "disp", w: rw })
+      k.t(`AGE ${st.age} CYCLES · RUN ${st.run}${st.best ? " · BEST " + st.best : ""}`, x0, small ? 31 : 36, 6, k.S, { w: rw })
+      const bars = [["NUTRIENT", st.nut], ["VITALITY", st.vit], ["STRESS", st.stress]]
+      bars.forEach(([l, v], i) => { const y = (small ? 44 : 50) + i * (small ? 16 : 15); k.t(l, x0, y, 6, k.S, { w: 60 }); k.t(`${Math.round(v)}`, x0 + rw, y, 6.5, I, { a: "r", w: 30 }); gBar(k, x0, y + 8, rw, 4, v / 100, i === 2 ? k.a(LAV, 1) : I, k.ia(0.12)) })
+      if (small) return
+      const ty = 98
+      k.t(st.traits.length ? `TRAITS: ${st.traits.join(", ").toUpperCase()}` : "TRAITS: NONE YET", x0, ty, 6, k.S, { w: rw })
+      const lines = (st.log || []).slice(big ? -7 : -2).reverse()
+      if (!big) { lines.forEach((l, i) => k.t(`· ${l.m}`, x0, ty + 11 + i * 10, 6.5, i ? k.S : I, { w: rw })); return }
+      lines.forEach((l, i) => k.t(`· ${l.m}`, x0, ty + 12 + i * 11, 6.5, i ? k.S : I, { w: rw }))
+      const hy = 236, hw = W - 24, hist = st.hist || []
+      k.t("VITALITY // LAST 24 CYCLES", 12, hy, 6.5, k.S, { w: 200 }); k.t(`LINEAGE: ${st.run - 1} RECYCLED`, W - 12, hy, 6.5, k.S, { a: "r", w: 160 })
+      for (let i = 0; i < 24; i++) { const v = hist[hist.length - 24 + i]; if (v == null) continue; const bh = Math.max(1, 52 * v / 100); k.rect(12 + i * (hw / 24) + 1, hy + 66 - bh, hw / 24 - 3, bh, i === 23 ? k.a(LAV, 1) : k.ia(0.55)) }
+      k.ln([[12, hy + 66], [W - 12, hy + 66]], I, 0.8)
+      k.t("Plug the phone in to feed it. Busy days stress it. Nights let it rest.", W / 2, H - 14, 6.5, k.S, { a: "c", w: W - 20 })
+    }
+  },
+
+  // DEEP RANGE: an autonomous salvage drone jumping across a sector map
+  deeprange: {
+    title: "W-10 // SALVAGE RUN",
+    init(now, prev) { const run = prev ? prev.run + 1 : 1; return { v: 1, game: "deeprange", run, drone: `SR-${String(run).padStart(2, "0")}`, jumps: 0, hull: 100, fuel: 100, cargo: 0, credits: prev ? prev.credits : 0, pos: [0.5, 0.55], trail: [[0.5, 0.55]], status: "LAUNCHED", ev: "launch", best: prev ? prev.best : 0, turn: prev ? prev.turn : 0, log: prev ? prev.log : [], seed: (now % 233280) || 13, last: prev ? prev.last : 0 } },
+    right(st, inp) { return inp.charging ? "DOCKED · REFUELING" : `DRONE ${st.drone}` },
+    step(st, inp) {
+      const r = gRng(st), G = GAMES.deeprange
+      st.turn++
+      if (inp.charging) { st.fuel += 25; st.hull += 12; st.status = "DOCKED"; st.ev = "dock"; gLog(st, "Docked at Relay 07. Refueling, patching hull."); st.fuel = gClamp(st.fuel); st.hull = gClamp(st.hull); return }
+      st.jumps++; st.fuel -= 6 + r() * 5
+      const a = r() * Math.PI * 2, dist = 0.08 + r() * 0.1, last = st.pos
+      st.pos = [Math.max(0.06, Math.min(0.94, last[0] + Math.cos(a) * dist)), Math.max(0.08, Math.min(0.92, last[1] + Math.sin(a) * dist * 0.8))]
+      st.trail = (st.trail || []).concat([st.pos]).slice(-14); st.status = "IN TRANSIT"
+      const e = r()
+      if (e < 0.22) { const c = Math.round(2 + r() * 9); st.cargo += c; st.ev = "derelict"; gLog(st, `Salvaged ${c}t from derelict ${gPick(r, ["FREIGHTER KESTREL", "ORE BARGE 9", "SURVEY POD LACUNA", "THE MERIDIAN", "TUG HALF-MOON"])}.`) }
+      else if (e < 0.36) { const d = Math.round(8 + r() * 16); st.hull -= d; st.ev = "rocks"; gLog(st, `Asteroid field. Hull -${d}%.`) }
+      else if (e < 0.46) { st.ev = "signal"; gLog(st, `Signal decoded: "${gPick(r, ["IS ANYONE GETTING THESE", "DO NOT DOCK AT 9", "WE FOUND IT", "COORDINATES ATTACHED", "TELL MY CAT"])}"`) }
+      else if (e < 0.54) { st.fuel += 18; st.ev = "fuel"; gLog(st, "Fuel cache recovered. +18%.") }
+      else if (e < 0.62) { const d = Math.round(10 + r() * 15); st.hull -= d; st.cargo = Math.floor(st.cargo * 0.7); st.ev = "pirate"; gLog(st, `Pirate ping. Evasive burn. Hull -${d}%, cargo dumped.`) }
+      else if (e < 0.72 && st.cargo > 5) { const cr = st.cargo * 12; st.credits += cr; st.cargo = 0; st.ev = "sell"; gLog(st, `Sold salvage at waystation. +${cr} CR.`) }
+      else { st.ev = "void"; gLog(st, gPick(r, ["Quiet jump. Nothing but static.", "Passed a dead satellite. Waved.", "Long-range scan: empty. Suspiciously empty."])) }
+      st.fuel = gClamp(st.fuel); st.hull = gClamp(st.hull)
+      if (st.hull <= 0 || st.fuel <= 0) { const why = st.hull <= 0 ? `CONTACT LOST. ${st.drone} destroyed after ${st.jumps} jumps.` : `${st.drone} out of fuel. Drifting. Beacon active.`; const best = Math.max(st.best || 0, st.jumps); Object.assign(st, G.init(Date.now(), st)); st.best = best; gLog(st, why); gLog(st, `${st.drone} launched.`) }
+    },
+    paint(k, W, H, st, inp) {
+      const TM = Date.now() / 60000, small = W < 200, big = H > 200, mx = 10, my = 6, mw = small ? W - 20 : big ? W - 20 : 206, mh = small ? 86 : big ? 190 : H - 14
+      const Y = k.a(T.accent, 1), R = k.H, B = k.a(T.altBg, 1), I = k.I
+      k.rect(mx, my, mw, mh, k.ia(0.03), k.ia(0.3), 0.8)
+      for (let gx = mx; gx <= mx + mw; gx += mw / 8) k.ln([[gx, my], [gx, my + mh]], k.ia(0.07), 0.5)
+      for (let gy = my; gy <= my + mh; gy += mh / 6) k.ln([[mx, gy], [mx + mw, gy]], k.ia(0.07), 0.5)
+      const rs = k.rng(st.run * 31); for (let i = 0; i < (big ? 90 : 45); i++) k.circ(mx + rs() * mw, my + rs() * mh, 0.4 + rs() * 0.8, k.ia(0.15 + rs() * 0.5 * Math.abs(Math.sin(TM / 7 + i))))
+      k.arc(mx + mw, my + mh + 30, 70, Math.PI * 1.16, Math.PI * 1.46, B, 1.4); k.arc(mx + mw, my + mh + 30, 60, Math.PI * 1.2, Math.PI * 1.44, k.a(T.altBg, 0.4), 0.8)
+      const P = (p) => [mx + p[0] * mw, my + p[1] * mh], tr = (st.trail || []).map(P)
+      if (tr.length > 1) { k.ln(tr, k.a(T.accent, 0.3), 3); k.ln(tr, Y, 1.2) }
+      tr.forEach((p, i) => { if (i < tr.length - 1) k.rect(p[0] - 1.5, p[1] - 1.5, 3, 3, k.ia(0.6)) })
+      const cur = tr[tr.length - 1] || P(st.pos), prev = tr[tr.length - 2] || [cur[0] - 1, cur[1]], ang = Math.atan2(cur[1] - prev[1], cur[0] - prev[0])
+      k.circ(cur[0], cur[1], 7 + (TM % 4), null, k.a(T.accent, Math.max(0, 0.6 - (TM % 4) * 0.15)), 1)
+      k.poly([[cur[0] + 6 * Math.cos(ang), cur[1] + 6 * Math.sin(ang)], [cur[0] + 4 * Math.cos(ang + 2.4), cur[1] + 4 * Math.sin(ang + 2.4)], [cur[0] + 4 * Math.cos(ang - 2.4), cur[1] + 4 * Math.sin(ang - 2.4)]], Y)
+      const ex = cur[0] + 10, ey = cur[1] - 12
+      if (st.ev === "derelict") k.rect(ex, ey, 8, 5, null, I, 0.8)
+      if (st.ev === "rocks") for (let i = 0; i < 4; i++) k.circ(ex + i * 4, ey + (i % 2) * 3, 1.6, k.ia(0.7))
+      if (st.ev === "pirate") k.poly([[ex, ey], [ex + 8, ey + 3], [ex, ey + 6]], R)
+      if (st.ev === "dock") { k.rect(cur[0] - 10, cur[1] + 6, 20, 4, null, B, 1); k.t("RELAY 07", cur[0], cur[1] + 12, 5.5, B, { a: "c", w: 40 }) }
+      if (st.ev === "signal") for (let i = 1; i <= 3; i++) k.arc(cur[0], cur[1], 6 + i * 4, -0.8, 0.2, k.a(T.accent, 0.7), 0.7)
+      k.t(`SECTOR 07 // RUN ${st.run}`, mx + 5, my + 4, 6, k.S, { w: 120 })
+      // readouts
+      const bars = [["HULL", st.hull, st.hull < 30 ? R : I], ["FUEL", st.fuel, st.fuel < 25 ? R : Y]]
+      if (small) { bars.forEach(([l, v, c], i) => { const y = my + mh + 6 + i * 13; k.t(`${l} ${Math.round(v)}%`, mx, y, 6.5, I, { w: 70 }); gBar(k, mx + 62, y + 2, W - mx * 2 - 62, 5, v / 100, c, k.ia(0.12)) }); return }
+      const x0 = big ? mx : mx + mw + 12, y0 = big ? my + mh + 10 : my, rw = big ? W - 20 : W - x0 - 10
+      k.t(inp.charging ? "DOCKED // REFUELING" : st.status, x0, y0, 6.5, inp.charging ? B : R, { f: "bold", w: rw })
+      k.t(st.drone, x0, y0 + 9, big ? 22 : 18, I, { f: "heavy", w: rw })
+      if (big) {
+        ;[["JUMPS", st.jumps], ["CARGO", `${st.cargo}t`], ["CREDITS", st.credits], ["BEST RUN", `${st.best} J`]].forEach(([l, v], i) => { const x = x0 + 110 + i * 62; k.t(l, x, y0, 6, k.S, { w: 60 }); k.t(String(v), x, y0 + 10, 11, I, { f: "heavy", w: 60 }) })
+        bars.forEach(([l, v, c], i) => { const y = y0 + 38 + i * 14; k.t(l, x0, y, 6.5, k.S, { w: 40 }); gBar(k, x0 + 40, y + 2, rw - 80, 6, v / 100, c, k.ia(0.12)); k.t(`${Math.round(v)}%`, x0 + rw, y, 7, I, { a: "r", w: 36, f: "bold" }) })
+        ;(st.log || []).slice(-6).reverse().forEach((l, i) => k.t(`> ${l.m}`, x0, y0 + 72 + i * 11, 6.5, i ? k.S : I, { w: rw }))
+        return
+      }
+      bars.forEach(([l, v, c], i) => { const y = y0 + 34 + i * 14; k.t(l, x0, y, 6.5, k.S, { w: 40 }); gBar(k, x0 + 30, y + 2, rw - 64, 5, v / 100, c, k.ia(0.12)); k.t(`${Math.round(v)}%`, x0 + rw, y, 6.5, I, { a: "r", w: 34, f: "bold" }) })
+      k.t(`JUMPS ${st.jumps} · CARGO ${st.cargo}t · ${st.credits} CR`, x0, y0 + 64, 6.5, I, { w: rw })
+      ;(st.log || []).slice(-3).reverse().forEach((l, i) => k.t(`> ${l.m}`, x0, y0 + 80 + i * 11, 6, i ? k.S : I, { w: rw }))
+    }
+  },
+
+  // THE LONG ROAD: a traveller walking the map, keeping a journal
+  longroad: {
+    title: "W-10 // The Expedition",
+    places: ["Brindle", "The Lantern Inn", "Pinewatch", "Calder Ruins", "Fenwick Marsh", "Ashwood", "Old Tower", "Sheepcote Hills", "Hollowmere", "Greyhallow Fells", "The Grey Sound"],
+    names: ["Wren of Brindle", "Old Tamsin", "Pip Ashcombe", "Hollis the Tinker", "Marigold Fenn", "Brother Oswin", "Ada Stillwater", "Cob the Younger"],
+    init(now, prev) { const G = GAMES.longroad, run = prev ? prev.run + 1 : 1, seed = (now % 233280) || 17; return { v: 1, game: "longroad", run, name: G.names[(seed + run) % G.names.length], day: 1, miles: 0, hp: 10, food: 8, gold: 5, place: "Brindle", pi: 0, camp: false, items: [], best: prev ? prev.best : 0, turn: prev ? prev.turn : 0, log: prev ? prev.log : [], seed, last: prev ? prev.last : 0 } },
+    right(st, inp) { return st.camp ? "Camped" : `Day ${st.day}` },
+    step(st, inp) {
+      const r = gRng(st), G = GAMES.longroad, night = inp.hour < 6 || inp.hour >= 22
+      st.turn++; if (st.turn % 4 === 0) st.day++
+      if (inp.charging || night) { st.camp = true; st.hp = Math.min(10, st.hp + (inp.charging ? 2 : 1)); st.food -= 1; gLog(st, inp.charging ? "Rested by a roaring fire. Wounds mended." : "Made camp under the stars. Slept well enough.") }
+      else {
+        st.camp = false; const m = Math.round(4 + r() * 9); st.miles += m; st.food -= 1
+        const e = r()
+        if (e < 0.18) { st.pi = (st.pi + 1) % G.places.length; st.place = G.places[st.pi]; if (st.gold >= 2) { st.gold -= 2; st.food += 3; gLog(st, `Reached ${st.place}. Bought bread and cheese.`) } else gLog(st, `Reached ${st.place}. Too poor for supper.`) }
+        else if (e < 0.3) { const d = 1 + Math.floor(r() * 3), g = Math.min(st.gold, 3); st.hp -= d; st.gold -= g; gLog(st, `Bandits on the road! Lost ${g} gold and some dignity.`) }
+        else if (e < 0.38) { st.hp -= 2; gLog(st, "Wolves at dusk. Escaped with scratches.") }
+        else if (e < 0.46) { st.hp += 2; gLog(st, "A wayside shrine. Left a coin, felt lighter.") }
+        else if (e < 0.56) { const g = 2 + Math.floor(r() * 5); st.gold += g; gLog(st, `Found a purse in the ditch. ${g} gold richer.`) }
+        else if (e < 0.62 && st.gold >= 4) { const it = gPick(r, ["a better cloak", "a lucky charm", "boots that fit", "a map with fewer lies", "a tin whistle"]); st.gold -= 4; st.items = (st.items || []).concat([it]).slice(-4); gLog(st, `A merchant sold me ${it}.`) }
+        else if (e < 0.68) gLog(st, "Heard talk of a dragon in the Fells. Probably sheep.")
+        else if (e < 0.74) { st.miles = Math.max(0, st.miles - 2); gLog(st, "Rain all day. The road became a river.") }
+        else gLog(st, gPick(r, [`Walked ${m} miles. The road went on.`, `Walked ${m} miles. A crow followed me most of them.`, `Walked ${m} miles. Sang badly. Nobody complained.`]))
+      }
+      if (st.food <= 0) { st.food = 0; st.hp -= 1; gLog(st, "Nothing to eat. Belt tightened another notch.") }
+      st.hp = Math.max(0, Math.min(10, st.hp))
+      if (st.hp <= 0) { const name = st.name, best = Math.max(st.best || 0, st.miles); Object.assign(st, G.init(Date.now() + st.turn, st)); st.best = best; gLog(st, `${name} was laid to rest beneath an oak.`); gLog(st, `${st.name} sets out from Brindle.`) }
+    },
+    paint(k, W, H, st, inp) {
+      const TM = Date.now() / 60000, small = W < 200, big = H > 200, I = k.I, RED = k.a(T.accent, 1)
+      const mx = 10, my = 6, mw = small ? W - 20 : big ? W - 20 : 196, mh = small ? 78 : big ? 150 : H - 14
+      k.rect(mx, my, mw, mh, k.a(T.panel, 0.6), I, 1); k.rect(mx + 3, my + 3, mw - 6, mh - 6, null, k.ia(0.35), 0.5)
+      const rs = k.rng(st.run * 13 + 5), road = []
+      for (let i = 0; i <= 20; i++) { const t = i / 20; road.push([mx + 10 + t * (mw - 20), my + mh * 0.55 + Math.sin(t * 6 + st.run) * mh * 0.18]) }
+      for (let i = 0; i < (big ? 18 : 10); i++) { const x = mx + 12 + rs() * (mw - 24), y = my + 10 + rs() * (mh - 20), kind = rs(); if (Math.abs(y - (my + mh * 0.55)) < 12 || (y < my + 24 && x < mx + 100)) continue; if (kind < 0.4) k.poly([[x, y - 7], [x + 4, y + 2], [x - 4, y + 2]], k.ia(0.8)); else if (kind < 0.7) k.arc(x, y + 3, 7, Math.PI, Math.PI * 2, k.ia(0.6), 0.9); else { k.rect(x - 3, y - 2, 6, 5, k.PN, I, 0.7); k.poly([[x - 4, y - 2], [x, y - 6], [x + 4, y - 2]], null, I, 0.7) } }
+      for (let i = 0; i < road.length - 1; i++) if (i % 2 === 0) k.ln([road[i], road[i + 1]], RED, 1.3)
+      const prog = ((st.miles % 60) / 60), pi = Math.min(19, Math.floor(prog * 20)), tt = prog * 20 - pi, px = road[pi][0] + (road[pi + 1][0] - road[pi][0]) * tt, py = road[pi][1] + (road[pi + 1][1] - road[pi][1]) * tt
+      if (st.camp) { for (let i = 0; i < 3; i++) k.poly([[px - 3 + i * 3, py - 2], [px - 1.5 + i * 3, py - 8 - Math.sin(TM + i) * 2], [px + i * 3, py - 2]], k.a(i === 1 ? "#E08A2E" : T.accent, 1)); k.ln([[px - 5, py], [px + 5, py - 2]], I, 1.2) }
+      else { k.circ(px, py - 9, 2.2, I); k.ln([[px, py - 7], [px, py - 2]], I, 1.2); k.ln([[px, py - 2], [px - 2, py + 2]], I, 1); k.ln([[px, py - 2], [px + 2, py + 2]], I, 1); k.ln([[px + 2, py - 7], [px + 4, py + 2]], k.ia(0.7), 0.8) }
+      k.t(st.place, mx + 8, my + 5, 8.5, I, { f: "disp", w: mw - 16 })
+      const hearts = (x, y, s) => { for (let i = 0; i < 10; i++) { const hx = x + i * (s + 2), on = i < st.hp; k.circ(hx + s * 0.28, y + s * 0.3, s * 0.28, on ? RED : null, RED, 0.6); k.circ(hx + s * 0.72, y + s * 0.3, s * 0.28, on ? RED : null, RED, 0.6); k.poly([[hx + 0.5, y + s * 0.4], [hx + s / 2, y + s], [hx + s - 0.5, y + s * 0.4]], on ? RED : null, RED, 0.6) } }
+      if (small) { hearts(mx, my + mh + 6, 7); k.t(`Day ${st.day} · ${st.miles} mi`, mx, my + mh + 18, 9, I, { f: "disp", w: W - 20 }); return }
+      const x0 = big ? mx : mx + mw + 12, y0 = big ? my + mh + 8 : my, rw = big ? W - 20 : W - x0 - 10
+      k.t(st.name, x0, y0, big ? 15 : 12, I, { f: "disp", w: rw })
+      k.t(`Day ${st.day} · ${st.miles} mi${st.best ? " · best " + st.best + " mi" : ""}`, x0, y0 + (big ? 18 : 15), 8, k.S, { f: "disp", w: rw })
+      hearts(x0, y0 + (big ? 32 : 28), big ? 9 : 7)
+      k.t(`Bread ${st.food} · Gold ${st.gold}${(st.items || []).length ? " · " + st.items[st.items.length - 1] : ""}`, x0, y0 + (big ? 46 : 39), 8, I, { f: "disp", w: rw })
+      const lines = (st.log || []).slice(big ? -6 : -3).reverse()
+      lines.forEach((l, i) => k.t(l.m, x0, y0 + (big ? 62 : 54) + i * (big ? 13 : 12), big ? 9 : 8, i ? k.S : I, { f: "disp", w: rw }))
+      if (big) k.t("Charge the phone to make camp. Nights are spent by the fire.", W / 2, H - 14, 8, k.S, { f: "disp", a: "c", w: W - 20 })
+    }
+  }
+}
+function gameSample(f) {
+  const G = GAMES[f]; if (!G) return null
+  const st = G.init(86400000 * 7 + 4242); const ins = []
+  for (let i = 0; i < 26; i++) { const inp = { charging: i % 9 === 4, batt: 0.7, hour: 9 + (i % 10), busy: i % 5 === 0 ? 5 : 1 }; G.step(st, inp); ins.push(inp) }
+  return { st, inp: ins[ins.length - 1] }
+}
 const THEME_PAINT = { directive: DIR, longroad: LR, nightfall: NF, grimoire: GM, deeprange: DRG, halcyon: HAL, rabbit: RB, cyber: CY, vapor: VP, nature: NA, market: MK }
+Object.keys(GAMES).forEach(f => { if (THEME_PAINT[f]) { THEME_PAINT[f].game = (k, W, H, d) => GAMES[f].paint(k, W, H, d.st, d.inp); THEME_PAINT[f].gameSample = () => gameSample(f) } })
 
 // ---------- END THEMED PAINT BLOCK ----------
 // ---------- art runner: theme art as the body background, live timers laid on top ----------
@@ -3696,7 +3897,26 @@ async function halcyonAudio() {
     live: [{ date: new Date(), x: 352, y: 60, size: 9, a: "r", f: "bold" }] })
 }
 
-const MODES = { status, shift, transmission, solar: solarWidget, audio: audioWidget, feeds: () => feedsWidget(null), youtube: () => feedsWidget("youtube"), instagram: () => feedsWidget("instagram"), discord: () => feedsWidget("discord"), oddity: oddityWidget }
+// W-10: a game that plays itself. One turn per refresh; plugging the phone in is the only control.
+async function gameWidget() {
+  const f = T.frame || "halcyon", G = GAMES[f]
+  if (!G) { const w = baseC(364, 170, "W-10 // GAME", null); const b = w.addStack(); b.layoutVertically(); b.setPadding(12, 14, 12, 14); txt(b, "NO GAME FOR THIS THEME YET", 8, SOFT); b.addSpacer(4); serifText(b, "Try Halcyon, Deep Range or The Long Road.", 14, 2); return w }
+  let st = null, path = null, fm = null
+  try { fm = FileManager.local(); path = fm.joinPath(fm.documentsDirectory(), `foundry-game-${f}.json`); if (fm.fileExists(path)) st = JSON.parse(fm.readString(path)) } catch (e) {}
+  const now = Date.now()
+  if (!st || st.v !== 1 || st.game !== f) st = G.init(now)
+  const inp = { charging: false, batt: 1, hour: new Date().getHours(), busy: 0 }
+  try { inp.charging = !!Device.isCharging() } catch (e) {}
+  try { inp.batt = Device.batteryLevel() } catch (e) {}
+  try { inp.busy = (await CalendarEvent.today([])).filter(e => !e.isAllDay).length } catch (e) {}
+  const STEP = 15 * 60000, steps = st.last ? Math.min(8, Math.floor((now - st.last) / STEP)) : 1
+  for (let i = 0; i < steps; i++) G.step(st, inp)
+  if (!st.last) st.last = now; else if (steps > 0) st.last = Math.max(st.last + steps * STEP, now - STEP)
+  try { if (fm && path) fm.writeString(path, JSON.stringify(st)) } catch (e) {}
+  return artWidget({ title: G.title, right: fam() === "small" ? null : G.right(st, inp), alt: false, refresh: new Date(now + STEP), paint: (k, W, H, d) => G.paint(k, W, H, d.st, d.inp), data: { st, inp } })
+}
+
+const MODES = { status, shift, transmission, solar: solarWidget, audio: audioWidget, feeds: () => feedsWidget(null), youtube: () => feedsWidget("youtube"), instagram: () => feedsWidget("instagram"), discord: () => feedsWidget("discord"), oddity: oddityWidget, game: gameWidget }
 
 if (config.runsInWidget) {
   Script.setWidget(await (MODES[MODE] || status)())
@@ -8315,7 +8535,7 @@ function buildWidgetPhone() {
   const grid = el('div', 'width:158px;height:158px;display:grid;grid-template-columns:repeat(2,1fr);place-items:center;flex:none');
   APPS.slice(0, 4).forEach(([key], i) => { const img = el('img', 'width:60px;height:60px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,.25)'); img.src = iconURL(key, i, 120); img.alt = ''; grid.append(img); });
   row([slot(by('shift')), grid]); lbl('shift');
-  ;['audio', 'transmission', 'solar', 'feeds', 'youtube', 'instagram', 'discord', 'oddity'].forEach(m => { const it = by(m); if (!it) return; row([slot(it)]); lbl(m); });
+  ;['audio', 'transmission', 'solar', 'feeds', 'youtube', 'instagram', 'discord', 'game', 'oddity'].forEach(m => { const it = by(m); if (!it) return; row([slot(it)]); lbl(m); });
   const sizer = el('div', 'width:1px');
   scr.append(inner, sizer);
   requestAnimationFrame(() => { sizer.style.height = (inner.offsetHeight * k) + 'px'; inner.style.position = 'absolute'; inner.style.top = '0'; inner.style.left = '0'; scr.scrollTop = keep; });
@@ -8362,6 +8582,7 @@ function widgetList(th) {
     { mode: 'feeds', size: 'medium', title: labelFor(th, 'feeds', 'W-06 // NEURAL LINK'), name: niceName(labelFor(th, 'feeds', 'Neural Link')), tap: 'Each half opens its own app', desc: 'Two halves that open YouTube and Instagram, each with made-up in-world meters and a live trace.' },
     { mode: 'youtube', size: 'any size', title: labelFor(th, 'vid', 'W-06 // VID'), name: niceName(labelFor(th, 'vid', 'YouTube')), tap: 'Open URL youtube://', desc: 'A YouTube launcher drawn as its own in-world object, with a rotating line and made-up viewing stats. Changes about every 30 minutes.' },
     { mode: 'instagram', size: 'any size', title: labelFor(th, 'obs', 'W-07 // OBS'), name: niceName(labelFor(th, 'obs', 'Instagram')), tap: 'Open URL instagram://app', desc: 'An Instagram launcher with its own design: a gallery of in-world portraits or cards and tongue-in-cheek social stats.' },
+    ...(['halcyon', 'deeprange', 'longroad'].includes(frameFor(th)) ? [{ mode: 'game', size: 'any size (medium or large best)', title: { halcyon: 'W-10 // SPECIMEN VAT', deeprange: 'W-10 // SALVAGE RUN', longroad: 'W-10 // THE EXPEDITION' }[frameFor(th)], name: { halcyon: 'Specimen Vat', deeprange: 'Salvage Run', longroad: 'The Expedition' }[frameFor(th)], tap: 'Leave as is (it opens Scriptable; the game plays itself)', desc: { halcyon: 'A specimen grows in a vat, one cycle per refresh. Plugging your phone in feeds it, busy calendar days stress it, nights let it rest. It mutates, levels up through five stages, and gets recycled if neglected.', deeprange: 'An autonomous salvage drone jumps across the sector each refresh, finding derelicts, dodging asteroids and pirates, decoding signals and selling cargo. Plugging your phone in docks it to refuel. Lose the hull or fuel and a new drone launches.', longroad: 'A traveller walks the map one stretch per refresh, meeting villages, bandits, wolves and merchants, and keeping a journal. Plugging your phone in (or nightfall) makes camp to heal. If they fall, a new traveller sets out.' }[frameFor(th)] }] : []),
     { mode: 'discord', size: 'any size', title: labelFor(th, 'dc', 'W-09 // SYNC'), name: niceName(labelFor(th, 'dc', 'Discord')), tap: 'Open URL discord://', desc: 'A Discord launcher shown as an in-world gathering, with who is around, a few channels and unread marks. All for show; nothing is read from your account.' },
     { mode: 'oddity', size: 'small or medium', title: 'W-08 // ' + o[0].toUpperCase(), name: o[0], tap: 'Leave as is', desc: o[1] + ' Purely for fun, and it changes about every 30 minutes.' }
   ];
@@ -8454,6 +8675,7 @@ function themedBody(item, th, wc, W, H) {
   const put = (c, x) => { c.style.position = 'absolute'; c.style.left = (x || 0) + 'px'; c.style.top = '0'; wrap.append(c); };
   const live = (spec, text) => { if (!spec) return; const fam2 = spec.f === 'disp' ? `"${th.fonts.display}", Georgia, serif` : spec.f === 'heavy' ? 'system-ui, sans-serif' : `"${th.fonts.mono}", ui-monospace, monospace`; const e = pv('div', `position:absolute;top:${spec.y}px;font:${spec.f === 'heavy' ? 800 : spec.f === 'bold' ? 700 : 400} ${spec.size}px ${fam2};color:${spec.color || wc.ink};white-space:nowrap;line-height:1.3`, text); if (spec.a === 'c') { e.style.left = '0'; e.style.width = W + 'px'; e.style.textAlign = 'center'; } else if (spec.a === 'r') { e.style.right = (W - spec.x) + 'px'; } else { e.style.left = spec.x + 'px'; } wrap.append(e); };
   const d = sampleData(item.mode, th, W, bh);
+  if (item.mode === 'game') { const P2 = K.THEME_PAINT[f]; if (P2 && P2.game) { put(K.artImage(W, bh, P2.game, P2.gameSample())); return wrap; } }
   if (['youtube', 'instagram', 'discord'].includes(item.mode)) { const P2 = K.THEME_PAINT[f] || K.THEME_PAINT.halcyon, pk = { youtube: 'yt', instagram: 'ig', discord: 'dc' }[item.mode]; put(K.artImage(W, bh, P2[pk], { seed: 7, now: new Date(), code: `${(th.codes[item.mode] || item.mode).slice(0, 5)}-${{ youtube: '09', instagram: '10', discord: '11' }[item.mode]}` })); return wrap; }
   if (item.mode === 'audio' && ['halcyon', 'rabbit', 'cyber', 'market', 'vapor', 'nature'].includes(f)) { put(K.artImage(W, bh, K.THEME_PAINT[f].audio, { line: deckFor(th).audio.lines[0], lvl: 3, phase: 1.2 })); live({ x: 352, y: 60, size: 9, a: 'r', f: 'bold' }, '0:42'); return wrap; }
   if (!P) return null;
@@ -8481,7 +8703,7 @@ function previewWidget(item, th) {
   const tc = (s) => serifHead ? String(s).toLowerCase().replace(/(^|[\s\-\/(])([a-z])/g, (m, a2, b2) => a2 + b2.toUpperCase()) : s;
   hd.append(hbg, pv('span', 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis', tc(item.title)), pv('span', 'white-space:nowrap', tc(item.mode === 'status' ? 'LINK 0:42' : item.mode === 'transmission' ? 'SIGNAL 93%' : '')));
   card.append(hd);
-  const tb = ['youtube', 'instagram', 'discord'].includes(item.mode) || (frameFor(th) !== 'halcyon' && ['status', 'shift', 'transmission', 'solar', 'feeds'].includes(item.mode)) || (item.mode === 'audio' && ['halcyon', 'rabbit', 'cyber', 'market', 'vapor', 'nature'].includes(frameFor(th))) ? themedBody(item, th, wc, W, H) : null;
+  const tb = ['youtube', 'instagram', 'discord', 'game'].includes(item.mode) || (frameFor(th) !== 'halcyon' && ['status', 'shift', 'transmission', 'solar', 'feeds'].includes(item.mode)) || (item.mode === 'audio' && ['halcyon', 'rabbit', 'cyber', 'market', 'vapor', 'nature'].includes(frameFor(th))) ? themedBody(item, th, wc, W, H) : null;
   if (tb) { tb.style.zIndex = '1'; card.append(tb); return { el: card, w: W, h: H }; }
   const bd = pv('div', 'position:relative;z-index:1;flex:1;display:flex;flex-direction:column;padding:10px 16px;gap:4px;min-height:0');
   card.append(bd);
@@ -8705,7 +8927,7 @@ function renderChecklist() {
       'Install Scriptable (free) from the App Store and open it once.',
       `Tap +, paste the widget script from step 4 and name it ${slug(th.company)}-widgets.`,
       'On the home screen, add a Scriptable widget, tap it while it jiggles and choose your script.',
-      'Set its Parameter to one of: status (medium), shift (small), transmission (any size), solar (large is best), audio (medium), feeds (medium), youtube, instagram or discord (any size), oddity (small or medium, just for fun).',
+      'Set its Parameter to one of: status (medium), shift (small), transmission (any size), solar (large is best), audio (medium), feeds (medium), youtube, instagram or discord (any size), oddity (small or medium, just for fun), game (Halcyon, Deep Range and The Long Road).',
       'Add :alt or :main after the mode to flip its header color, for example shift:main.',
       'For audio, set When Interacting to Open URL with youtubemusic:// (or your music app). For youtube and instagram use youtube:// and instagram://app.',
       'For status and shift, set When Interacting to Open URL and type calshow:// so a tap opens Calendar.'
