@@ -3600,6 +3600,24 @@ const gClamp = (v) => Math.max(0, Math.min(100, v))
 const gPick = (r, a) => a[Math.floor(r() * a.length) % a.length]
 function gBar(k, x, y, w, h, f, on, off) { k.rect(x, y, w, h, off); k.rect(x, y, Math.max(1, w * Math.max(0, Math.min(1, f))), h, on) }
 
+// text that never breaks off: shrink to fit, then wrap, never an ellipsis; small sizes get a readable floor
+function gT(k, text, x, y, size, col, o) {
+  o = o || {}; const f = o.f || "mono", w = (o.w || 320), est = f === "disp" ? 0.53 : 0.63, str = String(text)
+  let fs = Math.max(size, o.floor == null ? 6.2 : o.floor); const opt = Object.assign({}, o, { nofit: true })
+  if (str.length * fs * est <= w) { k.t(str, x, y, fs, col, opt); return { lines: 1, fs } }
+  const s2 = w / (str.length * est), min = Math.max(5.6, fs * 0.74)
+  if (s2 >= min) { k.t(str, x, y, s2, col, opt); return { lines: 1, fs: s2 } }
+  const maxL = o.lines || 2; let ls = k.wrap(str, w * 0.97, fs, f)
+  while (ls.length > maxL && fs > 5.6) { fs -= 0.4; ls = k.wrap(str, w * 0.97, fs, f) }
+  ls.forEach((l, i) => k.t(l, x, y + i * fs * 1.18, fs, col, opt)); return { lines: ls.length, fs }
+}
+// a log that shows whole entries only, newest first, wrapped to the column, stopping before it would overflow
+function gLogBlock(k, logs, x, y, w, maxY, size, f, c1, c2, prefix) {
+  let yy = y; const lh = size * 1.2
+  for (let i = 0; i < logs.length; i++) { const ls = k.wrap((prefix || "") + logs[i].m, w * 0.97, size, f); if (yy + ls.length * lh > maxY + 0.5) break; ls.forEach((l, j) => k.t(l, x + (j && prefix ? size * 0.63 * prefix.length : 0), yy + j * lh, size, i ? c2 : c1, { f, w, nofit: true })); yy += ls.length * lh + size * 0.3 }
+  return yy
+}
+function gSafe(k) { if (k.__safe) return k; const s = Object.assign({}, k); s.__safe = true; s.t = (text, x, y, size, col, o) => { gT(k, text, x, y, size, col, o) }; return s }
 const GAMES = {
   // HALCYON: a specimen in a containment vat that grows, mutates and sometimes gets recycled
   halcyon: {
@@ -3627,6 +3645,7 @@ const GAMES = {
       if (st.vit <= 0) { const best = Math.max(st.best || 0, st.age), old = st.lot; Object.assign(st, G.init(Date.now(), st)); st.best = best; gLog(st, `Lot ${old} recycled. New lot ${st.lot} opened.`) }
     },
     paint(k, W, H, st, inp) {
+      k = gSafe(k)
       const G = GAMES.halcyon, TM = Date.now() / 60000, small = W < 200, big = H > 200, LAV = T.altBg || "#9D8CF2", I = k.I
       const vx = 12, vw = small ? 62 : big ? 120 : 76, vy = 8, vh = small ? H - 20 : big ? 214 : H - 18
       // vat glass, liquid, tubes, bubbles
@@ -3656,10 +3675,10 @@ const GAMES = {
       bars.forEach(([l, v], i) => { const y = (small ? 44 : 50) + i * (small ? 16 : 15); k.t(l, x0, y, 6, k.S, { w: 60 }); k.t(`${Math.round(v)}`, x0 + rw, y, 6.5, I, { a: "r", w: 30 }); gBar(k, x0, y + 8, rw, 4, v / 100, i === 2 ? k.a(LAV, 1) : I, k.ia(0.12)) })
       if (small) return
       const ty = 98
-      k.t(st.traits.length ? `TRAITS: ${st.traits.join(", ").toUpperCase()}` : "TRAITS: NONE YET", x0, ty, 6, k.S, { w: rw })
+      const trl = gT(k, st.traits.length ? `TRAITS: ${st.traits.join(", ").toUpperCase()}` : "TRAITS: NONE YET", x0, ty, 6.5, k.S, { w: rw, lines: 2 }).lines
       const lines = (st.log || []).slice(big ? -7 : -2).reverse()
-      if (!big) { lines.forEach((l, i) => k.t(`· ${l.m}`, x0, ty + 11 + i * 10, 6.5, i ? k.S : I, { w: rw })); return }
-      lines.forEach((l, i) => k.t(`· ${l.m}`, x0, ty + 12 + i * 11, 6.5, i ? k.S : I, { w: rw }))
+      if (!big) { gLogBlock(k, (st.log || []).slice().reverse(), x0, ty + 4 + trl * 8, rw, H - 3, 7, "mono", I, k.S, "· "); return }
+      gLogBlock(k, (st.log || []).slice().reverse(), x0, ty + 5 + trl * 8, rw, 230, 7, "mono", I, k.S, "· ")
       const hy = 236, hw = W - 24, hist = st.hist || []
       k.t("VITALITY // LAST 24 CYCLES", 12, hy, 6.5, k.S, { w: 200 }); k.t(`LINEAGE: ${st.run - 1} RECYCLED`, W - 12, hy, 6.5, k.S, { a: "r", w: 160 })
       for (let i = 0; i < 24; i++) { const v = hist[hist.length - 24 + i]; if (v == null) continue; const bh = Math.max(1, 52 * v / 100); k.rect(12 + i * (hw / 24) + 1, hy + 66 - bh, hw / 24 - 3, bh, i === 23 ? k.a(LAV, 1) : k.ia(0.55)) }
@@ -3693,6 +3712,7 @@ const GAMES = {
       if (st.hull <= 0 || st.fuel <= 0) { const why = st.hull <= 0 ? `CONTACT LOST. ${st.drone} destroyed after ${st.jumps} jumps.` : `${st.drone} out of fuel. Drifting. Beacon active.`; const best = Math.max(st.best || 0, st.jumps); Object.assign(st, G.init(Date.now(), st)); st.best = best; gLog(st, why); gLog(st, `${st.drone} launched.`) }
     },
     paint(k, W, H, st, inp) {
+      k = gSafe(k)
       const TM = Date.now() / 60000, small = W < 200, big = H > 200, mx = 10, my = 6, mw = small ? W - 20 : big ? W - 20 : 206, mh = small ? 86 : big ? 190 : H - 14
       const Y = k.a(T.accent, 1), R = k.H, B = k.a(T.altBg, 1), I = k.I
       k.rect(mx, my, mw, mh, k.ia(0.03), k.ia(0.3), 0.8)
@@ -3722,12 +3742,12 @@ const GAMES = {
       if (big) {
         ;[["JUMPS", st.jumps], ["CARGO", `${st.cargo}t`], ["CREDITS", st.credits], ["BEST RUN", `${st.best} J`]].forEach(([l, v], i) => { const x = x0 + 110 + i * 62; k.t(l, x, y0, 6, k.S, { w: 60 }); k.t(String(v), x, y0 + 10, 11, I, { f: "heavy", w: 60 }) })
         bars.forEach(([l, v, c], i) => { const y = y0 + 38 + i * 14; k.t(l, x0, y, 6.5, k.S, { w: 40 }); gBar(k, x0 + 40, y + 2, rw - 80, 6, v / 100, c, k.ia(0.12)); k.t(`${Math.round(v)}%`, x0 + rw, y, 7, I, { a: "r", w: 36, f: "bold" }) })
-        ;(st.log || []).slice(-6).reverse().forEach((l, i) => k.t(`> ${l.m}`, x0, y0 + 72 + i * 11, 6.5, i ? k.S : I, { w: rw }))
+        gLogBlock(k, (st.log || []).slice().reverse(), x0, y0 + 72, rw, H - 4, 7.2, "mono", I, k.S, "> ")
         return
       }
       bars.forEach(([l, v, c], i) => { const y = y0 + 34 + i * 14; k.t(l, x0, y, 6.5, k.S, { w: 40 }); gBar(k, x0 + 30, y + 2, rw - 64, 5, v / 100, c, k.ia(0.12)); k.t(`${Math.round(v)}%`, x0 + rw, y, 6.5, I, { a: "r", w: 34, f: "bold" }) })
       k.t(`JUMPS ${st.jumps} · CARGO ${st.cargo}t · ${st.credits} CR`, x0, y0 + 64, 6.5, I, { w: rw })
-      ;(st.log || []).slice(-3).reverse().forEach((l, i) => k.t(`> ${l.m}`, x0, y0 + 80 + i * 11, 6, i ? k.S : I, { w: rw }))
+      gLogBlock(k, (st.log || []).slice().reverse(), x0, y0 + 78, rw, H - 3, 6.8, "mono", I, k.S, "> ")
     }
   },
 
@@ -3760,6 +3780,7 @@ const GAMES = {
       if (st.hp <= 0) { const name = st.name, best = Math.max(st.best || 0, st.miles); Object.assign(st, G.init(Date.now() + st.turn, st)); st.best = best; gLog(st, `${name} was laid to rest beneath an oak.`); gLog(st, `${st.name} sets out from Brindle.`) }
     },
     paint(k, W, H, st, inp) {
+      k = gSafe(k)
       const TM = Date.now() / 60000, small = W < 200, big = H > 200, I = k.I, RED = k.a(T.accent, 1)
       const mx = 10, my = 6, mw = small ? W - 20 : big ? W - 20 : 196, mh = small ? 78 : big ? 150 : H - 14
       k.rect(mx, my, mw, mh, k.a(T.panel, 0.6), I, 1); k.rect(mx + 3, my + 3, mw - 6, mh - 6, null, k.ia(0.35), 0.5)
@@ -3777,9 +3798,8 @@ const GAMES = {
       k.t(st.name, x0, y0, big ? 15 : 12, I, { f: "disp", w: rw })
       k.t(`Day ${st.day} · ${st.miles} mi${st.best ? " · best " + st.best + " mi" : ""}`, x0, y0 + (big ? 18 : 15), 8, k.S, { f: "disp", w: rw })
       hearts(x0, y0 + (big ? 32 : 28), big ? 9 : 7)
-      k.t(`Bread ${st.food} · Gold ${st.gold}${(st.items || []).length ? " · " + st.items[st.items.length - 1] : ""}`, x0, y0 + (big ? 46 : 39), 8, I, { f: "disp", w: rw })
-      const lines = (st.log || []).slice(big ? -6 : -3).reverse()
-      lines.forEach((l, i) => k.t(l.m, x0, y0 + (big ? 62 : 54) + i * (big ? 13 : 12), big ? 9 : 8, i ? k.S : I, { f: "disp", w: rw }))
+      k.t(`Bread ${st.food} · Gold ${st.gold}${big && (st.items || []).length ? " · " + st.items[st.items.length - 1] : ""}`, x0, y0 + (big ? 46 : 39), 8.5, I, { f: "disp", w: rw })
+      gLogBlock(k, (st.log || []).slice().reverse(), x0, y0 + (big ? 62 : 53), rw, big ? H - 22 : H - 3, big ? 9.5 : 8.5, "disp", I, k.S, "")
       if (big) k.t("Charge the phone to make camp. Nights are spent by the fire.", W / 2, H - 14, 8, k.S, { f: "disp", a: "c", w: W - 20 })
     }
   }
@@ -3793,20 +3813,21 @@ function gameSample(f) {
 // ---------- W-10 GAMES, part two: one idle game per remaining prefab ----------
 // shared layout: a scene on the left (or top on large), a status panel, bars and a short log
 function gFrame(k, W, H, st, o) {
+  k = gSafe(k)
   const small = W < 200, big = H > 200, I = k.I, S = k.S
   const vx = 10, vy = 6, vw = small ? W - 20 : big ? W - 20 : 200, vh = small ? 84 : big ? 172 : H - 14
   o.scene(k, vx, vy, vw, vh, small, big)
   const hot = o.hot || k.H, f = o.font || "disp"
   if (small) { (o.bars || []).slice(0, 2).forEach(([l, v, c], i) => { const y = vy + vh + 6 + i * 13; k.t(`${l} ${Math.round(v * 100)}`, vx, y, 6.5, I, { w: 70 }); gBar(k, vx + 64, y + 2, W - vx * 2 - 64, 5, v, c || I, k.ia(0.12)) }); return }
   const x0 = big ? vx : vx + vw + 12, y0 = big ? vy + vh + 8 : vy, rw = big ? W - 20 : W - x0 - 10
-  k.t(o.kicker || "", x0, y0, 6.5, hot, { f: "bold", w: rw })
-  k.t(o.title || "", x0, y0 + 9, big ? 18 : 14, I, { f, w: rw })
-  k.t(o.sub || "", x0, y0 + (big ? 30 : 26), 6.5, S, { w: rw })
+  k.t(o.kicker || "", x0, y0, 7, hot, { f: "bold", w: rw, lines: 1 })
+  k.t(o.title || "", x0, y0 + 9, big ? 18 : 14, I, { f, w: rw, lines: 1 })
+  k.t(o.sub || "", x0, y0 + (big ? 30 : 26), 6.8, S, { w: rw, lines: 1 })
   const bars = o.bars || [], bw = big ? rw * 0.46 : rw
-  bars.forEach(([l, v, c], i) => { const y = y0 + (big ? 42 : 37) + i * 13; k.t(l, x0, y, 6, S, { w: 70 }); k.t(`${Math.round(v * 100)}`, x0 + bw, y, 6, I, { a: "r", w: 30 }); gBar(k, x0, y + 7, bw, 3.5, v, c || I, k.ia(0.12)) })
-  const logs = (st.log || []).slice(big ? -7 : -2).reverse()
-  if (big) { const lx = x0 + rw * 0.52, lw = rw * 0.48; k.t(o.logTitle || "LOG", lx, y0 + 42, 6, S, { w: lw }); logs.forEach((l, i) => k.t(l.m, lx, y0 + 52 + i * 11, f === "disp" ? 8 : 6.3, i ? S : I, { f: f === "disp" ? "disp" : "mono", w: lw })); if (o.hint) k.t(o.hint, W / 2, H - 13, 6, S, { a: "c", w: W - 20 }) }
-  else logs.forEach((l, i) => k.t(l.m, x0, y0 + 37 + bars.length * 13 + 3 + i * 10, f === "disp" ? 7.5 : 6, i ? S : I, { f: f === "disp" ? "disp" : "mono", w: rw }))
+  bars.forEach(([l, v, c], i) => { const y = y0 + (big ? 42 : 37) + i * 13; k.t(l, x0, y, 6.5, S, { w: bw - 30, lines: 1 }); k.t(`${Math.round(v * 100)}`, x0 + bw, y, 6.5, I, { a: "r", w: 28 }); gBar(k, x0, y + 7.5, bw, 3.5, v, c || I, k.ia(0.12)) })
+  const logs = (st.log || []).slice().reverse(), lf = f === "disp" ? "disp" : "mono"
+  if (big) { const lx = x0 + rw * 0.52, lw = rw * 0.48; k.t(o.logTitle || "LOG", lx, y0 + 42, 6.5, S, { w: lw }); gLogBlock(k, logs, lx, y0 + 53, lw, H - 20, lf === "disp" ? 8.5 : 7, lf, I, S, ""); if (o.hint) k.t(o.hint, W / 2, H - 13, 6.5, S, { a: "c", w: W - 20, lines: 1 }) }
+  else gLogBlock(k, logs, x0, y0 + 37 + bars.length * 13 + 4, rw, H - 3, lf === "disp" ? 8 : 6.8, lf, I, S, "")
 }
 const gRun = (prev, extra) => Object.assign({ v: 1, run: prev ? prev.run + 1 : 1, best: prev ? prev.best : 0, turn: prev ? prev.turn : 0, log: prev ? prev.log : [], last: prev ? prev.last : 0 }, extra)
 
@@ -3872,7 +3893,7 @@ GAMES.nightfall = {
   },
   paint(k, W, H, st, inp) {
     const G = GAMES.nightfall, TM = Date.now() / 60000, A = k.a(T.accent, 1)
-    gFrame(k, W, H, st, { font: "bold", hot: A, kicker: inp.charging ? "RESUPPLY // CHARGING" : "PATROL ACTIVE", title: `SQUAD ${st.squad}`, sub: `SECTORS ${st.sectors} · INTEL ${st.intel} · BEST ${st.best || 0}`, bars: [["AMMO", st.ammo / 100, A]].concat(st.hp.map((h, i) => [G.roster[i], h / 100, k.I])), logTitle: "COMMS", hint: "CHARGE THE PHONE FOR A RESUPPLY DROP",
+    gFrame(k, W, H, st, { font: "bold", hot: A, kicker: inp.charging ? "RESUPPLY // CHARGING" : "PATROL ACTIVE", title: `SQUAD ${st.squad}`, sub: `SECTORS ${st.sectors} · INTEL ${st.intel} · BEST ${st.best || 0}`, bars: (H > 200 ? [["AMMO", st.ammo / 100, A]].concat(st.hp.map((h, i) => [G.roster[i], h / 100, k.I])) : [["AMMO", st.ammo / 100, A], ["SQUAD HEALTH", st.hp.reduce((a, b) => a + b, 0) / 400, k.I]]), logTitle: "COMMS", hint: "CHARGE THE PHONE FOR A RESUPPLY DROP",
       scene(k, x, y, w, h, small) {
         k.rect(x, y, w, h, k.ia(0.05)); for (let i = 1; i < 8; i++) k.ln([[x + w * i / 8, y], [x + w * i / 8, y + h]], k.ia(0.07), 0.5); for (let i = 1; i < 5; i++) k.ln([[x, y + h * i / 5], [x + w, y + h * i / 5]], k.ia(0.07), 0.5)
         const rr = k.rng(st.squad * 11 + st.sectors); for (let i = 0; i < 9; i++) { const bx = x + rr() * w, bh = 8 + rr() * h * 0.3; k.rect(bx, y + h - bh, 6 + rr() * 14, bh, k.ia(0.08)) }
@@ -3979,7 +4000,7 @@ GAMES.cyber = {
   },
   paint(k, W, H, st, inp) {
     const TM = Date.now() / 60000, P = k.a(T.headBg, 1), C = k.a(T.accent, 1)
-    gFrame(k, W, H, st, { font: "disp", hot: P, kicker: inp.charging ? "JACKED IN // CHARGING" : st.trace > 70 ? "TRACE CRITICAL" : "RUNNING", title: `@${st.handle}`.toUpperCase(), sub: `TOWER ${st.tower} · ${st.creds}c · CHROME MK.${st.chrome} · BEST ${st.best || 0}F`, bars: [["RAM", st.ram / 100, C], ["TRACE", st.trace / 100, P], ["FLOOR", st.floor / 100, k.I]], logTitle: "RUN LOG", hint: "CHARGE THE PHONE TO RECHARGE RAM",
+    gFrame(k, W, H, st, { font: "disp", hot: P, kicker: inp.charging ? "JACKED IN // CHARGING" : st.trace > 70 ? "TRACE CRITICAL" : "RUNNING", title: `@${st.handle}`.toUpperCase(), sub: H > 200 ? `TOWER ${st.tower} · ${st.creds}c · CHROME MK.${st.chrome} · BEST ${st.best || 0}F` : `TOWER ${st.tower} · ${st.creds}c · MK.${st.chrome}`, bars: [["RAM", st.ram / 100, C], ["TRACE", st.trace / 100, P], ["FLOOR", st.floor / 100, k.I]], logTitle: "RUN LOG", hint: "CHARGE THE PHONE TO RECHARGE RAM",
       scene(k, x, y, w, h, small) {
         cySky(k, w, y + h - 40, 40, k.rng(st.tower * 7)); const tw = w * 0.34, tx = x + w / 2 - tw / 2
         k.rect(tx, y + 6, tw, h - 6, k.a(T.ground, 0.9)); notch(k, tx, y + 6, tw, h - 6, 8, T.accent, 1, null)
@@ -4075,15 +4096,15 @@ GAMES.market = {
   },
   paint(k, W, H, st, inp) {
     const TM = Date.now() / 60000, Y = k.a(T.altBg, 1), V = k.a(T.accent, 1), NO = mkNo(), eq = st.bank + st.pos.reduce((a, b) => a + b.stake, 0)
-    gFrame(k, W, H, st, { font: "disp", hot: V, kicker: inp.charging ? "MARGIN TOP-UP // CHARGING" : st.streak >= 3 ? `HOT STREAK · ${st.streak} 🔥` : st.streak <= -3 ? "COLD STREAK" : "POSITIONS OPEN", title: `$${Math.round(eq).toLocaleString("en-US")}`, sub: `W ${st.wins} · L ${st.losses} · PEAK $${Math.round(st.peak)} · BEST $${st.best || 0}`, bars: st.pos.slice(0, 3).map(p => [p.side + " " + p.q.replace("Will ", "").slice(0, 26).toUpperCase(), p.side === "YES" ? p.p : 1 - p.p, p.side === "YES" ? Y : NO]), logTitle: "RESOLUTIONS", hint: "CHARGE THE PHONE TO TOP UP YOUR MARGIN",
+    gFrame(k, W, H, st, { font: "disp", hot: V, kicker: inp.charging ? "MARGIN TOP-UP // CHARGING" : st.streak >= 3 ? `HOT STREAK · ${st.streak} 🔥` : st.streak <= -3 ? "COLD STREAK" : "POSITIONS OPEN", title: `$${Math.round(eq).toLocaleString("en-US")}`, sub: `W ${st.wins} · L ${st.losses} · PEAK $${Math.round(st.peak)} · BEST $${st.best || 0}`, bars: st.pos.slice(0, 3).map((p, i) => [`POS ${i + 1} · ${p.side} @ ${Math.round((p.side === "YES" ? p.p : 1 - p.p) * 100)}¢ · $${p.stake}`, p.side === "YES" ? p.p : 1 - p.p, p.side === "YES" ? Y : NO]), logTitle: "RESOLUTIONS", hint: "CHARGE THE PHONE TO TOP UP YOUR MARGIN",
       scene(k, x, y, w, h, small) {
         mkCard(k, x, y, w, h)
-        const c = st.curve || [eq], mn = Math.min(...c), mx = Math.max(...c, mn + 1), base = small ? y + h - 8 : y + h - 16, pts = c.map((v, i) => [x + 8 + i * (w - 16) / Math.max(1, c.length - 1), base - (v - mn) / (mx - mn) * (base - y - 22)])
+        const c = st.curve || [eq], mn = Math.min(...c), mx = Math.max(...c, mn + 1), base = h > 120 ? y + h - 16 : y + h - 8, pts = c.map((v, i) => [x + 8 + i * (w - 16) / Math.max(1, c.length - 1), base - (v - mn) / (mx - mn) * (base - y - 22)])
         const up = c[c.length - 1] >= c[0], col = up ? T.altBg : "#FF2D55"
         if (pts.length > 1) { k.poly(pts.concat([[pts[pts.length - 1][0], base], [pts[0][0], base]]), k.a(col, 0.14)); k.ln(pts, k.a(col, 0.35), 3); k.ln(pts, k.a(col, 1), 1.3) }
         const last = pts[pts.length - 1]; k.circ(last[0], last[1], 3 + (TM % 3), null, k.a(col, 0.5), 1); k.circ(last[0], last[1], 2, k.a(col, 1))
         k.t("EQUITY // LAST 30 RESOLUTIONS", x + 8, y + 6, 6, k.S, { w: w - 16 })
-        if (!small) mkWhale(k, x + 6, y + h - 9, w - 12, `BREAKING · ${mkNews(Math.floor(TM / 30)).toUpperCase()}`)
+        if (h > 120) mkWhale(k, x + 6, y + h - 9, w - 12, `BREAKING · ${mkNews(Math.floor(TM / 30)).toUpperCase()}`)
       } })
   }
 }
