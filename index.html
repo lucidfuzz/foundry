@@ -367,7 +367,7 @@ function drawFrame(dc, W, H) {
     const pk = new Color(T.headBg), cy = new Color(T.accent), c = 10, x0 = 4, y0 = top + 3, x1 = W - 4, y1 = H - 4
     const pts = [[x0 + c, y0], [x1, y0], [x1, y1 - c], [x1 - c, y1], [x0, y1], [x0, y0 + c], [x0 + c, y0]]
     ln(pts, new Color(T.headBg, 0.25), 4); ln(pts, pk, 1.1)
-    ln([[x0 + 6, y1 - 6], [x0 + 40, y1 - 6]], cy, 1.4); dc.setFillColor(cy); dc.fillRect(new Rect(x1 - 30, y0 + 4, 22, 2)); dc.fillRect(new Rect(x1 - 18, y0 + 8, 10, 2))
+    ln([[x0 + c + 6, y0], [x0 + c + 46, y0]], cy, 2.2); dc.setFillColor(cy); dc.fillRect(new Rect(x1 - 34, y1 - 1, 24, 2.5)); dc.fillRect(new Rect(x1 - 48, y1 - 1, 8, 2.5))
     dc.setFillColor(new Color(T.accent, 0.05)); for (let y = top; y < H; y += 3) dc.fillRect(new Rect(0, y, W, 1))
   } else if (f === "market") {
     dc.setStrokeColor(new Color(T.ink, 0.1)); dc.setLineWidth(1); dc.strokeRect(new Rect(5, top + 3, W - 10, H - top - 8))
@@ -381,14 +381,14 @@ function drawFrame(dc, W, H) {
     const g = new Color(T.headBg)
     dc.setStrokeColor(new Color(T.ink, 0.35)); dc.setLineWidth(0.8); dc.strokeRect(new Rect(5, top + 3, W - 10, H - top - 8))
     const leaf = (x, y, s, a) => { const c = Math.cos(a), sn = Math.sin(a), Q = (u, v) => P(x + u * c - v * sn, y + u * sn + v * c); const p = new Path(); p.move(Q(0, 0)); p.addQuadCurve(Q(s, 0), Q(s * 0.5, -s * 0.4)); p.addQuadCurve(Q(0, 0), Q(s * 0.5, s * 0.4)); dc.addPath(p); dc.setFillColor(g); dc.fillPath() }
-    leaf(W - 18, top + 10, 12, 2.4); leaf(W - 14, top + 14, 9, 1.6); leaf(10, H - 12, 11, -0.6)
+    const my = top + (H - top) / 2; leaf(5, my, 9, -2.2); leaf(5, my + 3, 7, 2.4); leaf(W - 5, my, 9, -0.9); leaf(W - 5, my + 3, 7, 0.7)
   } else if (f === "rabbit") {
     const lav = new Color(T.headBg)
     const rr = new Path(); const x0 = 5, y0 = top + 3, w2 = W - 10, h2 = H - top - 8, rad = 16
     rr.move(P(x0 + rad, y0)); rr.addLine(P(x0 + w2 - rad, y0)); rr.addQuadCurve(P(x0 + w2, y0 + rad), P(x0 + w2, y0)); rr.addLine(P(x0 + w2, y0 + h2 - rad)); rr.addQuadCurve(P(x0 + w2 - rad, y0 + h2), P(x0 + w2, y0 + h2)); rr.addLine(P(x0 + rad, y0 + h2)); rr.addQuadCurve(P(x0, y0 + h2 - rad), P(x0, y0 + h2)); rr.addLine(P(x0, y0 + rad)); rr.addQuadCurve(P(x0 + rad, y0), P(x0, y0)); rr.closeSubpath()
     dc.addPath(rr); dc.setStrokeColor(lav); dc.setLineWidth(1); dc.strokePath()
     const spark = (x, y, r, col) => { const p = new Path(); p.addLines([P(x, y - r), P(x + r * 0.22, y - r * 0.22), P(x + r, y), P(x + r * 0.22, y + r * 0.22), P(x, y + r), P(x - r * 0.22, y + r * 0.22), P(x - r, y), P(x - r * 0.22, y - r * 0.22)]); p.closeSubpath(); dc.addPath(p); dc.setFillColor(col); dc.fillPath() }
-    spark(W - 14, top + 12, 5, acc); spark(12, H - 12, 4, lav); spark(W - 26, top + 20, 2, acc)
+    const my = top + (H - top) / 2; spark(W - 5, my, 5, acc); spark(5, my, 4, lav); spark(W - 5, my + 12, 2, acc)
   } else if (f === "deeprange") {
     dc.setFillColor(hot)
     ;[[0, top + 10, 5, 22], [0, top + 36, 3, 6], [W - 5, H - 40, 5, 26], [W - 3, H - 10, 3, 6]].forEach(([x, y, w, h]) => dc.fillRect(new Rect(x, y, w, h)))
@@ -1922,9 +1922,9 @@ const ODD = {
     cond: ["LIKE NEW", "REFURBISHED", "SALVAGED", "ASK NO QUESTIONS", "STILL WARM"]
   },
   bet: {
-    title: "W-08 // MARKET OF THE HOUR", right: "LIVE ODDS",
+    title: "W-08 // LONGSHOT OF THE HOUR", right: "LIVE ODDS",
     qs: ["Will your cat knock something off a table today?", "Will you say 'quick question' and ask a long one?", "Will the group chat plan actually happen?", "Will you find the TV remote in under a minute?", "Will it rain the moment you leave without an umbrella?", "Will you remember why you walked into this room?", "Will the leftovers survive until tomorrow?", "Will you finish the show tonight?"],
-    pos: ["3 YES", "1 NO", "FLAT", "12 YES (BOLD)", "2 NO (HEDGED)"]
+    pos: ["3 YES", "1 NO", "FLAT (RARE)", "40 YES (UNWISE)", "2 NO (HEDGED)", "ALL IN"]
   },
   tip: {
     title: "W-08 // TIP OF THE HOUR", right: "GOOD NEWS",
@@ -2209,7 +2209,7 @@ async function oddityWidget() {
     serif(c, pickFrom(O.qs, r), small ? 11 : 14, small ? 3 : 2)
     const yn = c.addStack(); yn.layoutHorizontally(); txt(yn, `YES ${Math.round(p * 100)}¢`, small ? 7 : 9, new Color(T.altBg)); yn.addSpacer(8); txt(yn, `NO ${100 - Math.round(p * 100)}¢`, small ? 7 : 9, new Color("#E8384F"))
     b.addSpacer()
-    if (!small) { const s = b.addStack(); s.layoutHorizontally(); readout(s, "VOLUME", `$${(1 + r() * 99).toFixed(1)}K`); s.addSpacer(); readout(s, "TRADERS", String(20 + Math.floor(r() * 900))); s.addSpacer(); readout(s, "YOUR POSITION", pickFrom(O.pos, r)) }
+    if (!small) { const s = b.addStack(); s.layoutHorizontally(); readout(s, "PAYOUT", `x${(1 / Math.max(0.03, p)).toFixed(1)}`); s.addSpacer(); readout(s, "VOLUME", `$${(1 + r() * 999).toFixed(0)}K`); s.addSpacer(); readout(s, "LEVERAGE", pickFrom(["1X", "5X", "25X", "100X"], r)); s.addSpacer(); readout(s, "YOUR POSITION", pickFrom(O.pos, r)) }
     else txt(b, "NOT FINANCIAL ADVICE", 6.5, SOFT)
   } else if (type === "tip") {
     imgAt(row, oddVisual("tip", r, vs, 0), vs, vs)
@@ -3071,11 +3071,11 @@ const RB = {
     rbHaze(k, W, H, 4)
     k.t(d.ev ? (d.ev.active ? "GETAWAY · TIME TO THE EXIT" : "THE JOB STARTS IN") : "LAYING LOW", 12, 6, 7, k.A, { w: W - 24 })
     k.t(d.ev ? d.ev.title : d.L.offTitle, 12, 17, 11, k.I, { f: "disp", w: W - 24 })
-    const pts = [[18, 128], [18, 104], [46, 104], [46, 84], [22, 84], [22, 62], [52, 62], [52, 42]]
-    k.rect(10, 120, 18, 14, k.a(T.headBg, 0.5), k.I, 0.8); k.t("VAULT", 19, 136, 5, k.S, { a: "c", w: 30 })
-    k.rect(42, 34, 20, 10, k.a(T.accent, 0.3), k.A, 0.8); k.t("EXIT", 52, 36, 5, k.A, { a: "c", w: 24 })
+    const pts = [[18, 118], [18, 98], [46, 98], [46, 80], [22, 80], [22, 62], [52, 62], [52, 46]]
+    k.rect(10, 112, 18, 13, k.a(T.headBg, 0.5), k.I, 0.8); k.t("VAULT", 19, 127, 5.5, k.S, { a: "c", w: 30 })
+    k.rect(42, 36, 20, 10, k.a(T.accent, 0.3), k.A, 0.8); k.t("EXIT", 52, 38, 5, k.A, { a: "c", w: 24 })
     for (let i = 0; i < pts.length - 1; i++) { const [a, b] = pts[i], [c2, e] = pts[i + 1]; for (let t2 = 0; t2 <= 1; t2 += 0.15) k.circ(a + (c2 - a) * t2, b + (e - b) * t2, 0.9, k.ia(0.45)) }
-    ;[[8, 96, 60, 92], [8, 74, 60, 70], [8, 52, 60, 56]].forEach(([a, b, c2, e]) => k.ln([[a, b], [c2, e]], k.a(T.accent, 0.55), 0.8))
+    ;[[8, 90, 60, 86], [8, 72, 60, 68], [8, 54, 60, 57]].forEach(([a, b, c2, e]) => k.ln([[a, b], [c2, e]], k.a(T.accent, 0.55), 0.8))
     const f = d.ev ? d.frac : 0, seg = f * (pts.length - 1), i0 = Math.min(pts.length - 2, Math.floor(seg)), tt = seg - i0
     const rx = pts[i0][0] + (pts[i0 + 1][0] - pts[i0][0]) * tt, ry = pts[i0][1] + (pts[i0 + 1][1] - pts[i0][1]) * tt
     rbRabbit(k, rx, ry, 16, k.PN, k.I)
@@ -3245,7 +3245,7 @@ const CY = {
   feed(k, W, H, d) {
     const m = 8; notch(k, m, 8, W - m * 2, H * 0.42, 8, d.side === "yt" ? T.headBg : T.accent, 1.2, k.a(T.ground, 0.5))
     const r = k.rng(d.side.length * 13); for (let i = 0; i < 6; i++) k.rect(m + 4 + r() * 60, 12 + r() * (H * 0.42 - 10), 30 + r() * 70, 2, k.a(r() > 0.5 ? T.headBg : T.accent, 0.4))
-    k.poly([[W / 2 - 6, 8 + H * 0.21 - 8], [W / 2 + 9, 8 + H * 0.21], [W / 2 - 6, 8 + H * 0.21 + 8]], k.a(T.accent, 1)); k.t(d.code, W - m - 4, 12, 6.5, k.H, { a: "r", w: 60 })
+    k.poly([[W / 2 - 6, 8 + H * 0.21 - 8], [W / 2 + 9, 8 + H * 0.21], [W / 2 - 6, 8 + H * 0.21 + 8]], k.a(T.accent, 1)); k.t(d.code, m + 12, 12, 6.5, k.H, { w: 60 })
     k.t(d.line.toUpperCase(), m, 8 + H * 0.42 + 5, 11, k.I, { f: "disp", w: W - m * 2 })
     d.meters.forEach(([n, v], i) => { const y = 8 + H * 0.42 + 22 + i * 11; k.t(n, m, y, 6.5, k.S, { w: 66 }); nBars(k, m + 70, y + 2, W - m * 2 - 104, 4, 12, v, k.a(T.accent, 1), k.ia(0.1), 1.5); k.t(pct(v), W - m, y, 6.5, k.I, { a: "r", w: 30 }) })
     k.t(d.tag, m, H - 15, 6.5, k.a(T.altBg, 1), { w: W - m * 2 })
@@ -3330,7 +3330,7 @@ const VP = {
     if (!small) k.t(d.up ? C.solar.setIn : C.solar.riseIn, W - 12, 6, 9, k.a(T.altBg, 1), { a: "r", w: 160 })
     k.t(`RISE ${shortT(d.rise)}`, 12, top + sh + (small ? 28 : 34), 9, k.S, { w: 90 }); k.t(`SET ${shortT(d.set)}`, W - 12, top + sh + (small ? 28 : 34), 9, k.S, { a: "r", w: 90 })
     if (big && d.atm) {
-      atmItems(d.atm).forEach(([l, v], i) => { const x = 12 + (i % 3) * 114, y = 150 + Math.floor(i / 3) * 76; winBox(k, x, y, 106, 64, `${l.toLowerCase()}.dat`); k.t(v, x + 8, y + 24, String(v).length > 4 ? 13 : 16, k.a("#101018", 1), { f: "disp", w: 58 }); inst(k, i, x + 70, y + 24, d.atm, { ink: k.a("#1A1A80", 1), hot: k.a(T.headBg, 1), faint: k.a("#101018", 0.15) }) })
+      atmItems(d.atm).forEach(([l, v], i) => { const x = 12 + (i % 3) * 114, y = 150 + Math.floor(i / 3) * 76; winBox(k, x, y, 106, 64, `${({ PRECIP: 'rain', HUMIDITY: 'damp', UV: 'uv', VISIBILITY: 'sight', DEW: 'dew', WIND: 'wind' })[l] || l.toLowerCase()}.dat`); k.t(v, x + 8, y + 24, String(v).length > 4 ? 13 : 16, k.a("#101018", 1), { f: "disp", w: 58 }); inst(k, i, x + 70, y + 24, d.atm, { ink: k.a("#1A1A80", 1), hot: k.a(T.headBg, 1), faint: k.a("#101018", 0.15) }) })
       k.t("Thank you for visiting the eternal sunset.", W / 2, H - 22, 11, k.a(T.altBg, 1), { a: "c", w: W - 30 })
     }
   },
@@ -3357,7 +3357,7 @@ const VP = {
   },
   ig(k, W, H, d) {
     const r = sRng(d, 52), small = W < 200, n = small ? 2 : 3, pw = small ? 66 : 92, ph = small ? 52 : 64
-    for (let i = 0; i < n; i++) { const x = 14 + i * (pw + 12), y = 14 + (i % 2) * 6; k.rect(x + 2, y + 2, pw, ph, k.ia(0.2)); k.rect(x, y, pw, ph, k.a("#FFF4FA", 1)); for (let j = 0; j < ph - 18; j += 2) k.rect(x + 4, y + 4 + j, pw - 8, 2, k.a(j < (ph - 18) / 2 ? T.ground : T.headBg, 0.5 + j / ph * 0.5)); vpSun(k, x + pw / 2, y + (ph - 18) * 0.6, 8); k.rect(x + pw - 18, y + ph - 14, 12, 10, null, k.a(T.headBg, 1), 1); k.t("WISH YOU WERE HERE", x + 4, y + ph - 12, 6, k.a("#3A1B4F", 1), { w: pw - 26 }) }
+    for (let i = 0; i < n; i++) { const x = 14 + i * (pw + 12), y = 14 + (i % 2) * 6; k.rect(x + 2, y + 2, pw, ph, k.ia(0.2)); k.rect(x, y, pw, ph, k.a("#FFF4FA", 1)); for (let j = 0; j < ph - 18; j += 2) k.rect(x + 4, y + 4 + j, pw - 8, 2, k.a(j < (ph - 18) / 2 ? T.ground : T.headBg, 0.5 + j / ph * 0.5)); vpSun(k, x + pw / 2, y + (ph - 18) * 0.6, 8); k.rect(x + pw - 18, y + ph - 14, 12, 10, null, k.a(T.headBg, 1), 1); k.t("GREETINGS!", x + 4, y + ph - 12, 6.5, k.a("#3A1B4F", 1), { w: pw - 26 }) }
     if (small) return
     k.t(`POSTCARDS ${10 + Math.floor(r() * 40)} · SUNSETS ${Math.floor(r() * 99)} · PALMS ∞`, 14, 100, 10, k.a(T.altBg, 1), { w: W - 28 })
   },
@@ -3392,7 +3392,7 @@ const NA = {
     for (let y = 22; y < H - 6; y += 13) k.ln([[34, y], [W - 10, y]], k.ia(0.07), 0.6)
     k.t(String(d.now.getDate()), 16, 8, 14, k.a(T.altBg, 1), { f: "disp", a: "c", w: 24 }); k.t(d.now.toDateString().slice(0, 3).toUpperCase(), 16, 26, 6, k.S, { a: "c", w: 24 })
     k.t(`Field journal · ${d.now.toLocaleDateString ? d.now.toLocaleDateString("en-US", { month: "long", day: "numeric" }) : ""}`, 40, 6, 9.5, k.S, { f: "disp", w: 230 })
-    wxIcon(k, wxKind(wx.cond), W - 36, 30, 32, k.I, 1)
+    wxIcon(k, wxKind(wx.cond), W - 40, 30, 32, k.I, 1)
     const n = k.para(d.ev ? `${d.ev.active ? "Out on" : "Next outing"}: ${d.ev.title}, ${shortT(d.ev.start)} to ${shortT(d.ev.end)}.` : "A free day. Go for a walk and look up.", 40, 22, W - 100, 13.5, k.I, "disp", 3, 1.15)
     nLeaf(k, 44, 30 + n * 15.5 + 4, 22, -0.2, k.a(T.headBg, 0.9)); nLeaf(k, 60, 30 + n * 15.5 + 6, 16, 0.4, k.a(T.headBg, 0.7))
     k.para(wx.temp != null ? `${wx.temp}°, ${(wx.cond || "").toLowerCase()}. Feels like ${wx.feels}°; high ${wx.hi}, low ${wx.lo}.` : "No weather today.", 84, 30 + n * 15.5, W - 96, 10.5, k.S, "disp", 2, 1.2)
@@ -3406,7 +3406,7 @@ const NA = {
     for (let i = 0; i < pts.length - 1; i += 1) if (i % 2 === 0) k.ln([pts[i], pts[i + 1]], k.a(T.altBg, 1), 1.2)
     const f = d.ev ? d.frac : 0, pi = Math.min(20, Math.round(f * 20)); k.circ(pts[pi][0], pts[pi][1], 4, k.a(T.altBg, 1), k.I, 1)
     k.poly([[W - 18, 62], [W - 18, 50], [W - 8, 55]], k.a(T.altBg, 1)); k.ln([[W - 18, 50], [W - 18, 68]], k.I, 1)
-    if (d.ev) k.t(`${pct(f)} · camp by ${shortT(d.ev.end)}`, 12, 126, 7, k.S, { w: W - 24 })
+    if (d.ev) k.t(`${pct(f)} · camp by ${shortT(d.ev.end)}`, 14, 126, 7, k.S, { w: W - 28 })
   },
   tx(k, W, H, d) {
     const small = W < 200, big = H > 200, x0 = 12, y0 = 10, w = W - 24, h = H - 20
@@ -3449,7 +3449,7 @@ const NA = {
     const rx = 226
     k.t("NATURE REEL", rx, 10, 7.5, k.a(T.altBg, 1), { w: 130, f: "bold" })
     k.para(pick2(r, ["Ten minutes of a mossy creek.", "Fox kits learning to pounce.", "Fog lifting off a lake.", "A hummingbird, very slowly."]), rx, 24, W - rx - 12, 12, k.I, "disp", 3, 1.15)
-    k.t(`TIME OUTSIDE ${mmss(60 + r() * 600)} · THEN GO OUT`, rx, 92, 6.5, k.S, { w: W - rx - 12 })
+    k.t(`WATCHED ${mmss(60 + r() * 600)}`, rx, 86, 6.5, k.S, { w: W - rx - 12 }); k.t("NOW GO OUTSIDE", rx, 97, 6.5, k.a(T.altBg, 1), { w: W - rx - 12 })
   },
   ig(k, W, H, d) {
     const r = sRng(d, 62), small = W < 200, n = small ? 2 : 4, sw = small ? 66 : 74, sh = small ? 88 : 96
@@ -3479,102 +3479,110 @@ const NA = {
   }
 }
 
-// ---------- LONG ODDS (prediction market) ----------
-const mkNo = () => new Color("#E8384F")
-function mkYesNo(k, x, y, w, h, p) { const g = k.a(T.altBg, 1), n = mkNo(); k.rect(x, y, w * p, h, k.a(T.altBg, 0.16)); k.rect(x + w * p, y, w * (1 - p), h, k.a("#E8384F", 0.12)); const fz = Math.min(10, h * 0.6); k.t(`YES ${Math.round(p * 100)}¢`, x + 5, y + h / 2 - fz * 0.55, fz, g, { f: "bold", w: w / 2 - 6, nofit: true }); k.t(`NO ${100 - Math.round(p * 100)}¢`, x + w - 5, y + h / 2 - fz * 0.55, fz, n, { f: "bold", a: "r", w: w / 2 - 6, nofit: true }) }
-function mkCand(k, x, y, w, h, n, r, trend) { const cw = w / n; let v = 0.5; for (let i = 0; i < n; i++) { const o = v; v = Math.max(0.08, Math.min(0.92, v + (r() - 0.5 + (trend || 0)) * 0.22)); const up = v >= o, col = up ? k.a(T.altBg, 1) : mkNo(), cx = x + i * cw + cw / 2, hi = Math.max(o, v) + r() * 0.06, lo = Math.min(o, v) - r() * 0.06; k.ln([[cx, y + h * (1 - hi)], [cx, y + h * (1 - lo)]], col, 0.8); const yt = y + h * (1 - Math.max(o, v)), yb = y + h * (1 - Math.min(o, v)); k.rect(cx - cw * 0.3, yt, cw * 0.6, Math.max(1.2, yb - yt), col) } return v }
-function mkCard(k, x, y, w, h) { k.rect(x + 1, y + 2, w, h, k.ia(0.05)); k.rect(x, y, w, h, k.PN, k.ia(0.12), 0.8) }
+// ---------- LONG ODDS (hyper-gambling prediction market) ----------
+const mkNo = () => new Color("#FF2D55")
+const mkGold = () => new Color("#FFD84A")
+function mkCard(k, x, y, w, h, hot) { k.rect(x, y, w, h, k.PN); k.rect(x, y, w, h, null, k.a(hot || T.accent, 0.55), 1); k.rect(x, y, w, 1.5, k.a(hot || T.accent, 1)) }
+function mkYesNo(k, x, y, w, h, p) { const g = k.a(T.altBg, 1), n = mkNo(), half = (w - 4) / 2; k.rect(x, y, half, h, k.a(T.altBg, 0.14), k.a(T.altBg, 0.9), 1); k.rect(x + half + 4, y, half, h, k.a("#FF2D55", 0.12), k.a("#FF2D55", 0.85), 1); const fz = Math.min(10, h * 0.62); k.t(`YES ${Math.round(p * 100)}¢`, x + half / 2, y + h / 2 - fz * 0.6, fz, g, { f: "bold", a: "c", w: half, nofit: true }); k.t(`NO ${100 - Math.round(p * 100)}¢`, x + half * 1.5 + 4, y + h / 2 - fz * 0.6, fz, n, { f: "bold", a: "c", w: half, nofit: true }) }
+function mkCand(k, x, y, w, h, n, r, trend) { const cw = w / n; let v = 0.5; for (let i = 0; i < n; i++) { const o = v; v = Math.max(0.08, Math.min(0.92, v + (r() - 0.5 + (trend || 0)) * 0.24)); const up = v >= o, col = up ? k.a(T.altBg, 1) : mkNo(), cx = x + i * cw + cw / 2, hi = Math.max(o, v) + r() * 0.06, lo = Math.min(o, v) - r() * 0.06; k.ln([[cx, y + h * (1 - hi)], [cx, y + h * (1 - lo)]], col, 0.8); const yt = y + h * (1 - Math.max(o, v)), yb = y + h * (1 - Math.min(o, v)); k.rect(cx - cw * 0.3, yt, cw * 0.6, Math.max(1.2, yb - yt), col) } return v }
+function mkArea(k, x, y, w, h, r, up) { const pts = []; let v = up ? 0.3 : 0.7; for (let i = 0; i <= 24; i++) { v = Math.max(0.05, Math.min(0.95, v + (r() - (up ? 0.38 : 0.62)) * 0.16)); pts.push([x + w * i / 24, y + h * (1 - v)]) } const col = up ? T.altBg : "#FF2D55"; k.poly(pts.concat([[x + w, y + h], [x, y + h]]), k.a(col, 0.16)); k.ln(pts, k.a(col, 0.35), 3); k.ln(pts, k.a(col, 1), 1.2) }
+function mkLev(k, x, y, sel, small) { ["1X", "5X", "25X", "100X"].forEach((l, i) => { const w = small ? 22 : 28, xx = x + i * (w + 4); k.rect(xx, y, w, 11, i === sel ? k.a(T.accent, 1) : k.ia(0.08)); k.t(l, xx + w / 2, y + 1.5, 6.5, i === sel ? k.a("#FFFFFF", 1) : k.S, { a: "c", w, f: "bold", nofit: true }) }) }
+function mkLive(k, x, y) { k.circ(x + 3, y + 4, 3, mkNo()); k.t("LIVE", x + 9, y, 7, mkNo(), { f: "bold", w: 30 }) }
+function mkWhale(k, x, y, w, txt2) { for (let i = 0; i < 10; i++) k.rect(x + i * w / 10, y, w / 10 + 0.5, 11, k.a(i < 6 ? T.accent : "#FF2D55", 0.85)); k.t(txt2, x + w / 2, y + 1.5, 6.5, k.a("#FFFFFF", 1), { a: "c", w: w - 6, f: "bold" }) }
 const MK = {
   status(k, W, H, d) {
-    const wx = d.wx || {}, r = k.rng(dayOfYear(d.now)), p = d.ev ? (d.ev.active ? 0.9 : 0.62 + r() * 0.3) : 0.5
-    mkCard(k, 10, 6, 212, H - 12)
-    k.t(d.ev ? "MARKET · RESOLVES TODAY" : "NO OPEN POSITIONS", 20, 12, 6.5, k.S, { w: 190 })
-    k.para(d.ev ? `Will you make "${d.ev.title}" on time?` : "Will today be a quiet one?", 20, 24, 192, 13, k.I, "disp", 2, 1.12)
-    k.t(d.ev ? `${shortT(d.ev.start)} — ${shortT(d.ev.end)}` : "", 20, 56, 8, k.S, { w: 190 })
-    mkYesNo(k, 20, 70, 192, 20, p)
-    mkCand(k, 20, 96, 192, 30, 24, r, p > 0.6 ? 0.08 : -0.02)
+    const wx = d.wx || {}, r = k.rng(dayOfYear(d.now) * 3 + d.now.getHours()), p = d.ev ? (d.ev.active ? 0.91 : 0.6 + r() * 0.35) : 0.5
+    mkLive(k, 10, 4); k.t(d.ev ? "RESOLVES TODAY" : "NO OPEN BETS", 50, 4, 7, k.S, { w: 120 })
+    mkCard(k, 10, 16, 214, H - 32)
+    k.para(d.ev ? `WILL YOU MAKE "${d.ev.title.toUpperCase()}" ON TIME?` : "WILL TODAY BE QUIET?", 18, 22, 140, 11, k.I, "disp", 3, 1.08)
+    k.t(`${Math.round(p * 100)}%`, 216, 20, 22, k.a(T.altBg, 1), { f: "disp", a: "r", w: 70 }); k.t(`▲${(r() * 40).toFixed(0)}% · 1H`, 216, 46, 6.5, k.a(T.altBg, 1), { a: "r", w: 70 })
+    mkLev(k, 18, 62, 3, true)
+    mkYesNo(k, 18, 78, 198, 16, p)
+    k.t("PAYOUT IF YES", 18, 99, 6, k.S, { w: 80 }); k.t(`$${(1000 / Math.max(0.05, p) * (1 + r())).toFixed(0)}`, 18, 106, 13, mkGold(), { f: "disp", w: 100 }); mkArea(k, 120, 98, 96, 22, r, true)
     const rx = 232
-    ;[["RAIN TODAY?", wx.cond && /RAIN|SHOWER|DRIZZLE|STORM/.test(wx.cond) ? 0.82 : 0.12], [`ABOVE ${wx.hi != null ? wx.hi - 3 : 70}°?`, 0.44 + r() * 0.3], ["BATTERY > 50% AT 9PM?", Math.min(0.96, d.batt + 0.1)]].forEach(([q, pr], i) => { const y = 6 + i * 44; mkCard(k, rx, y, W - rx - 10, 38); k.t(q, rx + 7, y + 5, 7, k.I, { f: "bold", w: W - rx - 24 }); mkYesNo(k, rx + 7, y + 18, W - rx - 24, 14, pr) })
-    k.t(wx.temp != null ? `${wx.temp}° NOW · FEELS ${wx.feels}°` : "", rx, H - 12, 6.5, k.S, { w: W - rx - 10 })
+    ;[["RAIN TODAY?", wx.cond && /RAIN|SHOWER|DRIZZLE|STORM/.test(wx.cond) ? 0.82 : 0.12], [`OVER ${wx.hi != null ? wx.hi - 3 : 70}°?`, 0.4 + r() * 0.4], ["BATTERY 50%+ AT 9PM?", Math.min(0.97, d.batt + 0.1)]].forEach(([q, pr], i) => { const y = 16 + i * 38; mkCard(k, rx, y, W - rx - 10, 33, i === 1 ? "#FF2D55" : T.accent); k.t(q, rx + 6, y + 5, 6.5, k.I, { f: "bold", w: W - rx - 50 }); k.t(`${Math.round(pr * 100)}%`, W - 16, y + 3, 10, pr > 0.5 ? k.a(T.altBg, 1) : mkNo(), { f: "disp", a: "r", w: 40 }); k.rect(rx + 6, y + 21, (W - rx - 22) * pr, 5, k.a(T.altBg, 1)); k.rect(rx + 6 + (W - rx - 22) * pr, y + 21, (W - rx - 22) * (1 - pr), 5, mkNo()) })
+    mkWhale(k, 10, H - 13, W - 20, `WHALE ALERT · @moby_${dayOfYear(d.now) % 90} BET $${(50 + r() * 900).toFixed(0)}K ON YES · ${wx.temp != null ? wx.temp + "°" : ""}`)
   },
   shift(k, W, H, d) {
     const r = k.rng(7), f = d.ev ? d.frac : 0
-    k.t(d.ev ? (d.ev.active ? "LIVE · SETTLES IN" : "MARKET OPENS IN") : "MARKET CLOSED", 12, 6, 7, k.a(T.accent, 1), { f: "bold", w: W - 24 })
-    k.t(d.ev ? d.ev.title : d.L.offTitle, 12, 17, 11, k.I, { f: "disp", w: W - 24 })
-    mkCand(k, 12, 74, W - 24, 34, 16, r, 0.05)
-    k.rect(12 + (W - 24) * f, 72, 1.2, 40, k.a(T.accent, 1)); k.circ(12 + (W - 24) * f, 72, 2.5, k.a(T.accent, 1))
-    mkYesNo(k, 12, 116, W - 24, 14, Math.max(0.05, Math.min(0.95, 0.4 + f * 0.5)))
+    mkLive(k, 12, 4); k.t(d.ev ? (d.ev.active ? "RESOLVES IN" : "MARKET OPENS IN") : "BETWEEN BETS", 52, 4, 7, k.a(T.accent, 1), { f: "bold", w: W - 64 })
+    k.t(d.ev ? d.ev.title.toUpperCase() : d.L.offTitle.toUpperCase(), 12, 16, 10, k.I, { f: "disp", w: W - 24 })
+    mkCand(k, 12, 66, W - 24, 28, 16, r, 0.06)
+    k.rect(12 + (W - 24) * f, 64, 1.2, 32, mkGold()); k.circ(12 + (W - 24) * f, 64, 2.5, mkGold())
+    k.t("PAYOUT", 12, 99, 6.5, k.S, { w: 60 }); k.rect(W - 54, 98, 42, 11, mkGold()); k.t(`x${(1 / Math.max(0.1, 0.4 + f * 0.5)).toFixed(1)}`, W - 33, 99.5, 7, k.a("#000000", 1), { a: "c", w: 40, f: "bold" })
+    mkYesNo(k, 12, 113, W - 24, 15, Math.max(0.05, Math.min(0.95, 0.4 + f * 0.5)))
   },
   tx(k, W, H, d) {
     const small = W < 200, big = H > 200, r = k.rng(parseInt(d.hex, 16))
-    mkCard(k, 8, 6, W - 16, H - 12)
-    const rating = d.archival ? "ARCHIVE" : d.cls
-    k.rect(18, 14, Math.min(90, rating.length * 6 + 16), 13, k.a(T.altBg, 0.16)); k.t(rating, 26, 15.5, 7, k.a(T.altBg, 1), { f: "bold", w: 90 })
-    if (!small) k.t(`ANALYST NOTE 0x${d.hex} · CONFIDENCE ${60 + parseInt(d.hex, 16) % 39}%`, W - 18, 16, 6.5, k.S, { a: "r", w: 220 })
-    const fs = fitFs(k, d.text, W - (small ? 36 : 120), small ? 4 : 3, small ? 13 : (big ? 20 : 16), "disp"), n = k.para(d.text, 18, 34, W - (small ? 36 : 120), fs, k.I, "disp", small ? 4 : 3, 1.12)
-    k.t(`— ${d.by}`, 18, 38 + n * fs * 1.12, small ? 6.5 : 7.5, k.S, { w: W - 36 })
-    if (!small) { mkCand(k, W - 96, 34, 78, 46, 12, r, 0.05); k.t("TARGET ▲", W - 18, 84, 6.5, k.a(T.altBg, 1), { a: "r", w: 80 }) }
-    if (!small && H - 30 > 40 + n * fs * 1.12 + 20) mkYesNo(k, 18, H - 30, W - 36, 14, 0.55 + r() * 0.35)
+    mkCard(k, 8, 6, W - 16, H - 12, d.archival ? "#FFD84A" : T.accent)
+    const rating = d.archival ? "FROM THE ARCHIVE" : d.cls
+    k.rect(16, 13, Math.min(120, rating.length * 6.2 + 14), 13, d.archival ? mkGold() : k.a(T.accent, 1)); k.t(rating, 23, 14.5, 7, k.a(d.archival ? "#000000" : "#FFFFFF", 1), { f: "bold", w: 120 })
+    if (!small) { mkLive(k, W - 80, 15); k.t(`🔥 ${60 + parseInt(d.hex, 16) % 39}`, W - 16, 15, 7.5, mkGold(), { a: "r", w: 40, f: "bold" }) }
+    const tw = W - (small ? 32 : 120), fs = fitFs(k, d.text.toUpperCase(), tw, small ? 4 : 3, small ? 13 : (big ? 20 : 17), "disp"), n = k.para(d.text.toUpperCase(), 16, 32, tw, fs, k.I, "disp", small ? 4 : 3, 1.08)
+    k.t(`— ${d.by}`, 16, 36 + n * fs * 1.08, small ? 6.5 : 7.5, k.S, { w: W - 32 })
+    if (!small) { mkArea(k, W - 98, 34, 80, 44, r, true); k.t(`▲ ${(10 + r() * 190).toFixed(0)}%`, W - 18, 82, 8, k.a(T.altBg, 1), { a: "r", w: 80, f: "bold" }) }
+    if (!small && H - 28 > 44 + n * fs * 1.08 + 14) mkYesNo(k, 16, H - 28, W - 32, 14, 0.55 + r() * 0.4)
   },
   solar(k, W, H, d) {
     const small = W < 200, big = H > 200, r = k.rng(dayOfYear(d.now)), top = 30, ch = small ? 62 : 70
-    k.t(d.up ? C.solar.day : C.solar.night, 12, 6, 7, k.a(T.accent, 1), { f: "bold", w: 160 }); k.t(pct(d.up ? d.frac : 1 - d.frac), 12, 15, 13, k.I, { f: "disp", w: 80 })
-    if (!small) k.t(d.up ? C.solar.setIn : C.solar.riseIn, W - 12, 6, 7, k.a(T.accent, 1), { a: "r", w: 160 })
+    k.t(d.up ? C.solar.day : C.solar.night, 12, 6, 7, k.a(T.accent, 1), { f: "bold", w: 170 }); k.t(pct(d.up ? d.frac : 1 - d.frac), 12, 15, 13, k.a(T.altBg, 1), { f: "disp", w: 80 })
+    if (!small) k.t(d.up ? C.solar.setIn : C.solar.riseIn, W - 12, 6, 7, mkNo(), { a: "r", w: 170, f: "bold" })
     for (let i = 0; i <= 4; i++) k.ln([[10, top + ch * i / 4], [W - 10, top + ch * i / 4]], k.ia(0.06), 0.6)
     const n = small ? 16 : 32, cw = (W - 20) / n, nowI = Math.floor((d.up ? d.frac : 0) * n)
-    for (let i = 0; i < n; i++) { const t = (i + 0.5) / n, alt = Math.sin(Math.PI * t), o = Math.sin(Math.PI * (i / n)), up = alt >= o, col = i > nowI ? k.ia(0.15) : (up ? k.a(T.altBg, 1) : mkNo()); const x = 10 + i * cw + cw / 2, yt = top + ch * (1 - Math.max(o, alt) * 0.9), yb = top + ch * (1 - Math.min(o, alt) * 0.9); k.ln([[x, yt - 3 - r() * 4], [x, yb + 3 + r() * 4]], col, 0.7); k.rect(x - cw * 0.3, yt, cw * 0.6, Math.max(1.5, yb - yt), col) }
-    k.rect(10 + nowI * cw, top - 2, 1.2, ch + 4, k.a(T.accent, 1))
+    for (let i = 0; i < n; i++) { const t = (i + 0.5) / n, alt = Math.sin(Math.PI * t), o = Math.sin(Math.PI * (i / n)), up = alt >= o, col = i > nowI ? k.ia(0.12) : (up ? k.a(T.altBg, 1) : mkNo()); const x = 10 + i * cw + cw / 2, yt = top + ch * (1 - Math.max(o, alt) * 0.9), yb = top + ch * (1 - Math.min(o, alt) * 0.9); k.ln([[x, yt - 3 - r() * 4], [x, yb + 3 + r() * 4]], col, 0.7); k.rect(x - cw * 0.3, yt, cw * 0.6, Math.max(1.5, yb - yt), col) }
+    k.rect(10 + nowI * cw, top - 2, 1.2, ch + 4, mkGold()); if (!small) { const bx = nowI * cw > W * 0.6 ? 10 + nowI * cw - 50 : 10 + nowI * cw + 4; k.rect(bx, top + ch - 16, 46, 11, mkGold()); k.t("LONG 50X", bx + 23, top + ch - 14.5, 6.5, k.a("#000000", 1), { a: "c", w: 46, f: "bold" }) }
+    k.ln([[10, top + ch * 0.92], [W - 10, top + ch * 0.92]], k.a("#FF2D55", 0.5), 0.8); if (!small) k.t("LIQUIDATION", W - 12, top + ch * 0.92 - 9, 6, mkNo(), { a: "r", w: 70 })
     k.t(`OPEN ${shortT(d.rise)}`, 12, top + ch + 5, 7, k.S, { w: 90 }); k.t(`CLOSE ${shortT(d.set)}`, W - 12, top + ch + 5, 7, k.S, { a: "r", w: 90 })
     if (big && d.atm) {
-      k.t("WEATHER CONTRACTS // RESOLVE TONIGHT", 12, 132, 6.5, k.ia(0.5), { w: 240 })
-      atmItems(d.atm).forEach(([l, v], i) => { const x = 12 + (i % 3) * 114, y = 146 + Math.floor(i / 3) * 78; mkCard(k, x, y, 106, 68); k.t(l, x + 8, y + 7, 6.5, k.S, { w: 60, f: "bold" }); k.t(v, x + 8, y + 19, String(v).length > 4 ? 13 : 16, k.I, { f: "disp", w: 60 }); inst(k, i, x + 70, y + 12, d.atm, { ink: k.a(T.accent, 1), hot: mkNo(), faint: k.ia(0.12) }); mkYesNo(k, x + 8, y + 48, 90, 12, 0.2 + ((i * 37 + dayOfYear(d.now)) % 70) / 100) })
-      k.t("Not financial advice. Not weather advice either.", W / 2, H - 22, 9.5, k.S, { f: "disp", a: "c", w: W - 30 })
+      k.t("WEATHER BETS // RESOLVE TONIGHT", 12, 132, 6.5, k.a(T.accent, 1), { w: 240, f: "bold" })
+      atmItems(d.atm).forEach(([l, v], i) => { const x = 12 + (i % 3) * 114, y = 146 + Math.floor(i / 3) * 78, pr = 0.15 + ((i * 37 + dayOfYear(d.now)) % 75) / 100; mkCard(k, x, y, 106, 68, i % 2 ? "#FF2D55" : T.accent); k.t(l, x + 8, y + 7, 6.5, k.S, { w: 60, f: "bold" }); k.t(v, x + 8, y + 19, String(v).length > 4 ? 13 : 16, k.I, { f: "disp", w: 60 }); inst(k, i, x + 70, y + 12, d.atm, { ink: k.a(T.altBg, 1), hot: mkNo(), faint: k.ia(0.12) }); mkYesNo(k, x + 8, y + 48, 90, 13, pr) })
+      mkWhale(k, 12, H - 30, W - 24, "NOT FINANCIAL ADVICE · NOT WEATHER ADVICE · BARELY ADVICE")
     }
   },
   feed(k, W, H, d) {
-    const m = 8, r = k.rng(d.side.length * 17), p = d.side === "yt" ? 0.64 : 0.38
-    mkCard(k, m, 8, W - m * 2, H * 0.46)
-    k.t(d.code, m + 8, 13, 6.5, k.S, { w: 60 }); k.t(d.side === "yt" ? "MKT · NEXT VIDEO < 10 MIN?" : "MKT · POST GOES VIRAL?", W - m - 8, 13, 6.5, k.S, { a: "r", w: W - 90 })
-    mkCand(k, m + 8, 26, W - m * 2 - 16, H * 0.46 - 44, 18, r, p > 0.5 ? 0.06 : -0.04); mkYesNo(k, m + 8, 8 + H * 0.46 - 18, W - m * 2 - 16, 12, p)
-    k.t(d.line, m, 8 + H * 0.46 + 5, 13, k.I, { f: "disp", w: W - m * 2 })
-    d.meters.forEach(([n, v], i) => { const y = 8 + H * 0.46 + 24 + i * 11; k.t(n, m, y, 6.5, k.S, { w: 66 }); k.rect(m + 70, y + 2, W - m * 2 - 104, 5, k.ia(0.08)); k.rect(m + 70, y + 2, (W - m * 2 - 104) * v, 5, i === 2 ? mkNo() : k.a(T.altBg, 1)); k.t(pct(v), W - m, y, 6.5, k.I, { a: "r", w: 30 }) })
-    k.t(d.tag, m, H - 14, 6.5, k.a(T.accent, 1), { w: W - m * 2 })
+    const m = 8, r = k.rng(d.side.length * 17), up = d.side === "yt", p = up ? 0.64 : 0.38
+    mkCard(k, m, 8, W - m * 2, H * 0.5, up ? T.altBg : "#FF2D55")
+    k.t(d.code, m + 8, 13, 6.5, k.S, { w: 60 }); k.t(up ? "▲ PUMPING" : "▼ DUMPING", W - m - 8, 13, 7, up ? k.a(T.altBg, 1) : mkNo(), { a: "r", w: 90, f: "bold" })
+    k.t(up ? "+34%" : "-12%", m + 8, 22, 18, up ? k.a(T.altBg, 1) : mkNo(), { f: "disp", w: 90 }); mkArea(k, m + 84, 24, W - m * 2 - 92, 22, r, up)
+    mkYesNo(k, m + 8, 8 + H * 0.5 - 22, W - m * 2 - 16, 14, p)
+    k.t(d.line.toUpperCase(), m, 8 + H * 0.5 + 5, 11, k.I, { f: "disp", w: W - m * 2 })
+    d.meters.forEach(([n, v], i) => { const y = 8 + H * 0.5 + 21 + i * 11; k.t(n, m, y, 6.5, k.S, { w: 60 }); k.rect(m + 64, y + 2, W - m * 2 - 98, 5, k.ia(0.08)); k.rect(m + 64, y + 2, (W - m * 2 - 98) * v, 5, i === 2 ? mkNo() : k.a(T.accent, 1)); k.t(pct(v), W - m, y, 6.5, k.I, { a: "r", w: 30 }) })
+    k.t(d.tag, m, H - 13, 6.5, up ? k.a(T.altBg, 1) : mkNo(), { w: W - m * 2, f: "bold" })
   },
   yt(k, W, H, d) {
-    const r = sRng(d, 71), small = W < 200, rows = [["Next video under 10 min?", 0.22], ["You watch one more?", 0.94], ["Algorithm finds you a cat?", 0.71], ["Ad is skippable?", 0.48]]
-    k.t("THE WATCHLIST // YOUR VIEWING, PRICED", 12, 6, 7, k.a(T.accent, 1), { f: "bold", w: W - 24 })
-    rows.slice(0, small ? 3 : 4).forEach(([q, p], i) => { const y = 20 + i * (small ? 38 : 30); mkCard(k, 12, y, small ? W - 24 : 206, small ? 32 : 25); k.t(q, 18, y + 4, 7.5, k.I, { w: small ? W - 36 : 196 }); mkYesNo(k, 18, y + (small ? 16 : 13), small ? W - 36 : 194, small ? 12 : 9, Math.max(0.03, Math.min(0.97, p + (r() - 0.5) * 0.1))) })
+    const r = sRng(d, 71), small = W < 200, rows = [["NEXT VIDEO UNDER 10 MIN?", 0.22, "25X"], ["YOU WATCH ONE MORE?", 0.97, "100X"], ["ALGORITHM SERVES A CAT?", 0.71, "5X"], ["AD IS SKIPPABLE?", 0.48, "1X"]]
+    mkLive(k, 12, 4); k.t("WATCH & BET", 52, 4, 7, k.a(T.accent, 1), { f: "bold", w: 140 })
+    rows.slice(0, small ? 3 : 4).forEach(([q, p, lev], i) => { const y = 17 + i * (small ? 38 : 28), w = small ? W - 24 : 214; mkCard(k, 12, y, w, small ? 33 : 24, p > 0.5 ? T.altBg : "#FF2D55"); k.t(q, 18, y + 4, 7, k.I, { w: w - 60, f: "bold" }); k.t(lev, 12 + w - 6, y + 3, 7, k.a(T.accent, 1), { a: "r", w: 40, f: "bold" }); const pp = Math.max(0.03, Math.min(0.97, p + (r() - 0.5) * 0.1)); k.rect(18, y + (small ? 18 : 15), (w - 12) * pp, small ? 9 : 5, k.a(T.altBg, 1)); k.rect(18 + (w - 12) * pp, y + (small ? 18 : 15), (w - 12) * (1 - pp), small ? 9 : 5, mkNo()) })
     if (small) return
-    const rx = 230
-    mkCard(k, rx, 20, W - rx - 12, 110); mkCand(k, rx + 8, 30, W - rx - 28, 50, 14, r, 0.04)
-    ;[["TIME WATCHED", mmss(300 + r() * 3000)], ["POSITION", `${1 + Math.floor(r() * 9)} YES`], ["P&L", `+${(r() * 40).toFixed(1)}¢`]].forEach(([l, v], i) => { k.t(l, rx + 8, 86 + i * 13, 6.5, k.S, { w: 60 }); k.t(v, W - 20, 86 + i * 13, 7.5, i === 2 ? k.a(T.altBg, 1) : k.I, { a: "r", w: 60, f: "bold" }) })
+    const rx = 236
+    mkCard(k, rx, 17, W - rx - 12, 108, "#FFD84A"); k.t("YOUR P&L", rx + 8, 23, 6.5, k.S, { w: 90 }); k.t(`+$${(r() * 9000).toFixed(0)}`, rx + 8, 32, 17, mkGold(), { f: "disp", w: 110 }); mkArea(k, rx + 8, 56, W - rx - 28, 30, r, true)
+    k.t(`TIME WATCHED ${mmss(300 + r() * 3000)}`, rx + 8, 92, 6.5, k.S, { w: 110 }); k.t(`STREAK ${3 + Math.floor(r() * 9)} WINS 🔥`, rx + 8, 104, 6.5, k.a(T.altBg, 1), { w: 110, f: "bold" })
   },
   ig(k, W, H, d) {
     const r = sRng(d, 72), small = W < 200, cols = small ? 3 : 5, cs = small ? 44 : 50
-    for (let i = 0; i < cols * (small ? 2 : 1); i++) { const x = 12 + (i % cols) * (cs + 6), y = 8 + Math.floor(i / cols) * (cs + 6), up = r() > 0.4, ch2 = (r() * 30).toFixed(1); mkCard(k, x, y, cs, cs); k.rect(x + 4, y + 4, cs - 8, cs - 20, k.a(T.accent, 0.08 + r() * 0.15)); k.circ(x + cs / 2, y + (cs - 16) / 2 + 2, cs * 0.12, k.ia(0.1)); k.t(`${up ? "▲" : "▼"}${ch2}%`, x + cs / 2, y + cs - 13, 6.5, up ? k.a(T.altBg, 1) : mkNo(), { a: "c", w: cs, f: "bold" }) }
+    for (let i = 0; i < cols * (small ? 2 : 1); i++) { const x = 12 + (i % cols) * (cs + 6), y = 8 + Math.floor(i / cols) * (cs + 6), up = r() > 0.4, ch2 = (r() * (up ? 300 : 60)).toFixed(0); mkCard(k, x, y, cs, cs, up ? T.altBg : "#FF2D55"); k.rect(x + 4, y + 5, cs - 8, cs - 21, k.a(T.accent, 0.12 + r() * 0.15)); k.circ(x + cs / 2, y + (cs - 16) / 2 + 3, cs * 0.12, k.ia(0.15)); k.t(`${up ? "▲" : "▼"}${ch2}%`, x + cs / 2, y + cs - 13, 7, up ? k.a(T.altBg, 1) : mkNo(), { a: "c", w: cs, f: "bold" }) }
     if (small) return
-    k.t("SENTIMENT // YOUR FEED, PRICED", 12, 66, 7, k.a(T.accent, 1), { f: "bold", w: 260 })
-    ;[["POSTS PRICED", `${40 + Math.floor(r() * 300)}`], ["BULLISH", `${50 + Math.floor(r() * 40)}%`], ["BEARISH", `${5 + Math.floor(r() * 30)}%`]].forEach(([l, v], i) => { const x = 12 + i * 112; k.t(l, x, 82, 6.5, k.S, { w: 100 }); k.t(v, x, 92, 15, i === 2 ? mkNo() : i === 1 ? k.a(T.altBg, 1) : k.I, { f: "disp", w: 100 }) })
-    mkYesNo(k, 12, 116, W - 24, 12, 0.68)
+    k.t("HYPE INDEX // YOUR FEED, LEVERAGED", 12, 66, 7, k.a(T.accent, 1), { f: "bold", w: 260 })
+    ;[["POSTS PRICED", `${40 + Math.floor(r() * 300)}`, k.I], ["MOONING", `${50 + Math.floor(r() * 40)}%`, k.a(T.altBg, 1)], ["REKT", `${5 + Math.floor(r() * 30)}%`, mkNo()]].forEach(([l, v, col], i) => { const x = 12 + i * 112; k.t(l, x, 80, 6.5, k.S, { w: 100 }); k.t(v, x, 90, 16, col, { f: "disp", w: 100 }) })
+    mkWhale(k, 12, 114, W - 24, "@influencer_9 JUST GOT REKT · -88% · HYPE MIGRATING")
   },
   dc(k, W, H, d) {
-    const r = sRng(d, 73), small = W < 200, traders = [["@bayes_babe", "YES"], ["@longvol", "NO"], ["@kelly_k", "YES"], ["@mean_revert", "YES"], ["@spread_eagle", "NO"], ["@priced_in", "YES"]]
-    k.t("TRADING FLOOR // ONLINE", 12, 6, 7, k.a(T.accent, 1), { f: "bold", w: W - 24 })
-    traders.slice(0, small ? 5 : 6).forEach(([h2, pos], i) => { const y = 20 + i * 15, on = r() > 0.25; k.circ(18, y + 5, 3, on ? k.a(T.altBg, 1) : k.ia(0.15)); k.t(h2, 26, y, 8, on ? k.I : k.S, { w: 100 }); k.rect(small ? W - 40 : 130, y, 26, 11, pos === "YES" ? k.a(T.altBg, 0.15) : k.a("#E8384F", 0.12)); k.t(pos, (small ? W - 40 : 130) + 13, y + 1, 7, pos === "YES" ? k.a(T.altBg, 1) : mkNo(), { a: "c", w: 26, f: "bold" }) })
+    const r = sRng(d, 73), small = W < 200, traders = [["@moby_whale", 1], ["@paperhands", -1], ["@kelly_k", 1], ["@rekt_again", -1], ["@moonboi", 1], ["@priced_in", 1]]
+    mkLive(k, 12, 4); k.t("THE PIT // ONLINE", 52, 4, 7, k.a(T.accent, 1), { f: "bold", w: W - 64 })
+    traders.slice(0, small ? 5 : 6).forEach(([h2, s2], i) => { const y = 18 + i * 15, pnl = (r() * (i === 0 ? 900 : 90)).toFixed(0); k.circ(18, y + 5, 3, s2 > 0 ? k.a(T.altBg, 1) : mkNo()); k.t(h2, 26, y, 8, k.I, { w: 90 }); k.t(`${s2 > 0 ? "+" : "-"}$${pnl}K`, small ? W - 14 : 162, y, 8, s2 > 0 ? k.a(T.altBg, 1) : mkNo(), { a: "r", w: 60, f: "bold" }); if (i === 0 && !small) k.t("🐋", 168, y - 1, 9, k.I, { w: 14 }) })
     if (small) return
-    const rx = 176
-    mkCard(k, rx, 18, W - rx - 12, 110)
-    ;["# hot-markets", "# resolution-disputes", "# calibration-club", "🔊 the pit"].forEach((c2, i) => { const y = 26 + i * 16; k.t(c2, rx + 8, y, 8.5, i === 3 ? k.a(T.accent, 1) : k.I, { w: 160 }); if (r() > 0.5) k.circ(W - 24, y + 5, 3, k.a(T.accent, 1)) })
-    k.t(`OPEN INTEREST $${(10 + r() * 90).toFixed(0)}K · ${3 + Math.floor(r() * 20)} ONLINE`, rx + 8, 96, 6.5, k.S, { w: 170 })
-    mkYesNo(k, rx + 8, 108, W - rx - 28, 12, 0.57)
+    const rx = 186
+    mkCard(k, rx, 16, W - rx - 12, 112)
+    ;["# 100x-or-nothing", "# whale-watching", "# cope-and-seethe", "🔊 the trading pit"].forEach((c2, i) => { const y = 24 + i * 16; k.t(c2, rx + 8, y, 8.5, i === 3 ? k.a(T.accent, 1) : k.I, { w: 150 }); if (r() > 0.4) k.circ(W - 24, y + 5, 3, mkNo()) })
+    k.t(`OPEN INTEREST $${(10 + r() * 990).toFixed(0)}M`, rx + 8, 92, 7, mkGold(), { w: 160, f: "bold" }); mkYesNo(k, rx + 8, 106, W - rx - 28, 14, 0.57)
   },
   audio(k, W, H, d) {
     const r = k.rng(Math.floor(d.phase * 100))
-    mkCard(k, 10, 10, 74, 60); mkCand(k, 16, 18, 62, 30, 8, r, 0.08); k.poly([[38, 54], [50, 60], [38, 66]], k.a(T.accent, 1))
-    k.t(C.audio.src, 92, 12, 8, k.a(T.accent, 1), { w: 250, f: "bold" }); k.t(d.line, 92, 24, 18, k.I, { f: "disp", w: W - 106 })
-    ;[["TICKER", "$VIBE"], ["CHANGE", `+${(r() * 9).toFixed(1)}%`], [C.audio.metric, "▲".repeat(d.lvl) + "△".repeat(5 - d.lvl)]].forEach(([l, v], i) => { const x = 92 + i * 80; k.t(l, x, 52, 6.5, k.S, { w: 76 }); k.t(v, x, 61, 9, i === 1 ? k.a(T.altBg, 1) : k.I, { w: 76, f: "bold" }) })
-    mkCand(k, 12, 84, W - 24, 42, 44, r, 0.02)
-    k.t("PLAYING", W - 70, 52, 6.5, k.S, { w: 60 })
+    mkCard(k, 10, 10, 74, 60); mkCand(k, 16, 18, 62, 30, 8, r, 0.1); k.poly([[38, 52], [52, 59], [38, 66]], k.a(T.accent, 1))
+    k.t(C.audio.src, 92, 12, 8, k.a(T.accent, 1), { w: 250, f: "bold" }); k.t(d.line.toUpperCase(), 92, 24, 16, k.I, { f: "disp", w: W - 106 })
+    ;[["TICKER", "$PUMP"], ["24H", `+${(r() * 300).toFixed(0)}%`], [C.audio.metric, "▲".repeat(d.lvl) + "△".repeat(5 - d.lvl)]].forEach(([l, v], i) => { const x = 92 + i * 80; k.t(l, x, 52, 6.5, k.S, { w: 76 }); k.t(v, x, 61, 9, i === 1 ? k.a(T.altBg, 1) : k.I, { w: 76, f: "bold" }) })
+    mkCand(k, 12, 84, W - 24, 40, 44, r, 0.06)
+    k.t("PLAYING", W - 70, 52, 6.5, mkNo(), { w: 60, f: "bold" })
   }
 }
 const THEME_PAINT = { directive: DIR, longroad: LR, nightfall: NF, grimoire: GM, deeprange: DRG, halcyon: HAL, rabbit: RB, cyber: CY, vapor: VP, nature: NA, market: MK }
@@ -3614,8 +3622,8 @@ const LIVE = {
   nightfall: { shift: { x: 85, y: 70, size: 22, a: "c", f: "bold" }, solar: { x: 354, y: 36, size: 18, a: "r", f: "bold" }, solarS: { x: 160, y: 36, size: 13, a: "r", f: "bold" } },
   grimoire: { shift: { x: 70, y: 60, size: 19, a: "l", f: "disp" }, solar: { x: 12, y: 108, size: 18, a: "l", f: "disp" }, solarS: { x: 160, y: 22, size: 13, a: "r", f: "disp" } },
   cyber: { shift: { x: 85, y: 56, size: 22, a: "c", f: "disp" }, solar: { x: 352, y: 16, size: 20, a: "r", f: "disp" }, solarS: { x: 160, y: 16, size: 14, a: "r", f: "disp" } },
-  market: { shift: { x: 85, y: 36, size: 20, a: "c", f: "disp" }, solar: { x: 352, y: 15, size: 18, a: "r", f: "disp" }, solarS: { x: 160, y: 14, size: 13, a: "r", f: "disp" } },
-  vapor: { shift: { x: 85, y: 58, size: 22, a: "c", f: "bold" }, solar: { x: 352, y: 15, size: 16, a: "r", f: "bold" }, solarS: { x: 160, y: 14, size: 12, a: "r", f: "bold" } },
+  market: { shift: { x: 85, y: 32, size: 20, a: "c", f: "disp" }, solar: { x: 352, y: 15, size: 18, a: "r", f: "disp" }, solarS: { x: 160, y: 14, size: 13, a: "r", f: "disp" } },
+  vapor: { shift: { x: 85, y: 58, size: 22, a: "c", f: "bold", color: "#1A1A80" }, solar: { x: 352, y: 15, size: 16, a: "r", f: "bold" }, solarS: { x: 160, y: 14, size: 12, a: "r", f: "bold" } },
   nature: { shift: { x: 140, y: 40, size: 16, a: "r", f: "disp" }, solar: { x: 352, y: 15, size: 18, a: "r", f: "disp" }, solarS: { x: 160, y: 14, size: 13, a: "r", f: "disp" } },
   rabbit: { shift: { x: 66, y: 58, size: 19, a: "l", f: "disp" }, solar: { x: 352, y: 17, size: 22, a: "r", f: "disp" }, solarS: { x: 160, y: 24, size: 14, a: "r", f: "disp" } },
   deeprange: { shift: { x: 85, y: 128, size: 0.1, a: "c", f: "heavy" }, solar: { x: 354, y: 15, size: 20, a: "r", f: "heavy" }, solarS: { x: 160, y: 22, size: 14, a: "r", f: "heavy" } }
@@ -4240,30 +4248,37 @@ const PRESETS = {
       ['Stay On The Path, Mostly', 'RANGER STATION'], ['Mushrooms Are The Internet', 'SOIL SURVEY'], ['Sit. Wait. The Deer Will Come.', 'FIELD NOTES'], ['Pick Up Three Things', 'TRAIL CREW']]
   },
   odds: {
-    id: 'odds', title: 'Long Odds', blurb: 'A prediction market for your whole life. YES and NO prices, candlesticks, an order book and a ticker that never stops.',
+    id: 'odds', title: 'Long Odds', blurb: 'A prediction market on steroids. Neon YES and NO, 100x leverage, whale alerts, live bets and a countdown on everything.',
     company: 'Long Odds Exchange', unit: 'MKT-77',
-    colors: { ground: '#F3F6FB', ink: '#0E1A2B', accent: '#2F6BFF', glow: '#00A87E', panel: '#FFFFFF', alert: '#E8384F' },
-    fonts: { display: 'Space Grotesk', mono: 'JetBrains Mono' },
-    motif: 'market', texture: 'dots', marks: 'none', iconStyle: 'contract', glyphs: 'market', units: 'fahrenheit', upper: false,
-    phrases: [['Will You', 'Get Up Today?'], ['Price In', 'The Weekend'], ['Buy The', 'Rumor'], ['Bet On', 'Yourself']],
-    text: { tagL: 'LONG ODDS EXCHANGE · MKT-77', tagR: 'MARKET OPEN', sub: 'Odds are, you will be fine.', foot: 'LONG ODDS // MARKETS NEVER SLEEP', homeTop: 'ORDER BOOK · LIVE', caption: 'Spread your bets.' },
-    codes: { camera: 'WATCH', photos: 'CHART', maps: 'ROUTE', calendar: 'EXPIRY', phone: 'BROKER', messages: 'TIPS', browser: 'MARKET', music: 'TAPE', youtube: 'REPLAY', instagram: 'HYPE', discord: 'FLOOR' },
+    colors: { ground: '#06070B', ink: '#F2F4F8', accent: '#8B5CF6', glow: '#00FF88', panel: '#10121A', alert: '#FF2D55' },
+    fonts: { display: 'Archivo', mono: 'JetBrains Mono' },
+    motif: 'market', texture: 'scan', marks: 'none', iconStyle: 'contract', glyphs: 'market', units: 'fahrenheit', upper: true,
+    phrases: [['Ape Into', 'Today'], ['Will You', 'Get Up Today?'], ['Max Leverage', 'On Coffee'], ['All In On', 'Yourself']],
+    text: { tagL: 'LONG ODDS // DEGEN EXCHANGE', tagR: 'LIVE', sub: 'Not financial advice. Barely advice.', foot: 'LONG ODDS // 24/7/365 // NO BRAKES', homeTop: 'WHALES ARE MOVING', caption: 'Bet small. Dream huge.' },
+    codes: { camera: 'SCOUT', photos: 'PNL', maps: 'ROUTE', calendar: 'EXPIRY', phone: 'WHALE', messages: 'ALPHA', browser: 'MARKETS', music: 'PUMP', youtube: 'REPLAY', instagram: 'HYPE', discord: 'PIT' },
     widget: {
-      scriptFont: 'AvenirNext-DemiBold', txGraphic: 'sync', archive: true, oddity: 'bet', C: {
-        solar: { label: 'DAYLIGHT FUTURES', offline: 'Market Halted', day: 'DAYLIGHT REMAINING', night: 'AFTER HOURS', setIn: 'CLOSE IN', riseIn: 'OPEN IN' },
-        audio: { right: 'MARKET RADIO', src: 'TAPE // YT MUSIC', metric: 'MOMENTUM', tap: 'TAP TO TRADE TO MUSIC · ', foot: 'NOT FINANCIAL ADVICE',
-          lines: ['Beats For Bull Runs', 'Lo-Fi For Bear Markets', 'Volatility, But Chill', 'Music To Hedge To', 'Closing Bell Classics', 'Green Candles Only'] },
-        feeds: { right: 'TWO MARKETS', trace: 'SENTIMENT // LIVE', tap: 'TAP A MARKET TO TRADE · ', foot: 'EVERY OPINION HAS A PRICE', linked: 'LISTED', status: 'ORDER BOOK // LIVE', rate: 'VOLUME',
-          yt: { line: 'The Watchlist', meters: ['HYPE', 'CONVICTION', 'FOCUS'], tag: 'YES 64¢ · NO 36¢', queue: '∞ MARKETS', u1: 'MIN', u2: 'TIER', kv: ['QUEUE', 'TIME WATCHED', 'TIER'], curve: 'ATTENTION // SESSION', curveR: 'PRICE DISCOVERED', foot: 'WATCH. PRICE. REPEAT.' },
-          ig: { line: 'Sentiment', meters: ['ENVY', 'HYPE', 'DOUBT'], tag: 'BULLISH ON YOU', kv: ['POSTS PRICED', 'BULLISH', 'BEARISH'], curve: 'SENTIMENT // 24H', curveR: 'PEAK AT NOON', foot: 'SCROLL. PRICE. SCROLL.' } }
+      scriptFont: 'AvenirNext-Heavy', txGraphic: 'sync', archive: true, oddity: 'bet', C: {
+        solar: { label: 'DAYLIGHT PERPS', offline: 'Market Halted', day: 'DAYLIGHT · LONG 50X', night: 'AFTER HOURS · SHORT', setIn: 'LIQUIDATES IN', riseIn: 'MARKET OPENS IN' },
+        audio: { right: 'DEGEN RADIO', src: 'PUMP // YT MUSIC', metric: 'HYPE', tap: 'TAP TO APE IN · ', foot: 'TURN IT UP. SIZE IT DOWN.',
+          lines: ['Bangers For Bull Runs', 'Music To Get Liquidated To', 'Green Candles, Loud Bass', 'The 100x Playlist', 'Whale Songs (Literal)', 'Pump It, Then Hedge It'] },
+        feeds: { right: 'TWO PUMPS', trace: 'HYPE // LIVE', tap: 'TAP TO APE IN · ', foot: 'EVERYTHING IS A MARKET', linked: 'APED', status: 'ORDER BOOK // MELTING', rate: 'VOLUME',
+          yt: { line: 'Watch & Bet', meters: ['HYPE', 'FOMO', 'FOCUS'], tag: '▲ PUMPING +34%', queue: '∞ MARKETS', u1: 'MIN', u2: 'X', kv: ['QUEUE', 'TIME WATCHED', 'LEVERAGE'], curve: 'HYPE // SESSION', curveR: 'TO THE MOON', foot: 'WATCH. BET. REPEAT.' },
+          ig: { line: 'Hype Index', meters: ['FOMO', 'HYPE', 'COPE'], tag: '▼ DUMPING -12%', kv: ['POSTS PRICED', 'MOONING', 'REKT'], curve: 'HYPE // 24H', curveR: 'PEAK AT 3AM', foot: 'SCROLL. BET. SCROLL.' } }
       },
-      L: { vid: 'W-06 // THE WATCHLIST', obs: 'W-07 // SENTIMENT', dc: 'W-09 // TRADING FLOOR', solar: 'W-03 // DAYLIGHT FUTURES', solarBig: 'W-03 // DAYLIGHT FUTURES + WEATHER', audio: 'W-04 // MARKET RADIO', feeds: 'W-06 // TWO MARKETS',
-        status: 'W-01 // YOUR DAY, PRICED', next: 'NEXT CONTRACT', none: 'No Open Positions', noneSub: 'FLAT AND HAPPY', ext: 'WEATHER',
-        dur: 'TERM', state: 'STATE', feels: 'FEELS LIKE', hilo: 'HI / LO', active: 'LIVE', queued: 'LISTED', standby: 'FLAT',
-        cell: 'BATTERY', cycle: 'SESSION', shift: 'W-02 // SETTLES', activeLong: 'TRADING', offTitle: 'Market Closed', tx: 'W-05 // ANALYST NOTE' },
-      classes: ['BUY', 'HOLD', 'STRONG BUY', 'SPECULATIVE'], archiveList: []
+      L: { vid: 'W-06 // WATCH & BET', obs: 'W-07 // HYPE INDEX', dc: 'W-09 // THE PIT', solar: 'W-03 // DAYLIGHT PERPS', solarBig: 'W-03 // DAYLIGHT PERPS + WEATHER', audio: 'W-04 // DEGEN RADIO', feeds: 'W-06 // TWO PUMPS',
+        status: 'W-01 // LIFE, LEVERAGED', next: 'NEXT POSITION', none: 'No Open Positions', noneSub: 'FLAT. FOR NOW.', ext: 'WEATHER',
+        dur: 'TERM', state: 'STATE', feels: 'FEELS LIKE', hilo: 'HI / LO', active: 'LIVE', queued: 'OPEN', standby: 'FLAT',
+        cell: 'BATTERY', cycle: 'SESSION', shift: 'W-02 // RESOLVES', activeLong: 'LIVE', offTitle: 'Market Closed', tx: 'W-05 // HOT TAKE' },
+      classes: ['HOT TAKE', 'WHALE ALERT', 'LOCK OF THE DAY', 'ALPHA LEAK'], archiveList: []
     },
-    slogans: []
+    slogans: [['Ape In, Think Later', 'DEGEN DESK'], ['Fortune Favors The Leveraged', 'RISK OFFICE (UNSTAFFED)'], ['Liquidation Is Just A Plot Twist', 'CLEARING HOUSE'], ['Every Coin Flip Is A Market', 'MARKET MAKING'],
+      ['Sleep Is For Flat Positions', 'NIGHT DESK'], ['100x Or Go Home', 'LEVERAGE DEPT'], ['The Whales Are Hungry', 'WHALE WATCH'], ['Your Gut Is A Data Feed', 'QUANT DESK'],
+      ['Buy The Rumor. Sell The Nap.', 'TRADING FLOOR'], ['Odds Are Just Vibes With Decimals', 'RESEARCH'], ['Not Financial Advice. Barely Advice.', 'COMPLIANCE'], ['Diamond Hands, Paper Plans', 'STRATEGY'],
+      ['Number Go Up', 'MARKETING'], ['There Is Always A Bigger Whale', 'WHALE WATCH'], ['The House Always Watches', 'SURVEILLANCE'], ['Resolve Fast, Regret Faster', 'CLEARING HOUSE'],
+      ['LFG (Statistically)', 'MORALE'], ['Every Morning Is A Market Open', 'NIGHT DESK'], ['Copium Is Not A Hedge', 'RISK OFFICE (UNSTAFFED)'], ['Bet Small. Dream Huge.', 'COMPLIANCE'],
+      ['Your Alarm Clock Has Odds', 'FORECASTING'], ['Green Candles Are A Love Language', 'MARKETING'], ['Exit Liquidity Is A Personality', 'TRADING FLOOR'], ['The Spread Never Sleeps', 'MARKET MAKING'],
+      ['Long Coffee, Short Meetings', 'STRATEGY'], ['Rekt Is A Rite Of Passage', 'MORALE'], ['Price It Or It Didn\'t Happen', 'RESEARCH'], ['Max Pain, Max Gain', 'LEVERAGE DEPT'],
+      ['Moon Or Bust (Mostly Bust)', 'FORECASTING'], ['Hedge Your Hedges', 'RISK OFFICE (UNSTAFFED)']]
   }
 };
 
@@ -4283,11 +4298,11 @@ const DEVICES = [
 
 const VARIANTS = {
   odds: [
-    { name: 'Daylight Desk', colors: {}, seed: 0 },
-    { name: 'Night Session', colors: { ground: '#0B1220', ink: '#E8EEF8', panel: '#121B2E', accent: '#4F86FF' }, seed: 1 },
-    { name: 'Bull Run', colors: { accent: '#00A87E', glow: '#00A87E' }, seed: 2 },
-    { name: 'Bear Mode', colors: { ground: '#FBF3F4', accent: '#E8384F' }, seed: 3 },
-    { name: 'Gold Futures', colors: { ground: '#14110A', ink: '#F5EBD2', panel: '#1E1A10', accent: '#D9A92E', glow: '#53C28B', alert: '#E2574C' }, seed: 4 }
+    { name: 'Degen Night', colors: {}, seed: 0 },
+    { name: 'Pump Green', colors: { accent: '#00FF88', glow: '#00FF88', ground: '#030A06', panel: '#0A1610' }, seed: 1, knobs: { glow: 1.3 } },
+    { name: 'Rekt Red', colors: { accent: '#FF2D55', ground: '#0B0406', panel: '#180A0E' }, seed: 2 },
+    { name: 'Whale Gold', colors: { ground: '#0C0A05', ink: '#FFF4D6', accent: '#FFC94A', panel: '#18140A' }, seed: 3 },
+    { name: 'Daylight Desk', colors: { ground: '#F3F6FB', ink: '#0E1A2B', accent: '#2F6BFF', glow: '#00A87E', panel: '#FFFFFF', alert: '#E8384F' }, seed: 4 }
   ],
   neon: [
     { name: 'Hot Pink', colors: {}, seed: 0 },
@@ -5588,56 +5603,100 @@ const QUOTE_PACKS = {
 "odds": {
 "slogans": [
 [
-"Price In The Weekend",
-"SENTIMENT DESK"
+"Sleep Is For People With Stop Losses",
+"NIGHT DESK"
 ],
 [
-"Buy The Rumor, Sell The Nap",
-"TRADING FLOOR"
+"40x Leverage, 0x Regrets",
+"HYPE DEPARTMENT"
 ],
 [
-"Every Opinion Has A Price",
-"MARKET MAKING"
+"Whales Eat First",
+"WHALE WATCH"
 ],
 [
-"Certainty Is Out Of Stock",
-"RISK OFFICE"
+"Double Or Nothing Is A Personality",
+"HYPE DEPARTMENT"
 ],
 [
-"The Crowd Is Usually Right, Eventually",
-"RESEARCH"
+"The Odds Are Moving. Are You?",
+"LIVE DESK"
 ],
 [
-"Hedge Your Breakfast",
-"RISK OFFICE"
+"Fade The Crowd, Then Join It",
+"STRATEGY"
 ],
 [
-"Volatility Is Just Excitement",
-"TRADING FLOOR"
-],
-[
-"Your Gut Has A Spread",
-"QUANT DESK"
-],
-[
-"Odds Are, You're Fine",
-"WELLNESS DESK"
-],
-[
-"Fortune Favors The Liquid",
-"TREASURY"
-],
-[
-"Never Bet Against Coffee",
-"RESEARCH"
-],
-[
-"Settlement Is A Mood",
+"Every Minute Is Resolution Day",
 "CLEARING HOUSE"
 ],
 [
-"The Market Can Stay Silly",
-"RISK OFFICE"
+"Long Shots Are Short Stories",
+"LONGSHOT DESK"
+],
+[
+"Your Confidence Is Overpriced",
+"QUANT DESK"
+],
+[
+"Cash Out Before The Victory Lap",
+"RISK OFFICE (UNSTAFFED)"
+],
+[
+"Bet The House (Metaphorically)",
+"COMPLIANCE"
+],
+[
+"Chart Says Up. Vibes Say Up.",
+"TECHNICAL ANALYSIS"
+],
+[
+"Ape In Gently",
+"RISK OFFICE (UNSTAFFED)"
+],
+[
+"Someone Just Bought YES. Stay Calm.",
+"LIVE DESK"
+],
+[
+"Odds Swinging. Hold Your Coffee.",
+"LIVE DESK"
+],
+[
+"Liquidity Is A Love Language",
+"TREASURY"
+],
+[
+"Every Dip Is A Discount",
+"TRADING FLOOR"
+],
+[
+"It Is Not Gambling If You Made A Chart",
+"TECHNICAL ANALYSIS"
+],
+[
+"Max Bet On Breakfast",
+"HYPE DEPARTMENT"
+],
+[
+"Hindsight Trades At 100¢",
+"RESEARCH"
+],
+[
+"Your Horoscope Is Now A Derivative",
+"EXOTICS DESK"
+],
+[
+"The Longshot Called. It Wants You.",
+"LONGSHOT DESK"
+],
+[
+"Probability Is Just Spicy Common Sense",
+"QUANT DESK"
+],
+[
+"We Price Everything. Even This.",
+"MARKET MAKING"
 ],
 [
 "YES Is A Lifestyle",
@@ -5648,64 +5707,20 @@ const QUOTE_PACKS = {
 "COMPLIANCE"
 ],
 [
-"Today: 62% Chance Of Greatness",
-"FORECASTING"
-],
-[
-"Position Sizing Is Self Care",
-"RISK OFFICE"
-],
-[
-"Long Optimism, Short Drama",
-"STRATEGY"
-],
-[
-"Hindsight Trades At 100¢",
-"RESEARCH"
-],
-[
-"Every Rumor Wants A Price",
-"SENTIMENT DESK"
-],
-[
-"Calibrate, Don't Speculate",
-"QUANT DESK"
-],
-[
-"Loss Aversion Is Expensive",
-"BEHAVIORAL DESK"
-],
-[
-"The Spread Is Where Dreams Live",
+"Somebody Has To Take The Other Side",
 "MARKET MAKING"
 ],
 [
-"Resolve Ambiguity Before Breakfast",
-"CLEARING HOUSE"
-],
-[
-"Bet On Yourself (Max 5%)",
-"RISK OFFICE"
-],
-[
-"Trust The Order Book",
+"Volatility Is Just Excitement",
 "TRADING FLOOR"
 ],
 [
-"Uncertainty Is A Feature",
+"Never Bet Against Coffee",
 "RESEARCH"
-],
-[
-"Every Day Is Expiry Day",
-"CLEARING HOUSE"
 ],
 [
 "Buy Low, Explain Later",
 "TRADING FLOOR"
-],
-[
-"Forecasts Age Like Milk",
-"FORECASTING"
 ]
 ],
 "archive": [
@@ -7954,54 +7969,79 @@ function mkBook(ctx, th, r, x, y, w, rows, side) {
     const price = side === 'bid' ? 61 - i : 63 + i; spaced(ctx, `${price}¢`, side === 'bid' ? x + w - 4 : x + 4, yy + 9, 7.5, mono, 500, 0, side === 'bid' ? 'right' : 'left', col); spaced(ctx, String(Math.floor(200 + r() * 9800)), side === 'bid' ? x + 4 : x + w - 4, yy + 9, 7, mono, 400, 0, side === 'bid' ? 'left' : 'right', hexA(c.ink, 0.6)); }
 }
 function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
-  const c = th.colors, T = th.text, mono = th.fonts.mono, disp = th.fonts.display, dw = dispWeight(disp), k = K(th), r = rng(seedOf(th, 709 + (mode === 'home' ? 9 : 0) + phraseIdx * 3)), NO = c.alert || '#E8384F'
+  const c = th.colors, T = th.text, mono = th.fonts.mono, disp = th.fonts.display, dw = dispWeight(disp), k = K(th), r = rng(seedOf(th, 709 + (mode === 'home' ? 9 : 0) + phraseIdx * 3)), NO = c.alert || '#FF2D55', YES = c.glow, V = c.accent
+  const dark = luminance(c.ground) < 0.4
   ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 390, Hl)
-  ctx.strokeStyle = hexA(c.ink, 0.05 * k.texture); ctx.lineWidth = 1; for (let x = 0; x < 390; x += 26) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, Hl); ctx.stroke(); } for (let y = 0; y < Hl; y += 26) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(390, y); ctx.stroke(); }
-  const tick = ['RAIN TMRW 37¢ ▼2', 'ON TIME 81¢ ▲4', 'NAP TODAY 58¢ ▲9', 'GYM 12¢ ▼6', 'COFFEE #3 91¢ ▲1', 'REPLY BY 5PM 44¢ ▼3']
-  const ty = mode === 'lock' ? Hl - 66 : 676; ctx.fillStyle = hexA(c.ink, 0.92); ctx.fillRect(0, ty, 390, 22); spaced(ctx, tick.join('   ·   '), 12, ty + 15, 8, mono, 500, 0.02, 'left', c.panel)
+  const rg = ctx.createRadialGradient(195, 180, 20, 195, 180, 420); rg.addColorStop(0, hexA(V, 0.28 * k.glow)); rg.addColorStop(1, hexA(V, 0)); ctx.fillStyle = rg; ctx.fillRect(0, 0, 390, Hl)
+  const rg2 = ctx.createRadialGradient(80, Hl * 0.75, 10, 80, Hl * 0.75, 300); rg2.addColorStop(0, hexA(YES, 0.12 * k.glow)); rg2.addColorStop(1, hexA(YES, 0)); ctx.fillStyle = rg2; ctx.fillRect(0, 0, 390, Hl)
+  ctx.fillStyle = hexA(c.ink, 0.035 * k.texture); for (let y = 0; y < Hl; y += 3) ctx.fillRect(0, y, 390, 1)
+  for (let i = 0; i < 70; i++) { ctx.fillStyle = hexA([YES, V, NO, '#FFD84A'][i % 4], 0.35 + r() * 0.5); const x = r() * 390, y = r() * Hl, w = 2 + r() * 3; ctx.save(); ctx.translate(x, y); ctx.rotate(r() * 3); ctx.fillRect(-w / 2, -1, w, 2); ctx.restore() }
+  const glowText = (str, x, y, size, col, align, fam, wt) => { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = 14 * k.glow; spaced(ctx, str, x, y, size, fam || disp, wt || dw, 0, align || 'center', col); ctx.restore() }
+  const tick = ['RAIN TMRW 37¢ ▼2', 'ON TIME 81¢ ▲34', 'NAP TODAY 58¢ ▲9', 'GYM 12¢ ▼46', 'COFFEE #3 99¢ ▲1', 'REPLY BY 5PM 44¢ ▼3', 'WHALE BUYS YES $250K']
+  const ty = mode === 'lock' ? Hl - 66 : 676; ctx.fillStyle = hexA(V, 0.9); ctx.fillRect(0, ty, 390, 22); spaced(ctx, tick.join('   ★   '), 12, ty + 15, 8.5, mono, 600, 0.02, 'left', '#FFFFFF')
+  const lev = ['1X', '5X', '25X', '100X']
   if (mode === 'lock') {
-    const probs = [81, 64, 57, 99], prob = probs[phraseIdx % 4]
-    if (k.details) { spaced(ctx, T.tagL || '', 24, 234, 7.5, mono, 500, 0.12, 'left', hexA(c.ink, 0.65)); ctx.fillStyle = c.glow; ctx.beginPath(); ctx.arc(290, 231, 3.5, 0, Math.PI * 2); ctx.fill(); spaced(ctx, T.tagR || 'MARKET OPEN', 366, 234, 7.5, mono, 500, 0.12, 'right', c.glow) }
-    centerXform(ctx, th, 195, 380, () => {
-      const cx0 = 26, cy0 = 252, cw = 338, ch = 236
-      ctx.save(); ctx.shadowColor = hexA(c.ink, 0.12); ctx.shadowBlur = 24; ctx.shadowOffsetY = 6; ctx.fillStyle = c.panel; ctx.beginPath(); ctx.roundRect(cx0, cy0, cw, ch, 18); ctx.fill(); ctx.restore()
-      ctx.strokeStyle = hexA(c.ink, 0.1); ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(cx0, cy0, cw, ch, 18); ctx.stroke()
-      spaced(ctx, `MARKET #${String(1000 + phraseIdx * 37)} · RESOLVES TONIGHT`, cx0 + 18, cy0 + 24, 7.5, mono, 500, 0.08, 'left', hexA(c.ink, 0.55))
-      const gx = cx0 + cw - 56, gy = cy0 + 74; ctx.lineWidth = 9; ctx.strokeStyle = hexA(NO, 0.25); ctx.beginPath(); ctx.arc(gx, gy, 32, Math.PI, Math.PI * 2); ctx.stroke(); ctx.strokeStyle = c.glow; ctx.beginPath(); ctx.arc(gx, gy, 32, Math.PI, Math.PI + Math.PI * prob / 100); ctx.stroke()
-      spaced(ctx, `${prob}%`, gx, gy - 4, 18, disp, 700, 0, 'center', c.ink); spaced(ctx, 'CHANCE', gx, gy + 10, 6.5, mono, 500, 0.1, 'center', hexA(c.ink, 0.55))
-      const ph = th.phrases[phraseIdx % th.phrases.length]
-      const fs = Math.min(34, 34 * 220 / Math.max(1, measureSpaced(ctx, ph[0].length > ph[1].length ? ph[0] : ph[1], 34, disp, dw, 0)))
-      spaced(ctx, ph[0], cx0 + 18, cy0 + 62, fs, disp, dw, 0, 'left', c.ink); spaced(ctx, ph[1], cx0 + 18, cy0 + 62 + fs * 1.08, fs, disp, dw, 0, 'left', c.ink)
-      const by = cy0 + 128, bw = (cw - 48) / 2
-      ctx.fillStyle = hexA(c.glow, 0.14); ctx.beginPath(); ctx.roundRect(cx0 + 18, by, bw, 38, 10); ctx.fill(); spaced(ctx, `YES  ${prob}¢`, cx0 + 18 + bw / 2, by + 24, 15, disp, 700, 0, 'center', c.glow)
-      ctx.fillStyle = hexA(NO, 0.12); ctx.beginPath(); ctx.roundRect(cx0 + 30 + bw, by, bw, 38, 10); ctx.fill(); spaced(ctx, `NO  ${100 - prob}¢`, cx0 + 30 + bw * 1.5, by + 24, 15, disp, 700, 0, 'center', NO)
-      mkCandles(ctx, th, r, cx0 + 18, cy0 + 178, cw - 36, 44, 30, prob > 60 ? 0.06 : -0.02)
-      spaced(ctx, `VOL $${(20 + r() * 900).toFixed(0)}K · ${Math.floor(200 + r() * 3000)} TRADERS`, cx0 + cw - 18, cy0 + 24, 7, mono, 500, 0.06, 'right', hexA(c.ink, 0.45))
+    const probs = [93, 81, 67, 99], prob = probs[phraseIdx % 4], pump = [34, 12, 58, 210][phraseIdx % 4]
+    if (k.details) {
+      ctx.fillStyle = NO; ctx.beginPath(); ctx.arc(30, 224, 4, 0, Math.PI * 2); ctx.fill(); spaced(ctx, T.tagR || 'LIVE', 40, 228, 8, mono, 700, 0.14, 'left', NO); spaced(ctx, T.tagL || '', 366, 228, 7.5, mono, 500, 0.12, 'right', hexA(c.ink, 0.6))
+      const wg = ctx.createLinearGradient(0, 0, 390, 0); wg.addColorStop(0, hexA(V, 0.95)); wg.addColorStop(1, hexA(NO, 0.85)); ctx.fillStyle = wg; ctx.fillRect(0, 238, 390, 20); spaced(ctx, `WHALE ALERT  ·  @moby_${10 + phraseIdx} BET $${[250, 90, 420, 1200][phraseIdx % 4]}K ON YES  ·  ${[3, 7, 2, 1][phraseIdx % 4]}S AGO`, 195, 252, 8, mono, 700, 0.06, 'center', '#FFFFFF')
+    }
+    centerXform(ctx, th, 195, 400, () => {
+      const cx0 = 18, cy0 = 270, cw = 354, ch = 262
+      ctx.save(); ctx.shadowColor = V; ctx.shadowBlur = 26 * k.glow; ctx.fillStyle = c.panel; ctx.beginPath(); ctx.roundRect(cx0, cy0, cw, ch, 18); ctx.fill(); ctx.restore()
+      ctx.strokeStyle = hexA(V, 0.9); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect(cx0, cy0, cw, ch, 18); ctx.stroke()
+      spaced(ctx, `MARKET #${String(1000 + phraseIdx * 37)}`, cx0 + 16, cy0 + 22, 7.5, mono, 600, 0.08, 'left', hexA(c.ink, 0.55))
+      ctx.fillStyle = hexA(NO, 0.18); ctx.beginPath(); ctx.roundRect(cx0 + 110, cy0 + 11, 70, 15, 7); ctx.fill(); spaced(ctx, 'HOT  ' + '▲'.repeat(3), cx0 + 145, cy0 + 22, 7, mono, 700, 0.06, 'center', NO)
+      spaced(ctx, `RESOLVES IN ${String(1 + phraseIdx).padStart(2, '0')}:${String(12 + phraseIdx * 7).padStart(2, '0')}:09`, cx0 + cw - 16, cy0 + 22, 7.5, mono, 700, 0.06, 'right', '#FFD84A')
+      const ph = th.phrases[phraseIdx % th.phrases.length], l1 = th.upper ? ph[0].toUpperCase() : ph[0], l2 = th.upper ? ph[1].toUpperCase() : ph[1]
+      const fs = Math.min(32, 32 * 200 / Math.max(1, measureSpaced(ctx, l1.length > l2.length ? l1 : l2, 32, disp, dw, 0)))
+      spaced(ctx, l1, cx0 + 16, cy0 + 58, fs, disp, dw, 0, 'left', c.ink); spaced(ctx, l2, cx0 + 16, cy0 + 58 + fs * 1.05, fs, disp, dw, 0, 'left', c.ink)
+      glowText(`${prob}%`, cx0 + cw - 18, cy0 + 70, 40, YES, 'right'); spaced(ctx, `▲ +${pump}% · 1H`, cx0 + cw - 18, cy0 + 88, 8, mono, 700, 0.04, 'right', YES)
+      const ly = cy0 + 116; lev.forEach((l, i) => { const x = cx0 + 16 + i * 52, on = i === 3; ctx.fillStyle = on ? hexA(V, 0.9) : hexA(c.ink, 0.08); ctx.beginPath(); ctx.roundRect(x, ly, 46, 20, 10); ctx.fill(); if (on) { ctx.save(); ctx.shadowColor = V; ctx.shadowBlur = 12; ctx.fill(); ctx.restore() } spaced(ctx, l, x + 23, ly + 14, 8.5, mono, 700, 0, 'center', on ? '#FFFFFF' : hexA(c.ink, 0.6)) })
+      spaced(ctx, 'LEVERAGE', cx0 + 230, ly + 14, 7, mono, 600, 0.12, 'left', hexA(c.ink, 0.5))
+      const by = cy0 + 146, bw = (cw - 44) / 2
+      ctx.save(); ctx.shadowColor = YES; ctx.shadowBlur = 16 * k.glow; ctx.fillStyle = hexA(YES, 0.2); ctx.beginPath(); ctx.roundRect(cx0 + 16, by, bw, 40, 10); ctx.fill(); ctx.restore(); ctx.strokeStyle = YES; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect(cx0 + 16, by, bw, 40, 10); ctx.stroke(); spaced(ctx, `YES ${prob}¢`, cx0 + 16 + bw / 2, by + 26, 16, disp, 800, 0, 'center', YES)
+      ctx.fillStyle = hexA(NO, 0.15); ctx.beginPath(); ctx.roundRect(cx0 + 28 + bw, by, bw, 40, 10); ctx.fill(); ctx.strokeStyle = hexA(NO, 0.8); ctx.beginPath(); ctx.roundRect(cx0 + 28 + bw, by, bw, 40, 10); ctx.stroke(); spaced(ctx, `NO ${100 - prob}¢`, cx0 + 28 + bw * 1.5, by + 26, 16, disp, 800, 0, 'center', NO)
+      spaced(ctx, 'PAYOUT IF YES', cx0 + 16, by + 62, 7.5, mono, 600, 0.1, 'left', hexA(c.ink, 0.55)); glowText(`$${(4200 * (phraseIdx + 1)).toLocaleString('en-US')}.00`, cx0 + 16, by + 86, 22, YES, 'left')
+      let v = 0.2; const pts = []; for (let i = 0; i <= 40; i++) { v = Math.max(0.05, Math.min(0.98, v + (r() - 0.32) * 0.09)); pts.push([cx0 + 180 + i * 4.1, by + 92 - v * 40]) }
+      ctx.save(); ctx.strokeStyle = YES; ctx.lineWidth = 2; ctx.shadowColor = YES; ctx.shadowBlur = 10 * k.glow; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.restore()
+      ctx.fillStyle = hexA(YES, 0.12); ctx.beginPath(); ctx.moveTo(pts[0][0], by + 96); pts.forEach(([x, y]) => ctx.lineTo(x, y)); ctx.lineTo(pts[pts.length - 1][0], by + 96); ctx.closePath(); ctx.fill()
     })
-    if (k.details) { spaced(ctx, 'BIDS', 26, 512, 7, mono, 500, 0.12, 'left', c.glow); spaced(ctx, 'ASKS', 364, 512, 7, mono, 500, 0.12, 'right', NO); mkBook(ctx, th, r, 26, 518, 160, 4, 'bid'); mkBook(ctx, th, r, 204, 518, 160, 4, 'ask') }
-    spaced(ctx, T.sub || '', 195, 612, 12, disp, 500, 0, 'center', hexA(c.ink, 0.75))
-    if (k.details) spaced(ctx, T.foot || '', 195, Hl - 82, 7, mono, 500, 0.18, 'center', hexA(c.ink, 0.55))
+    if (k.details) {
+      const bets = [['@degen_42', '$1,200', 'YES', '25X', YES], ['@paperhands', '$40', 'NO', '1X', NO], ['@moonboi', '$9,999', 'YES', '100X', YES], ['@rekt_again', '$300', 'NO', '50X', NO]]
+      spaced(ctx, 'LIVE BETS', 22, 556, 7.5, mono, 700, 0.12, 'left', V)
+      bets.forEach(([u, amt, side, l, col], i) => { const y = 572 + i * 16; spaced(ctx, u, 22, y, 8, mono, 500, 0, 'left', hexA(c.ink, 0.75)); spaced(ctx, amt, 170, y, 8, mono, 700, 0, 'left', c.ink); spaced(ctx, side, 236, y, 8, mono, 800, 0, 'left', col); spaced(ctx, l, 280, y, 8, mono, 700, 0, 'left', V); spaced(ctx, `${1 + i * 3}s`, 368, y, 7.5, mono, 500, 0, 'right', hexA(c.ink, 0.45)) })
+    }
+    spaced(ctx, T.sub || '', 195, 652, 9, mono, 600, 0.06, 'center', hexA(c.ink, 0.6))
+    if (k.details) spaced(ctx, T.foot || '', 195, Hl - 82, 7, mono, 600, 0.18, 'center', hexA(c.ink, 0.5))
   } else {
     centerXform(ctx, th, 195, 430, () => {
-      const y0 = 300, h = 230, mid = 195
-      const bid = [], ask = []; let a = 0, b2 = 0; for (let i = 0; i <= 20; i++) { a += 3 + r() * 9; bid.push([mid - 8 - i * 8.4, y0 + h - a]); b2 += 3 + r() * 9; ask.push([mid + 8 + i * 8.4, y0 + h - b2]) }
-      const area = (pts, col) => { ctx.fillStyle = hexA(col, 0.18); ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(pts[0][0], y0 + h); pts.forEach(([x, y]) => ctx.lineTo(x, y)); ctx.lineTo(pts[pts.length - 1][0], y0 + h); ctx.closePath(); ctx.fill(); ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke() }
-      area(bid, c.glow); area(ask, NO); ctx.strokeStyle = hexA(c.ink, 0.3); ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(mid, y0 - 10); ctx.lineTo(mid, y0 + h); ctx.stroke(); ctx.setLineDash([])
-      spaced(ctx, '62¢', mid, y0 - 16, 16, disp, 700, 0, 'center', c.ink)
-      ;[[60, 330, 'NAP TODAY?', 58], [250, 290, 'RAIN?', 37], [150, 560, 'ON TIME?', 81]].forEach(([x, y, q, pr]) => { ctx.save(); ctx.shadowColor = hexA(c.ink, 0.12); ctx.shadowBlur = 12; ctx.fillStyle = c.panel; ctx.beginPath(); ctx.roundRect(x, y, 96, 46, 10); ctx.fill(); ctx.restore(); spaced(ctx, q, x + 10, y + 17, 9, disp, 600, 0, 'left', c.ink); ctx.fillStyle = hexA(c.glow, 0.15); ctx.fillRect(x + 10, y + 25, 76 * pr / 100, 10); ctx.fillStyle = hexA(NO, 0.15); ctx.fillRect(x + 10 + 76 * pr / 100, y + 25, 76 * (1 - pr / 100), 10); spaced(ctx, `${pr}¢`, x + 12, y + 33.5, 7, mono, 600, 0, 'left', c.glow) })
+      const rx = 70, ry = 286, rw = 250, rh = 74
+      ctx.save(); ctx.shadowColor = V; ctx.shadowBlur = 22 * k.glow; ctx.fillStyle = c.panel; ctx.beginPath(); ctx.roundRect(rx, ry, rw, rh, 14); ctx.fill(); ctx.restore(); ctx.strokeStyle = V; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(rx, ry, rw, rh, 14); ctx.stroke()
+      for (let i = 0; i < 3; i++) { const x = rx + 12 + i * 78; ctx.fillStyle = hexA(c.ink, dark ? 0.06 : 0.04); ctx.fillRect(x, ry + 12, 70, rh - 24); glowText('YES', x + 35, ry + 47, 20, YES) }
+      spaced(ctx, 'JACKPOT', 195, ry - 10, 11, mono, 800, 0.3, 'center', '#FFD84A')
+      const y0 = 400, h = 150, mid = 195, bid = [], ask = []; let a = 0, b2 = 0
+      for (let i = 0; i <= 20; i++) { a += 2 + r() * 7; bid.push([mid - 8 - i * 8.4, y0 + h - a]); b2 += 2 + r() * 7; ask.push([mid + 8 + i * 8.4, y0 + h - b2]) }
+      const area = (pts, col) => { ctx.fillStyle = hexA(col, 0.2); ctx.beginPath(); ctx.moveTo(pts[0][0], y0 + h); pts.forEach(([x, y]) => ctx.lineTo(x, y)); ctx.lineTo(pts[pts.length - 1][0], y0 + h); ctx.closePath(); ctx.fill(); ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.shadowColor = col; ctx.shadowBlur = 10 * k.glow; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.restore() }
+      area(bid, YES); area(ask, NO); glowText('62¢', mid, y0 - 8, 16, c.ink)
+      ctx.save(); ctx.translate(285, 520); ctx.rotate(-0.22); ctx.strokeStyle = NO; ctx.lineWidth = 2.5; ctx.strokeRect(-56, -16, 112, 30); spaced(ctx, 'LIQUIDATED', 0, 5, 14, mono, 800, 0.1, 'center', NO); ctx.restore()
     })
-    if (k.details) spaced(ctx, T.homeTop || '', 195, 236, 8, mono, 500, 0.2, 'center', hexA(c.ink, 0.55))
-    spaced(ctx, T.caption || '', 195, 640, 12, disp, 500, 0, 'center', hexA(c.ink, 0.75))
+    if (k.details) spaced(ctx, T.homeTop || '', 195, 236, 8, mono, 700, 0.2, 'center', V)
+    spaced(ctx, T.caption || '', 195, 640, 11, mono, 600, 0.08, 'center', hexA(c.ink, 0.75))
   }
 }
 function drawContractIcon(ctx, th, glyph, num, code) {
-  const c = th.colors, NO = c.alert || '#E8384F'; ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 1024, 1024)
-  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.12)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 12; ctx.fillStyle = c.panel; ctx.beginPath(); ctx.roundRect(120, 120, 784, 784, 110); ctx.fill(); ctx.restore()
-  ctx.save(); ctx.beginPath(); ctx.roundRect(120, 120, 784, 784, 110); ctx.clip(); ctx.fillStyle = c.glow; ctx.fillRect(120, 120, 470, 44); ctx.fillStyle = NO; ctx.fillRect(590, 120, 314, 44); ctx.restore()
-  ctx.save(); ctx.translate(312, 300); ctx.scale(16.6, 16.6); ctx.fillStyle = c.ink; ctx.fill(glyph, 'evenodd'); ctx.restore()
-  spaced(ctx, num, 196, 238, 46, th.fonts.mono, 500, 0.06, 'left', hexA(c.ink, 0.5)); ctx.fillStyle = c.glow; ctx.beginPath(); ctx.moveTo(806, 200); ctx.lineTo(830, 236); ctx.lineTo(782, 236); ctx.closePath(); ctx.fill()
-  spaced(ctx, code, 512, 862, 50, th.fonts.mono, 600, 0.1, 'center', c.ink)
+  const c = th.colors, NO = c.alert || '#FF2D55'; ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 1024, 1024)
+  const rg = ctx.createRadialGradient(512, 380, 40, 512, 380, 640); rg.addColorStop(0, hexA(c.accent, 0.35)); rg.addColorStop(1, hexA(c.accent, 0)); ctx.fillStyle = rg; ctx.fillRect(0, 0, 1024, 1024)
+  ctx.save(); ctx.shadowColor = c.accent; ctx.shadowBlur = 50; ctx.fillStyle = c.panel; ctx.beginPath(); ctx.roundRect(120, 120, 784, 784, 110); ctx.fill(); ctx.restore()
+  ctx.strokeStyle = c.accent; ctx.lineWidth = 10; ctx.beginPath(); ctx.roundRect(120, 120, 784, 784, 110); ctx.stroke()
+  ctx.save(); ctx.beginPath(); ctx.roundRect(120, 120, 784, 784, 110); ctx.clip(); ctx.save(); ctx.shadowColor = c.glow; ctx.shadowBlur = 30; ctx.fillStyle = c.glow; ctx.fillRect(120, 120, 500, 48); ctx.restore(); ctx.fillStyle = NO; ctx.fillRect(620, 120, 284, 48); ctx.restore()
+  ctx.save(); ctx.translate(312, 300); ctx.scale(16.6, 16.6); ctx.shadowColor = c.glow; ctx.shadowBlur = 1.5; ctx.fillStyle = c.ink; ctx.fill(glyph, 'evenodd'); ctx.restore()
+  spaced(ctx, num, 196, 246, 46, th.fonts.mono, 600, 0.06, 'left', hexA(c.ink, 0.5)); spaced(ctx, '100X', 828, 246, 44, th.fonts.mono, 800, 0, 'right', c.accent)
+  spaced(ctx, code, 512, 862, 50, th.fonts.mono, 700, 0.1, 'center', c.glow)
 }
+
+function luminance(hex) { const h = hex.replace('#', ''); const v = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2] }
 
 const ROLES = {
   halcyon: { panel: 'panel', ink: 'ink', headBg: 'ink', headText: 'ground', altBg: 'accent', altText: 'ink', accent: 'accent' },
@@ -8300,7 +8340,7 @@ const ODD_INFO = {
   hostile: ['Hostile Intel', 'A field-guide entry on a made-up enemy: silhouette, threat level, armor, aggression and cowardice, its weakness and a tactical tip.'],
   spell: ['Spell of the Hour', 'A fake spell card: school, rarity (sometimes cursed), essence cost, casting time, the effect and the side effect.'],
   market: ['Black Market', 'The deal of the hour: a questionable item, its seller and rating, the price in credits, its condition, a warranty of none and a risk meter.'],
-  bet: ['Market Of The Hour', 'A silly prediction market about your day (will the leftovers survive until tomorrow?) with YES and NO prices, a mini chart, volume, traders and your position.'],
+  bet: ['Longshot Of The Hour', 'A silly prediction market about your day (will the leftovers survive until tomorrow?) with YES and NO prices, the payout multiplier, volume, leverage and your position.'],
   tip: ['Tip Of The Hour', 'A cheerful, true little fact with an optimism reading, bubbles popped and clouds rendered.'],
   mall: ['Mall Directory', 'A store of the hour on a little mall map: its status (often closed since 1997), floor, coins in the fountain and the song on the speakers.'],
   species: ['Field Guide', 'A species of the hour with its Latin name, where to look for it, a real fact and a rarity meter.'],
@@ -8353,7 +8393,7 @@ function drawPreviewFrame(x, W, H, f, wc, th) {
   else if (f === 'longroad') { x.strokeStyle = ink; x.lineWidth = 1.2; x.strokeRect(4, top + 3, W - 8, H - top - 7); x.lineWidth = 0.6; x.strokeRect(7, top + 6, W - 14, H - top - 13); [[4, top + 3], [W - 4, top + 3], [4, H - 4], [W - 4, H - 4]].forEach(([a, b]) => dia(a, b, 3.5, hot)); }
   else if (f === 'nightfall') { const ch = 10, x0 = 4, y0 = top + 3, x1 = W - 4, y1 = H - 4; ln([[x0 + ch, y0], [x1 - ch, y0], [x1, y0 + ch], [x1, y1 - ch], [x1 - ch, y1], [x0 + ch, y1], [x0, y1 - ch], [x0, y0 + ch], [x0 + ch, y0]], hexA(ink, 0.35), 0.8); [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]].forEach(([a, b, sx, sy]) => ln([[a + sx * (ch + 10), b], [a + sx * ch, b], [a, b + sy * ch], [a, b + sy * (ch + 10)]], ink, 1.6)); }
   else if (f === 'grimoire') { x.strokeStyle = acc; x.lineWidth = 1.2; x.strokeRect(4, top + 3, W - 8, H - top - 7); x.strokeStyle = hexA(acc, 0.55); x.lineWidth = 0.6; x.strokeRect(7.5, top + 6.5, W - 15, H - top - 14); [[4, top + 3], [W - 4, top + 3], [4, H - 4], [W - 4, H - 4], [W / 2, top + 3], [W / 2, H - 4]].forEach(([a, b]) => dia(a, b, 4, acc)); }
-  else if (f === 'rabbit') { x.strokeStyle = wc.headBg; x.lineWidth = 1; x.beginPath(); x.roundRect(5, top + 3, W - 10, H - top - 8, 16); x.stroke(); const sp2 = (cx, cy, r, col) => { x.fillStyle = col; x.beginPath(); x.moveTo(cx, cy - r); x.lineTo(cx + r * 0.22, cy - r * 0.22); x.lineTo(cx + r, cy); x.lineTo(cx + r * 0.22, cy + r * 0.22); x.lineTo(cx, cy + r); x.lineTo(cx - r * 0.22, cy + r * 0.22); x.lineTo(cx - r, cy); x.lineTo(cx - r * 0.22, cy - r * 0.22); x.closePath(); x.fill(); }; sp2(W - 14, top + 12, 5, acc); sp2(12, H - 12, 4, wc.headBg); sp2(W - 26, top + 20, 2, acc); }
+  else if (f === 'rabbit') { x.strokeStyle = wc.headBg; x.lineWidth = 1; x.beginPath(); x.roundRect(5, top + 3, W - 10, H - top - 8, 16); x.stroke(); const sp2 = (cx, cy, r, col) => { x.fillStyle = col; x.beginPath(); x.moveTo(cx, cy - r); x.lineTo(cx + r * 0.22, cy - r * 0.22); x.lineTo(cx + r, cy); x.lineTo(cx + r * 0.22, cy + r * 0.22); x.lineTo(cx, cy + r); x.lineTo(cx - r * 0.22, cy + r * 0.22); x.lineTo(cx - r, cy); x.lineTo(cx - r * 0.22, cy - r * 0.22); x.closePath(); x.fill(); }; const my = top + (H - top) / 2; sp2(W - 5, my, 5, acc); sp2(5, my, 4, wc.headBg); sp2(W - 5, my + 12, 2, acc); }
   else if (f === 'deeprange') { x.fillStyle = hot; [[0, top + 10, 5, 22], [0, top + 36, 3, 6], [W - 5, H - 40, 5, 26], [W - 3, H - 10, 3, 6]].forEach(([a, b, w, h]) => x.fillRect(a, b, w, h)); [[10, top + 6], [W - 10, top + 6]].forEach(([a, b], i) => ln([[a + (i ? -12 : 12), b], [a, b], [a, b + 12]], hexA(ink, 0.7), 1.2)); }
 }
 
@@ -8411,7 +8451,7 @@ function themedBody(item, th, wc, W, H) {
   const f = frameFor(th), P = f === 'halcyon' ? null : K.THEME_PAINT[f];
   const bh = H - 24, wrap = pv('div', `position:relative;width:${W}px;height:${bh}px`);
   const put = (c, x) => { c.style.position = 'absolute'; c.style.left = (x || 0) + 'px'; c.style.top = '0'; wrap.append(c); };
-  const live = (spec, text) => { if (!spec) return; const fam2 = spec.f === 'disp' ? `"${th.fonts.display}", Georgia, serif` : spec.f === 'heavy' ? 'system-ui, sans-serif' : `"${th.fonts.mono}", ui-monospace, monospace`; const e = pv('div', `position:absolute;top:${spec.y}px;font:${spec.f === 'heavy' ? 800 : spec.f === 'bold' ? 700 : 400} ${spec.size}px ${fam2};color:${wc.ink};white-space:nowrap;line-height:1.3`, text); if (spec.a === 'c') { e.style.left = '0'; e.style.width = W + 'px'; e.style.textAlign = 'center'; } else if (spec.a === 'r') { e.style.right = (W - spec.x) + 'px'; } else { e.style.left = spec.x + 'px'; } wrap.append(e); };
+  const live = (spec, text) => { if (!spec) return; const fam2 = spec.f === 'disp' ? `"${th.fonts.display}", Georgia, serif` : spec.f === 'heavy' ? 'system-ui, sans-serif' : `"${th.fonts.mono}", ui-monospace, monospace`; const e = pv('div', `position:absolute;top:${spec.y}px;font:${spec.f === 'heavy' ? 800 : spec.f === 'bold' ? 700 : 400} ${spec.size}px ${fam2};color:${spec.color || wc.ink};white-space:nowrap;line-height:1.3`, text); if (spec.a === 'c') { e.style.left = '0'; e.style.width = W + 'px'; e.style.textAlign = 'center'; } else if (spec.a === 'r') { e.style.right = (W - spec.x) + 'px'; } else { e.style.left = spec.x + 'px'; } wrap.append(e); };
   const d = sampleData(item.mode, th, W, bh);
   if (['youtube', 'instagram', 'discord'].includes(item.mode)) { const P2 = K.THEME_PAINT[f] || K.THEME_PAINT.halcyon, pk = { youtube: 'yt', instagram: 'ig', discord: 'dc' }[item.mode]; put(K.artImage(W, bh, P2[pk], { seed: 7, now: new Date(), code: `${(th.codes[item.mode] || item.mode).slice(0, 5)}-${{ youtube: '09', instagram: '10', discord: '11' }[item.mode]}` })); return wrap; }
   if (item.mode === 'audio' && ['halcyon', 'rabbit', 'cyber', 'market', 'vapor', 'nature'].includes(f)) { put(K.artImage(W, bh, K.THEME_PAINT[f].audio, { line: deckFor(th).audio.lines[0], lvl: 3, phase: 1.2 })); live({ x: 352, y: 60, size: 9, a: 'r', f: 'bold' }, '0:42'); return wrap; }
@@ -8560,7 +8600,7 @@ function previewWidget(item, th) {
       const Kx = scriptableKit(th);
       const V = { bet: (x) => { let v = 0.5; for (let i = 0; i < 9; i++) { const o = v; v = Math.max(0.1, Math.min(0.9, v + Math.sin(i * 1.3) * 0.2)); x.fillStyle = v >= o ? wc.altBg : '#E8384F'; const yt = 12 + 40 * (1 - Math.max(o, v)), yb = 12 + 40 * (1 - Math.min(o, v)); x.fillRect(8 + i * 7, yt, 5, Math.max(2, yb - yt)); } x.fillStyle = hexA(wc.altBg, 0.8); x.fillRect(6, 62, 44, 9); x.fillStyle = 'rgba(232,56,79,.6)'; x.fillRect(50, 62, 24, 9); }, market: (x) => { x.strokeStyle = wc.headBg; x.lineWidth = 1.4; x.strokeRect(6, 24, 68, 40); x.fillStyle = hexA(wc.accent, 0.5); x.beginPath(); x.moveTo(26, 44); x.lineTo(40, 34); x.lineTo(54, 44); x.lineTo(40, 54); x.closePath(); x.fill(); x.fillStyle = wc.altBg; x.font = `700 11px ${mono}`; x.textAlign = 'center'; x.fillText('499c', 40, 16); }, tip: (x) => { x.fillStyle = hexA(wc.headBg, 0.25); x.strokeStyle = '#FFFFFF'; x.lineWidth = 1.4; x.beginPath(); x.arc(40, 40, 34, 0, Math.PI * 2); x.fill(); x.stroke(); x.fillStyle = '#FFF6B0'; x.beginPath(); x.arc(40, 38, 11, 0, Math.PI * 2); x.fill(); }, mall: (x) => { x.fillStyle = '#C3C3D0'; x.fillRect(4, 10, 72, 64); [wc.headBg, wc.altBg, '#FFFB96', wc.headBg, wc.altBg, '#FFFB96'].forEach((c2, i) => { x.globalAlpha = i === 2 ? 1 : 0.4; x.fillStyle = c2; x.fillRect(10 + (i % 3) * 22, 20 + Math.floor(i / 3) * 22, 18, 18); }); x.globalAlpha = 1; }, species: (x) => { x.fillStyle = wc.panel; x.strokeStyle = hexA(wc.ink, 0.6); x.beginPath(); x.arc(40, 40, 34, 0, Math.PI * 2); x.fill(); x.stroke(); x.fillStyle = wc.headBg; x.beginPath(); x.moveTo(22, 50); x.quadraticCurveTo(36, 30, 50, 40); x.quadraticCurveTo(36, 52, 22, 50); x.fill(); } }[t];
       r2.append(vis(80, V));
-      const P2 = { bet: ['MARKET #4417 · RESOLVES TONIGHT', 'Will the leftovers survive until tomorrow?', 'YES 63¢ · NO 37¢', [['VOLUME', '$12.4K'], ['YOUR POSITION', '3 YES']], 'NOT FINANCIAL ADVICE'], market: ['SELLER @gl1tch · ★4.6', 'Used Optic Mod (Slightly Haunted)', '499 CREDITS · REFURBISHED', [['WARRANTY', 'NONE'], ['RETURNS', 'LOL']], 'MEET AT THE NOODLE STAND'], tip: ['DID YOU KNOW?', 'Sea otters hold hands while they sleep.', '', [['OPTIMISM', '97%'], ['BUBBLES POPPED', '212']], 'HAVE A GREAT DAY'], mall: ['STORE OF THE HOUR', 'Sunset Video', 'CLOSED SINCE 1997', [['FLOOR', 'LEVEL 2'], ['FOUNTAIN COINS', '641']], 'NOW PLAYING: FOOD COURT WALTZ'], species: ['SPOTTED BY THE CREEK', 'Great Horned Owl', 'Bubo virginianus', [['FACT', "Its 'horns' are feather tufts."]], "LOOK, DON'T DISTURB"] }[t];
+      const P2 = { bet: ['MARKET #4417 · RESOLVES TONIGHT', 'Will the leftovers survive until tomorrow?', 'YES 63¢ · NO 37¢', [['PAYOUT', 'x1.6'], ['LEVERAGE', '25X'], ['YOUR POSITION', 'ALL IN']], 'NOT FINANCIAL ADVICE'], market: ['SELLER @gl1tch · ★4.6', 'Used Optic Mod (Slightly Haunted)', '499 CREDITS · REFURBISHED', [['WARRANTY', 'NONE'], ['RETURNS', 'LOL']], 'MEET AT THE NOODLE STAND'], tip: ['DID YOU KNOW?', 'Sea otters hold hands while they sleep.', '', [['OPTIMISM', '97%'], ['BUBBLES POPPED', '212']], 'HAVE A GREAT DAY'], mall: ['STORE OF THE HOUR', 'Sunset Video', 'CLOSED SINCE 1997', [['FLOOR', 'LEVEL 2'], ['FOUNTAIN COINS', '641']], 'NOW PLAYING: FOOD COURT WALTZ'], species: ['SPOTTED BY THE CREEK', 'Great Horned Owl', 'Bubo virginianus', [['FACT', "Its 'horns' are feather tufts."]], "LOOK, DON'T DISTURB"] }[t];
       const c = pv('div', 'flex:1;display:flex;flex-direction:column;gap:2px'); c.append(lbl(P2[0], 8), big(P2[1], 14)); if (P2[2]) c.append(pv('span', `font-size:8px;color:${wc.headBg}`, P2[2])); P2[3].forEach(([k2, v2]) => c.append(kvr(k2, v2)));
       r2.append(c); bd.append(r2, pv('div', 'flex:1'), lbl(P2[4], 8));
     } else if (t === 'heist') {
