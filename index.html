@@ -37,7 +37,11 @@ img, canvas { max-width: 100%; }
 .brand span { display: inline-block; width: 18px; height: 18px; background: var(--accent); margin-left: 8px; border: 2px solid var(--text); vertical-align: 2px; }
 .lede { margin: 0; color: var(--muted); max-width: 46ch; }
 .layout { display: grid; grid-template-columns: 1fr; gap: 28px; margin-top: 24px; }
-@media (min-width: 960px) { .layout { grid-template-columns: minmax(0, 1fr) 420px; align-items: start; } .stage { position: sticky; top: calc(16px + env(safe-area-inset-top, 0px)); } }
+@media (min-width: 960px) {
+  .layout { grid-template-columns: minmax(0, 1fr) 420px; align-items: start; }
+  .stage { position: sticky; top: calc(72px + env(safe-area-inset-top, 0px)); max-height: calc(100vh - 88px - env(safe-area-inset-top, 0px)); max-height: calc(100dvh - 88px - env(safe-area-inset-top, 0px)); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  .stage .phone { width: min(100%, 360px, max(220px, calc((100vh - 300px) * 390 / 844))); width: min(100%, 360px, max(220px, calc((100dvh - 300px) * 390 / 844))); }
+}
 section.step { padding: 22px 0; border-bottom: 1px solid var(--line); }
 section.step:first-child { padding-top: 0; }
 .step h2 { margin: 0 0 4px; font-stretch: 112%; font-weight: 700; font-size: 22px; letter-spacing: -0.01em; display: flex; gap: 12px; align-items: baseline; }
