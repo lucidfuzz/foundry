@@ -126,6 +126,15 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
 .steps-nav a[aria-current="true"] { border-color: var(--text); background: var(--surface); }
 .steps-nav a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 section.step { scroll-margin-top: 70px; }
+.contact-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 720px) { .contact-grid { grid-template-columns: 1fr 1.3fr; align-items: start; } }
+.contact-card { padding: 16px; border: 2px solid var(--line); border-radius: 16px; background: var(--surface); }
+.contact-card.feature { border-color: var(--text); box-shadow: 4px 4px 0 var(--text); }
+.contact-card h3 { margin: 0 0 6px; font-size: 18px; }
+.contact-card p { margin: 0 0 10px; }
+.contact-card ul { margin: 0 0 14px; padding-left: 20px; display: grid; gap: 4px; }
+.contact-card .btn { text-decoration: none; color: var(--text); }
+.contact-card .btn.primary { color: var(--accent-ink); }
 .seg-sm { margin-bottom: 10px; }
 .seg-sm button { padding: 6px 14px; font-size: 13px; min-height: 32px; }
 .wg-list { display: grid; gap: 18px; justify-items: center; }
@@ -192,13 +201,13 @@ body.insp-open { overflow: hidden; }
   </header>
 
   <nav class="steps-nav" aria-label="Steps">
-    <a href="#pick" aria-current="true"><b>1</b>Pick</a><a href="#make"><b>2</b>Customize</a><a href="#widgets"><b>3</b>Widgets</a><a href="#export"><b>4</b>Export</a><a href="#install"><b>5</b>Install</a>
+    <a href="#pick" aria-current="true"><b>1</b>Pick</a><a href="#make"><b>2</b>Customize</a><a href="#widgets"><b>3</b>Widgets</a><a href="#export"><b>4</b>Export</a><a href="#install"><b>5</b>Install</a><a href="#contact"><b>@</b>Contact</a>
   </nav>
   <div class="layout">
     <main>
       <section class="step" id="pick">
         <h2><b>1</b>Pick a starting point</h2>
-        <p class="hint">Every theme is fully editable. Start from the one closest to what you want.</p>
+        <p class="hint">These are pre-fabricated themes: complete, ready-to-install designs with wallpapers, icons, widgets and a little idle game. Install one as is, or start from the closest and make it yours. Want one made just for you? <a href="#contact">Get in touch</a>.</p>
         <div class="presets" id="presets"></div>
         <div class="variants-wrap">
           <h3 class="vh">Pick a variant</h3>
@@ -306,6 +315,28 @@ body.insp-open { overflow: hidden; }
         <h2><b>5</b>Install</h2>
         <p class="hint">iPhone only lets people arrange their own home screen, so these steps are by hand. Check them off as you go.</p>
         <ol class="check" id="checklist"></ol>
+      </section>
+      <section class="step" id="contact">
+        <h2><b>@</b>Suggestions and custom themes</h2>
+        <div class="contact-grid">
+          <div class="contact-card">
+            <h3>Ideas, bugs or suggestions</h3>
+            <p>Found something broken, or have an idea for a theme, widget or game? Send it over.</p>
+            <a class="btn" href="mailto:lucidfuzz@gmail.com?subject=Foundry%20suggestion">Email a suggestion</a>
+          </div>
+          <div class="contact-card feature">
+            <h3>A theme made just for you</h3>
+            <p>Send your assets and we will work with you to create a widget script and asset pack just for you.</p>
+            <ul>
+              <li>A name and a few words about the vibe</li>
+              <li>Reference images: screenshots, art, photos, a game or show you love (large files are fine as a shared link)</li>
+              <li>Any colors or fonts you have in mind</li>
+              <li>Which widgets you want most</li>
+            </ul>
+            <a class="btn primary" href="mailto:lucidfuzz@gmail.com?subject=Custom%20Foundry%20theme&amp;body=Theme%20name%3A%0AThe%20vibe%20in%20a%20few%20words%3A%0AColors%20or%20fonts%20I%20like%3A%0AWidgets%20I%20want%20most%3A%0A%0AReference%20images%20are%20attached%20or%20linked%20below%3A%0A">Request a custom theme</a>
+          </div>
+        </div>
+        <p class="note">Or write to <a href="mailto:lucidfuzz@gmail.com">lucidfuzz@gmail.com</a>.</p>
       </section>
     </main>
 
@@ -9774,7 +9805,7 @@ function renderChecklist() {
       'Install Scriptable (free) from the App Store and open it once.',
       `Tap +, paste the widget script from step 4 and name it ${slug(th.company)}-widgets.`,
       'On the home screen, add a Scriptable widget, tap it while it jiggles and choose your script.',
-      'Set its Parameter to one of: status (medium), shift (small), transmission (any size), solar (large is best), audio (medium), feeds (medium), youtube, instagram or discord (any size), oddity (small or medium, just for fun), game (Halcyon, Deep Range and The Long Road).',
+      'Set its Parameter to one of: status (medium), shift (small), transmission (any size), solar (large is best), audio (medium), feeds (medium), youtube, instagram or discord (any size), oddity (small or medium, just for fun), game (medium or large, every theme).',
       'Add :alt or :main after the mode to flip its header color, for example shift:main.',
       'For audio, set When Interacting to Open URL with youtubemusic:// (or your music app). For youtube and instagram use youtube:// and instagram://app.',
       'For status and shift, set When Interacting to Open URL and type calshow:// so a tap opens Calendar.'
