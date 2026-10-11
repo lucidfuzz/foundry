@@ -8097,8 +8097,7 @@ function drawVapor(ctx, th, Hl, mode, phraseIdx, W, H, s) {
   const c = th.colors, T = th.text, mono = th.fonts.mono, k = K(th), r = rng(seedOf(th, 503 + (mode === 'home' ? 9 : 0)));
   if (mode === 'lock') {
     vaporScene(ctx, th, r, Hl, 500, 112, 420);
-    vaporPalm(ctx, 28, 520, 150, hexA('#1A0630', 0.95), false); vaporPalm(ctx, 372, 540, 170, hexA('#1A0630', 0.95), true);
-    vaporColumn(ctx, 72, 380, 26, 130);
+    vaporPalm(ctx, 4, 566, 140, hexA('#1A0630', 0.95), false); vaporPalm(ctx, 386, 566, 150, hexA('#1A0630', 0.95), true);
     centerXform(ctx, th, 195, 190, () => vaporWindow(ctx, th, 80, 140, 230, 96, 'plaza.exe', (x, y, w, h) => { spaced(ctx, 'Welcome to the plaza.', x + 8, y + 22, 13, mono, 400, 0, 'left', '#000000'); spaced(ctx, 'All stores open forever.', x + 8, y + 38, 13, mono, 400, 0, 'left', '#333344'); ctx.fillStyle = '#C3C3D0'; ctx.fillRect(x + w - 54, y + h - 22, 48, 18); ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(x + w - 54, y + h - 22, 48, 18); spaced(ctx, 'OK', x + w - 30, y + h - 9, 12, mono, 400, 0, 'center', '#000000'); }));
     if (k.details) { spaced(ctx, 'V A P O R   P L A Z A', 24, 262, 9, mono, 400, 0.1, 'left', hexA(c.ink, 0.85)); spaced(ctx, T.tagR || 'OPEN', 366, 262, 9, mono, 400, 0.1, 'right', c.glow); }
     headline2(ctx, th, phraseIdx, 195, 610, 330, 46, '#FFFFFF', (draw, fs) => { const ph = th.phrases[phraseIdx % th.phrases.length]; const disp = th.fonts.display, dw = dispWeight(disp); ctx.save(); ctx.translate(3, 3); spaced(ctx, ph[0], 195, 610, fs, disp, dw, 0, 'center', c.glow); spaced(ctx, ph[1], 195, 610 + fs * 1.06, fs, disp, dw, 0, 'center', c.glow); ctx.restore(); ctx.save(); ctx.shadowColor = c.accent; ctx.shadowBlur = 10 * k.glow; draw(); ctx.restore(); });
@@ -8106,8 +8105,12 @@ function drawVapor(ctx, th, Hl, mode, phraseIdx, W, H, s) {
     if (k.details) spaced(ctx, T.foot || '', 195, Hl - 34, 11, mono, 400, 0.12, 'center', hexA(c.ink, 0.75));
   } else {
     vaporScene(ctx, th, r, Hl, 470, 84, 410);
-    vaporPalm(ctx, 22, 500, 120, hexA('#1A0630', 0.95), false); vaporPalm(ctx, 368, 500, 130, hexA('#1A0630', 0.95), true);
-    centerXform(ctx, th, 195, 400, () => { vaporWindow(ctx, th, 50, 260, 150, 70, 'mall_map.bmp', (x, y, w, h) => { for (let i = 0; i < 6; i++) { ctx.fillStyle = [c.accent, c.glow, c.alert || '#FFFB96'][i % 3]; ctx.fillRect(x + 6 + (i % 3) * 44, y + 4 + Math.floor(i / 3) * 18, 38, 14); } }); vaporWindow(ctx, th, 186, 330, 156, 56, 'fountain.wav', (x, y, w) => { for (let i = 0; i < 26; i++) { const hh = 4 + Math.abs(Math.sin(i * 0.7)) * 18; ctx.fillStyle = '#1A1A80'; ctx.fillRect(x + 6 + i * 5.2, y + 24 - hh / 2, 3, hh); } }); vaporColumn(ctx, 300, 236, 20, 80); });
+    vaporPalm(ctx, 4, 522, 112, hexA('#1A0630', 0.95), false); vaporPalm(ctx, 386, 522, 118, hexA('#1A0630', 0.95), true);
+    centerXform(ctx, th, 195, 420, () => {
+      vaporWindow(ctx, th, 110, 248, 170, 64, 'mall_map.bmp', (x, y, w, h) => { const cw = (w - 16) / 3; for (let i = 0; i < 6; i++) { ctx.fillStyle = [c.accent, c.glow, c.alert || '#FFFB96'][i % 3]; ctx.fillRect(x + 4 + (i % 3) * (cw + 4), y + 4 + Math.floor(i / 3) * 16, cw, 12); } });
+      vaporColumn(ctx, 58, 528, 24, 92);
+      vaporWindow(ctx, th, 204, 522, 152, 56, 'fountain.wav', (x, y, w) => { const n = 24, bw = (w - 12) / n; for (let i = 0; i < n; i++) { const hh = 4 + Math.abs(Math.sin(i * 0.7)) * 18; ctx.fillStyle = '#1A1A80'; ctx.fillRect(x + 6 + i * bw, y + 14 - hh / 2, bw * 0.6, hh); } });
+    });
     if (k.details) spaced(ctx, T.homeTop || '', 195, 236, 10, mono, 400, 0.14, 'center', hexA(c.ink, 0.85));
     spaced(ctx, T.caption || '', 195, 640, 14, mono, 400, 0.06, 'center', hexA(c.ink, 0.9));
   }
