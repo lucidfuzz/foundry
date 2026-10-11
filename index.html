@@ -14,7 +14,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,500&family=Oxanium:wght@500;700&family=Shippori+Mincho+B1:wght@800&family=Barlow+Condensed:wght@500;700&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Cormorant+SC:wght@500&family=Share+Tech+Mono&family=Fraunces:opsz,wght@9..144,400;9..144,700&family=Space+Grotesk:wght@400;600&family=DM+Mono:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,500&family=Oxanium:wght@500;700&family=Shippori+Mincho+B1:wght@800&family=Barlow+Condensed:wght@500;700&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Cormorant+SC:wght@500&family=Share+Tech+Mono&family=Fraunces:opsz,wght@9..144,400;9..144,700&family=Space+Grotesk:wght@400;600&family=DM+Mono:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 :root {
@@ -181,6 +181,7 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
               <option value="night">Night helmet display</option>
               <option value="grimoire">Arcane card and sigil</option>
               <option value="orbital">Deep range tracker</option>
+              <option value="rabbit">White rabbit capsule</option>
             </select></label>
             <div class="f">Temperature
               <div class="seg" role="group" aria-label="Temperature units">
@@ -214,7 +215,7 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
           </div>
           <div class="exp-group">
             <h3>Everything at once</h3>
-            <p>One zip with all four lock screens, the home wallpaper and its six rotating frames, ten icons, the widget script and an install guide.</p>
+            <p>One zip with all four lock screens, the home wallpaper and its six rotating frames, eleven icons, the widget script and an install guide.</p>
             <div class="btns"><button type="button" class="btn primary" id="btn-zip">Download theme pack</button></div>
           </div>
           <div class="exp-group">
@@ -278,7 +279,7 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
 // FOUNDRY THEME WIDGETS
 // Set each widget's Parameter to one of:
 //   status (medium) · shift (small) · transmission (any) · solar (large is best) · audio (medium)
-//   feeds (medium) · youtube / instagram (any) · oddity (small or medium, just for fun)
+//   feeds (medium) · youtube / instagram / discord (any) · oddity (small or medium, just for fun)
 // Add :alt or :main after the mode to flip the header color, e.g. shift:main
 const T = __THEME__
 
@@ -336,6 +337,13 @@ function drawFrame(dc, W, H) {
     dc.setStrokeColor(acc); dc.setLineWidth(1.2); dc.strokeRect(new Rect(4, top + 3, W - 8, H - top - 7))
     dc.setStrokeColor(new Color(T.accent, 0.55)); dc.setLineWidth(0.6); dc.strokeRect(new Rect(7.5, top + 6.5, W - 15, H - top - 14))
     ;[[4, top + 3], [W - 4, top + 3], [4, H - 4], [W - 4, H - 4], [W / 2, top + 3], [W / 2, H - 4]].forEach(([x, y]) => { const p = new Path(); p.addLines([P(x, y - 4), P(x + 4, y), P(x, y + 4), P(x - 4, y)]); p.closeSubpath(); dc.addPath(p); dc.setFillColor(acc); dc.fillPath() })
+  } else if (f === "rabbit") {
+    const lav = new Color(T.headBg)
+    const rr = new Path(); const x0 = 5, y0 = top + 3, w2 = W - 10, h2 = H - top - 8, rad = 16
+    rr.move(P(x0 + rad, y0)); rr.addLine(P(x0 + w2 - rad, y0)); rr.addQuadCurve(P(x0 + w2, y0 + rad), P(x0 + w2, y0)); rr.addLine(P(x0 + w2, y0 + h2 - rad)); rr.addQuadCurve(P(x0 + w2 - rad, y0 + h2), P(x0 + w2, y0 + h2)); rr.addLine(P(x0 + rad, y0 + h2)); rr.addQuadCurve(P(x0, y0 + h2 - rad), P(x0, y0 + h2)); rr.addLine(P(x0, y0 + rad)); rr.addQuadCurve(P(x0 + rad, y0), P(x0, y0)); rr.closeSubpath()
+    dc.addPath(rr); dc.setStrokeColor(lav); dc.setLineWidth(1); dc.strokePath()
+    const spark = (x, y, r, col) => { const p = new Path(); p.addLines([P(x, y - r), P(x + r * 0.22, y - r * 0.22), P(x + r, y), P(x + r * 0.22, y + r * 0.22), P(x, y + r), P(x - r * 0.22, y + r * 0.22), P(x - r, y), P(x - r * 0.22, y - r * 0.22)]); p.closeSubpath(); dc.addPath(p); dc.setFillColor(col); dc.fillPath() }
+    spark(W - 14, top + 12, 5, acc); spark(12, H - 12, 4, lav); spark(W - 26, top + 20, 2, acc)
   } else if (f === "deeprange") {
     dc.setFillColor(hot)
     ;[[0, top + 10, 5, 22], [0, top + 36, 3, 6], [W - 5, H - 40, 5, 26], [W - 3, H - 10, 3, 6]].forEach(([x, y, w, h]) => dc.fillRect(new Rect(x, y, w, h)))
@@ -384,6 +392,12 @@ function headerImage(W, H, alt) {
     ln([[0, 1.5], [W, 1.5]], g, 1); ln([[0, H - 1.5], [W, H - 1.5]], g, 1)
     ln([[0, 4], [W, 4]], new Color(T.accent, 0.45), 0.5); ln([[0, H - 4], [W, H - 4]], new Color(T.accent, 0.45), 0.5)
     ;[[11, H / 2], [W - 11, H / 2]].forEach(([x, y]) => { poly([[x, y - 5], [x + 5, y], [x, y + 5], [x - 5, y]], g); poly([[x, y - 2], [x + 2, y], [x, y + 2], [x - 2, y]], new Color(T.ground)) })
+  } else if (f === "rabbit") {
+    dc.setFillColor(base); dc.fillRect(new Rect(0, 0, W, H))
+    for (let x = 0; x < W; x += 3) { dc.setFillColor(new Color("#FFFFFF", 0.05 + 0.08 * Math.abs(Math.sin(x * 0.05)))); dc.fillRect(new Rect(x, 0, 1.5, H)) }
+    const spark = (x, y, r, col) => { const p = new Path(); p.addLines([P(x, y - r), P(x + r * 0.22, y - r * 0.22), P(x + r, y), P(x + r * 0.22, y + r * 0.22), P(x, y + r), P(x - r * 0.22, y + r * 0.22), P(x - r, y), P(x - r * 0.22, y - r * 0.22)]); p.closeSubpath(); dc.addPath(p); dc.setFillColor(col); dc.fillPath() }
+    spark(W - 12, H / 2, 5, new Color(T.accent)); spark(W - 24, H / 2 - 4, 2.2, new Color("#FFFFFF", 0.9))
+    ln([[0, H - 1], [W, H - 1]], new Color(T.accent, 0.5), 1)
   } else if (f === "deeprange") {
     dc.setFillColor(base); dc.fillRect(new Rect(0, 0, W, H))
     dc.setFillColor(new Color(T.ground, 0.15)); for (let y = 0; y < H; y += 3) dc.fillRect(new Rect(0, y, W, 1))
@@ -412,10 +426,10 @@ function base(code, right, alt, decorate) {
   const head = w.addStack()
   head.layoutHorizontally()
   head.centerAlignContent()
-  const f = T.frame || "halcyon", serifHead = f === "longroad" || f === "grimoire"
+  const f = T.frame || "halcyon", serifHead = f === "longroad" || f === "grimoire" || f === "rabbit"
   head.backgroundColor = new Color(alt ? T.altBg : T.headBg)
   head.backgroundImage = headerImage(d[0], 24, alt)
-  const padR = f === "directive" || f === "deeprange" ? 34 : f === "nightfall" ? 52 : f === "longroad" || f === "grimoire" ? 22 : 12
+  const padR = f === "directive" || f === "deeprange" ? 34 : f === "nightfall" ? 52 : f === "rabbit" ? 30 : f === "longroad" || f === "grimoire" ? 22 : 12
   head.setPadding(6, f === "longroad" || f === "grimoire" ? 22 : 12, 6, padR)
   const hc = headTextColor(alt)
   const ht = txt(head, serifHead ? titleCase(code) : code, serifHead ? 10 : 9, hc, serifHead)
@@ -850,7 +864,7 @@ function serifText(stack, text, size, lines) { const t = stack.addText(String(te
 function addBar(stack, width, frac) { const i = stack.addImage(bar(width, frac)); i.imageSize = new Size(width, 4) }
 const timeFmt = tf
 function readoutC(row, title, value, vsize) { const c = row.addStack(); c.layoutVertically(); txt(c, title, 6.5, SOFT); c.addSpacer(1); txt(c, value, vsize || 8.5); return c }
-const LT = Object.assign({ solar: "W-03 // SOLAR", solarBig: "W-03 // SOLAR + ATMOS", audio: "W-04 // AUDIO CHANNEL", feeds: "W-06 // NEURAL LINK", vid: "W-06 // VID", obs: "W-07 // OBS" }, T.L)
+const LT = Object.assign({ solar: "W-03 // SOLAR", solarBig: "W-03 // SOLAR + ATMOS", audio: "W-04 // AUDIO CHANNEL", feeds: "W-06 // NEURAL LINK", vid: "W-06 // VID", obs: "W-07 // OBS", dc: "W-09 // SYNC" }, T.L)
 // ---------- atmospheric helpers ----------
 function uvLevel(u) { return u < 3 ? "LOW" : u < 6 ? "MOD" : u < 8 ? "HIGH" : u < 11 ? "V.HIGH" : "EXTREME" }
 function compass(deg) { const d = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"]; return d[Math.round(((deg % 360) + 360) % 360 / 22.5) % 16] }
@@ -1325,6 +1339,7 @@ async function audioDeeprange(w, small) {
 
 async function audioWidget() {
   const f = T.frame || "halcyon", small = fam() === "small"
+  if (f === "rabbit" && !small) return themedAudioArt(RB.audio)
   if (f !== "halcyon") {
     const w = baseC(364, 170, LT.audio, small ? null : C.audio.right)
     w.url = "youtubemusic://"
@@ -1376,6 +1391,7 @@ async function audioWidget() {
 const CHANNELS = {
   youtube: { code: CODE("youtube", "09"), name: "YOUTUBE", url: "youtube://", line: C.feeds.yt.line, implant: C.feeds.status,
     meters: [[C.feeds.yt.meters[0], 70, 96], [C.feeds.yt.meters[1], 40, 78], [C.feeds.yt.meters[2], 4, 22]] },
+  discord: { code: CODE("discord", "11"), name: "DISCORD", url: "discord://", line: "Discord", implant: C.feeds.status, meters: [["ONLINE", 30, 90], ["MENTIONS", 5, 60], ["NOISE", 10, 70]] },
   instagram: { code: CODE("instagram", "10"), name: "INSTAGRAM", url: "instagram://app", line: C.feeds.ig.line, implant: C.feeds.status,
     meters: [[C.feeds.ig.meters[0], 58, 90], [C.feeds.ig.meters[1], 9, 34], [C.feeds.ig.meters[2], 55, 92]] }
 }
@@ -1687,6 +1703,7 @@ function singleWide(key) {
 
 async function feedsWidget(single) {
   if (THEMED()) return themedFeeds(THEMED(), single)
+  if (single || family() === "small") return themedFeeds(HAL, single)
   const fam = family()
   if (single && fam !== "small") return singleWide(single)
   if (fam === "small" || single) {
@@ -1835,6 +1852,12 @@ const ODD = {
     rarity: ["COMMON", "UNCOMMON", "RARE", "MYTHIC", "CURSED"],
     syl: ["vel", "kar", "ith", "um", "bra", "zor", "eth", "mir", "qua", "lun", "dros", "shai", "ven", "oth", "ra"]
   },
+  late: {
+    title: "W-08 // LATE NOTICE", right: "POCKET WATCH",
+    events: ["A Very Important Meeting", "Tea, Promptly At Six", "The Duchess", "Your Own Birthday", "Nothing, Technically", "The Croquet Match"],
+    excuses: ["The hole was deeper than expected.", "Stopped to paint the roses red.", "My watch is exactly two days slow.", "Fell asleep in the teapot again.", "A caterpillar asked who I was.", "Took a shortcut through a looking glass."],
+    tea: ["COLD", "STEEPING", "SPILLED", "ENDLESS", "MAD"]
+  },
   decoder: {
     title: "W-08 // SIGNAL DECODER", right: "DEEP RANGE",
     msgs: [
@@ -1923,6 +1946,14 @@ function oddVisual(type, r, S, extra) {
     const n = 5 + (extra % 3), pts = []; for (let i = 0; i <= n; i++) { const a = -Math.PI / 2 + (i * 2 % n) * Math.PI * 2 / n; pts.push([cx + S * 0.34 * Math.cos(a), cy + S * 0.34 * Math.sin(a)]) }
     oLine(dc, pts.concat([pts[0]]), A, 1.2)
     oCirc(dc, cx, cy, S * 0.1, L, I, 1)
+  } else if (type === "late") {
+    oCirc(dc, cx, cy + 3, S * 0.4, new Color(T.panel), I, 1.4); oCirc(dc, cx, cy + 3, S * 0.34, null, new Color(T.altBg), 0.8)
+    for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; oLine(dc, [[cx + S * 0.3 * Math.cos(a), cy + 3 + S * 0.3 * Math.sin(a)], [cx + S * 0.36 * Math.cos(a), cy + 3 + S * 0.36 * Math.sin(a)]], new Color(T.ink, 0.6), 1) }
+    const a1 = -Math.PI / 2 + extra * Math.PI * 2, a2 = -Math.PI / 2 + extra * 0.08 * Math.PI * 2
+    oLine(dc, [[cx, cy + 3], [cx + S * 0.28 * Math.cos(a1), cy + 3 + S * 0.28 * Math.sin(a1)]], A, 1.6); oLine(dc, [[cx, cy + 3], [cx + S * 0.18 * Math.cos(a2), cy + 3 + S * 0.18 * Math.sin(a2)]], I, 2)
+    oCirc(dc, cx, cy + 3, 2.5, A); oCirc(dc, cx, cy + 3 - S * 0.46, 4, null, I, 1); oPoly(dc, [[cx - 4, cy + 3 - S * 0.42], [cx + 4, cy + 3 - S * 0.42], [cx + 4, cy + 3 - S * 0.38], [cx - 4, cy + 3 - S * 0.38]], new Color(T.altBg))
+    const sp = (x, y, r) => oPoly(dc, [[x, y - r], [x + r * 0.22, y - r * 0.22], [x + r, y], [x + r * 0.22, y + r * 0.22], [x, y + r], [x - r * 0.22, y + r * 0.22], [x - r, y], [x - r * 0.22, y - r * 0.22]], A)
+    sp(S * 0.86, S * 0.16, 5); sp(S * 0.12, S * 0.82, 3)
   } else if (type === "decoder") {
     const pts = [], W = S * 3, Hh = S * 0.5, dcw = oddCanvas(W, Hh)
     for (let x = 0; x <= W; x += 2) { const t = x / W, noise = (1 - t) * (r() - 0.5) * Hh * 0.9, clean = Math.sin(x * 0.18) * Hh * 0.25 * t; pts.push([x, Hh / 2 + noise + clean]) }
@@ -2035,6 +2066,17 @@ async function oddityWidget() {
       const ef = b.addStack(); ef.layoutHorizontally(); txt(ef, sp[4].toUpperCase(), 7.5, INK); b.addSpacer(1)
       txt(b, `SIDE EFFECT: ${sp[5].toUpperCase()} · COOLDOWN ${1 + Math.floor(r() * 23)}H`, 7.5, rar === "CURSED" ? HOT() : SOFT)
     } else txt(b, `CAST ${sp[3]}`, 6.5, SOFT)
+  } else if (type === "late") {
+    const mins = 3 + Math.floor(r() * 58)
+    imgAt(row, oddVisual("late", r, vs, mins / 60), vs, vs)
+    const c = col()
+    txt(c, "LATE FOR", small ? 6.5 : 7.5, SOFT)
+    serif(c, pickFrom(O.events, r), small ? 12 : 15, small ? 2 : 1)
+    txt(c, `BY ${mins} MINUTES`, small ? 7 : 8.5, HOT())
+    if (!small) { c.addSpacer(3); const ex = c.addText(pickFrom(O.excuses, r)); ex.font = disp(10.5); ex.textColor = SOFT; ex.lineLimit = 2; ex.minimumScaleFactor = 0.75 }
+    b.addSpacer()
+    if (!small) { const ft = b.addStack(); ft.layoutHorizontally(); ft.centerAlignContent(); txt(ft, `TEA: ${pickFrom(O.tea, r)}`, 8, INK); ft.addSpacer(); txt(ft, "PANIC ", 7, SOFT); imgAt(ft, meter(90, 0.4 + r() * 0.6, true, 4), 90, 4) }
+    else txt(b, "RUN.", 7, HOT())
   } else {
     const m = pickFrom(O.msgs, r), conf = Math.round(6 + r() * 90)
     const head = b.addStack(); head.layoutHorizontally()
@@ -2064,6 +2106,7 @@ function PK(dc) {
   const fontOf = (f, s) => f === "disp" ? new Font(T.scriptFont, s) : f === "heavy" ? Font.heavySystemFont(s) : f === "bold" ? Font.boldMonospacedSystemFont(s) : f === "sans" ? Font.boldSystemFont(s) : Font.mediumMonospacedSystemFont(s)
   const fit = (s, w, size, f) => { s = String(s); const n = Math.max(1, Math.floor(w / (size * est(f)))); return s.length > n ? s.slice(0, Math.max(1, n - 1)).trimEnd() + "…" : s }
   const k = {
+    dc,
     I: new Color(T.ink), S: new Color(T.ink, 0.7), A: new Color(T.accent), H: new Color(T.headBg), L: new Color(T.altBg), PN: new Color(T.panel), GR: new Color(T.ground || T.panel),
     a: (hex, al) => new Color(hex, al), ia: (al) => new Color(T.ink, al),
     t(text, x, y, size, color, o) {
@@ -2603,7 +2646,329 @@ const HAL = {
     ;[["BAND", "20HZ–20KHZ"], ["BITRATE", "256 KBPS"], [C.audio.metric, "■".repeat(lvl) + "□".repeat(5 - lvl)]].forEach(([l, v], i) => { const x = 92 + i * 76; k.t(l, x, 52, 6.5, k.S, { w: 74 }); k.t(v, x, 61, 9, k.I, { w: 74 }) })
   }
 }
-const THEME_PAINT = { directive: DIR, longroad: LR, nightfall: NF, grimoire: GM, deeprange: DRG, halcyon: HAL }
+// ---------- single-app widgets: YouTube, Instagram, Discord, each its own in-world object ----------
+const sRng = (d, salt) => { let s = Math.abs(Math.floor(d.seed * 131 + salt * 977)) % 233280 || 11; return () => { s = (s * 9301 + 49297) % 233280; return s / 233280 } }
+const pick2 = (r, a) => a[Math.floor(r() * a.length) % a.length]
+const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`
+
+// HALCYON (calm lab)
+HAL.yt = (k, W, H, d) => {
+  const r = sRng(d, 1), small = W < 200
+  k.t("CULTURE FEED // QUEUED FOR YOU", 12, 8, 7, k.S, { w: W - 24 })
+  const n = small ? 2 : 4, tw = small ? (W - 30) / 2 : 74, th2 = small ? 40 : 46
+  for (let i = 0; i < n; i++) { const x = 12 + i * (tw + 8), y = 22; k.rect(x, y, tw, th2, k.a(T.altBg, 0.12 + i * 0.05), k.ia(0.35), 0.8); k.circ(x + tw / 2, y + th2 / 2, 9, null, k.ia(0.5), 1); k.poly([[x + tw / 2 - 3, y + th2 / 2 - 5], [x + tw / 2 + 6, y + th2 / 2], [x + tw / 2 - 3, y + th2 / 2 + 5]], k.I); k.rect(x, y + th2 - 3, tw * (0.2 + r() * 0.7), 3, k.I); k.t(mmss(120 + r() * 900), x + tw - 3, y + 3, 6, k.S, { a: "r", w: 40 }) }
+  if (small) { k.t(`${3 + Math.floor(r() * 9)} APPROVED`, 12, H - 30, 9, k.I, { f: "disp", w: W - 24 }); k.t("AUTOPLAY: ON", 12, H - 14, 6.5, k.S, { w: W - 24 }); return }
+  k.t(pick2(r, ["Twelve minutes of calm, pre-selected.", "Your feed has been gently curated.", "Recommended for your mood tier.", "Approved content, warmly delivered."]), 12, 76, 13, k.I, { f: "disp", w: W - 24 })
+  const pts = []; for (let x = 0; x <= W - 24; x += 4) pts.push([12 + x, 120 - Math.exp(-x / 90) * 22 - 4]); k.ln(pts, k.A, 1.4)
+  k.t("RETENTION", 12, 124, 6.5, k.S, { w: 80 }); k.t(`SESSION ${mmss(300 + r() * 1800)} · CALM INDEX ${60 + Math.floor(r() * 35)}`, W - 12, 124, 6.5, k.S, { a: "r", w: 220 })
+}
+HAL.ig = (k, W, H, d) => {
+  const r = sRng(d, 2), small = W < 200, cols = small ? 3 : 6, cs = small ? 44 : 50
+  k.t("SPECIMEN GALLERY // PEERS ON FILE", 12, 8, 7, k.S, { w: W - 24 })
+  for (let i = 0; i < cols * (small ? 2 : 1); i++) { const x = 12 + (i % cols) * (cs + 4), y = 22 + Math.floor(i / cols) * (cs + 4); k.rect(x, y, cs, cs, k.a(T.panel, 0.6), k.ia(0.35), 0.8); const pts = []; for (let j = 0; j < 14; j++) { const a = j / 14 * Math.PI * 2, q = cs * (0.22 + r() * 0.12); pts.push([x + cs / 2 + q * Math.cos(a), y + cs / 2 + q * Math.sin(a)]) } k.poly(pts, k.a(i % 2 ? T.altBg : T.accent, 0.35), k.ia(0.6), 0.8); if (r() > 0.6) k.circ(x + cs - 6, y + 6, 2.5, k.A) }
+  if (small) { k.t(`${1 + Math.floor(r() * 9)} / 400 LIKES`, 12, H - 14, 6.5, k.S, { w: W - 24 }); return }
+  k.t(pick2(r, ["Everyone else is thriving. Observe.", "Comparison is a wellness metric.", "Your peers have been optimized.", "Look closely. Then look longer."]), 12, 80, 13, k.I, { f: "disp", w: W - 24 })
+  ;[["PEERS OBSERVED", `${120 + Math.floor(r() * 300)}`], ["VALIDATION", `${1 + Math.floor(r() * 9)} / 400`], ["SELF-REGARD", `▼ ${6 + Math.floor(r() * 20)}%`]].forEach(([l, v], i) => { const x = 12 + i * 112; k.t(l, x, 104, 6.5, k.S, { w: 108 }); k.t(v, x, 113, 10, k.I, { w: 108 }) })
+}
+HAL.dc = (k, W, H, d) => {
+  const r = sRng(d, 3), small = W < 200, cx = small ? W / 2 : 72, cy = small ? 56 : 66, R = small ? 34 : 44
+  const nodes = []; for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2 - Math.PI / 2; nodes.push([cx + R * Math.cos(a), cy + R * Math.sin(a), r() > 0.35]) }
+  nodes.forEach(([x, y], i) => nodes.forEach(([x2, y2], j) => { if (j > i && r() > 0.55) k.ln([[x, y], [x2, y2]], k.ia(0.18), 0.6) }))
+  nodes.forEach(([x, y]) => k.ln([[cx, cy], [x, y]], k.ia(0.25), 0.7))
+  k.circ(cx, cy, 10, k.a(T.altBg, 0.5), k.I, 1); k.t("YOU", cx, cy - 3, 6, k.I, { a: "c", w: 24 })
+  nodes.forEach(([x, y, on]) => k.circ(x, y, 5, on ? k.A : k.PN, k.I, 0.9))
+  const online = nodes.filter(n => n[2]).length
+  if (small) { k.t(`${online} OF 7 IN SYNC`, W / 2, H - 16, 7, k.I, { a: "c", w: W - 20 }); return }
+  k.t("COLLECTIVE // SYNC STATUS", 134, 8, 7, k.S, { w: 220 })
+  k.t(`${online} members in sync`, 134, 22, 15, k.I, { f: "disp", w: 220 })
+  ;[["# approved-chatter", r() > 0.4], ["# wellness-checkins", r() > 0.5], ["# mandatory-fun", true], ["🔈 calm-room", r() > 0.5]].forEach(([c, unread], i) => { const y = 48 + i * 16; k.t(c, 134, y, 8.5, unread ? k.I : k.S, { w: 180 }); if (unread) k.circ(W - 20, y + 5, 3, k.A) })
+  k.t(`MENTIONS ${Math.floor(r() * 6)} · HARMONY ${80 + Math.floor(r() * 19)}%`, 134, 118, 6.5, k.S, { w: 220 })
+}
+
+// DIRECTIVE ZERO (defense terminal)
+DIR.yt = (k, W, H, d) => {
+  const r = sRng(d, 4), small = W < 200, cols = small ? 2 : 3, rows = 2, mw = (W - 24 - (cols - 1) * 6) / cols, mh = small ? 34 : 40
+  for (let i = 0; i < cols * rows; i++) { const x = 12 + (i % cols) * (mw + 6), y = 8 + Math.floor(i / cols) * (mh + 6), live = i === 0 || r() > 0.6; k.rect(x, y, mw, mh, k.ia(0.05), live ? k.H : k.ia(0.4), live ? 1.2 : 0.8); for (let yy = y + 2; yy < y + mh; yy += 3) k.rect(x, yy, mw, 1, k.ia(0.05)); k.t(`CAM ${String(i + 1).padStart(2, "0")}`, x + 4, y + 3, 6, k.S, { w: 40 }); if (live) { k.circ(x + mw - 8, y + 7, 2.5, k.H); k.t("REC", x + mw - 26, y + 3, 6, k.H, { w: 20, f: "bold" }) } k.ln([[x + mw / 2 - 5, y + mh / 2], [x + mw / 2 + 5, y + mh / 2]], k.ia(0.4), 0.7); k.ln([[x + mw / 2, y + mh / 2 - 5], [x + mw / 2, y + mh / 2 + 5]], k.ia(0.4), 0.7) }
+  if (small) { k.t("6 FEEDS · 2 LIVE", 12, H - 14, 6.5, k.H, { w: W - 24 }); return }
+  k.t("MONITOR WALL // SIX FEEDS UNDER WATCH", 12, 104, 7, k.S, { w: 240 })
+  k.t(`TARGETS VIEWED ${20 + Math.floor(r() * 80)} · DWELL ${mmss(60 + r() * 600)}`, 12, 116, 8.5, k.I, { w: 260, f: "bold" })
+  for (let i = 0; i < 5; i++) k.hex(W - 70 + i * 13, 120, 5.5, i < 3 ? k.H : k.ia(0.1), k.ia(0.4), 0.6)
+}
+DIR.ig = (k, W, H, d) => {
+  const r = sRng(d, 5), small = W < 200, n = small ? 2 : 4, cw = small ? 68 : 78, ch = small ? 70 : 84
+  for (let i = 0; i < n; i++) { const x = 12 + i * (cw + 8), y = 10; k.rect(x, y, cw, ch, k.ia(0.04), k.ia(0.45), 0.8); k.circ(x + cw / 2, y + ch * 0.36, cw * 0.16, null, k.ia(0.6), 1); k.arc(x + cw / 2, y + ch * 0.78, cw * 0.28, Math.PI, Math.PI * 2, k.ia(0.6), 1); k.t(`SUBJ ${String(10 + Math.floor(r() * 89))}`, x + 4, y + ch - 12, 6, k.S, { w: cw - 8 }); if (r() > 0.5) { k.rect(x + 6, y + ch * 0.55, cw - 12, 12, null, k.H, 1.2); k.t(pick2(r, ["OBSERVED", "FLAGGED", "ENVIED"]), x + cw / 2, y + ch * 0.55 + 2, 7, k.H, { a: "c", w: cw - 12, f: "bold" }) } }
+  if (small) { k.t("DOSSIERS UPDATED", 12, H - 14, 6.5, k.S, { w: W - 24 }); return }
+  k.t("CIVILIAN DOSSIERS", 12, 102, 7, k.S, { w: 200 }); k.t(`${120 + Math.floor(r() * 300)} PROFILES SCANNED · MORALE DELTA ▼${3 + Math.floor(r() * 12)}%`, 12, 114, 8.5, k.I, { w: W - 24, f: "bold" })
+}
+DIR.dc = (k, W, H, d) => {
+  const r = sRng(d, 6), small = W < 200
+  k.t("COMMAND NET // CHANNELS", 12, 8, 7, k.S, { w: W - 24 })
+  const ch = [["# sortie-briefings", 1], ["# civil-defense", 0], ["# morale-office", 1], ["🔊 OPS ROOM", 2], ["🔊 SHELTER 9", 0]]
+  ch.slice(0, small ? 4 : 5).forEach(([c, st], i) => { const y = 22 + i * 16; k.hex(18, y + 5, 4.5, st === 2 ? k.A : st === 1 ? k.H : k.ia(0.12)); k.t(c, 28, y, 8.5, st ? k.I : k.S, { w: small ? W - 40 : 180 }); if (st === 2 && !small) k.t(`${2 + Math.floor(r() * 5)} IN VOICE`, 210, y, 7, k.A, { w: 80 }) })
+  if (small) return
+  k.rect(W - 112, 22, 98, 74, null, k.H, 1); k.t("OPERATORS", W - 104, 28, 6.5, k.S, { w: 80 }); k.t(`${3 + Math.floor(r() * 12)}`, W - 104, 40, 26, k.I, { f: "disp", w: 80 }); k.t("ONLINE", W - 104, 72, 7, k.H, { w: 80 })
+  k.t(`ALERTS ${Math.floor(r() * 9)} · MENTIONS ${Math.floor(r() * 4)} · ENCRYPTION ON`, 12, 112, 7, k.S, { w: W - 24 })
+}
+
+// THE LONG ROAD (parchment fantasy)
+LR.yt = (k, W, H, d) => {
+  const r = sRng(d, 7), small = W < 200, x0 = 12, w = small ? W - 24 : 150, y0 = 8, h = H - 18
+  k.rect(x0, y0, w, h, k.a(T.panel, 0.7), k.I, 1); k.rect(x0 + 3, y0 + 3, w - 6, h - 6, null, k.ia(0.4), 0.6)
+  for (let i = 0; i < 6; i++) { const cx = x0 + 6 + i * (w - 12) / 6; k.poly([[cx, y0 + 3], [cx + (w - 12) / 6, y0 + 3], [cx + (w - 12) / 12, y0 + 14]], k.a(T.accent, 0.6)) }
+  k.t("TONIGHT", x0 + w / 2, y0 + 18, 7, k.S, { a: "c", w: w - 10 })
+  k.para(pick2(r, ["The Ballad of the Lost Goose", "A Comedy of Wrong Turns", "The Miller's Three Wishes", "The Knight Who Forgot His Horse"]), x0 + 8, y0 + 30, w - 16, small ? 11 : 13, k.I, "disp", 2, 1.1)
+  k.t("performed by the Travelling Players", x0 + w / 2, y0 + h - 22, 7.5, k.S, { f: "disp", a: "c", w: w - 10 })
+  if (small) return
+  const rx = 176
+  k.t("Acts still to come", rx, 12, 10, k.S, { f: "disp", w: 170 })
+  ;["Act I · The Lost Goose", "Act II · A Wrong Turn", "Act III · The Feast"].forEach((a, i) => { const done = i < 1 + Math.floor(r() * 2); k.t(a, rx, 30 + i * 18, 11, done ? k.ia(0.45) : k.I, { f: "disp", w: 170 }); if (done) k.ln([[rx, 37 + i * 18], [rx + 120, 37 + i * 18]], k.A, 0.9) })
+  k.t(`Candle left: ${1 + Math.floor(r() * 5)} inches`, rx, 92, 10, k.S, { f: "disp", w: 170 }); k.t("Seats: a few, near the back", rx, 108, 10, k.S, { f: "disp", w: 170 })
+}
+LR.ig = (k, W, H, d) => {
+  const r = sRng(d, 8), small = W < 200, n = small ? 2 : 4, fw = small ? 66 : 74, fh = small ? 78 : 92
+  const names = ["The Baker", "The Miller's Son", "Old Maud", "A Stranger", "The Smith", "The Bard"]
+  for (let i = 0; i < n; i++) { const x = 12 + i * (fw + 10), y = 8; k.rect(x, y, fw, fh, k.a(T.panel, 0.8), k.I, 1.2); k.rect(x + 3, y + 3, fw - 6, fh - 6, null, k.ia(0.35), 0.5); k.ell(x + fw / 2, y + fh * 0.42, fw * 0.28, fh * 0.3, k.ia(0.06), k.ia(0.6), 0.8); k.circ(x + fw / 2, y + fh * 0.36, fw * 0.1, null, k.ia(0.55), 0.8); k.arc(x + fw / 2, y + fh * 0.64, fw * 0.18, Math.PI, Math.PI * 2, k.ia(0.55), 0.8); k.t(pick2(r, names), x + fw / 2, y + fh - 14, 8, k.I, { f: "disp", a: "c", w: fw - 6 }) }
+  if (small) return
+  k.t(pick2(r, ["The whole village sat for portraits this week.", "New faces hung in the gallery at dawn.", "Everyone looks finer in oil paint."]), 12, 108, 11, k.S, { f: "disp", w: W - 24 })
+}
+LR.dc = (k, W, H, d) => {
+  const r = sRng(d, 9), small = W < 200, cx = small ? W / 2 : 84, cy = small ? 58 : 66
+  k.ell(cx, cy, small ? 52 : 62, small ? 28 : 34, k.a(T.panel, 0.8), k.I, 1.2); k.ell(cx, cy, small ? 44 : 54, small ? 22 : 27, null, k.ia(0.3), 0.6)
+  const seats = 8, filled = []; for (let i = 0; i < seats; i++) { const a = i / seats * Math.PI * 2, x = cx + (small ? 62 : 74) * Math.cos(a), y = cy + (small ? 36 : 44) * Math.sin(a), on = r() > 0.4; filled.push(on); k.circ(x, y, 6, on ? k.a(T.accent, 0.8) : k.PN, k.I, 0.9) }
+  for (let i = 0; i < 3; i++) { const x = cx - 20 + i * 20; k.rect(x - 4, cy - 6, 8, 11, k.PN, k.I, 0.8); k.ln([[x + 4, cy - 3], [x + 7, cy - 3], [x + 7, cy + 2], [x + 4, cy + 2]], k.I, 0.8) }
+  const on = filled.filter(Boolean).length
+  if (small) { k.t(`${on} at the table`, W / 2, H - 16, 9, k.I, { f: "disp", a: "c", w: W - 20 }); return }
+  k.t("At the tavern tonight", 176, 10, 10, k.S, { f: "disp", w: 170 })
+  k.t(`${on} at the long table`, 176, 24, 14, k.I, { f: "disp", w: 176 })
+  ;["The long table: gossip", "By the hearth: song", "The back room: dice"].forEach((t2, i) => { k.t(t2, 176, 50 + i * 16, 10, i === 0 ? k.I : k.S, { f: "disp", w: 170 }); if (i === 0) k.circ(W - 20, 56, 3, k.A) })
+  k.t(`Letters waiting: ${Math.floor(r() * 5)} · Ale: plenty`, 176, 108, 9.5, k.S, { f: "disp", w: 170 })
+}
+
+// NIGHTFALL (visor HUD)
+NF.yt = (k, W, H, d) => {
+  const r = sRng(d, 10), small = W < 200, fx = 12, fy = 8, fw = small ? W - 24 : 200, fh = small ? 64 : 80
+  k.rect(fx, fy, fw, fh, k.ia(0.06)); for (let i = 0; i < 140; i++) k.rect(fx + r() * fw, fy + r() * fh, 1 + r() * 2, 1, k.ia(r() * 0.25)); nfBrackets(k, fx + 2, fy + 2, fw - 4, fh - 4, 8, k.I, 1.3)
+  k.circ(fx + fw / 2, fy + fh / 2, 12, null, k.ia(0.7), 1); k.poly([[fx + fw / 2 - 4, fy + fh / 2 - 6], [fx + fw / 2 + 7, fy + fh / 2], [fx + fw / 2 - 4, fy + fh / 2 + 6]], k.I)
+  k.t(`REPLAY ${String(1 + Math.floor(r() * 40)).padStart(2, "0")} // DROP ${String(1 + Math.floor(r() * 9))}`, fx + 6, fy + 5, 6.5, k.A, { w: fw - 12, f: "bold" })
+  const sy = fy + fh + 8; k.rect(fx, sy, fw, 4, k.ia(0.15)); const p = 0.2 + r() * 0.6; k.rect(fx, sy, fw * p, 4, k.I); k.circ(fx + fw * p, sy + 2, 4, k.A)
+  for (let i = 0; i < 5; i++) k.ln([[fx + fw * (0.1 + i * 0.2), sy - 3], [fx + fw * (0.1 + i * 0.2), sy + 7]], k.a(T.accent, 0.6), 0.8)
+  if (small) { k.t(`${mmss(30 + r() * 300)} / ${mmss(400 + r() * 300)}`, fx, H - 14, 6.5, k.S, { w: fw }); return }
+  const rx = 226
+  ;[["CLIPS QUEUED", "∞"], ["ADRENALINE", `${60 + Math.floor(r() * 39)}%`], ["SLEEP DEBT", `${1 + Math.floor(r() * 5)}H`]].forEach(([l, v], i) => { nfBrackets(k, rx, 8 + i * 38, W - rx - 12, 32, 5, k.ia(0.6), 1); k.t(l, rx + 6, 12 + i * 38, 6.5, k.S, { w: 100 }); k.t(v, rx + 6, 22 + i * 38, 12, k.I, { f: "bold", w: 100 }) })
+}
+NF.ig = (k, W, H, d) => {
+  const r = sRng(d, 11), small = W < 200, cols = small ? 3 : 5, cs = small ? 44 : 60
+  k.t("RECON PHOTOS // CONTACT SHEET", 12, 6, 7, k.A, { w: W - 24, f: "bold" })
+  for (let i = 0; i < cols * (small ? 2 : 1); i++) { const x = 12 + (i % cols) * (cs + 6), y = 20 + Math.floor(i / cols) * (cs + 6); k.rect(x, y, cs, cs, k.ia(0.06)); for (let j = 0; j < 30; j++) k.rect(x + r() * cs, y + r() * cs, 1, 1, k.ia(r() * 0.3)); nfBrackets(k, x, y, cs, cs, 5, k.ia(0.7), 1); if (r() > 0.55) { k.circ(x + cs / 2, y + cs / 2, cs * 0.18, null, k.A, 1.2); k.ln([[x + cs / 2, y + cs * 0.22], [x + cs / 2, y + cs * 0.78]], k.a(T.accent, 0.5), 0.6) } k.t(`#${String(100 + i * 7 + Math.floor(r() * 5))}`, x + 3, y + cs - 10, 5.5, k.S, { w: cs - 6 }) }
+  if (small) return
+  k.t(`FRAMES ${40 + Math.floor(r() * 160)} · TAGGED ${3 + Math.floor(r() * 12)} · SQUAD RESPECT ▲${1 + Math.floor(r() * 9)}`, 12, 92, 8, k.I, { w: W - 24, f: "bold" })
+  k.t("FILE BY END OF SHIFT", 12, 106, 6.5, k.S, { w: 200 })
+}
+NF.dc = (k, W, H, d) => {
+  const r = sRng(d, 12), small = W < 200
+  k.t("SQUAD NET // VOICE + TEXT", 12, 6, 7, k.A, { w: W - 24, f: "bold" })
+  const troopers = ["ALPHA-1", "ALPHA-2", "BRAVO-3", "BRAVO-4", "CHARLIE-6"], talking = Math.floor(r() * 5)
+  troopers.slice(0, small ? 4 : 5).forEach((t2, i) => { const y = 20 + i * 15; const on = r() > 0.25; k.circ(18, y + 5, 3.5, on ? (i === talking ? k.A : k.I) : k.ia(0.15)); k.t(t2, 28, y, 8, on ? k.I : k.S, { w: 70, f: "bold" }); if (!small) { k.segs(104, y + 2, 90, 5, 10, on ? (i === talking ? 0.8 + r() * 0.2 : r() * 0.3) : 0, k.I, k.ia(0.12), 2); k.t(i === talking ? "TX" : on ? "RX" : "OFF", 200, y, 7, i === talking ? k.A : k.S, { w: 30 }) } })
+  if (small) return
+  nfBrackets(k, W - 116, 18, 104, 74, 7, k.I, 1.2); k.t("CHANNEL", W - 108, 24, 6.5, k.S, { w: 80 }); k.t("08", W - 108, 34, 26, k.I, { f: "bold", w: 80 }); k.t(`${troopers.length} ON NET`, W - 108, 66, 7, k.A, { w: 90 }); k.t(`UNREAD ${Math.floor(r() * 9)}`, W - 108, 78, 7, k.S, { w: 90 })
+  k.t("PUSH TO TALK · KEEP IT CLEAN, TROOPER", 12, 110, 7, k.S, { w: W - 24 })
+}
+
+// GRIMOIRE (arcane)
+GM.yt = (k, W, H, d) => {
+  const r = sRng(d, 13), small = W < 200, cx = small ? W / 2 : 70, cy = small ? 54 : 62, R = small ? 34 : 44
+  for (let g = 4; g >= 1; g--) k.circ(cx, cy, R + g * 3, k.a(T.altBg, 0.06)); k.circ(cx, cy, R, k.a(T.altBg, 0.4), k.A, 1.2)
+  for (let i = 0; i < 4; i++) { const pts = []; for (let a = 0; a <= Math.PI * 2; a += 0.2) pts.push([cx + R * 0.7 * Math.cos(a) * (0.4 + i * 0.15), cy + R * 0.5 * Math.sin(a + i) * (0.5 + i * 0.12)]); k.ln(pts, k.a(T.accent, 0.25 + i * 0.12), 0.8) }
+  k.poly([[cx - 5, cy - 7], [cx + 8, cy], [cx - 5, cy + 7]], k.a(T.ink, 0.85)); k.poly([[cx - 18, cy + R + 4], [cx + 18, cy + R + 4], [cx + 24, cy + R + 14], [cx - 24, cy + R + 14]], k.a(T.accent, 0.4), k.A, 1)
+  if (small) return
+  k.t("THE CRYSTAL SHOWS", 136, 8, 7, k.A, { w: 200 })
+  k.para(pick2(r, ["A traveller teaching a cat to cook.", "Ten minutes of rain on old stones.", "A wizard reviewing other wizards.", "Something unboxed, with great ceremony."]), 136, 22, W - 150, 14, k.I, "disp", 2, 1.1)
+  ;[["VISIONS QUEUED", "∞"], ["TRANCE", `${2 + Math.floor(r() * 5)} CIRCLES`], ["ESSENCE SPENT", `${10 + Math.floor(r() * 60)}%`]].forEach(([l, v], i) => { k.t(l, 136, 62 + i * 18, 7, k.S, { w: 100 }); k.t(v, W - 14, 60 + i * 18, 11, k.I, { f: "disp", a: "r", w: 100 }) })
+}
+GM.ig = (k, W, H, d) => {
+  const r = sRng(d, 14), small = W < 200, cx = small ? W / 2 : 62, cy = small ? 50 : 56
+  k.ell(cx, cy, small ? 28 : 34, small ? 36 : 44, k.a(T.altBg, 0.45), k.A, 1.4); k.ell(cx, cy, small ? 23 : 28, small ? 31 : 38, null, k.a(T.accent, 0.5), 0.6)
+  k.rect(cx - 4, cy + (small ? 36 : 44), 8, 22, k.a(T.accent, 0.8)); k.circ(cx, cy + (small ? 36 : 44) + 24, 5, k.A)
+  for (let i = 0; i < 3; i++) k.ln([[cx - 14 + i * 4, cy - 22 + i * 6], [cx - 6 + i * 4, cy - 30 + i * 6]], k.a("#FFFFFF", 0.4), 1)
+  if (small) return
+  k.t("THE LOOKING GLASS REVEALS", 120, 8, 7, k.A, { w: 220 })
+  for (let i = 0; i < 4; i++) { const x = 120 + i * 58, y = 22; gmCard(k, x, y, 50, 62, null); k.circ(x + 25, y + 24, 9, null, k.a(T.accent, 0.7), 0.9); k.arc(x + 25, y + 52, 14, Math.PI, Math.PI * 2, k.a(T.accent, 0.7), 0.9) }
+  k.t(`FACES SEEN ${50 + Math.floor(r() * 300)} · FAVOR GAINED ${1 + Math.floor(r() * 9)} · VANITY ▲${Math.floor(r() * 20)}`, 120, 94, 7.5, k.I, { w: W - 134 })
+  k.t(pick2(r, ["\u201CWho is fairest?\u201D It declines to say.", "The glass remembers every glance.", "Look once. The glass looks back."]), 120, 108, 10, k.S, { f: "disp", w: W - 134 })
+}
+GM.dc = (k, W, H, d) => {
+  const r = sRng(d, 15), small = W < 200, cx = small ? W / 2 : 70, cy = small ? 56 : 64, R = small ? 38 : 46
+  k.circ(cx, cy, R, null, k.A, 1.1); gmStar(k, cx, cy, R * 0.86, k.a(T.accent, 0.45), 0.8)
+  const seats = 7, lit = []; for (let i = 0; i < seats; i++) { const a = -Math.PI / 2 + i / seats * Math.PI * 2, x = cx + R * Math.cos(a), y = cy + R * Math.sin(a), on = r() > 0.35; lit.push(on); k.rect(x - 2.5, y - 2, 5, 9, k.ia(0.85)); if (on) { k.ell(x, y - 6, 3, 5, k.a(T.accent, 0.3)); k.poly([[x, y - 10], [x + 2, y - 5], [x, y - 2], [x - 2, y - 5]], k.A) } }
+  k.circ(cx, cy, 6, k.a(T.altBg, 1), k.A, 1)
+  const on = lit.filter(Boolean).length
+  if (small) { k.t(`${on} candles lit`, W / 2, H - 16, 9, k.I, { f: "disp", a: "c", w: W - 20 }); return }
+  k.t("THE CIRCLE GATHERS", 136, 8, 7, k.A, { w: 200 })
+  k.t(`${on} of the circle present`, 136, 22, 15, k.I, { f: "disp", w: 210 })
+  ;["# whispers", "# the-grimoire", "# omens-and-portents", "🕯 the seance room"].forEach((c, i) => { const y = 48 + i * 15; k.t(c, 136, y, 9, i === 3 ? k.A : k.I, { f: "disp", w: 190 }); if (r() > 0.5) k.poly([[W - 20, y + 2], [W - 17, y + 5], [W - 20, y + 8], [W - 23, y + 5]], k.A) })
+  k.t(`SUMMONS ${Math.floor(r() * 5)} · OMENS ${Math.floor(r() * 9)}`, 136, 112, 7, k.S, { w: 200 })
+}
+
+// DEEP RANGE (tracking display)
+DRG.yt = (k, W, H, d) => {
+  const r = sRng(d, 16), small = W < 200, fw = small ? W - 24 : 180, cols = 6, fh = small ? 48 : 60
+  for (let i = 0; i < cols; i++) { const x = 12 + i * (fw / cols), on = i === cols - 1; k.rect(x + 1, 10, fw / cols - 3, fh, k.a(T.altBg, on ? 0.6 : 0.18 + i * 0.06), on ? k.H : k.ia(0.3), on ? 1.2 : 0.6); const pts = []; for (let yy = 0; yy <= fh; yy += 3) pts.push([x + fw / cols / 2 + Math.sin(yy * 0.3 + i) * (fw / cols * 0.3), 10 + yy]); k.ln(pts, k.ia(0.5 + i * 0.08), 0.8) }
+  k.t("FRAME LOCK", 12, fh + 14, 7, k.H, { f: "bold", w: 100 }); k.segs(12, fh + 26, fw, 4, 18, 0.3 + r() * 0.6, k.I, k.ia(0.12), 1)
+  if (small) return
+  const rx = 206
+  k.t("VIDEO DOWNLINK", rx, 8, 7, k.S, { w: 140 }); k.t(`${(1 + r() * 9).toFixed(1)} MBPS`, rx, 18, 22, k.I, { f: "heavy", w: 150 })
+  ;[["PASS", `${String(1 + Math.floor(r() * 99)).padStart(2, "0")} / ∞`], ["DWELL", mmss(60 + r() * 900)], ["PACKET LOSS", `${(r() * 3).toFixed(1)}%`]].forEach(([l, v], i) => { const y = 50 + i * 20; k.rect(rx, y, 3, 16, k.H); k.t(l, rx + 8, y, 6.5, k.S, { w: 70 }); k.t(v, W - 14, y + 2, 10, k.I, { f: "heavy", a: "r", w: 80 }) })
+}
+DRG.ig = (k, W, H, d) => {
+  const r = sRng(d, 17), small = W < 200, n = small ? 2 : 4, ts = small ? 62 : 66
+  for (let i = 0; i < n; i++) { const x = 12 + i * (ts + 10), y = 10, prog = 0.3 + r() * 0.7, px = 6, rows = Math.floor(ts / px); for (let a = 0; a < rows; a++) for (let b = 0; b < rows; b++) { const decoded = (a * rows + b) / (rows * rows) < prog; k.rect(x + b * px, y + a * px, px - 1, px - 1, decoded ? k.a(r() > 0.5 ? T.ink : T.altBg, 0.25 + r() * 0.6) : k.ia(0.05)) } k.rect(x - 1, y - 1, ts, ts, null, i === 0 ? k.H : k.ia(0.4), 1); k.t(`IMG ${String(400 + i * 13)} · ${Math.round(prog * 100)}%`, x, y + ts + 3, 6.5, i === 0 ? k.H : k.S, { w: ts + 6 }) }
+  if (small) return
+  k.t(`INTERCEPTS ${30 + Math.floor(r() * 200)} · DECODED ${10 + Math.floor(r() * 30)} · ECHOES ${Math.floor(r() * 9)}`, 12, 96, 8, k.I, { f: "bold", w: W - 24 }); k.t("IMAGE INTERCEPTS // RELAY 07", 12, 110, 6.5, k.S, { w: 220 })
+}
+DRG.dc = (k, W, H, d) => {
+  const r = sRng(d, 18), small = W < 200, nodes = [[0.5, 0.18], [0.2, 0.5], [0.8, 0.45], [0.35, 0.85], [0.7, 0.85], [0.5, 0.52]], mw = small ? W - 24 : 170, mh = small ? 90 : 110
+  nodes.forEach(([a, b], i) => nodes.forEach(([c2, e], j) => { if (j > i && (i === 5 || j === 5 || r() > 0.6)) k.ln([[12 + a * mw, 10 + b * mh], [12 + c2 * mw, 10 + e * mh]], k.a(T.altBg, 0.7), 0.8) }))
+  nodes.forEach(([a, b], i) => { const x = 12 + a * mw, y = 10 + b * mh, on = i === 5 || r() > 0.3; k.rect(x - 4, y - 4, 8, 8, i === 5 ? k.H : on ? k.I : k.ia(0.2)); if (on && i !== 5) k.circ(x, y, 8, null, k.ia(0.3), 0.6) })
+  if (small) return
+  const rx = 198
+  k.t("RELAY NET // CONTACTS", rx, 8, 7, k.S, { w: 160 }); k.t(`${3 + Math.floor(r() * 9)} ONLINE`, rx, 18, 22, k.I, { f: "heavy", w: 160 })
+  ;["# deep-field", "# salvage-rights", "🔊 RELAY 07"].forEach((c, i) => { const y = 52 + i * 16; k.rect(rx, y + 2, 3, 10, i === 2 ? k.H : k.I); k.t(c.toUpperCase(), rx + 8, y, 8, k.I, { w: 150, f: "bold" }) })
+  k.t(`PINGS ${Math.floor(r() * 30)} · REPLIES ${Math.floor(r() * 9)}`, rx, 108, 7, k.H, { w: 160 })
+}
+// ---------- WHITE RABBIT (lilac haze, pearl, magenta, sparkles) ----------
+function rbSpark(k, x, y, r, c) { k.poly([[x, y - r], [x + r * 0.22, y - r * 0.22], [x + r, y], [x + r * 0.22, y + r * 0.22], [x, y + r], [x - r * 0.22, y + r * 0.22], [x - r, y], [x - r * 0.22, y - r * 0.22]], c || k.A) }
+function rbHeart(k, x, y, s, fill, stroke, lw) { const p = new Path(); const P = (a, b) => new Point(a, b); p.move(P(x, y + s * 0.35)); p.addQuadCurve(P(x - s * 0.5, y - s * 0.05), P(x - s * 0.55, y + s * 0.15)); p.addQuadCurve(P(x, y - s * 0.12), P(x - s * 0.35, y - s * 0.5)); p.addQuadCurve(P(x + s * 0.5, y - s * 0.05), P(x + s * 0.35, y - s * 0.5)); p.addQuadCurve(P(x, y + s * 0.35), P(x + s * 0.55, y + s * 0.15)); k.dc.addPath(p); if (fill) { k.dc.setFillColor(fill); k.dc.fillPath() } if (stroke) { k.dc.addPath(p); k.dc.setStrokeColor(stroke); k.dc.setLineWidth(lw || 1); k.dc.strokePath() } }
+function rbRabbit(k, x, y, s, fill, stroke) {
+  k.ell(x, y, s * 0.42, s * 0.22, fill, stroke, 1)
+  k.ell(x + s * 0.38, y - s * 0.12, s * 0.16, s * 0.13, fill, stroke, 1)
+  k.ell(x + s * 0.34, y - s * 0.36, s * 0.05, s * 0.17, fill, stroke, 1); k.ell(x + s * 0.44, y - s * 0.34, s * 0.05, s * 0.16, fill, stroke, 1)
+  k.ell(x - s * 0.26, y + s * 0.12, s * 0.2, s * 0.08, fill, stroke, 1); k.ell(x + s * 0.18, y + s * 0.2, s * 0.12, s * 0.05, fill, stroke, 1)
+  k.circ(x - s * 0.44, y - s * 0.06, s * 0.07, fill, stroke, 1); k.circ(x + s * 0.43, y - s * 0.14, s * 0.02, k.A)
+}
+function rbWatch(k, cx, cy, R, now, small) {
+  k.circ(cx, cy, R + 3, k.a(T.headBg, 0.35)); k.circ(cx, cy, R, k.a(T.panel, 0.95), k.I, 1.4); k.circ(cx, cy, R - 4, null, k.a(T.headBg, 0.9), 0.8)
+  for (let i = 0; i < 60; i++) { const a = i / 60 * Math.PI * 2, l = i % 5 === 0 ? 5 : 2; k.ln([[cx + (R - 5) * Math.cos(a), cy + (R - 5) * Math.sin(a)], [cx + (R - 5 - l) * Math.cos(a), cy + (R - 5 - l) * Math.sin(a)]], k.ia(i % 5 ? 0.35 : 0.8), i % 5 ? 0.5 : 1) }
+  if (!small) ["XII", "III", "VI", "IX"].forEach((n, i) => { const a = -Math.PI / 2 + i * Math.PI / 2; k.t(n, cx + (R - 16) * Math.cos(a), cy + (R - 16) * Math.sin(a) - 4, 7, k.I, { f: "disp", a: "c", w: 22 }) })
+  const h = now.getHours() % 12 + now.getMinutes() / 60, m = now.getMinutes() / 60
+  k.ln([[cx, cy], [cx + R * 0.45 * Math.cos(h / 12 * Math.PI * 2 - Math.PI / 2), cy + R * 0.45 * Math.sin(h / 12 * Math.PI * 2 - Math.PI / 2)]], k.I, 2)
+  k.ln([[cx, cy], [cx + R * 0.7 * Math.cos(m * Math.PI * 2 - Math.PI / 2), cy + R * 0.7 * Math.sin(m * Math.PI * 2 - Math.PI / 2)]], k.A, 1.3)
+  k.circ(cx, cy, 2.5, k.A); k.rect(cx - 5, cy - R - 8, 10, 6, k.a(T.headBg, 1), k.I, 0.8); k.circ(cx, cy - R - 11, 3.5, null, k.I, 0.9)
+}
+function rbHaze(k, W, H, n) { const r = k.rng(n || 5); for (let i = 0; i < 9; i++) { const x = r() * W, a = -1.2 + r() * 0.5; k.ln([[x, 0], [x + Math.cos(a) * -H * 2, H]], k.a(T.headBg, 0.25), 0.5) } for (let i = 0; i < 7; i++) rbSpark(k, 8 + r() * (W - 16), 6 + r() * (H - 12), 2 + r() * 3, k.a(T.accent, 0.25 + r() * 0.4)) }
+const RB = {
+  status(k, W, H, d) {
+    const wx = d.wx || {}
+    rbHaze(k, W, H, 3)
+    rbWatch(k, 62, H / 2 + 6, 46, d.now)
+    const x0 = 128
+    k.t(d.ev ? (d.ev.active ? "NOW, DOWN THE HOLE" : "NEXT, DON'T BE LATE") : "NOTHING ON THE CARD", x0, 8, 7, k.A, { w: 220 })
+    k.para(d.ev ? d.ev.title : "A free afternoon. How curious.", x0, 20, W - x0 - 14, 16, k.I, "disp", 2, 1.08)
+    k.t(d.ev ? `${shortT(d.ev.start)} — ${shortT(d.ev.end)}` : "", x0, 58, 8.5, k.I, { w: 200 })
+    if (d.ev && !d.ev.active) { const mins = Math.max(0, Math.round((d.ev.start - d.now) / 60000)); k.t(mins < 15 ? "Oh dear! You shall be too late!" : `${mins} minutes to spare`, x0, 70, 9, k.S, { f: "disp", w: 210 }) }
+    ;[["SKY", wx.temp != null ? `${wx.temp}° ${(wx.cond || "").toLowerCase()}` : "--"], ["FEELS", wx.feels != null ? `${wx.feels}°` : "--"], ["HI / LO", wx.hi != null ? `${wx.hi}° / ${wx.lo}°` : "--"]].forEach(([l, v], i) => { const x = x0 + [0, 108, 158][i], w2 = [100, 44, 64][i]; k.rect(x, 86, w2, 26, k.a(T.panel, 0.8), k.a(T.headBg, 1), 0.8); k.t(l, x + 5, 89, 6, k.S, { w: w2 - 8 }); k.t(v, x + 5, 98, 8.5, k.I, { w: w2 - 8 }) })
+    for (let i = 0; i < 5; i++) rbHeart(k, x0 + 6 + i * 13, 124, 10, i / 5 < d.batt ? k.A : null, k.A, 0.9)
+    k.t(`HEARTS ${pct(d.batt)}`, x0 + 72, 120, 6.5, k.S, { w: 80 }); k.t(`DAY ${dayOfYear(d.now)}`, W - 14, 120, 6.5, k.S, { a: "r", w: 60 })
+  },
+  shift(k, W, H, d) {
+    rbHaze(k, W, H, 4)
+    k.t(d.ev ? (d.ev.active ? "FALLING THROUGH" : "THE HOLE OPENS IN") : "NO HOLE TODAY", 12, 6, 7, k.A, { w: W - 24 })
+    k.t(d.ev ? d.ev.title : d.L.offTitle, 12, 17, 11, k.I, { f: "disp", w: W - 24 })
+    const cx = 34, top = 40, bot = 128
+    for (let i = 0; i < 6; i++) { const t = i / 5, y = top + (bot - top) * t; k.ell(cx, y, 20 - t * 8, 5 - t * 1.5, null, k.a(T.headBg, 1 - t * 0.6), 1) }
+    const f = d.ev ? d.frac : 0, ry = top + (bot - top) * f; rbRabbit(k, cx, ry, 22, k.PN, k.I)
+    k.t(d.ev ? (d.ev.active ? "LEFT TO FALL" : "UNTIL THE DROP") : "", 66, 46, 7, k.S, { w: 96 })
+    if (d.ev) { k.t(`${pct(f)} of the way down`, 66, 96, 9, k.S, { f: "disp", w: 96 }); k.t(`Out at ${shortT(d.ev.end)}`, 66, 110, 9, k.S, { f: "disp", w: 96 }) }
+  },
+  tx(k, W, H, d) {
+    const small = W < 200, big = H > 200, x0 = 10, y0 = 6, w = W - 20, h = H - 12
+    k.rect(x0, y0, w, h, k.a(T.panel, 0.9), k.a(T.headBg, 1), 1); k.rect(x0 + 4, y0 + 4, w - 8, h - 8, null, k.a(T.accent, 0.35), 0.6)
+    ;[[x0 + 12, y0 + 14, 1], [x0 + w - 12, y0 + h - 14, -1]].forEach(([x, y]) => { k.t("A", x, y - 7, 9, k.A, { f: "disp", a: "c", w: 14 }); rbHeart(k, x, y + 8, 8, k.A) })
+    k.t(d.archival ? "FROM AN OLD STORYBOOK" : "A NOTE, LEFT IN A HURRY", W / 2, y0 + 10, 7, k.A, { a: "c", w: W - 60 })
+    const fs = small ? 13 : (big ? 21 : 18), n = k.para(d.text, x0 + 26, y0 + 24, w - 52, fs, k.I, "disp", small ? 4 : 3, 1.12)
+    k.t(`— ${d.by}`, W / 2, y0 + 28 + n * fs * 1.12, small ? 6.5 : 7.5, k.S, { a: "c", w: W - 60 })
+    const e0 = y0 + 44 + n * fs * 1.12, e1 = y0 + h - 12
+    if (!small && e1 - e0 > 16) { const r = k.rng(parseInt(d.hex, 16)); for (let i = 0; i < 9; i++) rbSpark(k, x0 + 40 + i * ((w - 80) / 8), e0 + (e1 - e0) / 2 + (r() - 0.5) * 8, 2 + r() * 3, k.a(T.accent, 0.4 + r() * 0.5)); k.t("CURIOUSER AND CURIOUSER", W / 2, e1 - 8, 6, k.S, { a: "c", w: 200 }) }
+  },
+  solar(k, W, H, d) {
+    const small = W < 200, big = H > 200, cx = W / 2, by = small ? 112 : 118, R = small ? 66 : 140
+    rbHaze(k, W, by, 6)
+    const pts = []; for (let t = 0; t <= 1.0001; t += 0.02) { const a = Math.PI + t * Math.PI; pts.push([cx + R * Math.cos(a), by + R * 0.6 * Math.sin(a)]) }
+    for (let i = 0; i < pts.length - 1; i += 2) k.ln([pts[i], pts[i + 1]], k.a(T.headBg, 1), 1.2)
+    k.ln([[10, by], [W - 10, by]], k.I, 1)
+    const f = d.up ? d.frac : 0, a2 = Math.PI + f * Math.PI, sx = cx + R * Math.cos(a2), sy = by + R * 0.6 * Math.sin(a2)
+    for (let g = 3; g >= 1; g--) k.circ(sx, sy, 5 + g * 4, k.a(T.accent, 0.08)); rbSpark(k, sx, sy, 9, k.A)
+    k.t(d.up ? C.solar.day : C.solar.night, 12, 6, 7, k.A, { w: 160 }); k.t(pct(d.up ? d.frac : 1 - d.frac), 12, 16, small ? 22 : 30, k.I, { f: "disp", w: 120 })
+    if (!small) k.t(d.up ? C.solar.setIn : C.solar.riseIn, W - 12, 6, 7, k.A, { a: "r", w: 140 })
+    k.t(`Up at ${shortT(d.rise)}`, 12, by + 6, 9, k.S, { f: "disp", w: 100 }); k.t(`Down at ${shortT(d.set)}`, W - 12, by + 6, 9, k.S, { f: "disp", a: "r", w: 100 })
+    if (big && d.atm) {
+      const A = d.atm, items = [["RAIN", A.pmax != null ? `${A.pmax}%` : "--"], ["DAMP", A.rh != null ? `${A.rh}%` : "--"], ["SUN", A.uv != null ? `${Math.round(A.uv)}` : "--"], ["SIGHT", A.vis || "--"], ["DEW", A.dew != null ? `${A.dew}°` : "--"], ["WIND", A.wind || "--"]]
+      items.forEach(([l, v], i) => { const x = 14 + (i % 3) * 114, y = 150 + Math.floor(i / 3) * 80; k.rect(x, y, 104, 66, k.a(T.panel, 0.85), k.a(T.headBg, 1), 0.9); rbSpark(k, x + 96, y + 8, 3, k.A); k.t(l, x + 10, y + 8, 6.5, k.A, { w: 80 }); k.t(v, x + 10, y + 20, String(v).length > 4 ? 15 : 19, k.I, { f: "disp", w: 60 })
+        const gx = x + 68, gy = y + 26
+        if (i === 0) (A.probs || []).slice(0, 5).forEach((p, j) => rbHeart(k, gx + (j % 3) * 10, gy + Math.floor(j / 3) * 12, 8, (p || 0) > 30 ? k.A : null, k.A, 0.7))
+        if (i === 1) { k.ell(gx + 14, gy + 14, 12, 12, null, k.a(T.headBg, 1), 1); k.ell(gx + 14, gy + 14 + 12 * (1 - (A.rh || 0) / 100) * 0.5, 10, 10 * ((A.rh || 0) / 100), k.a(T.headBg, 0.7)) }
+        if (i === 2) for (let j = 0; j < 5; j++) rbSpark(k, gx + 4 + j * 6, gy + 14 - (j % 2) * 6, 3, j < Math.ceil((A.uv || 0) / 2) ? k.A : k.a(T.headBg, 1))
+        if (i === 3) for (let j = 0; j < 3; j++) k.ell(gx + 14, gy + 14, 14 - j * 4, 6 - j * 1.5, null, j < Math.ceil((A.visMi || 0) / 3.4) ? k.ia(0.7) : k.ia(0.15), 0.8)
+        if (i === 4) { k.poly([[gx + 14, gy], [gx + 22, gy + 14], [gx + 14, gy + 26], [gx + 6, gy + 14]], k.a(T.headBg, 0.5), k.I, 0.8); rbSpark(k, gx + 16, gy + 10, 2, k.PN) }
+        if (i === 5) { const wd = ((A.wd || 0) + 180) * Math.PI / 180 - Math.PI / 2; k.circ(gx + 14, gy + 13, 12, null, k.a(T.headBg, 1), 0.8); k.ln([[gx + 14 - 9 * Math.cos(wd), gy + 13 - 9 * Math.sin(wd)], [gx + 14 + 10 * Math.cos(wd), gy + 13 + 10 * Math.sin(wd)]], k.A, 1.3); rbSpark(k, gx + 14 + 10 * Math.cos(wd), gy + 13 + 10 * Math.sin(wd), 3, k.A) }
+      })
+      k.t("Oh dear! Oh dear! I shall be too late!", W / 2, H - 22, 10, k.S, { f: "disp", a: "c", w: W - 30 })
+    }
+  },
+  feed(k, W, H, d) {
+    const x0 = 10, y0 = 8, w = W - 20, h = H - 16, suit = d.side === "yt" ? "A" : "Q"
+    k.rect(x0, y0, w, h, k.a(T.panel, 0.92), k.a(T.headBg, 1), 1)
+    k.t(suit, x0 + 8, y0 + 4, 11, k.A, { f: "disp", w: 14 }); rbHeart(k, x0 + 13, y0 + 22, 8, k.A)
+    k.t(d.code, x0 + w - 8, y0 + 6, 6.5, k.S, { a: "r", w: 60 })
+    k.t(d.line, x0 + w / 2, y0 + 30, 13, k.I, { f: "disp", a: "c", w: w - 30 })
+    d.meters.forEach(([n, v], i) => { const y = y0 + 52 + i * 14; k.t(n, x0 + 10, y, 7, k.S, { w: 70 }); for (let j = 0; j < 5; j++) rbHeart(k, x0 + 86 + j * 11, y + 5, 8, j / 5 < v ? k.A : null, k.A, 0.7) })
+    k.t(d.tag, x0 + w / 2, y0 + h - 14, 6.5, k.A, { a: "c", w: w - 16 })
+  },
+  yt(k, W, H, d) {
+    const r = sRng(d, 21), small = W < 200, tx = 14, ty = 22, tw = small ? W - 28 : 150, th2 = small ? 70 : 84
+    k.ln([[tx + tw / 2, ty], [tx + tw / 2 - 18, ty - 16]], k.I, 1.2); k.ln([[tx + tw / 2, ty], [tx + tw / 2 + 16, ty - 14]], k.I, 1.2); k.ell(tx + tw / 2 - 18, ty - 16, 3, 5, k.PN, k.I, 0.8); k.ell(tx + tw / 2 + 16, ty - 14, 3, 5, k.PN, k.I, 0.8)
+    k.rect(tx, ty, tw, th2, k.a(T.panel, 0.9), k.I, 1.4); k.rect(tx + 6, ty + 6, tw - 30, th2 - 12, k.a(T.headBg, 0.4), k.ia(0.4), 0.8)
+    rbSpark(k, tx + (tw - 30) / 2 + 6, ty + th2 / 2, 9, k.A); k.circ(tx + tw - 12, ty + 18, 4, null, k.I, 0.9); k.circ(tx + tw - 12, ty + 34, 4, null, k.I, 0.9)
+    if (small) { k.t(`${3 + Math.floor(r() * 9)} queued`, W / 2, H - 14, 8, k.S, { f: "disp", a: "c", w: W - 20 }); return }
+    const rx = 182
+    k.t("ON THE LOOKING SCREEN", rx, 8, 7, k.A, { w: 170 })
+    k.para(pick2(r, ["A very long video about very small cakes.", "Someone painting the roses red.", "Ten hours of a ticking clock.", "A cat that grins, then doesn't."]), rx, 22, W - rx - 14, 13, k.I, "disp", 2, 1.1)
+    ;[["TUMBLE DEPTH", `${2 + Math.floor(r() * 6)} LEVELS`], ["TIME LOST", mmss(300 + r() * 2400)], ["STILL CURIOUS", "YES"]].forEach(([l, v], i) => { k.t(l, rx, 60 + i * 18, 6.5, k.S, { w: 90 }); k.t(v, W - 14, 58 + i * 18, 10, k.I, { f: "disp", a: "r", w: 90 }) })
+  },
+  ig(k, W, H, d) {
+    const r = sRng(d, 22), small = W < 200, n = small ? 3 : 5, cw = small ? 50 : 58, ch = small ? 66 : 78, cx0 = small ? W / 2 : 110
+    for (let i = 0; i < n; i++) { const off = (i - (n - 1) / 2), x = cx0 + off * (cw * 0.62) - cw / 2, y = 14 + Math.abs(off) * 5; k.rect(x + 2, y + 2, cw, ch, k.ia(0.08)); k.rect(x, y, cw, ch, k.a(T.panel, 1), k.a(T.headBg, 1), 1); k.rect(x + 4, y + 4, cw - 8, ch - 20, k.a(i % 2 ? T.headBg : T.accent, 0.25)); rbSpark(k, x + cw / 2, y + (ch - 20) / 2 + 4, 5, i % 2 ? k.A : k.a(T.headBg, 1)); rbHeart(k, x + cw - 10, y + ch - 9, 7, r() > 0.4 ? k.A : null, k.A, 0.7) }
+    if (small) return
+    const rx = 228
+    k.t("THE CARD DECK", rx, 8, 7, k.A, { w: 130 })
+    ;[["NEW FACES", `${10 + Math.floor(r() * 90)}`], ["HEARTS GIVEN", `${Math.floor(r() * 40)}`], ["HEARTS GOT", `${Math.floor(r() * 9)}`]].forEach(([l, v], i) => { k.t(l, rx, 24 + i * 22, 6.5, k.S, { w: 80 }); k.t(v, W - 14, 22 + i * 22, 13, k.I, { f: "disp", a: "r", w: 60 }) })
+    k.t("Painting the roses, again.", rx, 100, 9, k.S, { f: "disp", w: W - rx - 10 })
+  },
+  dc(k, W, H, d) {
+    const r = sRng(d, 23), small = W < 200, cx = small ? W / 2 : 86, cy = small ? 58 : 66, rx = small ? 58 : 70, ry = small ? 24 : 30
+    k.ell(cx, cy + 4, rx + 4, ry + 4, k.ia(0.06)); k.ell(cx, cy, rx, ry, k.a(T.panel, 1), k.a(T.headBg, 1), 1.2)
+    const seats = 8, filled = []; for (let i = 0; i < seats; i++) { const a = i / seats * Math.PI * 2, x = cx + (rx - 14) * Math.cos(a), y = cy + (ry - 8) * Math.sin(a), on = r() > 0.35; filled.push(on); if (on) { k.ell(x, y + 2, 6, 2.2, k.a(T.headBg, 0.9)); k.rect(x - 4, y - 5, 8, 7, k.PN, k.I, 0.8); k.ln([[x + 4, y - 3], [x + 6, y - 3], [x + 6, y], [x + 4, y]], k.I, 0.7) } else k.circ(x, y, 2, k.a(T.headBg, 1)) }
+    k.rect(cx - 6, cy - 10, 12, 12, k.a(T.accent, 0.7), k.I, 0.8); k.ln([[cx + 6, cy - 6], [cx + 10, cy - 9]], k.I, 0.9)
+    const on = filled.filter(Boolean).length
+    if (small) { k.t(`${on} at the tea party`, W / 2, H - 16, 9, k.I, { f: "disp", a: "c", w: W - 20 }); return }
+    const tx = 180
+    k.t("THE TEA PARTY", tx, 8, 7, k.A, { w: 170 }); k.t(`${on} seats taken`, tx, 20, 16, k.I, { f: "disp", w: 170 })
+    ;["# no-room-no-room", "# riddles", "# unbirthdays", "🔈 the long table"].forEach((c, i) => { const y = 46 + i * 15; k.t(c, tx, y, 9, i === 3 ? k.A : k.I, { f: "disp", w: 160 }); if (r() > 0.5) rbSpark(k, W - 18, y + 5, 3, k.A) })
+    k.t(`MENTIONS ${Math.floor(r() * 6)} · MOVE DOWN ONE SEAT`, tx, 112, 6.5, k.S, { w: 180 })
+  },
+  audio(k, W, H, d) {
+    const cx = 46, cy = 44
+    k.rect(cx - 30, cy - 18, 60, 36, k.a(T.panel, 0.95), k.I, 1.2); k.rect(cx - 26, cy - 10, 52, 20, k.a(T.headBg, 0.4), k.ia(0.4), 0.6)
+    const r = k.rng(Math.floor(d.phase * 100)); for (let i = 0; i < 14; i++) k.circ(cx - 22 + i * 3.4, cy - 8 + r() * 16, 1, k.I)
+    k.ln([[cx + 30, cy], [cx + 40, cy]], k.I, 1.2); k.circ(cx + 43, cy, 4, null, k.I, 1); rbSpark(k, cx - 34, cy - 22, 4, k.A); rbSpark(k, cx + 24, cy + 24, 3, k.a(T.headBg, 1))
+    k.t(C.audio.src, 92, 12, 8, k.S, { w: 250 }); k.t(d.line, 92, 24, 19, k.I, { f: "disp", w: W - 106 })
+    ;[["BOX", "MUSIC BOX 07"], ["KEY", `${d.lvl} TURNS`], [C.audio.metric, "♥".repeat(d.lvl) + "♡".repeat(5 - d.lvl)]].forEach(([l, v], i) => { const x = 92 + i * 80; k.t(l, x, 52, 6.5, k.S, { w: 76 }); k.t(v, x, 61, 9, k.I, { w: 76 }) })
+    const wy = 82, wh = 40, mix = (a, b, t) => { const p = (h) => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)); const x = p(a), y = p(b); return "#" + x.map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, "0")).join("") }
+    for (let layer = 0; layer < 3; layer++) for (let x = 12; x < W - 12; x += 1.5) { const t = (x - 12) / (W - 24), env = Math.pow(Math.sin(t * Math.PI), 0.8), y = (0.62 + 0.38 * Math.sin(x * 0.03 + d.phase + layer)) * wh * (1 - layer * 0.2) * env + 1; k.rect(x, wy + wh / 2 - y / 2, 1.5, y, k.a(mix(T.headBg, T.accent, t), 0.22 + layer * 0.16)) }
+    for (let i = 0; i < 6; i++) rbSpark(k, 30 + i * 60, wy + 6 + (i % 2) * 26, 2.5, k.a("#FFFFFF", 0.9))
+    k.t("WIND", W - 70, 52, 6.5, k.S, { w: 60 })
+  }
+}
+const THEME_PAINT = { directive: DIR, longroad: LR, nightfall: NF, grimoire: GM, deeprange: DRG, halcyon: HAL, rabbit: RB }
 
 // ---------- END THEMED PAINT BLOCK ----------
 // ---------- art runner: theme art as the body background, live timers laid on top ----------
@@ -2639,6 +3004,7 @@ const LIVE = {
   longroad: { shift: { x: 76, y: 56, size: 19, a: "l", f: "disp" }, solar: { x: 352, y: 17, size: 18, a: "r", f: "disp" }, solarS: { x: 160, y: 24, size: 13, a: "r", f: "disp" } },
   nightfall: { shift: { x: 85, y: 70, size: 22, a: "c", f: "bold" }, solar: { x: 354, y: 36, size: 18, a: "r", f: "bold" }, solarS: { x: 160, y: 36, size: 13, a: "r", f: "bold" } },
   grimoire: { shift: { x: 70, y: 60, size: 19, a: "l", f: "disp" }, solar: { x: 12, y: 108, size: 18, a: "l", f: "disp" }, solarS: { x: 160, y: 22, size: 13, a: "r", f: "disp" } },
+  rabbit: { shift: { x: 66, y: 58, size: 19, a: "l", f: "disp" }, solar: { x: 352, y: 17, size: 22, a: "r", f: "disp" }, solarS: { x: 160, y: 24, size: 14, a: "r", f: "disp" } },
   deeprange: { shift: { x: 85, y: 128, size: 0.1, a: "c", f: "heavy" }, solar: { x: 354, y: 15, size: 20, a: "r", f: "heavy" }, solarS: { x: 160, y: 22, size: 14, a: "r", f: "heavy" } }
 }
 LIVE.deeprange.shift = { x: 85, y: 34, size: 18, a: "c", f: "heavy" }
@@ -2692,10 +3058,15 @@ function chanData(key, compact) {
 async function themedFeeds(P, single) {
   const f = fam()
   if (single || f === "small") {
-    const key = single || "youtube"
-    return artWidget({ title: key === "youtube" ? LT.vid : LT.obs, right: C.feeds.linked, alt: key !== "youtube", url: CHANNELS[key].url, paint: P.feed, data: chanData(key, true) })
+    const key = single || "youtube", pk = { youtube: "yt", instagram: "ig", discord: "dc" }[key] || "yt"
+    return artWidget({ title: { youtube: LT.vid, instagram: LT.obs, discord: LT.dc }[key], right: C.feeds.linked, alt: key !== "youtube", url: CHANNELS[key].url, refresh: new Date(Date.now() + 30 * 60 * 1000), paint: P[pk] || P.feed, data: { seed: Math.floor(Date.now() / 1800000), now: new Date(), code: CHANNELS[key].code } })
   }
   return artWidget({ title: LT.feeds, right: C.feeds.right, alt: false, halves: [{ paint: P.feed, data: chanData("youtube", false), url: CHANNELS.youtube.url }, { paint: P.feed, data: chanData("instagram", false), url: CHANNELS.instagram.url }] })
+}
+async function themedAudioArt(paint) {
+  const lvl = 1 + (Math.floor(Date.now() / 900000) % 5)
+  return artWidget({ title: LT.audio, right: C.audio.right, alt: false, url: "youtubemusic://", paint, data: { line: AUDIO_LINES[Math.floor(Date.now() / 1800000) % AUDIO_LINES.length], lvl, phase: (Date.now() / 900000) % 6 },
+    live: [{ date: new Date(), x: 352, y: 60, size: 9, a: "r", f: "bold" }] })
 }
 async function halcyonAudio() {
   const lvl = 1 + (Math.floor(Date.now() / 900000) % 5)
@@ -2703,7 +3074,7 @@ async function halcyonAudio() {
     live: [{ date: new Date(), x: 352, y: 60, size: 9, a: "r", f: "bold" }] })
 }
 
-const MODES = { status, shift, transmission, solar: solarWidget, audio: audioWidget, feeds: () => feedsWidget(null), youtube: () => feedsWidget("youtube"), instagram: () => feedsWidget("instagram"), oddity: oddityWidget }
+const MODES = { status, shift, transmission, solar: solarWidget, audio: audioWidget, feeds: () => feedsWidget(null), youtube: () => feedsWidget("youtube"), instagram: () => feedsWidget("instagram"), discord: () => feedsWidget("discord"), oddity: oddityWidget }
 
 if (config.runsInWidget) {
   Script.setWidget(await (MODES[MODE] || status)())
@@ -2737,9 +3108,23 @@ const GLYPHS = {
   browser: 'M12 2a10 10 0 1 1 0 20a10 10 0 0 1 0-20zM12 5a7 7 0 1 0 0 14a7 7 0 0 0 0-14zM2 11h20v2H2z',
   music: 'M2 9h3.5l5-5v16l-5-5H2zM16.243 7.757A6 6 0 0 1 16.243 16.243L14.828 14.828A4 4 0 0 0 14.828 9.172zM19.071 4.929A10 10 0 0 1 19.071 19.071L17.657 17.657A8 8 0 0 0 17.657 6.343z',
   youtube: 'M2 5h20v14H2zM5 8v8h14V8zM10 9.2l5.2 2.8-5.2 2.8z',
-  instagram: 'M3 3h18v18H3zM6 6v12h12V6zM12 8a4 4 0 1 1 0 8a4 4 0 0 1 0-8zM12 9.6a2.4 2.4 0 1 0 0 4.8a2.4 2.4 0 0 0 0-4.8zM15.4 6.9h1.7v1.7h-1.7z'
+  instagram: 'M3 3h18v18H3zM6 6v12h12V6zM12 8a4 4 0 1 1 0 8a4 4 0 0 1 0-8zM12 9.6a2.4 2.4 0 1 0 0 4.8a2.4 2.4 0 0 0 0-4.8zM15.4 6.9h1.7v1.7h-1.7z',
+  discord: 'M12 3a3 3 0 1 1 0 6a3 3 0 0 1 0-6zM5 15a3 3 0 1 1 0 6a3 3 0 0 1 0-6zM19 15a3 3 0 1 1 0 6a3 3 0 0 1 0-6zM11 8.5h2v4.2l4.6 3.3-1.2 1.6-4.4-3.2-4.4 3.2-1.2-1.6 4.6-3.3z'
 };
 const GLYPHSETS = {
+  rabbit: {
+    camera: 'M12 6c4.5 0 8 3.5 9.5 6-1.5 2.5-5 6-9.5 6s-8-3.5-9.5-6C4 9.5 7.5 6 12 6zM12 8.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7zM12 10.5a1.5 1.5 0 1 1 0 3a1.5 1.5 0 0 1 0-3zM19 1.5l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z',
+    photos: 'M5 2h14v20H5zM7 4v16h10V4zM12 9.2c1-1.6 3.5-1.2 3.5.8 0 1.8-2.2 3.4-3.5 4.6-1.3-1.2-3.5-2.8-3.5-4.6 0-2 2.5-2.4 3.5-.8z',
+    maps: 'M4 18h2.5v2.5H4zM8.5 15h2.5v2.5H8.5zM12 11.5h2.5V14H12zM15.5 8h2.5v2.5h-2.5zM18 2l3 5h-6z',
+    calendar: 'M12 5a8 8 0 1 1 0 16a8 8 0 0 1 0-16zM12 7.2a5.8 5.8 0 1 0 0 11.6a5.8 5.8 0 0 0 0-11.6zM11.2 9h1.6v4.2l2.6 1.6-.8 1.3-3.4-2.1zM10.5 1.5h3V4h-3z',
+    phone: 'M4 9h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6zM17 10h1.5a2.5 2.5 0 0 1 0 5H17v-1.8h1.5a.7.7 0 0 0 0-1.4H17zM3 20.5h16v1.5H3zM8 3c1 1 1 2 0 3h1.5c1-1 1-2 0-3zM12 3c1 1 1 2 0 3h1.5c1-1 1-2 0-3z',
+    messages: 'M3 4h18v12H11l-4 4v-4H3zM12 7.5c.9-1.4 3.2-1 3.2.7 0 1.6-2 3-3.2 4-1.2-1-3.2-2.4-3.2-4 0-1.7 2.3-2.1 3.2-.7z',
+    browser: 'M12 3a9 9 0 1 1 0 18a9 9 0 0 1 0-18zM12 5a7 7 0 1 0 0 14a7 7 0 0 0 0-14zM12 8a4 4 0 1 1 0 8a4 4 0 0 1 0-8zM12 10a2 2 0 1 0 0 4a2 2 0 0 0 0-4z',
+    music: 'M9 4l10-2v13.5a3 3 0 1 1-2-2.8V6.5l-6 1.2v9.8a3 3 0 1 1-2-2.8zM4 2l.7 1.5 1.5.7-1.5.7L4 6.4l-.7-1.5-1.5-.7 1.5-.7z',
+    youtube: 'M12 21c-1-1-9-6.5-9-12a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.5-8 11-9 12zM10 8.5v6l5-3z',
+    instagram: 'M12 2a6 7 0 1 1 0 14a6 7 0 0 1 0-14zM12 4.4a3.8 4.6 0 1 0 0 9.2a3.8 4.6 0 0 0 0-9.2zM10.9 15.8h2.2V22h-2.2zM10 7l1-1 3 3-1 1z',
+    discord: 'M2 4h13v9H8l-3 3v-3H2zM4 6v5h9V6zM10 14h2v1h5l3 3v-3h2V7h-6V5h8v12h-2v3l-3-3h-9z'
+  },
   deeprange: {
     camera: 'M2 2h7v2.2H4.2V9H2zM15 2h7v7h-2.2V4.2H15zM2 15h2.2v4.8H9V22H2zM19.8 15H22v7h-7v-2.2h4.8zM12 8.5a3.5 3.5 0 1 1 0 7a3.5 3.5 0 0 1 0-7z',
     photos: 'M4 8l12-4 4 10-12 4zM6.6 9.2l2.6 6.6 8.2-2.7-2.6-6.6zM2 13l2-.7 2.9 7.3 10-3.3.7 2L6 22z',
@@ -2750,7 +3135,8 @@ const GLYPHSETS = {
     browser: 'M12 7a5 5 0 1 1 0 10a5 5 0 0 1 0-10zM1.5 13.6c-.9-2.2 3.4-4.8 9.6-5.9l.4 1.9c-5.1.9-8 2.6-7.8 3.5.4 1 4.7 1.6 10.4.6 5.6-1 9.4-3.1 9-4.1-.2-.5-1.4-.8-3.3-.9l.1-1.9c2.7.1 4.6.7 5 1.9.9 2.2-3.8 5.2-10.4 6.4-6.6 1.2-12.1.7-13-1.5z',
     music: 'M2 10h2.5v4H2zM6 7h2.5v10H6zM10 3h2.5v18H10zM14 6h2.5v12H14zM18 9h2.5v6H18z',
     youtube: 'M2 4h20v16H2zM4.2 6.2v11.6h15.6V6.2zM9.5 8.5v7l6-3.5z',
-    instagram: 'M12 3a9 9 0 1 1 0 18a9 9 0 0 1 0-18zM12 5.4a6.6 6.6 0 1 0 0 13.2a6.6 6.6 0 0 0 0-13.2zM12 9a3 3 0 1 1 0 6a3 3 0 0 1 0-6z'
+    instagram: 'M12 3a9 9 0 1 1 0 18a9 9 0 0 1 0-18zM12 5.4a6.6 6.6 0 1 0 0 13.2a6.6 6.6 0 0 0 0-13.2zM12 9a3 3 0 1 1 0 6a3 3 0 0 1 0-6z',
+    discord: 'M12 2.5a2.5 2.5 0 1 1 0 5a2.5 2.5 0 0 1 0-5zM4 16.5a2.5 2.5 0 1 1 0 5a2.5 2.5 0 0 1 0-5zM20 16.5a2.5 2.5 0 1 1 0 5a2.5 2.5 0 0 1 0-5zM11 7.5h2v4l5.6 5.3-1.4 1.4-5.2-4.9-5.2 4.9-1.4-1.4L11 11.5zM6.5 18.2h11v1.6h-11z'
   },
   directive: {
     camera: 'M12 2l8.66 5v10L12 22l-8.66-5V7zM12 5.2L5.9 8.7v6.6L12 18.8l6.1-3.5V8.7zM12 9l2.6 1.5v3L12 15l-2.6-1.5v-3z',
@@ -2762,7 +3148,8 @@ const GLYPHSETS = {
     browser: 'M11 2h2v4h-2zM11 18h2v4h-2zM2 11h4v2H2zM18 11h4v2h-4zM12 5a7 7 0 1 1 0 14a7 7 0 0 1 0-14zM12 7.5a4.5 4.5 0 1 0 0 9a4.5 4.5 0 0 0 0-9zM11 11h2v2h-2z',
     music: 'M2 10h2.5v4H2zM6 7h2.5v10H6zM10 3h2.5v18H10zM14 6h2.5v12H14zM18 9h2.5v6H18z',
     youtube: 'M12 2l8.66 5v10L12 22l-8.66-5V7zM10 8v8l6.2-4z',
-    instagram: 'M6.5 3h11L21 6.5v11L17.5 21h-11L3 17.5v-11zM12 7a5 5 0 1 0 0 10a5 5 0 0 0 0-10zM12 9.4a2.6 2.6 0 1 1 0 5.2a2.6 2.6 0 0 1 0-5.2z'
+    instagram: 'M6.5 3h11L21 6.5v11L17.5 21h-11L3 17.5v-11zM12 7a5 5 0 1 0 0 10a5 5 0 0 0 0-10zM12 9.4a2.6 2.6 0 1 1 0 5.2a2.6 2.6 0 0 1 0-5.2z',
+    discord: 'M12 2l8.66 5v10L12 22l-8.66-5V7zM12 5.2L5.9 8.7v6.6L12 18.8l6.1-3.5V8.7zM8 10h8v1.8H8zM8 13h5v1.8H8z'
   },
   longroad: {
     camera: 'M21 2C13 3 7 8 5 15l-2 6 1 1 6-2C17 18 21 10 21 2zM8.2 16.6L16.6 7.6l.9.9-8.4 9z',
@@ -2774,7 +3161,8 @@ const GLYPHSETS = {
     browser: 'M3 4h4.2v17H3zM8.4 6.5h4.2V21H8.4zM14.2 5.4l4-1.1 3.9 14.8-4 1.1zM4.2 7v1.4h1.8V7zM9.6 9.5v1.4h1.8V9.5z',
     music: 'M14.6 2.4l1.9-.9 1.6 1.6-.9 1.9-3 3a6.8 6.8 0 1 1-2.6-2.6zM9.4 12.2a2 2 0 1 0 0 4a2 2 0 0 0 0-4zM16.9 3.1l.9.9-4.9 4.9-.9-.9z',
     youtube: 'M2 2h20v3.4H2zM2 5.4h4.6V22H2zM17.4 5.4H22V22h-4.6zM9.6 10v7l6-3.5z',
-    instagram: 'M12 1.5a6.4 7.4 0 1 1 0 14.8a6.4 7.4 0 0 1 0-14.8zM12 4.2a4 5 0 1 0 0 10a4 5 0 0 0 0-10zM10.9 16.2h2.2V22.5h-2.2z'
+    instagram: 'M12 1.5a6.4 7.4 0 1 1 0 14.8a6.4 7.4 0 0 1 0-14.8zM12 4.2a4 5 0 1 0 0 10a4 5 0 0 0 0-10zM10.9 16.2h2.2V22.5h-2.2z',
+    discord: 'M5 6h11v14H5zM7 8v10h7V8zM16 9h2.5a2.5 2.5 0 0 1 2.5 2.5v3a2.5 2.5 0 0 1-2.5 2.5H16v-2h2.5a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5H16zM5 3.5c1.5-1.5 3.5-1.5 5.5 0 1.5-1 3.5-1 5.5 0V6H5z'
   },
   nightfall: {
     camera: 'M2.5 9.5a4 4 0 0 1 8 0V17a4 4 0 0 1-8 0zM13.5 9.5a4 4 0 0 1 8 0V17a4 4 0 0 1-8 0zM4.6 13v4a1.9 1.9 0 0 0 3.8 0v-4zM15.6 13v4a1.9 1.9 0 0 0 3.8 0v-4zM10.5 8h3v4h-3z',
@@ -2786,7 +3174,8 @@ const GLYPHSETS = {
     browser: 'M10.9 10h2.2v12h-2.2zM12 3.5a8.5 8.5 0 0 1 8.5 8.5h-2.3a6.2 6.2 0 0 0-12.4 0H3.5A8.5 8.5 0 0 1 12 3.5zM12 7.6a4.4 4.4 0 0 1 4.4 4.4h-2.2a2.2 2.2 0 0 0-4.4 0H7.6A4.4 4.4 0 0 1 12 7.6z',
     music: 'M3.5 13a8.5 8.5 0 0 1 17 0v7h-4.6v-7.4h2.4a6.3 6.3 0 0 0-12.6 0h2.4V20H3.5z',
     youtube: 'M2 4.5h20v13H2zM4.2 6.7v8.6h15.6V6.7zM10 8.6v4.8l4.2-2.4zM8.5 19h7v2h-7z',
-    instagram: 'M12 1.5a10.5 10.5 0 1 1 0 21a10.5 10.5 0 0 1 0-21zM12 4.2a7.8 7.8 0 1 0 0 15.6a7.8 7.8 0 0 0 0-15.6zM11.1 6h1.8v4.4h-1.8zM11.1 13.6h1.8V18h-1.8zM6 11.1h4.4v1.8H6zM13.6 11.1H18v1.8h-4.4z'
+    instagram: 'M12 1.5a10.5 10.5 0 1 1 0 21a10.5 10.5 0 0 1 0-21zM12 4.2a7.8 7.8 0 1 0 0 15.6a7.8 7.8 0 0 0 0-15.6zM11.1 6h1.8v4.4h-1.8zM11.1 13.6h1.8V18h-1.8zM6 11.1h4.4v1.8H6zM13.6 11.1H18v1.8h-4.4z',
+    discord: 'M3 6h18v10H13l-4 4v-4H3zM5 8v6h6v1.8L12.8 14H19V8zM7 10h2v2H7zM11 10h2v2h-2zM15 10h2v2h-2z'
   },
   grimoire: {
     camera: 'M12 1.5a8 8 0 1 1 0 16a8 8 0 0 1 0-16zM8.6 5.6a3.4 3.4 0 0 0-2.4 2.6l1.5.3a1.9 1.9 0 0 1 1.3-1.4zM5.5 18.5h13l1.2 4H4.3z',
@@ -2798,13 +3187,14 @@ const GLYPHSETS = {
     browser: 'M1.5 12C4.5 7 8.2 5 12 5s7.5 2 10.5 7c-3 5-6.7 7-10.5 7S4.5 17 1.5 12zM12 7.8a4.2 4.2 0 1 0 0 8.4a4.2 4.2 0 0 0 0-8.4zM12 10.3a1.7 1.7 0 1 1 0 3.4a1.7 1.7 0 0 1 0-3.4z',
     music: 'M5.8 2.5l1.8.9C6.4 6.6 7 9.8 9.4 11.6V5.5h1.7v8.2h1.8V5.5h1.7v6.1c2.4-1.8 3-5 1.8-8.2l1.8-.9c2 4 1 9-2.6 11.4V19h2v2.5H6.4V19h2v-4.1C4.8 12.5 3.8 7.5 5.8 2.5z',
     youtube: 'M12 1l2.2 6.6L21 5.5l-2.6 6.5L21 18.5l-6.8-2.1L12 23l-2.2-6.6L3 18.5l2.6-6.5L3 5.5l6.8 2.1zM10.2 9v6l5.1-3z',
-    instagram: 'M12 3a6 7 0 1 1 0 14a6 7 0 0 1 0-14zM12 5.4a3.7 4.6 0 1 0 0 9.2a3.7 4.6 0 0 0 0-9.2zM10.9 16.8h2.2V22h-2.2zM12 0l.8 1.6 1.6.8-1.6.8-.8 1.6-.8-1.6-1.6-.8 1.6-.8z'
+    instagram: 'M12 3a6 7 0 1 1 0 14a6 7 0 0 1 0-14zM12 5.4a3.7 4.6 0 1 0 0 9.2a3.7 4.6 0 0 0 0-9.2zM10.9 16.8h2.2V22h-2.2zM12 0l.8 1.6 1.6.8-1.6.8-.8 1.6-.8-1.6-1.6-.8 1.6-.8z',
+    discord: 'M12 2a10 10 0 1 1 0 20a10 10 0 0 1 0-20zM12 4.5a7.5 7.5 0 1 0 0 15a7.5 7.5 0 0 0 0-15zM12 6l1.5 3h-3zM17.2 9.5l-.8 3.2-2.4-2.2zM6.8 9.5l3.2 1-2.4 2.2zM12 12a2 2 0 1 1 0 4a2 2 0 0 1 0-4z'
   }
 };
 
 const APPS = [
   ['camera', 'Camera'], ['photos', 'Photos'], ['maps', 'Maps'], ['calendar', 'Calendar'], ['phone', 'Phone'],
-  ['messages', 'Messages'], ['browser', 'Safari'], ['music', 'Music'], ['youtube', 'YouTube'], ['instagram', 'Instagram']
+  ['messages', 'Messages'], ['browser', 'Safari'], ['music', 'Music'], ['youtube', 'YouTube'], ['instagram', 'Instagram'], ['discord', 'Discord']
 ];
 
 const PRESETS = {
@@ -2826,10 +3216,10 @@ const PRESETS = {
       fine: 'TERMS: Biological continuity is licensed, not sold. Halcyon Biofab retains full rights to replicated memory, surplus emotion and residual dreams. Unauthorized aging voids warranty. Renewal is automatic and irrevocable.',
       foot: 'PATENT PENDING: YOU · 10.10.2893'
     },
-    codes: { camera: 'CAM', photos: 'ARC', maps: 'NAV', calendar: 'CHR', phone: 'COM', messages: 'MSG', browser: 'NET', music: 'AUD', youtube: 'VID', instagram: 'OBS' },
+    codes: { camera: 'CAM', photos: 'ARC', maps: 'NAV', calendar: 'CHR', phone: 'COM', messages: 'MSG', browser: 'NET', music: 'AUD', youtube: 'VID', instagram: 'OBS', discord: 'SYN' },
     widget: {
       scriptFont: 'Baskerville', txGraphic: 'helix', archive: true, oddity: 'mood',
-      L: { status: 'W-01 // SUBJECT STATUS', next: 'NEXT ALLOCATION', none: 'No Allocations', noneSub: 'ROUTINE NOMINAL', ext: 'EXTERIOR',
+      L: { vid: 'W-06 // VID · CULTURE FEED', obs: 'W-07 // OBS · SPECIMENS', dc: 'W-09 // SYNC · COLLECTIVE', status: 'W-01 // SUBJECT STATUS', next: 'NEXT ALLOCATION', none: 'No Allocations', noneSub: 'ROUTINE NOMINAL', ext: 'EXTERIOR',
         dur: 'DURATION', state: 'STATUS', feels: 'FEELS LIKE', hilo: 'HI / LO', active: 'ACTIVE', queued: 'QUEUED', standby: 'STANDBY',
         cell: 'CELL', cycle: 'CYCLE', shift: 'W-02 // SHIFT', activeLong: 'ALLOCATION ACTIVE', offTitle: 'Off Rotation', tx: 'W-05 // TRANSMISSION' },
       classes: ['DIRECTIVE', 'ADVISORY', 'MANDATORY READING', 'WELLNESS NOTICE']
@@ -2862,7 +3252,7 @@ const PRESETS = {
       caption: 'REMAIN CALM · REMAIN INDOORS', rail: 'DIRECTIVE',
       tickerL: 'AUTHORIZED OPERATORS ONLY · ALL ACTIVITY RECORDED', tickerR: 'DIRECTIVE ZERO · DEFENSE COORDINATION TERMINAL'
     },
-    codes: { camera: 'OPT', photos: 'REC', maps: 'GEO', calendar: 'OPS', phone: 'COM', messages: 'TXT', browser: 'NET', music: 'AUD', youtube: 'RCN', instagram: 'CIV' },
+    codes: { camera: 'OPT', photos: 'REC', maps: 'GEO', calendar: 'OPS', phone: 'COM', messages: 'TXT', browser: 'NET', music: 'AUD', youtube: 'RCN', instagram: 'CIV', discord: 'CMD' },
     widget: {
       scriptFont: 'HiraMinProN-W6', txGraphic: 'sync', archive: true, oddity: 'eval', C: {
         solar: { label: 'SOLAR FEED', offline: 'Feed Severed', day: 'DAYLIGHT REMAINING', night: 'BLACKOUT PERIOD', setIn: 'SUNDOWN IN', riseIn: 'DAWN IN' },
@@ -2872,7 +3262,7 @@ const PRESETS = {
           yt: { line: 'Visual Recon', meters: ['ALERTNESS', 'ADRENALINE', 'FOCUS'], tag: 'CONTINUOUS SURVEILLANCE', queue: '∞ REELS', u1: 'MIN', u2: 'LEVEL', kv: ['QUEUE', 'EXPOSURE', 'INTEL DEPTH'], curve: 'VIGILANCE CURVE // WATCH', curveR: 'TARGET LOCK HELD', foot: 'WATCH. REPORT.' },
           ig: { line: 'Civilian Chatter', meters: ['MORALE', 'PARANOIA', 'STRESS'], tag: 'FEED: UNMONITORED', kv: ['CIVILIANS SCANNED', 'CREDIBILITY', 'MORALE DELTA'], curve: 'CHATTER VOLUME // 24H', curveR: 'PEAK 23:00 · CURFEW IGNORED', foot: 'OBSERVE. LOG. REPORT.' } }
       },
-      L: { solar: 'W-03 // DAYLIGHT WATCH', solarBig: 'W-03 // DAYLIGHT + ATMOSPHERICS', audio: 'W-04 // BROADCAST', feeds: 'W-06 // RECON FEEDS', vid: 'W-06 // RECON', obs: 'W-07 // CHATTER', status: 'W-01 // OPERATOR STATUS', next: 'NEXT SORTIE', none: 'Standby', noneSub: 'NO SORTIE SCHEDULED', ext: 'SURFACE',
+      L: { vid: 'W-06 // MONITOR WALL', obs: 'W-07 // DOSSIERS', dc: 'W-09 // COMMAND NET', solar: 'W-03 // DAYLIGHT WATCH', solarBig: 'W-03 // DAYLIGHT + ATMOSPHERICS', audio: 'W-04 // BROADCAST', feeds: 'W-06 // RECON FEEDS', status: 'W-01 // OPERATOR STATUS', next: 'NEXT SORTIE', none: 'Standby', noneSub: 'NO SORTIE SCHEDULED', ext: 'SURFACE',
         dur: 'DURATION', state: 'STATE', feels: 'FEELS LIKE', hilo: 'HI / LO', active: 'ENGAGED', queued: 'STAGED', standby: 'STANDBY',
         cell: 'INTERNAL POWER', cycle: 'DAY', shift: 'W-02 // ACTIVE TIME', activeLong: 'OPERATION IN PROGRESS', offTitle: 'Standby', tx: 'W-05 // PRIORITY SIGNAL' },
       classes: ['CAUTION', 'WARNING', 'DIRECTIVE', 'EMERGENCY']
@@ -2899,7 +3289,7 @@ const PRESETS = {
       places: ['The Lantern Inn', 'Ashwood', 'Greyhallow Fells', 'Hollowmere', 'The Wending Way', 'Saltmarsh Reach', 'Sheepcote Hills', 'Fenwick Marsh', 'Old Tower', 'Calder Ruins', 'Brindle', 'The Grey Sound', 'Pinewatch'],
       scale: 'LEAGUES'
     },
-    codes: { camera: 'SKETCH', photos: 'ALBUM', maps: 'MAP', calendar: 'DAYS', phone: 'BELL', messages: 'POST', browser: 'LIBRARY', music: 'LUTE', youtube: 'PLAYS', instagram: 'PORTRAITS' },
+    codes: { camera: 'SKETCH', photos: 'ALBUM', maps: 'MAP', calendar: 'DAYS', phone: 'BELL', messages: 'POST', browser: 'LIBRARY', music: 'LUTE', youtube: 'PLAYS', instagram: 'PORTRAITS', discord: 'TAVERN' },
     widget: {
       scriptFont: 'Baskerville-SemiBold', txGraphic: 'route', archive: true, oddity: 'omens', C: {
         solar: { label: 'SKY WATCH', offline: 'Clouded Over', day: 'DAYLIGHT LEFT', night: 'NIGHTFALL', setIn: 'DUSK IN', riseIn: 'DAWN IN' },
@@ -2914,7 +3304,7 @@ const PRESETS = {
         { t: 'There is nothing half so much worth doing as simply messing about in boats.', by: 'KENNETH GRAHAME · THE WIND IN THE WILLOWS · 1908' },
         { t: 'I have met with but one or two persons in the course of my life who understood the art of Walking.', by: 'H. D. THOREAU · WALKING · 1862' }
       ],
-      L: { solar: 'W-03 // SUN & SKY', solarBig: 'W-03 // SUN, SKY & WEATHER', audio: 'W-04 // THE MINSTREL', feeds: 'W-06 // CRIER & GOSSIP', vid: 'W-06 // THE PLAYERS', obs: 'W-07 // THE GOSSIP', status: 'W-01 // TRAVELLER\'S LEDGER', next: 'NEXT GATHERING', none: 'A Quiet Day', noneSub: 'NOTHING UPON THE ROAD', ext: 'SKIES',
+      L: { vid: 'W-06 // THE PLAYBILL', obs: 'W-07 // THE GALLERY', dc: 'W-09 // THE TAVERN', solar: 'W-03 // SUN & SKY', solarBig: 'W-03 // SUN, SKY & WEATHER', audio: 'W-04 // THE MINSTREL', feeds: 'W-06 // CRIER & GOSSIP', status: 'W-01 // TRAVELLER\'S LEDGER', next: 'NEXT GATHERING', none: 'A Quiet Day', noneSub: 'NOTHING UPON THE ROAD', ext: 'SKIES',
         dur: 'HOURS', state: 'STATE', feels: 'FEELS LIKE', hilo: 'HIGH / LOW', active: 'UNDERWAY', queued: 'AHEAD', standby: 'AT REST',
         cell: 'LANTERN OIL', cycle: 'DAY', shift: 'W-02 // THE ROAD', activeLong: 'ON THE ROAD', offTitle: 'At Rest', tx: 'W-05 // LETTERS & OMENS' },
       classes: ['A LETTER', 'AN OMEN', 'A PROVERB', 'A WARNING']
@@ -2944,7 +3334,7 @@ const PRESETS = {
       impact: '00:47', alt2: 'ALT 12,400 M', vel: 'VEL 1,180 M/S', brake: 'BRAKING THRUSTERS: ARMED',
       chute: 'CHUTE: STOWED', retro: 'RETRO FIRE @ 50 M', sync: 'SQUAD LINK 4/4', ammo: '32', reserve: '224', weapon: 'RIFLE // SEMI', feedL: 'CH 1 // SQUAD LEAD', feedR: 'CH 2 // POD 06'
     },
-    codes: { camera: 'OPT', photos: 'REC', maps: 'NAV', calendar: 'OPS', phone: 'COM', messages: 'TXT', browser: 'NET', music: 'AUD', youtube: 'CAM', instagram: 'SQD' },
+    codes: { camera: 'OPT', photos: 'REC', maps: 'NAV', calendar: 'OPS', phone: 'COM', messages: 'TXT', browser: 'NET', music: 'AUD', youtube: 'CAM', instagram: 'SQD', discord: 'TEAM' },
     widget: {
       scriptFont: 'AvenirNextCondensed-DemiBold', txGraphic: 'reentry', archive: true, oddity: 'hostile', C: {
         solar: { label: 'OPTICS FEED', offline: 'Sensors Offline', day: 'DAYLIGHT REMAINING', night: 'NIGHT OPS', setIn: 'DARK IN', riseIn: 'FIRST LIGHT IN' },
@@ -2958,7 +3348,7 @@ const PRESETS = {
         { t: 'Let your plans be dark and impenetrable as night, and when you move, fall like a thunderbolt.', by: 'SUN TZU · THE ART OF WAR · GILES TR. 1910' },
         { t: 'All warfare is based on deception.', by: 'SUN TZU · THE ART OF WAR · GILES TR. 1910' }
       ],
-      L: { solar: 'W-03 // LIGHT DISCIPLINE', solarBig: 'W-03 // LIGHT + ATMOS', audio: 'W-04 // SQUAD COMMS', feeds: 'W-06 // TAC FEEDS', vid: 'W-06 // HELMET CAM', obs: 'W-07 // SQUAD NET', status: 'W-01 // TROOPER STATUS', next: 'NEXT DEPLOYMENT', none: 'Stand Down', noneSub: 'NO ORDERS QUEUED', ext: 'CONDITIONS',
+      L: { vid: 'W-06 // REPLAY', obs: 'W-07 // RECON PHOTOS', dc: 'W-09 // SQUAD NET', solar: 'W-03 // LIGHT DISCIPLINE', solarBig: 'W-03 // LIGHT + ATMOS', audio: 'W-04 // SQUAD COMMS', feeds: 'W-06 // TAC FEEDS', status: 'W-01 // TROOPER STATUS', next: 'NEXT DEPLOYMENT', none: 'Stand Down', noneSub: 'NO ORDERS QUEUED', ext: 'CONDITIONS',
         dur: 'DURATION', state: 'STATE', feels: 'FEELS LIKE', hilo: 'HI / LO', active: 'DEPLOYED', queued: 'STAGED', standby: 'AT EASE',
         cell: 'SUIT POWER', cycle: 'DAY', shift: 'W-02 // DEPLOYMENT', activeLong: 'BOOTS ON GROUND', offTitle: 'At Ease', tx: 'W-05 // SQUAD COMMS' },
       classes: ['PRIORITY', 'FIELD NOTE', 'STANDING ORDER', 'MORALE']
@@ -2985,7 +3375,7 @@ const PRESETS = {
       foot: 'DRAW AGAIN TOMORROW', homeTop: 'THE GREAT SIGIL', sideL: ['ESSENCE', 'IV'], sideR: ['TURN', '283'],
       caption: 'Draw again tomorrow.', gems: ['#E9E1C8', '#3A7BD5', '#5B4A8A', '#D23A4A', '#2FAE7A']
     },
-    codes: { camera: 'SCRY', photos: 'RELIC', maps: 'ATLAS', calendar: 'ALMANAC', phone: 'HORN', messages: 'RAVEN', browser: 'ORACLE', music: 'LYRE', youtube: 'VISION', instagram: 'MIRROR' },
+    codes: { camera: 'SCRY', photos: 'RELIC', maps: 'ATLAS', calendar: 'ALMANAC', phone: 'HORN', messages: 'RAVEN', browser: 'ORACLE', music: 'LYRE', youtube: 'VISION', instagram: 'MIRROR', discord: 'CIRCLE' },
     widget: {
       scriptFont: 'Georgia-Bold', txGraphic: 'stars', archive: true, oddity: 'spell', C: {
         solar: { label: 'SCRYING FEED', offline: 'The Veil Is Thick', day: 'SUNLIGHT REMAINING', night: 'THE WITCHING HOURS', setIn: 'DUSK IN', riseIn: 'DAWN IN' },
@@ -3000,7 +3390,7 @@ const PRESETS = {
         { t: 'There are more things in heaven and earth, Horatio, than are dreamt of in your philosophy.', by: 'SHAKESPEARE · HAMLET · 1603' },
         { t: 'Double, double toil and trouble; fire burn and cauldron bubble.', by: 'SHAKESPEARE · MACBETH · 1623' }
       ],
-      L: { solar: 'W-03 // CELESTIAL HOURS', solarBig: 'W-03 // CELESTIAL HOURS + OMENS', audio: 'W-04 // SPELLSONG', feeds: 'W-06 // SCRYING POOLS', vid: 'W-06 // VISIONS', obs: 'W-07 // THE MIRROR', status: 'W-01 // THE ARCANIST', next: 'NEXT RITUAL', none: 'No Rituals', noneSub: 'THE STARS ARE QUIET', ext: 'OMENS',
+      L: { vid: 'W-06 // THE CRYSTAL', obs: 'W-07 // THE LOOKING GLASS', dc: 'W-09 // THE CIRCLE', solar: 'W-03 // CELESTIAL HOURS', solarBig: 'W-03 // CELESTIAL HOURS + OMENS', audio: 'W-04 // SPELLSONG', feeds: 'W-06 // SCRYING POOLS', status: 'W-01 // THE ARCANIST', next: 'NEXT RITUAL', none: 'No Rituals', noneSub: 'THE STARS ARE QUIET', ext: 'OMENS',
         dur: 'DURATION', state: 'STATE', feels: 'FEELS LIKE', hilo: 'HIGH / LOW', active: 'IN PROGRESS', queued: 'FORETOLD', standby: 'DORMANT',
         cell: 'ESSENCE', cycle: 'TURN', shift: 'W-02 // THE RITUAL', activeLong: 'RITUAL UNDERWAY', offTitle: 'Dormant', tx: 'W-05 // DAILY DRAW' },
       classes: ['MINOR ARCANUM', 'MAJOR ARCANUM', 'OMEN', 'CURSE']
@@ -3026,7 +3416,7 @@ const PRESETS = {
       codeA: 'R 07-KX', codeB: 'DR 0X283', fine: 'A E0- 12  9X  00', foot: 'DEEP RANGE // RELAY 07',
       homeTop: 'PROXIMITY ALERT', caption: 'LOSS OF SIGNAL IMMINENT', countdown: 'T-00:00:47'
     },
-    codes: { camera: 'SCAN', photos: 'LOG', maps: 'WPT', calendar: 'YEAR', phone: 'PING', messages: 'COMM', browser: 'ORBIT', music: 'FREQ', youtube: 'FEED', instagram: 'LOCK' },
+    codes: { camera: 'SCAN', photos: 'LOG', maps: 'WPT', calendar: 'YEAR', phone: 'PING', messages: 'COMM', browser: 'ORBIT', music: 'FREQ', youtube: 'FEED', instagram: 'LOCK', discord: 'RELAY' },
     widget: {
       scriptFont: 'AvenirNext-Heavy', txGraphic: 'trajectory', archive: true, oddity: 'decoder', C: {
         solar: { label: 'SOLAR TELEMETRY', offline: 'Telemetry Lost', day: 'LIGHT WINDOW', night: 'DARK WINDOW', setIn: 'LOSS OF LIGHT IN', riseIn: 'ACQUISITION IN' },
@@ -3036,7 +3426,7 @@ const PRESETS = {
           yt: { line: 'Video Downlink', meters: ['SIGNAL', 'CURIOSITY', 'FOCUS'], tag: 'DOWNLINK: CONTINUOUS', queue: '∞ PASSES', u1: 'MIN', u2: 'PASS', kv: ['QUEUE', 'DWELL TIME', 'PASS DEPTH'], curve: 'SIGNAL STRENGTH // PASS', curveR: 'ONE MORE PASS', foot: 'TRACKING CONTENT' },
           ig: { line: 'Contact Chatter', meters: ['PINGS', 'ECHO', 'STATIC'], tag: 'PINGS: UNCOUNTED', kv: ['CONTACTS PINGED', 'REPLIES', 'SIGNAL SELF'], curve: 'PING RATE // 24H', curveR: 'PEAK 23:00 · NO RESPONSE', foot: 'PING. WAIT. PING.' } }
       },
-      L: { solar: 'W-03 // SOLAR WINDOW', solarBig: 'W-03 // SOLAR WINDOW + ATMOS', audio: 'W-04 // CARRIER WAVE', feeds: 'W-06 // DOWNLINKS', vid: 'W-06 // VIDEO LINK', obs: 'W-07 // CONTACT NET', status: 'W-01 // CONTACT STATUS', next: 'NEXT RENDEZVOUS', none: 'No Contacts', noneSub: 'PASSIVE LISTEN', ext: 'SURFACE',
+      L: { vid: 'W-06 // VIDEO DOWNLINK', obs: 'W-07 // IMAGE INTERCEPTS', dc: 'W-09 // RELAY NET', solar: 'W-03 // SOLAR WINDOW', solarBig: 'W-03 // SOLAR WINDOW + ATMOS', audio: 'W-04 // CARRIER WAVE', feeds: 'W-06 // DOWNLINKS', status: 'W-01 // CONTACT STATUS', next: 'NEXT RENDEZVOUS', none: 'No Contacts', noneSub: 'PASSIVE LISTEN', ext: 'SURFACE',
         dur: 'WINDOW', state: 'STATE', feels: 'FEELS LIKE', hilo: 'HI / LO', active: 'IN CONTACT', queued: 'INBOUND', standby: 'LISTENING',
         cell: 'RESERVE', cycle: 'DAY', shift: 'W-02 // WINDOW', activeLong: 'WINDOW OPEN', offTitle: 'Listening', tx: 'W-05 // DEEP RANGE COMMS' },
       classes: ['CONTACT', 'PING', 'ECHO', 'LOSS OF SIGNAL']
@@ -3049,12 +3439,53 @@ const PRESETS = {
       ['All Lost Contacts Are Billed', 'ACCOUNTS RECEIVABLE'], ['Stay On Frequency', 'COMMS'],
       ['The Relay Remembers Your Voice', 'RELAY OPS'], ['If It Answers, Do Not Answer Back', 'PROTOCOL OFFICE']
     ]
+  },
+  rabbit: {
+    id: 'rabbit', title: 'White Rabbit', blurb: 'Soft recon techwear in lilac haze and pearl white. Magenta sparkles, a leaping rabbit and a pocket watch.',
+    company: 'White Rabbit', unit: 'RECON 07',
+    colors: { ground: '#E7E0FA', ink: '#2A2340', accent: '#E8338C', glow: '#A99BF0', panel: '#F7F4FF', alert: '#FF5AA8' },
+    fonts: { display: 'Bodoni Moda', mono: 'DM Mono' },
+    motif: 'rabbit', texture: 'dots', marks: 'none', iconStyle: 'pearl', glyphs: 'rabbit', units: 'fahrenheit', upper: false,
+    phrases: [['Down The', 'Rabbit Hole'], ['Curiouser And', 'Curiouser'], ["We're All", 'Mad Here'], ['Always', 'Running Late']],
+    text: {
+      tagL: 'FIELD UNIT · RECON 07', tagR: 'WHITE RABBIT', sub: 'One more minute. Then another.', foot: 'WHITE RABBIT // RECON 07',
+      homeTop: 'THE HOLE GOES DOWN FOREVER', caption: 'Mind the drop.'
+    },
+    codes: { camera: 'LOOK', photos: 'CARD', maps: 'PATH', calendar: 'LATE', phone: 'TEA', messages: 'NOTE', browser: 'HOLE', music: 'TUNE', youtube: 'SCREEN', instagram: 'GLASS', discord: 'PARTY' },
+    widget: {
+      scriptFont: 'Didot', txGraphic: 'helix', archive: true, oddity: 'late', C: {
+        solar: { label: 'SKY WATCH', offline: 'Lost In The Clouds', day: 'DAYLIGHT LEFT', night: 'AFTER DARK', setIn: 'DUSK IN', riseIn: 'DAWN IN' },
+        audio: { right: 'A WIND-UP TUNE', src: 'MUSIC BOX // YT MUSIC', metric: 'HEARTS', tap: 'TAP TO WIND · PLAYING ', foot: 'MIND THE TIME',
+          lines: ['A Tune For The Tumble', 'Music Box, Freshly Wound', 'Hum While You Hurry', 'A Waltz For Being Late', 'Something To Fall To', 'The Clockwork Lullaby'] },
+        feeds: { right: 'TWO CARDS DEALT', trace: 'CURIOSITY // LIVE', tap: 'TAP A CARD TO PLAY · ', foot: 'CURIOUSER AND CURIOUSER', linked: 'DEALT', status: 'POCKET WATCH // WOUND', rate: 'HEARTBEAT',
+          yt: { line: 'The Looking Screen', meters: ['WONDER', 'GIGGLES', 'FOCUS'], tag: 'ONE MORE, THEN BED', queue: '∞ TUMBLES', u1: 'MIN', u2: 'LEVEL', kv: ['QUEUE', 'TIME LOST', 'TUMBLE'], curve: 'TUMBLE // TONIGHT', curveR: 'STILL CURIOUS', foot: 'DOWN YOU GO' },
+          ig: { line: 'The Card Deck', meters: ['ENVY', 'HEARTS', 'WORRY'], tag: 'PAINTING THE ROSES', kv: ['FACES', 'HEARTS', 'RED ROSES'], curve: 'HEARTS // TODAY', curveR: 'PEAK AT TEATIME', foot: 'SHUFFLE. LOOK. SHUFFLE.' } }
+      },
+      L: { vid: 'W-06 // LOOKING SCREEN', obs: 'W-07 // CARD DECK', dc: 'W-09 // TEA PARTY', solar: 'W-03 // SKY WATCH', solarBig: 'W-03 // SKY WATCH + WEATHER', audio: 'W-04 // MUSIC BOX', feeds: 'W-06 // TWO CARDS',
+        status: 'W-01 // POCKET WATCH', next: 'NEXT, DON\'T BE LATE', none: 'Nothing Due', noneSub: 'NO HURRY TODAY', ext: 'SKY',
+        dur: 'LENGTH', state: 'STATE', feels: 'FEELS LIKE', hilo: 'HI / LO', active: 'RUNNING', queued: 'SOON', standby: 'IDLE',
+        cell: 'HEARTS', cycle: 'DAY', shift: 'W-02 // THE DROP', activeLong: 'FALLING', offTitle: 'Feet On The Ground', tx: 'W-05 // A HURRIED NOTE' },
+      classes: ['URGENT', 'LATE', 'CURIOUS', 'VERY IMPORTANT'],
+      archiveList: [
+        { t: 'Oh dear! Oh dear! I shall be too late!', by: 'LEWIS CARROLL · ALICE IN WONDERLAND · 1865' },
+        { t: 'Curiouser and curiouser!', by: 'LEWIS CARROLL · ALICE IN WONDERLAND · 1865' },
+        { t: "We're all mad here.", by: 'LEWIS CARROLL · ALICE IN WONDERLAND · 1865' },
+        { t: 'Begin at the beginning, and go on till you come to the end: then stop.', by: 'LEWIS CARROLL · ALICE IN WONDERLAND · 1865' },
+        { t: "It's no use going back to yesterday, because I was a different person then.", by: 'LEWIS CARROLL · ALICE IN WONDERLAND · 1865' }
+      ]
+    },
+    slogans: [
+      ['Late Is A Direction', 'FIELD RECON'], ['Never Stop. Never Explain.', 'FIELD RECON'], ['The Watch Is Always Right', 'TIMEKEEPING'],
+      ['Every Hole Has Another Hole', 'TUNNEL SURVEY'], ['Curiosity Is Standard Issue', 'SUPPLY OFFICE'], ['Tea Is Not A Break, It Is A Briefing', 'MAD HATTERY'],
+      ['Ears Up. Eyes Open.', 'FIELD RECON'], ['Paint The Roses Before They Ask', 'GROUNDS CREW'], ['Running Late Is Still Running', 'TIMEKEEPING'],
+      ['Mind The Drop', 'TUNNEL SURVEY'], ['Follow Nothing. Be Followed.', 'FIELD RECON'], ['Smile Like You Know Something', 'MORALE']
+    ]
   }
 };
 
-const DISPLAY_FONTS = [['Newsreader', 300], ['Shippori Mincho B1', 800], ['IM Fell English', 400], ['Cormorant Garamond', 700], ['Fraunces', 700], ['Oxanium', 700], ['Space Grotesk', 600], ['Archivo', 800]];
+const DISPLAY_FONTS = [['Bodoni Moda', 600], ['Newsreader', 300], ['Shippori Mincho B1', 800], ['IM Fell English', 400], ['Cormorant Garamond', 700], ['Fraunces', 700], ['Oxanium', 700], ['Space Grotesk', 600], ['Archivo', 800]];
 const MONO_FONTS = ['IBM Plex Mono', 'Barlow Condensed', 'IM Fell English SC', 'Cormorant SC', 'Share Tech Mono', 'DM Mono', 'JetBrains Mono'];
-const SCRIPT_FONTS = { 'Newsreader': 'Baskerville', 'Shippori Mincho B1': 'HiraMinProN-W6', 'IM Fell English': 'Baskerville-SemiBold', 'Cormorant Garamond': 'Georgia-Bold', 'Oxanium': 'AvenirNextCondensed-DemiBold', 'Fraunces': 'Georgia-Bold', 'Space Grotesk': 'AvenirNext-DemiBold', 'Archivo': 'AvenirNext-Heavy' };
+const SCRIPT_FONTS = { 'Newsreader': 'Baskerville', 'Shippori Mincho B1': 'HiraMinProN-W6', 'IM Fell English': 'Baskerville-SemiBold', 'Cormorant Garamond': 'Georgia-Bold', 'Oxanium': 'AvenirNextCondensed-DemiBold', 'Fraunces': 'Georgia-Bold', 'Space Grotesk': 'AvenirNext-DemiBold', 'Archivo': 'AvenirNext-Heavy', 'Bodoni Moda': 'Didot' };
 const DEVICES = [
   ['iPhone 12 mini / 13 mini', 1080, 2340],
   ['iPhone 12, 13, 14, 12 Pro, 13 Pro', 1170, 2532],
@@ -3067,6 +3498,13 @@ const DEVICES = [
 ];
 
 const VARIANTS = {
+  rabbit: [
+    { name: 'Lilac Haze', colors: {}, seed: 0 },
+    { name: 'Midnight Rabbit', colors: { ground: '#1C1730', ink: '#F2ECFF', accent: '#FF4FA3', glow: '#7D6BE0', panel: '#26203E', alert: '#FF8CC6' }, seed: 1, knobs: { glow: 1.3 } },
+    { name: 'Rose Pearl', colors: { ground: '#F8E3EC', ink: '#3A1E2E', accent: '#D6246E', glow: '#F2A6C8', panel: '#FFF5F9' }, seed: 2 },
+    { name: 'Cheshire', colors: { ground: '#E5DCF7', ink: '#2B1B3F', accent: '#8A3FD9', glow: '#E86BC0', panel: '#F6F1FF' }, seed: 3 },
+    { name: 'Clockwork Mint', colors: { ground: '#DDF3EC', ink: '#1F2E33', accent: '#E8338C', glow: '#9AD9C6', panel: '#F2FBF8' }, seed: 4 }
+  ],
   deeprange: [
     { name: 'Contact Red', colors: {}, seed: 0 },
     { name: 'Signal Green', colors: { ink: '#E8FFF0', accent: '#3DFF8A', glow: '#0F5C4A', alert: '#FFE14A' }, seed: 1 },
@@ -3110,8 +3548,8 @@ const VARIANTS = {
     { name: 'Obsidian Gold', colors: { ground: '#0C0C0E', panel: '#18171C', glow: '#6E5B2E', accent: '#E3C26A' }, seed: 4 }
   ]
 };
-const ICON_STYLES = [['frame', 'Lab frame'], ['hex', 'Hex alert'], ['woodcut', 'Woodcut'], ['visor', 'Visor'], ['gilded', 'Gilded'], ['tracker', 'Range tracker']];
-const GLYPH_CHOICES = [['', 'Classic'], ['directive', 'Tactical'], ['longroad', 'Storybook'], ['nightfall', 'Field kit'], ['grimoire', 'Arcane'], ['deeprange', 'Deep range']];
+const ICON_STYLES = [['frame', 'Lab frame'], ['hex', 'Hex alert'], ['woodcut', 'Woodcut'], ['visor', 'Visor'], ['gilded', 'Gilded'], ['tracker', 'Range tracker'], ['pearl', 'Pearl']];
+const GLYPH_CHOICES = [['', 'Classic'], ['directive', 'Tactical'], ['longroad', 'Storybook'], ['nightfall', 'Field kit'], ['grimoire', 'Arcane'], ['deeprange', 'Deep range'], ['rabbit', 'White rabbit']];
 
 function K(th) { const k = th.knobs || {}; return { scale: k.scale == null ? 1 : k.scale, shift: k.shift || 0, texture: k.texture == null ? 1 : k.texture, glow: k.glow == null ? 1 : k.glow, details: k.details !== false }; }
 function seedOf(th, base) { return base + (th.seed || 0) * 7919; }
@@ -3357,6 +3795,7 @@ function drawWallpaper(canvas, th, mode, phraseIdx) {
   if (th.motif === 'alert') { drawAlert(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'map') { drawMap(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'night') { drawNight(ctx, th, Hl, mode, phraseIdx); ctx.restore(); return; }
+  if (th.motif === 'rabbit') { drawRabbit(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'orbital') { if (mode === 'home') drawOrbitalHome(ctx, th, Hl, W, H, s, phraseIdx); else drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'grimoire') { drawGrimoire(ctx, th, Hl, mode, phraseIdx); ctx.restore(); return; }
   const T = th.text, ink = th.colors.ink, mono = th.fonts.mono;
@@ -3421,7 +3860,9 @@ function drawIcon(canvas, th, app, idx) {
   const c = th.colors, mono = th.fonts.mono, num = String(idx + 1).padStart(2, '0'), code = (th.codes[app] || app.slice(0, 3)).toUpperCase();
   const set = (th.glyphs && GLYPHSETS[th.glyphs]) || GLYPHS;
   const glyph = new Path2D(set[app] || GLYPHS[app]);
-  if (th.iconStyle === 'tracker') {
+  if (th.iconStyle === 'pearl') {
+    drawPearlIcon(ctx, th, glyph, num, code);
+  } else if (th.iconStyle === 'tracker') {
     drawTrackerIcon(ctx, th, glyph, num, code);
   } else if (th.iconStyle === 'visor') {
     drawVisorIcon(ctx, th, glyph, num, code);
@@ -5004,13 +5445,91 @@ function drawOrbitalHome(ctx, th, Hl, W, H, s, frame) {
   [[0, 290, 12, 44], [0, 340, 7, 12], [378, 560, 12, 40], [383, 606, 7, 12]].forEach(([x, y, w, h]) => ctx.fillRect(x, y, w, h));
 }
 
+// ---------- WHITE RABBIT motif ----------
+function rSpark(ctx, x, y, r, c) { ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(x, y - r); ctx.lineTo(x + r * 0.22, y - r * 0.22); ctx.lineTo(x + r, y); ctx.lineTo(x + r * 0.22, y + r * 0.22); ctx.lineTo(x, y + r); ctx.lineTo(x - r * 0.22, y + r * 0.22); ctx.lineTo(x - r, y); ctx.lineTo(x - r * 0.22, y - r * 0.22); ctx.closePath(); ctx.fill(); }
+function rHeart(ctx, x, y, s, fill, stroke, lw) { ctx.beginPath(); ctx.moveTo(x, y + s * 0.35); ctx.quadraticCurveTo(x - s * 0.55, y + s * 0.15, x - s * 0.5, y - s * 0.05); ctx.quadraticCurveTo(x - s * 0.35, y - s * 0.5, x, y - s * 0.12); ctx.quadraticCurveTo(x + s * 0.35, y - s * 0.5, x + s * 0.5, y - s * 0.05); ctx.quadraticCurveTo(x + s * 0.55, y + s * 0.15, x, y + s * 0.35); ctx.closePath(); if (fill) { ctx.fillStyle = fill; ctx.fill(); } if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1; ctx.stroke(); } }
+function rRabbit(ctx, x, y, s, fill, stroke, lw, eye) {
+  const E = (cx, cy, rx, ry, rot) => { ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, rot || 0, 0, Math.PI * 2); ctx.fillStyle = fill; ctx.fill(); ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke(); };
+  E(x - s * 0.28, y + s * 0.14, s * 0.24, s * 0.08, 0.25); E(x + s * 0.2, y + s * 0.18, s * 0.16, s * 0.05, -0.3);
+  E(x, y, s * 0.44, s * 0.2, -0.12); E(x + s * 0.4, y - s * 0.16, s * 0.17, s * 0.13, -0.2);
+  E(x + s * 0.34, y - s * 0.42, s * 0.05, s * 0.2, -0.35); E(x + s * 0.46, y - s * 0.4, s * 0.05, s * 0.19, 0.1);
+  E(x - s * 0.46, y - s * 0.08, s * 0.08, s * 0.08);
+  ctx.fillStyle = eye; ctx.beginPath(); ctx.arc(x + s * 0.47, y - s * 0.18, s * 0.025, 0, Math.PI * 2); ctx.fill();
+}
+function drawRabbit(ctx, th, Hl, mode, phraseIdx, W, H, s) {
+  const c = th.colors, T = th.text, mono = th.fonts.mono, disp = th.fonts.display, dw = dispWeight(disp), k = K(th);
+  const g = ctx.createLinearGradient(0, 0, 0, Hl); g.addColorStop(0, hexA(c.panel, 1)); g.addColorStop(0.45, c.ground); g.addColorStop(1, hexA(c.glow, 0.55)); ctx.fillStyle = g; ctx.fillRect(0, 0, 390, Hl);
+  const r = rng(seedOf(th, 211 + (mode === 'home' ? 7 : 0)));
+  ctx.save(); ctx.globalAlpha = Math.min(1, 0.5 * k.texture);
+  for (let i = 0; i < 26; i++) { const x = r() * 390, w = 2 + r() * 10; ctx.fillStyle = hexA('#FFFFFF', 0.06 + r() * 0.12); ctx.fillRect(x, 0, w, Hl); }
+  ctx.lineWidth = 0.6; for (let i = 0; i < 34; i++) { const x0 = r() * 390, y0 = r() * Hl, a = (r() - 0.5) * 1.6 + (r() > 0.5 ? 0.9 : -0.9), L = 300 + r() * 500; ctx.strokeStyle = hexA(c.glow, 0.25 + r() * 0.35); ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + Math.cos(a) * L, y0 + Math.sin(a) * L); ctx.stroke(); }
+  ctx.restore();
+  for (let i = 0; i < 18; i++) rHeart(ctx, r() * 390, r() * Hl, 10 + r() * 14, null, hexA(c.glow, 0.18), 0.8);
+  for (let i = 0; i < Math.round(26 * k.glow); i++) rSpark(ctx, r() * 390, r() * Hl, 2 + r() * 5, hexA(r() > 0.7 ? c.accent : '#FFFFFF', 0.5 + r() * 0.5));
+  if (mode === 'lock') {
+    const cy = 362;
+    centerXform(ctx, th, 195, cy, () => {
+      ctx.save(); ctx.strokeStyle = hexA(c.ink, 0.35); ctx.lineWidth = 1;
+      for (let i = 0; i < 60; i++) { const a = i / 60 * Math.PI * 2, R1 = 150, l = i % 5 ? 4 : 9; ctx.beginPath(); ctx.moveTo(195 + R1 * Math.cos(a), cy + R1 * Math.sin(a) * 0.62); ctx.lineTo(195 + (R1 - l) * Math.cos(a), cy + (R1 - l) * Math.sin(a) * 0.62); ctx.stroke(); }
+      ctx.restore();
+      const cw = 270, ch = 150, x0 = 195 - cw / 2, y0 = cy - ch / 2;
+      ctx.save(); ctx.shadowColor = hexA(c.glow, 0.8); ctx.shadowBlur = 24 * k.glow;
+      const pg = ctx.createLinearGradient(x0, y0, x0 + cw, y0 + ch); pg.addColorStop(0, '#FFFFFF'); pg.addColorStop(0.5, c.panel); pg.addColorStop(1, hexA(c.glow, 0.7));
+      ctx.fillStyle = pg; ctx.beginPath(); ctx.roundRect(x0, y0, cw, ch, 72); ctx.fill(); ctx.restore();
+      ctx.strokeStyle = hexA(c.ink, 0.55); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.roundRect(x0, y0, cw, ch, 72); ctx.stroke();
+      ctx.fillStyle = hexA('#FFFFFF', 0.7); ctx.beginPath(); ctx.ellipse(x0 + 70, y0 + 34, 52, 12, -0.2, 0, Math.PI * 2); ctx.fill();
+      rRabbit(ctx, 192, cy + 8, 170, '#FFFFFF', hexA(c.ink, 0.6), 1.4, c.accent);
+      rSpark(ctx, 120, cy - 30, 9, '#FFFFFF'); rSpark(ctx, 140, cy - 46, 4, '#FFFFFF'); rSpark(ctx, 284, cy + 40, 6, c.accent);
+      ctx.strokeStyle = hexA(c.ink, 0.5); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0 + 26, cy + 22); ctx.lineTo(x0 + 40, cy + 22); ctx.lineTo(x0 + 46, cy + 30); ctx.stroke();
+      spaced(ctx, '+', x0 + 30, cy - 18, 12, mono, 400, 0, 'center', hexA(c.ink, 0.5));
+    });
+    if (k.details) { spaced(ctx, T.tagL || 'FIELD UNIT · RECON 07', 24, 250, 7.5, mono, 500, 0.14, 'left', hexA(c.ink, 0.7)); spaced(ctx, T.tagR || 'WHITE RABBIT', 366, 250, 7.5, mono, 500, 0.14, 'right', c.accent); }
+    const ph = th.phrases[phraseIdx % th.phrases.length] || ['', ''];
+    const l1 = th.upper ? ph[0].toUpperCase() : ph[0], l2 = th.upper ? ph[1].toUpperCase() : ph[1];
+    const fs = Math.min(46, 46 * 340 / Math.max(1, measureSpaced(ctx, l1.length > l2.length ? l1 : l2, 46, disp, dw, 0)));
+    ctx.save(); ctx.shadowColor = hexA('#FFFFFF', 0.8); ctx.shadowBlur = 10;
+    spaced(ctx, l1, 195, 594, fs, disp, dw, 0, 'center', c.ink); spaced(ctx, l2, 195, 594 + fs * 1.04, fs, disp, dw, 0, 'center', c.ink); ctx.restore();
+    rSpark(ctx, 195, 594 + fs * 1.04 + 22, 5, c.accent);
+    spaced(ctx, T.sub || '', 195, 594 + fs * 1.04 + 42, 9.5, disp, 400, 0, 'center', hexA(c.ink, 0.75));
+    if (k.details) { spaced(ctx, T.foot || 'WHITE RABBIT // RECON 07', 195, Hl - 34, 7, mono, 500, 0.2, 'center', hexA(c.ink, 0.6)); }
+  } else {
+    const cx = 195, cy = 430;
+    centerXform(ctx, th, cx, cy, () => {
+      for (let i = 9; i >= 0; i--) { const t = i / 9, rx = 30 + t * 150, ry = 20 + t * 96, ox = Math.sin(t * 2.4) * 14; ctx.strokeStyle = hexA(c.ink, 0.12 + (1 - t) * 0.35); ctx.lineWidth = 1 + (1 - t) * 0.8; ctx.fillStyle = hexA(c.glow, 0.04 + (1 - t) * 0.05); ctx.beginPath(); ctx.ellipse(cx + ox, cy + t * 8, rx, ry, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+      ctx.fillStyle = hexA(c.ink, 0.65); ctx.beginPath(); ctx.ellipse(cx + 4, cy - 2, 24, 15, 0, 0, Math.PI * 2); ctx.fill();
+      const items = [[cx - 110, cy - 110, 'watch'], [cx + 96, cy - 80, 'card'], [cx - 70, cy + 74, 'cup'], [cx + 62, cy + 92, 'key'], [cx + 8, cy - 150, 'card2']];
+      items.forEach(([x, y, kind]) => {
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.3; ctx.fillStyle = c.panel;
+        if (kind === 'watch') { ctx.beginPath(); ctx.arc(x, y, 16, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 8, y - 4); ctx.moveTo(x, y); ctx.lineTo(x - 2, y - 11); ctx.stroke(); ctx.beginPath(); ctx.arc(x, y - 20, 4, 0, Math.PI * 2); ctx.stroke(); }
+        if (kind === 'card' || kind === 'card2') { ctx.save(); ctx.translate(x, y); ctx.rotate(kind === 'card' ? 0.4 : -0.3); ctx.beginPath(); ctx.roundRect(-14, -20, 28, 40, 3); ctx.fill(); ctx.stroke(); rHeart(ctx, 0, 0, 12, c.accent); ctx.restore(); }
+        if (kind === 'cup') { ctx.beginPath(); ctx.moveTo(x - 14, y - 8); ctx.lineTo(x + 14, y - 8); ctx.quadraticCurveTo(x + 12, y + 12, x, y + 12); ctx.quadraticCurveTo(x - 12, y + 12, x - 14, y - 8); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(x + 17, y - 1, 5, -1.2, 1.4); ctx.stroke(); }
+        if (kind === 'key') { ctx.beginPath(); ctx.arc(x - 12, y, 6, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x - 6, y); ctx.lineTo(x + 16, y); ctx.moveTo(x + 10, y); ctx.lineTo(x + 10, y + 6); ctx.moveTo(x + 15, y); ctx.lineTo(x + 15, y + 5); ctx.stroke(); }
+      });
+      rRabbit(ctx, cx - 6, cy - 46, 70, '#FFFFFF', hexA(c.ink, 0.6), 1.2, c.accent);
+    });
+    if (k.details) spaced(ctx, T.homeTop || 'THE HOLE GOES DOWN FOREVER', 195, 236, 7.5, mono, 500, 0.2, 'center', hexA(c.ink, 0.6));
+    spaced(ctx, T.caption || 'Mind the drop.', 195, 600, 11, disp, 400, 0, 'center', hexA(c.ink, 0.75));
+  }
+}
+function drawPearlIcon(ctx, th, glyph, num, code) {
+  const c = th.colors;
+  const g = ctx.createLinearGradient(0, 0, 1024, 1024); g.addColorStop(0, '#FFFFFF'); g.addColorStop(0.55, c.panel); g.addColorStop(1, hexA(c.glow, 0.8)); ctx.fillStyle = g; ctx.fillRect(0, 0, 1024, 1024);
+  ctx.strokeStyle = hexA(c.glow, 1); ctx.lineWidth = 10; ctx.beginPath(); ctx.roundRect(110, 110, 804, 804, 150); ctx.stroke();
+  ctx.fillStyle = hexA('#FFFFFF', 0.75); ctx.beginPath(); ctx.ellipse(330, 250, 190, 50, -0.35, 0, Math.PI * 2); ctx.fill();
+  rSpark(ctx, 820, 210, 46, c.accent); rSpark(ctx, 760, 290, 18, hexA(c.accent, 0.7));
+  ctx.save(); ctx.translate(312, 300); ctx.scale(16.6, 16.6); ctx.fillStyle = c.ink; ctx.fill(glyph, 'evenodd'); ctx.restore();
+  spaced(ctx, num, 190, 200, 50, th.fonts.mono, 500, 0.06, 'left', hexA(c.ink, 0.6));
+  spaced(ctx, code, 512, 870, 50, th.fonts.mono, 500, 0.12, 'center', c.ink);
+}
+
 const ROLES = {
   halcyon: { panel: 'panel', ink: 'ink', headBg: 'ink', headText: 'ground', altBg: 'accent', altText: 'ink', accent: 'accent' },
   directive: { panel: 'panel', ink: 'ink', headBg: 'alert', headText: 'ink', altBg: 'accent', altText: 'ground', accent: 'glow' },
   longroad: { panel: 'panel', ink: 'ink', headBg: 'ink', headText: 'panel', altBg: 'accent', altText: 'panel', accent: 'accent' },
   nightfall: { panel: 'panel', ink: 'ink', headBg: 'ink', headText: 'ground', altBg: 'accent', altText: 'ground', accent: 'accent' },
   grimoire: { panel: 'panel', ink: 'ink', headBg: 'accent', headText: 'ground', altBg: 'glow', altText: 'ink', accent: 'accent' },
-  deeprange: { panel: 'panel', ink: 'ink', headBg: 'accent', headText: 'ground', altBg: 'glow', altText: 'ink', accent: 'alert' }
+  deeprange: { panel: 'panel', ink: 'ink', headBg: 'accent', headText: 'ground', altBg: 'glow', altText: 'ink', accent: 'alert' },
+  rabbit: { panel: 'panel', ink: 'ink', headBg: 'glow', headText: 'ink', altBg: 'accent', altText: 'panel', accent: 'accent' }
 };
 const STORE = 'foundry.v1', CHECKS = 'foundry.checks.v1';
 const $ = (id) => document.getElementById(id);
@@ -5109,14 +5628,14 @@ function buildFields() {
   function setMotif(m) {
     const th = state.th;
     th.motif = m;
-    th.widget.oddity = { globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder' }[m] || th.widget.oddity;
+    th.widget.oddity = { globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', rabbit: 'late' }[m] || th.widget.oddity;
     if (m === 'alert') {
       const d = PRESETS.directive;
       th.texture = 'scan'; th.marks = 'frame'; th.iconStyle = 'hex'; th.widget.txGraphic = 'sync'; th.upper = true; th.glyphs = 'directive';
       if (!th.colors.alert) th.colors.alert = d.colors.alert;
       Object.keys(d.text).forEach(k => { if (th.text[k] == null) th.text[k] = clone(d.text[k]); });
-    } else if (m === 'map' || m === 'night' || m === 'grimoire' || m === 'orbital') {
-      const d = PRESETS[{ map: 'longroad', night: 'nightfall', grimoire: 'grimoire', orbital: 'deeprange' }[m]];
+    } else if (m === 'map' || m === 'night' || m === 'grimoire' || m === 'orbital' || m === 'rabbit') {
+      const d = PRESETS[{ map: 'longroad', night: 'nightfall', grimoire: 'grimoire', orbital: 'deeprange', rabbit: 'rabbit' }[m]];
       th.texture = d.texture; th.marks = d.marks; th.iconStyle = d.iconStyle; th.widget.txGraphic = d.widget.txGraphic; th.upper = d.upper; th.glyphs = d.glyphs;
       Object.keys(d.text).forEach(k => { if (th.text[k] == null) th.text[k] = clone(d.text[k]); });
       if (d.colors.alert && !th.colors.alert) th.colors.alert = d.colors.alert;
@@ -5270,7 +5789,7 @@ function buildWidgetPhone() {
   const grid = el('div', 'width:158px;height:158px;display:grid;grid-template-columns:repeat(2,1fr);place-items:center;flex:none');
   APPS.slice(0, 4).forEach(([key], i) => { const img = el('img', 'width:60px;height:60px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,.25)'); img.src = iconURL(key, i, 120); img.alt = ''; grid.append(img); });
   row([slot(by('shift')), grid]); lbl('shift');
-  ;['audio', 'transmission', 'solar', 'feeds', 'youtube', 'oddity'].forEach(m => { const it = by(m); if (!it) return; row([slot(it)]); lbl(m === 'youtube' ? 'youtube / instagram' : m); });
+  ;['audio', 'transmission', 'solar', 'feeds', 'youtube', 'instagram', 'discord', 'oddity'].forEach(m => { const it = by(m); if (!it) return; row([slot(it)]); lbl(m); });
   const sizer = el('div', 'width:1px');
   scr.append(inner, sizer);
   requestAnimationFrame(() => { sizer.style.height = (inner.offsetHeight * k) + 'px'; inner.style.position = 'absolute'; inner.style.top = '0'; inner.style.left = '0'; scr.scrollTop = keep; });
@@ -5295,10 +5814,11 @@ const ODD_INFO = {
   omens: ['Road Omens', 'The omen of the day with a weather vane, how far your boots can still go, pantry status, the nearest inn and a second-thoughts meter.'],
   hostile: ['Hostile Intel', 'A field-guide entry on a made-up enemy: silhouette, threat level, armor, aggression and cowardice, its weakness and a tactical tip.'],
   spell: ['Spell of the Hour', 'A fake spell card: school, rarity (sometimes cursed), essence cost, casting time, the effect and the side effect.'],
+  late: ['Late Notice', 'What you are late for, by how many minutes, a pocket watch running wild, an excuse for the occasion, the state of the tea and a panic meter.'],
   decoder: ['Signal Decoder', 'A garbled transmission resolving into a decoded line, with confidence, echo delay, source and salvage value. Bad decodes flag loss of signal.']
 };
-function frameFor(th) { return ({ globe: 'halcyon', radar: 'halcyon', alert: 'directive', map: 'longroad', night: 'nightfall', grimoire: 'grimoire', orbital: 'deeprange' }[th.motif] || 'halcyon'); }
-function oddityFor(th) { return th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder' }[th.motif] || 'mood'); }
+function frameFor(th) { return ({ globe: 'halcyon', radar: 'halcyon', alert: 'directive', map: 'longroad', night: 'nightfall', grimoire: 'grimoire', orbital: 'deeprange', rabbit: 'rabbit' }[th.motif] || 'halcyon'); }
+function oddityFor(th) { return th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', rabbit: 'late' }[th.motif] || 'mood'); }
 function widgetList(th) {
   const L = th.widget.L, o = ODD_INFO[oddityFor(th)];
   return [
@@ -5308,7 +5828,9 @@ function widgetList(th) {
     { mode: 'solar', size: 'large is best', title: labelFor(th, 'solarBig', 'W-03 // SOLAR + ATMOS'), name: niceName(labelFor(th, 'solarBig', 'Solar + Atmos')), tap: 'Leave as is', desc: 'Daylight remaining, a live sunset countdown and the sun\'s arc. The large size adds air temperature, humidity, UV, visibility, dew point, wind and a 12-hour rain chart.' },
     { mode: 'audio', size: 'medium', title: labelFor(th, 'audio', 'W-04 // AUDIO CHANNEL'), name: niceName(labelFor(th, 'audio', 'Audio')), tap: 'Open URL youtubemusic:// (or your music app)', desc: 'A styled one-tap launcher for your music app, with a rotating in-world line, a waveform and a live timer.' },
     { mode: 'feeds', size: 'medium', title: labelFor(th, 'feeds', 'W-06 // NEURAL LINK'), name: niceName(labelFor(th, 'feeds', 'Neural Link')), tap: 'Each half opens its own app', desc: 'Two halves that open YouTube and Instagram, each with made-up in-world meters and a live trace.' },
-    { mode: 'youtube', size: 'any size', title: labelFor(th, 'vid', 'W-06 // VID'), name: 'Single channel', tap: 'Open URL youtube:// or instagram://app', desc: 'One-app versions of the two-channel widget, with their own readouts and graph. Use the parameter youtube or instagram.' },
+    { mode: 'youtube', size: 'any size', title: labelFor(th, 'vid', 'W-06 // VID'), name: niceName(labelFor(th, 'vid', 'YouTube')), tap: 'Open URL youtube://', desc: 'A YouTube launcher drawn as its own in-world object, with a rotating line and made-up viewing stats. Changes about every 30 minutes.' },
+    { mode: 'instagram', size: 'any size', title: labelFor(th, 'obs', 'W-07 // OBS'), name: niceName(labelFor(th, 'obs', 'Instagram')), tap: 'Open URL instagram://app', desc: 'An Instagram launcher with its own design: a gallery of in-world portraits or cards and tongue-in-cheek social stats.' },
+    { mode: 'discord', size: 'any size', title: labelFor(th, 'dc', 'W-09 // SYNC'), name: niceName(labelFor(th, 'dc', 'Discord')), tap: 'Open URL discord://', desc: 'A Discord launcher shown as an in-world gathering, with who is around, a few channels and unread marks. All for show; nothing is read from your account.' },
     { mode: 'oddity', size: 'small or medium', title: 'W-08 // ' + o[0].toUpperCase(), name: o[0], tap: 'Leave as is', desc: o[1] + ' Purely for fun, and it changes about every 30 minutes.' }
   ];
 }
@@ -5320,7 +5842,9 @@ function drawPreviewHeader(x, W, H, f, base, tcol, wc, th) {
   const poly = (pts, col) => { x.fillStyle = col; x.beginPath(); pts.forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b)); x.closePath(); x.fill(); };
   const ln = (pts, col, w) => { x.strokeStyle = col; x.lineWidth = w; x.beginPath(); pts.forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b)); x.stroke(); };
   x.fillStyle = wc.panel; x.fillRect(0, 0, W, H);
-  if (f === 'halcyon') { x.fillStyle = base; x.fillRect(0, 0, W, H); ln([[0, H - 1], [W, H - 1]], hexA(tcol, 0.35), 1); for (let a = W - 8; a > W - 60; a -= 6) ln([[a, H - 5], [a, H - 1]], hexA(tcol, 0.4), 0.8); }
+  const spk = (cx, cy, r, col) => { x.fillStyle = col; x.beginPath(); x.moveTo(cx, cy - r); x.lineTo(cx + r * 0.22, cy - r * 0.22); x.lineTo(cx + r, cy); x.lineTo(cx + r * 0.22, cy + r * 0.22); x.lineTo(cx, cy + r); x.lineTo(cx - r * 0.22, cy + r * 0.22); x.lineTo(cx - r, cy); x.lineTo(cx - r * 0.22, cy - r * 0.22); x.closePath(); x.fill(); };
+  if (f === 'rabbit') { x.fillStyle = base; x.fillRect(0, 0, W, H); for (let a2 = 0; a2 < W; a2 += 3) { x.fillStyle = `rgba(255,255,255,${0.05 + 0.08 * Math.abs(Math.sin(a2 * 0.05))})`; x.fillRect(a2, 0, 1.5, H); } spk(W - 12, H / 2, 5, wc.accent); spk(W - 24, H / 2 - 4, 2.2, 'rgba(255,255,255,.9)'); ln([[0, H - 1], [W, H - 1]], hexA(wc.accent, 0.5), 1); }
+  else if (f === 'halcyon') { x.fillStyle = base; x.fillRect(0, 0, W, H); ln([[0, H - 1], [W, H - 1]], hexA(tcol, 0.35), 1); for (let a = W - 8; a > W - 60; a -= 6) ln([[a, H - 5], [a, H - 1]], hexA(tcol, 0.4), 0.8); }
   else if (f === 'directive') { x.fillStyle = base; x.fillRect(0, 0, W, H); for (let a = W - 28; a < W + 10; a += 8) poly([[a, H], [a + 4, H], [a + 4 + H * 0.6, 0], [a + H * 0.6, 0]], tcol); x.fillStyle = tcol; x.fillRect(0, H - 2, W, 2); }
   else if (f === 'longroad') { const n = 8; poly([[0, 1], [W, 1], [W - n, H / 2], [W, H - 1], [0, H - 1], [n, H / 2]], base); ln([[n + 4, 3.5], [W - n - 4, 3.5]], hexA(tcol, 0.55), 0.6); ln([[n + 4, H - 3.5], [W - n - 4, H - 3.5]], hexA(tcol, 0.55), 0.6); [[n + 6, H / 2], [W - n - 6, H / 2]].forEach(([a, b]) => poly([[a, b - 3], [a + 3, b], [a, b + 3], [a - 3, b]], tcol)); }
   else if (f === 'nightfall') { x.fillStyle = hexA(wc.ink, 0.08); x.fillRect(0, 0, W, H); ln([[0, H - 6], [6, H - 1], [W - 6, H - 1], [W, H - 6]], wc.ink, 1.2); ln([[0, 5], [6, 0]], wc.ink, 1.2); ln([[W, 5], [W - 6, 0]], wc.ink, 1.2); for (let i = 0; i < 6; i++) { x.fillStyle = hexA(wc.ink, i < 4 ? 0.9 : 0.25); x.fillRect(W - 14 - i * 6, 8, 4, 8); } }
@@ -5338,6 +5862,7 @@ function drawPreviewFrame(x, W, H, f, wc, th) {
   else if (f === 'longroad') { x.strokeStyle = ink; x.lineWidth = 1.2; x.strokeRect(4, top + 3, W - 8, H - top - 7); x.lineWidth = 0.6; x.strokeRect(7, top + 6, W - 14, H - top - 13); [[4, top + 3], [W - 4, top + 3], [4, H - 4], [W - 4, H - 4]].forEach(([a, b]) => dia(a, b, 3.5, hot)); }
   else if (f === 'nightfall') { const ch = 10, x0 = 4, y0 = top + 3, x1 = W - 4, y1 = H - 4; ln([[x0 + ch, y0], [x1 - ch, y0], [x1, y0 + ch], [x1, y1 - ch], [x1 - ch, y1], [x0 + ch, y1], [x0, y1 - ch], [x0, y0 + ch], [x0 + ch, y0]], hexA(ink, 0.35), 0.8); [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]].forEach(([a, b, sx, sy]) => ln([[a + sx * (ch + 10), b], [a + sx * ch, b], [a, b + sy * ch], [a, b + sy * (ch + 10)]], ink, 1.6)); }
   else if (f === 'grimoire') { x.strokeStyle = acc; x.lineWidth = 1.2; x.strokeRect(4, top + 3, W - 8, H - top - 7); x.strokeStyle = hexA(acc, 0.55); x.lineWidth = 0.6; x.strokeRect(7.5, top + 6.5, W - 15, H - top - 14); [[4, top + 3], [W - 4, top + 3], [4, H - 4], [W - 4, H - 4], [W / 2, top + 3], [W / 2, H - 4]].forEach(([a, b]) => dia(a, b, 4, acc)); }
+  else if (f === 'rabbit') { x.strokeStyle = wc.headBg; x.lineWidth = 1; x.beginPath(); x.roundRect(5, top + 3, W - 10, H - top - 8, 16); x.stroke(); const sp2 = (cx, cy, r, col) => { x.fillStyle = col; x.beginPath(); x.moveTo(cx, cy - r); x.lineTo(cx + r * 0.22, cy - r * 0.22); x.lineTo(cx + r, cy); x.lineTo(cx + r * 0.22, cy + r * 0.22); x.lineTo(cx, cy + r); x.lineTo(cx - r * 0.22, cy + r * 0.22); x.lineTo(cx - r, cy); x.lineTo(cx - r * 0.22, cy - r * 0.22); x.closePath(); x.fill(); }; sp2(W - 14, top + 12, 5, acc); sp2(12, H - 12, 4, wc.headBg); sp2(W - 26, top + 20, 2, acc); }
   else if (f === 'deeprange') { x.fillStyle = hot; [[0, top + 10, 5, 22], [0, top + 36, 3, 6], [W - 5, H - 40, 5, 26], [W - 3, H - 10, 3, 6]].forEach(([a, b, w, h]) => x.fillRect(a, b, w, h)); [[10, top + 6], [W - 10, top + 6]].forEach(([a, b], i) => ln([[a + (i ? -12 : 12), b], [a, b], [a, b + 12]], hexA(ink, 0.7), 1.2)); }
 }
 
@@ -5396,14 +5921,14 @@ function themedBody(item, th, wc, W, H) {
   const put = (c, x) => { c.style.position = 'absolute'; c.style.left = (x || 0) + 'px'; c.style.top = '0'; wrap.append(c); };
   const live = (spec, text) => { if (!spec) return; const fam2 = spec.f === 'disp' ? `"${th.fonts.display}", Georgia, serif` : spec.f === 'heavy' ? 'system-ui, sans-serif' : `"${th.fonts.mono}", ui-monospace, monospace`; const e = pv('div', `position:absolute;top:${spec.y}px;font:${spec.f === 'heavy' ? 800 : spec.f === 'bold' ? 700 : 400} ${spec.size}px ${fam2};color:${wc.ink};white-space:nowrap;line-height:1.3`, text); if (spec.a === 'c') { e.style.left = '0'; e.style.width = W + 'px'; e.style.textAlign = 'center'; } else if (spec.a === 'r') { e.style.right = (W - spec.x) + 'px'; } else { e.style.left = spec.x + 'px'; } wrap.append(e); };
   const d = sampleData(item.mode, th, W, bh);
-  if (item.mode === 'audio' && f === 'halcyon') { put(K.artImage(W, bh, K.THEME_PAINT.halcyon.audio, { line: deckFor(th).audio.lines[0], lvl: 3, phase: 1.2 })); live({ x: 352, y: 60, size: 9, a: 'r', f: 'bold' }, '0:42'); return wrap; }
+  if (['youtube', 'instagram', 'discord'].includes(item.mode)) { const P2 = K.THEME_PAINT[f] || K.THEME_PAINT.halcyon, pk = { youtube: 'yt', instagram: 'ig', discord: 'dc' }[item.mode]; put(K.artImage(W, bh, P2[pk], { seed: 7, now: new Date(), code: `${(th.codes[item.mode] || item.mode).slice(0, 5)}-${{ youtube: '09', instagram: '10', discord: '11' }[item.mode]}` })); return wrap; }
+  if (item.mode === 'audio' && (f === 'halcyon' || f === 'rabbit')) { put(K.artImage(W, bh, K.THEME_PAINT[f].audio, { line: deckFor(th).audio.lines[0], lvl: 3, phase: 1.2 })); live({ x: 352, y: 60, size: 9, a: 'r', f: 'bold' }, '0:42'); return wrap; }
   if (!P) return null;
   if (item.mode === 'status') { put(K.artImage(W, bh, P.status, d)); return wrap; }
   if (item.mode === 'shift') { put(K.artImage(W, bh, P.shift, d)); live(K.LIVE[f].shift, '3:42:10'); return wrap; }
   if (item.mode === 'transmission') { put(K.artImage(W, bh, P.tx, d)); return wrap; }
   if (item.mode === 'solar') { put(K.artImage(W, bh, P.solar, d)); live(K.LIVE[f].solar, '3:54:08'); return wrap; }
   if (item.mode === 'feeds') { put(K.artImage(W / 2, bh, P.feed, d.yt), 0); put(K.artImage(W / 2, bh, P.feed, d.ig), W / 2); return wrap; }
-  if (item.mode === 'youtube') { put(K.artImage(W, bh, P.feed, d.single)); return wrap; }
   return null;
 }
 function previewWidget(item, th) {
@@ -5414,15 +5939,15 @@ function previewWidget(item, th) {
   const fr = pvCanvas(W, H, x => drawPreviewFrame(x, W, H, frameFor(th), wc, th));
   fr.style.cssText += ';position:absolute;inset:0;pointer-events:none';
   card.append(fr);
-  const fK = frameFor(th), serifHead = fK === 'longroad' || fK === 'grimoire';
+  const fK = frameFor(th), serifHead = fK === 'longroad' || fK === 'grimoire' || fK === 'rabbit';
   const hBase = alt ? wc.altBg : wc.headBg, hText = fK === 'nightfall' ? wc.ink : fK === 'grimoire' ? wc.accent : (alt ? wc.altText : wc.headText);
-  const hd = pv('div', `position:relative;z-index:1;height:24px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 ${fK === 'directive' || fK === 'deeprange' ? 34 : fK === 'nightfall' ? 52 : serifHead ? 22 : 12}px 0 ${serifHead ? 22 : 12}px;font-size:${serifHead ? 10 : 9}px;letter-spacing:${serifHead ? '.02em' : '.06em'};color:${hText};${serifHead ? `font-family:${disp}` : ''}`);
+  const hd = pv('div', `position:relative;z-index:1;height:24px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 ${fK === 'directive' || fK === 'deeprange' ? 34 : fK === 'nightfall' ? 52 : fK === 'rabbit' ? 30 : serifHead ? 22 : 12}px 0 ${serifHead ? 22 : 12}px;font-size:${serifHead ? 10 : 9}px;letter-spacing:${serifHead ? '.02em' : '.06em'};color:${hText};${serifHead ? `font-family:${disp}` : ''}`);
   const hbg = pvCanvas(W, 24, x => drawPreviewHeader(x, W, 24, fK, hBase, alt ? wc.altText : wc.headText, wc, th));
   hbg.style.cssText += ';position:absolute;inset:0;z-index:-1';
   const tc = (s) => serifHead ? String(s).toLowerCase().replace(/(^|[\s\-\/(])([a-z])/g, (m, a2, b2) => a2 + b2.toUpperCase()) : s;
   hd.append(hbg, pv('span', 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis', tc(item.title)), pv('span', 'white-space:nowrap', tc(item.mode === 'status' ? 'LINK 0:42' : item.mode === 'transmission' ? 'SIGNAL 93%' : '')));
   card.append(hd);
-  const tb = ['status', 'shift', 'transmission', 'solar', 'feeds', 'youtube'].includes(item.mode) || (item.mode === 'audio' && frameFor(th) === 'halcyon') ? themedBody(item, th, wc, W, H) : null;
+  const tb = ['youtube', 'instagram', 'discord'].includes(item.mode) || (frameFor(th) !== 'halcyon' && ['status', 'shift', 'transmission', 'solar', 'feeds'].includes(item.mode)) || (item.mode === 'audio' && ['halcyon', 'rabbit'].includes(frameFor(th))) ? themedBody(item, th, wc, W, H) : null;
   if (tb) { tb.style.zIndex = '1'; card.append(tb); return { el: card, w: W, h: H }; }
   const bd = pv('div', 'position:relative;z-index:1;flex:1;display:flex;flex-direction:column;padding:10px 16px;gap:4px;min-height:0');
   card.append(bd);
@@ -5538,6 +6063,11 @@ function previewWidget(item, th) {
       [['ARMOR', 0.8], ['AGGRESSION', 0.45], ['COWARDICE', 0.7]].forEach(([k, v]) => { const rr = row('align-items:center'); rr.append(lbl(k, 8), meterEl(v, 110, k === 'AGGRESSION')); c.append(rr); });
       r2.append(c); bd.append(r2, pv('div', 'flex:1'), lbl('GRID 7-K · 3 CONTACTS · HOLDS GROUND, SULKS', 8));
       const tp = row('align-items:center'); tp.append(pv('span', 'font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis', 'WEAK TO COMPLIMENTS · MENTION ITS POSTURE.'), stampEl('BEFRIEND', 8)); bd.append(tp);
+    } else if (t === 'late') {
+      r2.append(vis(80, x => { x.fillStyle = wc.panel; x.strokeStyle = wc.ink; x.lineWidth = 1.4; x.beginPath(); x.arc(40, 43, 32, 0, Math.PI * 2); x.fill(); x.stroke(); x.strokeStyle = wc.headBg; x.lineWidth = 0.8; x.beginPath(); x.arc(40, 43, 27, 0, Math.PI * 2); x.stroke(); x.strokeStyle = wc.accent; x.lineWidth = 1.6; x.beginPath(); x.moveTo(40, 43); x.lineTo(58, 32); x.stroke(); x.strokeStyle = wc.ink; x.lineWidth = 2; x.beginPath(); x.moveTo(40, 43); x.lineTo(40, 30); x.stroke(); x.beginPath(); x.arc(40, 7, 4, 0, Math.PI * 2); x.stroke(); }));
+      const c = pv('div', 'flex:1;display:flex;flex-direction:column;gap:2px'); c.append(lbl('LATE FOR', 8), big('Tea, Promptly At Six', 15), pv('span', `font-size:8.5px;color:${wc.headBg}`, 'BY 23 MINUTES'), pv('span', `font-family:${disp};font-size:10.5px;opacity:.75`, 'Stopped to paint the roses red.'));
+      r2.append(c); bd.append(r2, pv('div', 'flex:1'));
+      const f2 = row('align-items:center'); const m2 = pv('div', 'display:flex;align-items:center;gap:6px'); m2.append(lbl('PANIC', 8), meterEl(0.8, 90, true)); f2.append(pv('span', 'font-size:8px', 'TEA: STEEPING'), m2); bd.append(f2);
     } else if (t === 'spell') {
       r2.append(vis(70, x => { x.scale(70 / 80, 70 / 80); x.strokeStyle = wc.accent; x.beginPath(); x.arc(40, 40, 36, 0, Math.PI * 2); x.stroke(); x.globalAlpha = 0.5; x.beginPath(); x.arc(40, 40, 31, 0, Math.PI * 2); x.stroke(); x.globalAlpha = 1; for (let i = 0; i < 12; i++) { const a2 = i / 12 * Math.PI * 2; x.beginPath(); x.moveTo(40 + 31 * Math.cos(a2), 40 + 31 * Math.sin(a2)); x.lineTo(40 + 36 * Math.cos(a2), 40 + 36 * Math.sin(a2)); x.stroke(); } x.beginPath(); for (let i = 0; i <= 5; i++) { const a2 = -Math.PI / 2 + (i * 2 % 5) * Math.PI * 2 / 5; const px = 40 + 27 * Math.cos(a2), py = 40 + 27 * Math.sin(a2); i ? x.lineTo(px, py) : x.moveTo(px, py); } x.closePath(); x.stroke(); x.fillStyle = wc.altBg; x.beginPath(); x.arc(40, 40, 8, 0, Math.PI * 2); x.fill(); x.strokeStyle = wc.ink; x.stroke(); }));
       const c = pv('div', 'flex:1;display:flex;flex-direction:column;gap:2px'); c.append(big('Lesser Summon Snack', 16));
@@ -5567,7 +6097,7 @@ function buildGallery() {
     const h = document.createElement('h3'); h.textContent = item.name;
     const d = document.createElement('p'); d.textContent = item.desc;
     const dl = document.createElement('dl');
-    [['Parameter', item.mode === 'youtube' ? 'youtube or instagram' : item.mode], ['Best size', item.size], ['When tapped', item.tap]].forEach(([k, v]) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; dl.append(dt, dd); });
+    [['Parameter', item.mode], ['Best size', item.size], ['When tapped', item.tap]].forEach(([k, v]) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; dl.append(dt, dd); });
     meta.append(h, d, dl);
     art.append(frame, meta); host.append(art);
   });
@@ -5588,7 +6118,7 @@ function scriptTheme() {
   return {
     company: th.company, unit: th.unit, ink: wc.ink, panel: wc.panel, headBg: wc.headBg, headText: wc.headText, altBg: wc.altBg, altText: wc.altText, accent: wc.accent,
     scriptFont: SCRIPT_FONTS[th.fonts.display] || th.widget.scriptFont, texture: th.texture, units: th.units, txGraphic: th.widget.txGraphic,
-    archive: th.widget.archive, archiveList: th.widget.archiveList || null, C: th.widget.C || {}, codes: { youtube: th.codes.youtube, instagram: th.codes.instagram, music: th.codes.music }, oddity: th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', radar: 'hostile' }[th.motif] || 'mood'), frame: frameFor(th), L: th.widget.L, classes: th.widget.classes, slogans: th.slogans.length ? th.slogans : [['Stand By', 'HEADQUARTERS']]
+    archive: th.widget.archive, archiveList: th.widget.archiveList || null, C: th.widget.C || {}, codes: { youtube: th.codes.youtube, instagram: th.codes.instagram, discord: th.codes.discord, music: th.codes.music }, oddity: th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', radar: 'hostile', rabbit: 'late' }[th.motif] || 'mood'), frame: frameFor(th), L: th.widget.L, classes: th.widget.classes, slogans: th.slogans.length ? th.slogans : [['Stand By', 'HEADQUARTERS']]
   };
 }
 function buildScript() {
@@ -5629,7 +6159,7 @@ function renderChecklist() {
       'Install Scriptable (free) from the App Store and open it once.',
       `Tap +, paste the widget script from step 4 and name it ${slug(th.company)}-widgets.`,
       'On the home screen, add a Scriptable widget, tap it while it jiggles and choose your script.',
-      'Set its Parameter to one of: status (medium), shift (small), transmission (any size), solar (large is best), audio (medium), feeds (medium), youtube or instagram (any size), oddity (small or medium, just for fun).',
+      'Set its Parameter to one of: status (medium), shift (small), transmission (any size), solar (large is best), audio (medium), feeds (medium), youtube, instagram or discord (any size), oddity (small or medium, just for fun).',
       'Add :alt or :main after the mode to flip its header color, for example shift:main.',
       'For audio, set When Interacting to Open URL with youtubemusic:// (or your music app). For youtube and instagram use youtube:// and instagram://app.',
       'For status and shift, set When Interacting to Open URL and type calshow:// so a tap opens Calendar.'
