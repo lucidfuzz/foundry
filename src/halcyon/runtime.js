@@ -27,7 +27,7 @@ async function hbLoadArt(mode) {
 function hbSettings(value) {
   const fm=FileManager.local(),path=fm.joinPath(fm.documentsDirectory(),'foundry-halcyon-'+Script.name().replace(/[^a-z0-9_-]/gi,'_')+'.json');
   if(value){fm.writeString(path,JSON.stringify(value));return value;}
-  try{return JSON.parse(fm.readString(path));}catch(e){return {};}
+  try{if(!fm.fileExists(path))return {};const v=JSON.parse(fm.readString(path));return v&&typeof v==='object'?v:{};}catch(e){return {};}
 }
 async function hbChooseAllocation() {
   if(config.runsInWidget)return hbWidget('shift');
