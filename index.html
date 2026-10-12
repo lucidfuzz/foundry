@@ -5038,6 +5038,267 @@ function gameSample2(f) { return gameSample(f) }
 const THEME_PAINT = { directive: DIR, longroad: LR, nightfall: NF, grimoire: GM, deeprange: DRG, halcyon: HAL, rabbit: RB, cyber: CY, vapor: VP, nature: NA, market: MK }
 Object.keys(GAMES).forEach(f => { if (THEME_PAINT[f]) { THEME_PAINT[f].game = (k, W, H, d) => GAMES[f].paint(k, W, H, d.st, d.inp); THEME_PAINT[f].gameSample = () => gameSample(f) } })
 
+// Shared by the browser preview and Scriptable. All coordinates are widget points.
+const HB_META = {
+  status: ['W-01', 'SUBJECT STATUS', 'Care builds momentum.'],
+  shift: ['W-02', 'ALLOCATION', 'Your time has been considered.'],
+  solar: ['W-03', 'PERSONAL CLIMATE', 'A good day to breathe.'],
+  audio: ['W-04', 'AUDIO CHANNEL', 'All selections cleared for emotional consistency.'],
+  transmission: ['W-05', 'TRANSMISSION', 'Different voices. A longer human story.'],
+  feeds: ['W-06', 'NEURAL LINK', 'Suggested for your current configuration.'],
+  youtube: ['W-06', 'CULTURE FEED', 'Recommendations may become preferences.'],
+  instagram: ['W-07', 'SPECIMEN ARCHIVE', 'Memories retained under your current plan.'],
+  oddity: ['W-08', 'MOOD LEASE', 'Unused feelings do not roll over.'],
+  discord: ['W-09', 'COLLECTIVE', 'Belonging is included.'],
+  game: ['W-10', 'SPECIMEN VAT', 'Property status unchanged.'],
+  tracker: ['HB-R', 'DISTANT CARE', 'Return address pending.']
+};
+// Normalized source rectangles avoid the culture atlas's dividing lines.
+const HB_SHEET_ASPECT = {organs:3,culture:1,signal:1.5,celestial:1.5,'lungs-detail':1122/1402,'heart-detail':1122/1402};
+const HB_SPRITES = {
+  heartDetail:['heart-detail',0,0,1,1],
+  lungsDetail:['lungs-detail',0,0,1,1],
+  signal: ['signal',0,0,1,1],
+  saturn:['celestial',0,0,1/3,.5], neptune:['celestial',1/3,0,1/3,.5], jupiter:['celestial',2/3,0,1/3,.5],
+  knot:['celestial',0,.5,1/3,.5], membrane:['celestial',1/3,.5,1/3,.5], loops:['celestial',2/3,.5,1/3,.5],
+  heart: ['organs', 0, 0, 1/3, 1], lungs: ['organs', 1/3, 0, 1/3, 1], tissue: ['organs', 2/3, 0, 1/3, 1],
+  optical: ['culture', .009, .086, .484, .366], archive: ['culture', .509, .091, .48, .358],
+  collective: ['culture', .016, .561, .477, .359], neural: ['culture', .523, .534, .46, .415]
+};
+function hbPalette(mode) {
+  const dark = T.hbDark || mode === 'tracker';
+  return { dark, ink: dark ? '#F2F6EA' : '#073C30', bg: dark ? '#0A2E26' : T.hbVariant ? T.panel :
+    ['shift', 'transmission', 'discord'].includes(mode) ? '#EDE5FF' : mode === 'instagram' ? '#FFE4D7' :
+    ['audio', 'youtube'].includes(mode) ? '#FBF8EF' : '#DEF9EE', mint: '#61DDB0', lilac: '#A88CEB' };
+}
+function hbClock(date) { return date ? new Date(date).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',hour12:false}) : '—'; }
+function hbDuration(ms) {
+  const n = Math.max(0, Math.floor(Math.abs(ms) / 1000)), h = Math.floor(n / 3600);
+  return `${h}:${String(Math.floor(n / 60) % 60).padStart(2,'0')}:${String(n % 60).padStart(2,'0')}`;
+}
+function hbSunWindow(rise,sets,now) {
+  const i=sets.findIndex(t=>Number.isFinite(t)&&t>now);
+  if(i>=0&&Number.isFinite(rise[i])&&rise[i]<=now&&sets[i]>rise[i])return {phase:'day',remaining:sets[i]-now,left:Math.max(0,Math.min(1,(sets[i]-now)/(sets[i]-rise[i])))};
+  const next=rise.find(t=>Number.isFinite(t)&&t>now);
+  return next==null?null:{phase:'night',remaining:next-now,left:0};
+}
+function hbAllocation(events, selection, now) {
+  const valid = events.filter(e => !e.isAllDay && Number.isFinite(+new Date(e.startDate)) && +new Date(e.endDate) > +new Date(e.startDate));
+  const matches = valid.filter(e => selection && (e.calendar?.identifier || '') === selection.calendar &&
+    (selection.match === 'title' ? e.title === selection.title : e.identifier === selection.identifier));
+  const sorted = matches.sort((a,b) => +new Date(a.startDate) - +new Date(b.startDate));
+  const ev = sorted.find(e => +new Date(e.startDate) <= +now && +new Date(e.endDate) > +now) || sorted.find(e => +new Date(e.startDate) > +now);
+  if (!selection) return {phase:'setup', title:'Your next allocation', note:'Choose an allocation in Scriptable.'};
+  if (!ev) return {phase:'waiting', title:selection.title, note:'No matching occurrence in the next 90 days.'};
+  const start = new Date(ev.startDate), end = new Date(ev.endDate), active = start <= now;
+  return {phase:active?'active':'before',title:ev.title,start,end,target:active?start:start,
+    frac:active?Math.max(0,Math.min(1,(now-start)/(end-start))):0,
+    label:active?'TIME IN ALLOCATION':'NEXT ALLOCATION IN',note:active?'Release at '+hbClock(end):'Begins '+start.toLocaleDateString([], {month:'short',day:'numeric'})+' · '+hbClock(start)};
+}
+function hbSeal(k, x, y, r, color) {
+  // Six folded growth lobes make a compact abstract corporate approval seal.
+  for (let i=0;i<6;i++) {
+    const a=i*Math.PI/3,points=[];
+    for(let j=0;j<=28;j++){const u=j<=14?j/14:(28-j)/14,side=j<=14?1:-1,q=a+u*.5,rr=r*(.13+.82*u),th=side*Math.sin(u*Math.PI)*r*.14;points.push([x+Math.cos(q)*rr-Math.sin(q)*th,y+Math.sin(q)*rr+Math.cos(q)*th]);}
+    k.poly(points,color);
+  }
+  k.circ(x,y,r*.17,color);
+}
+function hbField(k,x,y,w,h,seed=0) {
+  for(let j=0;j<64;j++) {
+    const pts=[];for(let i=0;i<=160;i++) {const t=i/160, envelope=Math.sin(t*Math.PI);pts.push([x+t*w,y+h/2+Math.sin(t*22+j*.065+seed)*envelope*h*.35*Math.abs(Math.sin(t*9+.6))+Math.sin(t*49+j*.12)*envelope*h*.055+(j-32)*h*.004]);}
+    k.ln(pts,k.a(j<32?'#9B7FD3':'#4A9C86',.36),.4);
+  }
+  for(let n=0;n<12;n++){const xx=x+w*(.1+n*.071), yy=y+h/2+Math.sin(n*2.1+seed)*h*.28;k.circ(xx,yy,1.2,k.a('#7C65AD',.4));}
+}
+function hbArt(k,key,x,y,w,h) {
+  const img=T.hbImages && T.hbImages[key];
+  if(img){ const a=HB_SPRITES[key], ratio=HB_SHEET_ASPECT[a[0]]*a[3]/a[4]; const dw=Math.min(w,h*ratio), dh=dw/ratio;k.dc.drawImageInRect(img,new Rect(x+(w-dw)/2,y+(h-dh)/2,dw,dh)); }
+}
+// This size has its own composition: live instrumentation sits beside a full-height specimen.
+function hbClimateMedium(k,W,H,d) {
+  const p=hbPalette('solar'), ink=k.a(p.ink,1), rule=k.a(p.ink,.35), faint=k.a(p.ink,.13);
+  const wx=d.wx||{},atm=d.atm||{},sun=d.sun||{};
+  const text=(s,x,y,size,w,f='mono',c=ink)=>k.t(s,x,y,size,c,{w,f});
+  const ln=(x,y,xx,yy,c=rule,width=.45)=>k.ln([[x,y],[xx,yy]],c,width);
+  const cross=(x,y,r=4)=>{ln(x-r,y,x+r,y,ink);ln(x,y-r,x,y+r,ink);};
+  k.rect(0,0,W,H,k.a(p.bg,1));
+  // Fine translucent bands give the surface a luminous, softly lit finish in both runtimes.
+  for(let y=0;y<H;y+=2)k.rect(0,y,W,2,k.a('#FFFFFF',p.dark?.025:.16+.26*Math.sin(y/H*Math.PI)));
+  for(let i=0;i<17;i++)k.ell(265,87,49+i*1.5,56+i*.9,null,k.a(p.mint,.12),.35);
+  // Registration, batch identity and restrained instrument frame.
+  for(let i=0;i<9;i++)if(i!==2&&i!==7)k.rect(10+i%3*3.3,8+Math.floor(i/3)*3.3,2.7,2.7,ink);
+  text('W-03 / PERSONAL CLIMATE',26,9,6.5,180);
+  text('LOT 6681-204',282,10,4.7,64);k.rect(349,9,5,5,ink);
+  ln(10,22,354,22);ln(10,156,354,156);
+  // Typography and information hierarchy follow the approved campaign card.
+  const temp=wx.temp==null?'—':String(wx.temp);
+  k.dc.setFont(new Font('Georgia-BoldItalic',temp.length>3?37:48));k.dc.setTextColor(ink);
+  k.dc.setTextAlignedLeft();k.dc.drawTextInRect(temp+'°',new Rect(9,25,100,58));
+  const condition=(wx.cond||'Weather unavailable').toLowerCase().replace(/^./,s=>s.toUpperCase());
+  text(condition,11,75,condition.length>16?10:14,99,'disp');
+  ln(109,30,109,90);
+  text('DAYLIGHT LEFT',119,30,5.2,77);
+  text(sun.left==null?'—':Math.round(sun.left*100)+'%',119,39,23,68,'disp');
+  const daylightLabel=sun.phase==='night'?'SUNRISE IN':'SUNSET IN';
+  text(sun.phase?daylightLabel:'DAYLIGHT',119,67,5.2,79);
+  const duration=sun.remaining==null?'—':hbDuration(sun.remaining).split(':').slice(0,2).map(s=>s.padStart(2,'0')).join(':');
+  text(duration,119,76,16,78,'disp');
+  if(sun.phase){
+    for(let i=5;i>=0;i--)k.circ(181,50,11+i*1.15,k.a(sun.phase==='night'?p.lilac:'#FFF6C2',i? .035:.86));
+    for(let i=1;i<=3;i++)k.circ(181,50,11+i*1.8,null,k.a(p.ink,.1),.3);
+    if(sun.phase==='night')k.circ(185,47,9,k.a(p.bg,1));
+  }
+  ln(10,95,198,95);
+  // Small instrument glyphs are native paths; all values remain real data.
+  k.ln([[17,101],[12,109],[12,112],[14,114],[18,114],[20,112],[20,109],[17,101]],ink,.95);
+  text('HUMIDITY',25,99,4.8,43);text(atm.rh==null?'—':Math.round(atm.rh)+'%',25,106,14,46,'disp');
+  ln(74,99,74,118);
+  ln(81,106,93,106,ink,.85);ln(79,110,95,110,ink,.85);ln(82,113,91,113,ink,.85);
+  k.arc(93,104,2.2,-Math.PI*.5,Math.PI*.7,ink,.8);
+  text('WIND',100,99,4.8,36);text(atm.ws==null?'—':Math.round(atm.ws)+' mph',100,107,12,43,'disp');
+  ln(145,99,145,118);
+  k.circ(157,108,3.4,null,ink,.85);
+  for(let i=0;i<8;i++){const a=i*Math.PI/4;ln(157+Math.cos(a)*5.4,108+Math.sin(a)*5.4,157+Math.cos(a)*7.2,108+Math.sin(a)*7.2,ink,.8);}
+  text('UV',170,99,4.8,27);text(atm.uv==null?'—':Math.round(atm.uv),170,107,14,27,'disp');
+  ln(10,121,198,121);
+  text('RAIN PROBABILITY',11,123,4.8,107);text('NEXT 12H',165,123,4.4,33);
+  const probs=atm.probs?.slice(0,12)||[],gx=27,gy=145,gw=170,gh=13;
+  if(probs.some(v=>v!=null&&Number.isFinite(v))){
+    for(let j=0;j<=2;j++){const yy=gy-j*gh/2;ln(gx,yy,gx+gw,yy,faint,.35);text(String(j*50),11,yy-2,3.8,14);}
+    probs.forEach((v,i)=>{const x=gx+i*gw/12;if(v==null||!Number.isFinite(v))return;const h=Math.max(.35,Math.max(0,Math.min(100,v))*gh/100);k.rect(x,gy-h,gw/12-.5,h,k.a(p.mint,.4),rule,.4);for(let yy=gy-2;yy>gy-h;yy-=2)ln(x,yy,x+gw/12-.5,yy,k.a(p.ink,.18),.25);});
+    [[0,'NOW'],[3,'+3H'],[6,'+6H'],[9,'+9H']].forEach(([i,s])=>text(s,gx+i*gw/12,148,3.9,26));
+  }else text('Forecast unavailable',11,136,6.2,184);
+  // The illustration remains a separate production asset; labels stay crisp and editable.
+  hbArt(k,T.hbImages?.lungsDetail?'lungsDetail':'lungs',201,19,123,137);
+  text('HALCYON BIOFAB',231,129,3.7,60,'mono',k.a('#073C30',1));
+  text('RESPIRATORY UNIT',231,134,3.6,62,'mono',k.a('#073C30',1));
+  text('HB-R2290-LG',231,139,3.1,60,'mono',k.a('#073C30',1));
+  ln(327,35,327,92,faint);
+  ['CLEANER','AIR.','BRIGHTER','DAYS.','TOGETHER.'].forEach((s,i)=>text(s,332,39+i*8,4.1,28));
+  cross(340,127,5);text('O₂ / 03',330,144,3.7,26);
+  text('A good day to breathe.',11,160,5.2,193);text('ATMOS v1.2',300,160,4.6,49);k.rect(350,160,4,4,ink);
+}
+
+// Independently composed small, medium and large production widgets.
+// Artwork is embedded; all useful readings, controls and labels remain separate layers.
+const HB_LOTS={status:'4417-229',shift:'HB-024',solar:'6681-204',audio:'1185-330',transmission:'9043-118',feeds:'7731-004',youtube:'1108-227',instagram:'4487-771',oddity:'5520-997',discord:'6621-908',game:'2893-14',tracker:'HB-09'};
+const HB_VERSIONS={status:'SUBJECT',shift:'ALLOCATION',solar:'ATMOS',audio:'RADIO',transmission:'SIGNAL',feeds:'LINK',youtube:'FEED',instagram:'ARCHIVE',oddity:'AFFECT',discord:'COLLECTIVE',game:'CULTURE',tracker:'ASTRO'};
+function hbInstrument(k,W,H,d) {
+  const mode=d.mode,p=hbPalette(mode),small=W<200,big=H>200,ink=k.a(p.ink,1),soft=k.a(p.ink,.68),rule=k.a(p.ink,.32),faint=k.a(p.ink,.1);
+  k.rect(0,0,W,H,k.a(p.bg,1));
+  for(let y=0;y<H;y+=2)k.rect(0,y,W,2,k.a('#FFFFFF',p.dark?.016:.13+.25*Math.sin(y/H*Math.PI)));
+  const t=(s,x,y,fs=7,w=W-24,f='mono',c=ink)=>{s=String(s);const e=f==='disp'?.52:.62,z=Math.max(Math.min(fs,w/Math.max(1,s.length*e)),Math.min(fs,3.6));k.t(s,x,y,z,c,{w,f,nofit:true});};
+  const line=(x,y,xx,yy,c=rule,lw=.5)=>k.ln([[x,y],[xx,yy]],c,lw);
+  const hr=(y,x=12,w=W-24)=>line(x,y,x+w,y);
+  const title=(s,x,y,w,fs=26,max=2,min=14)=>{let size=fitFs(k,s,w,max,fs,'disp',min),ls=s.split('\n').flatMap(q=>k.wrap(q,w,size,'disp'));while(ls.length*size>max*fs&&size>5){size-=.5;ls=s.split('\n').flatMap(q=>k.wrap(q,w,size,'disp'));}ls.forEach((q,i)=>k.t(q,x,y+i*size*1.02,size,ink,{f:'disp',w,nofit:true}));return y+ls.length*size*1.02;};
+  const cross=(x,y,r=4,c=soft)=>{line(x-r,y,x+r,y,c,.5);line(x,y-r,x,y+r,c,.5);};
+  const art=(key,x,y,w,h)=>hbArt(k,key,x,y,w,h);
+  const bar=(x,y,w,h,value,col=p.mint,n=16)=>{for(let i=0;i<n;i++)k.rect(x+i*w/n,y,w/n-1,h,i/n<Math.max(0,Math.min(1,value||0))?k.a(col,.55):k.a('#FFFFFF',.12),rule,.4);};
+  const grid=(x,y,w,h,step=10)=>{for(let xx=x;xx<=x+w;xx+=step)line(xx,y,xx,y+h,faint,.35);for(let yy=y;yy<=y+h;yy+=step)line(x,yy,x+w,yy,faint,.35);};
+  const rings=(x,y,r,n=8)=>{for(let i=0;i<n;i++)k.circ(x,y,r+i*1.7,null,k.a(p.ink,.08),.3);};
+  const button=(label,x,y,w,h=26,kind='play')=>{k.rect(x,y,w,h,k.a('#FFFFFF',p.dark?.035:.22),rule,.5);if(kind==='play')k.poly([[x+10,y+7],[x+10,y+h-7],[x+21,y+h/2]],ink);else if(kind==='camera'){k.rect(x+8,y+8,15,11,null,ink,1);k.rect(x+12,y+5,6,4,ink);k.circ(x+15.5,y+13.5,3,null,ink,1);}else{k.rect(x+8,y+7,15,10,null,ink,1);line(x+8,y+17,x+8,y+21,ink,1);line(x+8,y+21,x+13,y+17,ink,1);}t(label,x+31,y+(h-9)/2,8.2,w-40);};
+  for(let i=0;i<9;i++)if(i!==2&&i!==7)k.rect(12+i%3*3.1,9+Math.floor(i/3)*3.1,2.5,2.5,ink);
+  t(`${HB_META[mode][0]} / ${small?({status:'SUBJECT',solar:'CLIMATE',audio:'RADIO 08',instagram:'ARCHIVE',game:'SPECIMEN',transmission:'TRANSMISSION'}[mode]||HB_META[mode][1]):HB_META[mode][1]}`,27,10,small?5.8:6.6,small?125:210);
+  if(!small)t('LOT '+HB_LOTS[mode],W-91,11,4.8,72);
+  k.rect(W-17,10,5,5,ink);hr(23);hr(H-19);
+  const footer=small?({audio:'Programming assured.',transmission:'Continuity services.',feeds:'External input approved.',instagram:'Retention under your plan.',youtube:'Recommendations retained.',discord:'Belonging is included.',shift:'Your time has been considered.'}[mode]||HB_META[mode][2]):HB_META[mode][2];
+  t(footer,12,H-13,small?4.9:5.6,small?W-27:W-106);
+  if(!small)t(HB_VERSIONS[mode]+' v2.0',W-87,H-13,4.8,72);k.rect(W-17,H-12,4,4,ink);
+  return {k,W,H,d,p,small,big,ink,soft,rule,faint,t,title,line,hr,cross,art,bar,grid,rings,button};
+}
+function hbPlate(c,x,y,w,label,lot){const {k,t}=c;k.rect(x,y,w,17,k.a('#F5F7EF',.95),k.a('#073C30',.3),.4);t('HALCYON BIOFAB',x+4,y+2,3.7,w-8,'mono',k.a('#073C30',1));t(label,x+4,y+7,3.7,w-8,'mono',k.a('#073C30',1));t(lot,x+4,y+12,3.3,w-8,'mono',k.a('#073C30',1));}
+function hbOrgan(c,key,x,y,w,h,label,lot){c.art(key,x,y,w,h);if(!['heartDetail','lungsDetail'].includes(key))return;const ratio=HB_SHEET_ASPECT[HB_SPRITES[key][0]],dw=Math.min(w,h*ratio),dh=dw/ratio,xx=x+(w-dw)/2,yy=y+(h-dh)/2,isHeart=key==='heartDetail',tx=xx+dw*.255,ty=yy+dh*(isHeart?.828:.796),fs=Math.max(2.5,dw*.032),col=c.k.a('#073C30',1);c.t('HALCYON BIOFAB',tx,ty,fs,dw*.48,'mono',col);c.t(label,tx,ty+fs*1.35,fs,dw*.48,'mono',col);c.t(lot,tx,ty+fs*2.7,fs*.85,dw*.48,'mono',col);}
+function hbDial(c,x,y,r,value=.3){const {k,p,line,cross}=c;for(let j=0;j<4;j++)k.circ(x,y,r+j*5,null,k.a(p.lilac,.22),.45);for(let i=0;i<60;i++){const a=i*Math.PI/30-Math.PI/2,rr=r-(i%5===0?8:3.5);line(x+Math.cos(a)*rr,y+Math.sin(a)*rr,x+Math.cos(a)*r,y+Math.sin(a)*r,k.a(p.ink,i%5===0?.55:.25),.55);}if(value>0)k.arc(x,y,r-4,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,value),k.a(p.lilac,.65),4);cross(x-r-12,y,3);cross(x+r+12,y,3);}
+function hbApproval(c,x,y,r=17){const {k,p}=c;k.circ(x,y,r,null,k.a(p.lilac,.7),.6);k.circ(x,y,r-2.5,null,k.a(p.lilac,.5),.4);hbSeal(k,x,y,r*.62,k.a(p.lilac,.95));}
+function hbBattery(c,x,y,value,scale=1){const {k,ink,rule}=c;k.rect(x,y,24*scale,11*scale,null,ink,.8);k.rect(x+24*scale,y+3*scale,2*scale,5*scale,ink);if(value!=null)k.rect(x+2*scale,y+2*scale,20*scale*Math.max(0,Math.min(1,value)),7*scale,ink);else k.ln([[x+3,y+8],[x+19,y+3]],rule,.5);}
+function hbWave(c,x,y,w,h,seed=0){const {k,p,grid}=c;grid(x,y,w,h,10);for(let j=0;j<2;j++){const pts=[];for(let i=0;i<=90;i++){const a=i/90;pts.push([x+a*w,y+h*.5+Math.sin(i*1.13+seed+j*.6)*Math.sin(i*2.27+seed)*h*.31]);}k.ln(pts,k.a(j?p.lilac:p.ink,j?.35:.55),.5);}}
+function hbTrace(c,values,x,y,w,h,color){if(!values?.length)return;c.grid(x,y,w,h,10);const vals=values.slice(-24),pts=vals.map((v,i)=>[x+i*w/Math.max(1,vals.length-1),y+h-Math.max(0,Math.min(100,v))/100*h]);if(pts.length>1)c.k.ln(pts,c.k.a(color, .8),.9);}
+
+function hbSubject(c){const {k,W,H,d,p,small,big,t,title,line,hr,art,rings}=c,wx=d.wx||{},ev=d.ev,heart=T.hbImages?.heartDetail?'heartDetail':'heart';
+  if(small){t(`${wx.temp??'—'}°`,12,30,38,87,'disp');t(wx.cond||'Weather unavailable',12,73,6.7,91);art(heart,98,32,61,78);hbBattery(c,13,91,d.batt,.75);t(d.batt==null?'—':Math.round(d.batt*100)+'%',37,90,12,53,'disp');hr(112);t(ev?'NEXT EVENT':'CALENDAR',12,120,5.5,125);t(ev?hbClock(ev.start):'—',12,131,13,48,'disp');title(ev?.title||'No event scheduled',67,124,91,9,2,6.5);return;}
+  const imageX=big?198:209,imageY=big?31:25,imageH=big?208:128;
+  rings(imageX+69,imageY+imageH/2,big?67:45,12);hbOrgan(c,heart,imageX,imageY,big?143:114,imageH,'CARDIAC UNIT','HB-C1137-AC');
+  if(!big){title('A little\nmore today.',12,32,111,25,2);line(125,32,125,101);t(new Date(d.now||Date.now()).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}).toUpperCase(),135,32,5.1,68);t('NEXT EVENT',135,48,5.3,69);t(ev?hbClock(ev.start):'—',135,57,21,72,'disp');title(ev?.title||'No event scheduled',135,82,71,11,2,9);hr(108,12,190);t(`${wx.temp??'—'}°`,12,115,25,69,'disp');t(wx.cond||'Unavailable',12,142,5.1,84);line(97,116,97,145);hbBattery(c,108,120,d.batt,.95);t(d.batt==null?'—':Math.round(d.batt*100)+'%',139,114,23,64,'disp');t('SYSTEMS NOMINAL',107,141,5,91);['A STEADIER','YOU.','TOMORROW.'].forEach((s,i)=>t(s,325,48+i*9,4.1,28));c.cross(338,123);}
+  else{title('A little\nmore today.',14,34,182,37,2);t('YOUR DAY, PROVISIONED.',15,121,7,184);hr(142,14,170);t('NEXT EVENT',15,153,6.5,170);t(ev?hbClock(ev.start):'—',15,168,33,171,'disp');title(ev?.title||'No event scheduled',15,207,173,18,2);hr(250);t('PERSONAL CONDITIONS',14,259,6.7,270);t(`${wx.temp??'—'}°`,14,276,38,132,'disp');t(wx.cond||'Weather unavailable',15,321,8,170);line(184,276,184,338);hbBattery(c,204,287,d.batt,1.2);t(d.batt==null?'—':Math.round(d.batt*100)+'%',244,276,33,99,'disp');t('CELL / CURRENT CHARGE',205,322,6.5,141);t('A steadier you. Tomorrow.',14,346,8,318,'disp');}
+}
+function hbAllocationLayout(W,H){return H>200?{x:118,y:186,w:208,fs:36}:W<200?{x:12,y:82,w:146,fs:24}:{x:175,y:59,w:177,fs:31};}
+function hbAssigned(c){const {k,W,H,d,p,small,big,t,title,line,hr,bar}=c,a=d.allocation||{phase:'setup',title:'Your next allocation'},active=a.phase==='active',q=hbAllocationLayout(W,H);
+  const label=a.label||(a.phase==='setup'?'ALLOCATION REQUIRED':'AWAITING ALLOCATION');
+  if(small){hbDial(c,142,138,31,a.frac||0);title(a.title||'Your next allocation',12,32,144,18,2,14);t(label,12,73,5.6,144);if(!d.live)t(a.target?hbDuration((d.now||new Date())-a.target):'— — : — —',q.x,q.y,q.fs,q.w,'disp');t(active?'STARTED':'HALCYON ASSIGNED',12,120,5.2,100);t(a.start?hbClock(a.start):a.phase==='error'?'Check access':'Open setup',12,130,12,102,'disp');return;}
+  if(!big){hbDial(c,328,137,48,a.frac||0);title(a.title||'Your next allocation',12,33,149,27,2);line(164,33,164,105);t(label,175,39,6.3,177);if(!d.live)t(a.target?hbDuration((d.now||new Date())-a.target):'— — : — —',q.x,q.y,q.fs,q.w,'disp');t('Prepared for your participation.',12,100,6.6,217);k.circ(282,104,2.5,k.a(p.mint,1));t('HALCYON ASSIGNED',290,101,5.2,64);}
+  else{title('Your allocated time.',14,34,292,33,1);title(a.title||'Your next allocation',14,76,255,21,2);hbApproval(c,327,83,21);hbDial(c,219,207,88,a.frac||0);t(active?'ALLOCATED ACTIVITY':'RESERVED ACTIVITY',148,151,6.4,166);t(label,142,168,6.5,186);if(!d.live)t(a.target?hbDuration((d.now||new Date())-a.target):'— — : — —',q.x,q.y,q.fs,q.w,'disp');t(active?'STARTED':'ASSIGNED START',176,235,6,130);t(a.start?hbClock(a.start):'—',178,249,21,130,'disp');title('A continuing\nallocation.',14,154,93,19,2);t('PREPARED FOR',14,208,5.8,84);t('PARTICIPATION.',14,218,5.8,84);hr(307);t('RELEASE AT',14,316,6,90);t(a.end?hbClock(a.end):'—',14,327,18,94,'disp');t(a.note||'Choose an event in Scriptable.',120,318,7.2,232);}
+  const by=big?345:125;bar(12,by,W-24,10,a.frac||0,p.lilac,24);
+  if(!big){t(a.start?hbClock(a.start):'AWAITING SCHEDULE',12,140,6.2,150);t(a.end?'RELEASE '+hbClock(a.end):(a.note||'Choose event in Scriptable'),204,140,5.9,148);}
+}
+function hbClimateOther(c){const {k,W,H,d,p,small,t,title,hr,line,art,grid}=c,wx=d.wx||{},atm=d.atm||{},sun=d.sun||{},key=T.hbImages?.lungsDetail?'lungsDetail':'lungs';
+  if(small){t(`${wx.temp??'—'}°`,12,30,39,91,'disp');title(wx.cond||'Weather unavailable',12,77,90,13,2,11);art(key,95,30,66,97);hr(120);t(`HI ${wx.hi??'—'}°  LO ${wx.lo??'—'}°`,12,128,8,145);return;}
+  t(`${wx.temp??'—'}°`,14,31,63,172,'disp');title(wx.cond||'Weather unavailable',14,101,170,24,2);t('DAYLIGHT LEFT',15,154,7,164);t(sun.left==null?'—':Math.round(sun.left*100)+'%',14,166,37,172,'disp');t(sun.phase==='night'?'SUNRISE IN':'SUNSET IN',15,210,6.7,163);t(sun.remaining==null?'—':hbDuration(sun.remaining).split(':').slice(0,2).map(s=>s.padStart(2,'0')).join(':'),15,222,23,166,'disp');hbOrgan(c,key,192,29,161,214,'RESPIRATORY UNIT','HB-R2290-LG');hr(255);
+  [['HUMIDITY',atm.rh==null?'—':atm.rh+'%'],['WIND',atm.ws==null?'—':atm.ws+' mph'],['UV INDEX',atm.uv==null?'—':Math.round(atm.uv)]].forEach(([lab,val],i)=>{const x=14+i*115;t(lab,x,266,6.2,101);t(val,x,278,24,101,'disp');if(i)line(x-10,266,x-10,303);});
+  t('RAIN PROBABILITY / NEXT 12 HOURS',14,312,6.4,312);grid(34,328,314,23,13);const probs=atm.probs||[];
+  if(probs.some(v=>v!=null&&Number.isFinite(v))){probs.slice(0,12).forEach((v,i)=>{if(v==null||!Number.isFinite(v))return;const h=Math.max(.5,Math.min(100,Math.max(0,v))*.23);k.rect(35+i*26,351-h,24,h,k.a(p.mint,.4),c.rule,.5);});t('100',13,327,4.4,18);t('0%',16,347,4.4,17);[[0,'NOW'],[3,'+3H'],[6,'+6H'],[9,'+9H']].forEach(([i,s])=>t(s,34+i*26,353,4.5,35));}else t('Forecast unavailable',35,334,9,270);
+}
+function hbRadioSpectrum(c,x,y,w,h){const {k,p,line,t,grid}=c;grid(x,y,w,h,12);hbField(k,x,y+2,w,h-15,1.3);for(let j=0;j<4;j++){const xx=x+w*(.21+j*.21),yy=y+h*.46+Math.sin(j*2)*h*.13;k.circ(xx,yy,1.6,null,k.a(p.lilac,.8),.6);}const lock=x+w*.43;line(lock,y,lock,y+h-10,k.a(p.lilac,.9),1);k.circ(lock,y+5,2,k.a(p.lilac,.9));for(let i=0;i<=48;i++){const xx=x+i*w/48;line(xx,y+h-8,xx,y+h-(i%8===0?3:5),c.soft,.45);}for(let i=0;i<7;i++)t(String(i+5).padStart(2,'0'),x+i*w/6-2,y+h,4.7,18);t('CH 08 / LOCKED',lock+5,y+1,4.7,76);}
+function hbRadio(c){const {k,W,H,p,small,big,t,title,hr,line,button}=c;
+  if(small){t('HALCYON RADIO',12,33,7.2,115);t('CH 08',12,46,29,103,'disp');t('APPROVED PROGRAMME',12,81,5.5,130);hbApproval(c,126,69,29);k.poly([[119,59],[119,79],[135,69]],c.ink);button('OPEN RADIO',12,103,146,25);t('A FAMILIAR VOICE.',12,136,5.2,140);return;}
+  title('Your approved\nfrequency.',12,32,big?268:195,big?35:27,2);hbApproval(c,big?320:329,big?69:49,big?24:16);
+  if(!big){t('A familiar voice. A consistent message.',12,90,6.5,231);hbRadioSpectrum(c,174,68,177,56);button('OPEN RADIO',12,105,146,27);hr(137);[['PROGRAMME','CONTINUITY HOUR'],['OVERSIGHT','HALCYON'],['BAND','LICENSED']].forEach(([a,b],i)=>{const x=12+i*120;t(a,x,141,4.3,112);t(b,x,148,4.8,112);});}
+  else{t('A familiar voice. A consistent message.',14,112,9,330);k.rect(12,136,340,139,k.a('#FFFFFF',.13),c.rule,.6);k.rect(16,140,332,131,null,c.faint,.5);t('CORPORATE BROADCAST / LICENSED SPECTRUM',23,148,5.8,317);hbRadioSpectrum(c,23,168,318,85);button('OPEN RADIO',14,286,179,29);t('A CALMER',208,287,6.5,132);t('MORE LIVABLE TOMORROW.',208,297,6.5,142);hr(325);t('PROGRAMME / ILLUSTRATIVE',14,332,5.6,241);[['08:00','Daily alignment'],['08:15','Music for steady hands']].forEach(([a,b],i)=>{t(a,14,344+i*10,6.7,51);t(b,73,344+i*10,7.6,267);});}
+}
+function hbTransmission(c){const {k,W,H,d,p,small,big,t,title,hr,art,cross}=c,quote=d.text||'You can leave the rest to us.',by=d.by||'HALCYON BIOFAB / CONTINUITY SERVICES';
+  // The message's source remains authoritative; changing size never changes its attribution.
+  if(small){t(d.archival?'ARCHIVAL':'CONTINUITY SERVICES',12,31,5.2,146);const fs=fitFs(k,quote,146,4,14.5,'disp',11),n=k.para(quote,12,43,146,fs,c.ink,'disp',4,1.04),byY=46+n*fs*1.04;t(by,12,byY,4.8,146);art('signal',45,byY+11,115,Math.max(12,147-byY-11));cross(20,137);return;}
+  const imgX=big?10:167,imgY=big?147:35,imgW=big?344:188,imgH=big?199:116;
+  art('signal',imgX,imgY,imgW,imgH);
+  t(d.archival?'ARCHIVAL / PUBLIC DOMAIN':'HALCYON / CONTINUITY SERVICES',14,32,5.8,big?330:170);
+  const qw=big?324:159,fs=fitFs(k,quote,qw,big?4:4,big?31:23,'disp',big?20:14),n=k.para(quote,14,45,qw,fs,c.ink,'disp',big?4:4,1.02);
+  t(by,14,Math.min(big?172:132,49+n*fs*1.02),big?7:5.3,big?324:156);
+  const pts=big?[[106,204],[235,190],[178,279],[303,265]]:[[204,72],[300,64],[282,126]];
+  pts.forEach(([x,y],i)=>{k.circ(x,y,big?7:5,null,c.soft,.5);cross(x,y,big?10:7);t('N'+(i+1),x+9,y-8,4.5,28);});
+  if(big){t('FILAMENT ARRAY / SYNTHETIC SIGNAL',14,185,5.7,210);hr(322,14,93);t('SEQUENCE',14,329,5.5,126);t('7A-3F-9C-02',14,340,7,153);t('DECODE / PRESERVE / SUSTAIN',183,335,6.1,167);c.bar(183,347,166,7,.68,p.lilac,18);}
+  else{t('DECODE / PRESERVE',14,143,4.8,142);t('SIGNAL IN CONTINUITY',226,143,4.6,122);}
+}
+function hbNeural(c){const {k,W,H,p,small,big,t,title,art,button,hr,line}=c;
+  if(small){title('A little\noutside input.',12,31,148,21,2);art('neural',94,76,65,43);button('YOUTUBE',12,122,146,24);return;}
+  if(!big){title('A little\noutside input.',12,32,160,25,2);art('neural',225,28,124,86);t('EXTERNAL INPUT',183,32,4.8,101);hbWave(c,182,49,35,23,1);t('SYNC',183,84,4.8,31);hbWave(c,182,95,35,16,4);button('YOUTUBE',12,119,151,28);button('INSTAGRAM',192,119,159,28,'camera');}
+  else{title('A little outside input.',14,34,332,30,1);art('neural',100,79,165,161);t('YOUR SIGNAL',14,96,6,88);hbWave(c,14,111,73,64,1);t('EXTERNAL INPUT',273,96,5.5,80);hbWave(c,276,111,73,64,4);t('NEURAL LINK / INTERFACE UNIT',95,241,6,231);hr(260);line(182,270,182,348);button('YOUTUBE',14,272,155,31);button('INSTAGRAM',195,272,155,31,'camera');t('EXPLORE. LEARN. UNWIND.',14,315,5.9,153);t('SEE. SHARE. BELONG.',195,315,5.9,153);t('INPUT APPROVED',14,337,6.4,153);t('RECEPTION STABLE',195,337,6.4,153);}
+}
+function hbCulture(c){const {k,W,H,d,p,small,big,t,title,art,button,hr,line,cross}=c,mode=d.mode;
+  const v={youtube:{key:'optical',slogan:'Something\nworth keeping.',short:'Worth keeping.',action:'YOUTUBE',kind:'play',tag:'OPTICAL MEMORY UNIT'},instagram:{key:'archive',slogan:'A life,\nbeautifully kept.',short:'Beautifully kept.',action:'INSTAGRAM',kind:'camera',tag:'SPECIMEN ARCHIVE'},discord:{key:'collective',slogan:'There is room\nfor you.',short:'Room for you.',action:'DISCORD',kind:'chat',tag:'SHARED MINDS / BRIGHTER TOMORROWS'}}[mode];
+  if(small){title(v.short,12,31,146,20,1,16);art(v.key,23,57,125,68);button(v.action,12,120,146,24,v.kind);return;}
+  if(!big){title(v.slogan,12,32,172,26,2);t({youtube:'Thoughtful content for a longer you.',instagram:'Moments, made to last a little longer.',discord:'Shared minds. Brighter tomorrows.'}[mode],12,94,6.1,174);art(v.key,183,29,168,109);button('OPEN '+v.action,12,112,166,30,v.kind);t(v.tag,189,143,4.6,160);cross(340,137,3);}
+  else{title(v.slogan.replace('\n',' '),14,34,332,31,2);art(v.key,29,108,306,167);t(v.tag,16,284,6.7,333);hr(299);button('OPEN '+v.action,14,310,191,30,v.kind);
+    const words=mode==='youtube'?['CULTURE','CURIOSITY','RETENTION']:mode==='instagram'?['ARCHIVE','PRESERVE','CONTINUE']:['COMMON ROOM','QUIET ROOM','WELCOME DESK'];
+    words.forEach((s,i)=>{t(s,221,311+i*12,5.6,130);if(i<2)line(216,315+i*12,216,324+i*12);});t(mode==='discord'?'A calmer internet is still possible.':mode==='instagram'?'Synthetic lives deserve beautiful records.':'A kinder internet still matters.',14,349,7,330,'disp');}
+}
+function hbEngraving(c,x,y,w,h){const {k,p}=c;for(let j=0;j<13;j++){const pts=[];for(let i=0;i<=50;i++){const a=i/50;pts.push([x+w*(.5+Math.sin(a*4+j*.14)*a*.37),y+h*(1-a)]);}k.ln(pts,k.a(p.ink,.23),.4);for(let n=1;n<=3;n++){const a=n/4,xx=x+w*(.5+Math.sin(a*4+j*.14)*a*.37),yy=y+h*(1-a);k.ell(xx,yy,2+j*.13,3+j*.13,null,k.a(p.lilac,.45),.4);}}}
+function hbMood(c){const {W,H,d,p,small,big,t,title,bar,line,hr}=c,seed=d.seed||0,credits=500+(seed*17%320);
+  if(small){title('Room to feel.',12,32,146,22,1);t(String(credits),12,60,44,144,'disp');t('EMOTIONAL CREDITS',12,107,6.1,143);t('JOY / PLAN DEPENDENT',12,126,5.7,146);bar(12,139,146,6,.38,p.lilac,18);return;}
+  title('Room to feel.',12,32,332,big?39:30,1);hbEngraving(c,big?236:305,big?93:65,big?105:46,big?117:75);
+  t(String(credits),14,big?94:73,big?65:48,big?204:128,'disp');t('EMOTIONAL CREDITS',14,big?162:126,6.5,145);
+  if(!big){line(148,76,148,139);[['CALM',.76,'INCLUDED'],['JOY',.38,'PLAN DEPENDENT'],['NOSTALGIA',.19,'TRIAL']].forEach(([a,v,status],i)=>{const y=76+i*23;t(a,159,y,5.5,60);bar(216,y,77,7,v,i===1?p.lilac:p.mint,12);t(status,216,y+10,4.2,88);});}
+  else{hr(202);[['CALM',.76,'INCLUDED'],['JOY',.38,'PLAN DEPENDENT'],['NOSTALGIA',.19,'TRIAL']].forEach(([a,v,status],i)=>{const y=220+i*31;t(a,14,y,8,92);bar(114,y,126,10,v,i===1?p.lilac:p.mint,14);t(status,254,y+1,6.5,96);});hr(319);t('A complimentary sigh has been added.',14,332,12,332,'disp');t('RENEWAL / AT HALCYON DISCRETION',14,350,6,332);}
+}
+function hbSpecimen(c){const {k,W,H,d,p,small,big,t,title,art,bar,hr,line}=c,st=d.st||{},stage=Math.max(0,Math.min(4,st.stage||0)),keys=['collective','tissue','neural',T.hbImages?.heartDetail?'heartDetail':'heart',T.hbImages?.lungsDetail?'lungsDetail':'lungs'],names=['NUCLEUS','MEMBRANE','JUVENILE','SPECIMEN','ASCENDANT'],feeding=d.inp?.charging;
+  if(small){t(names[stage],12,32,7,144);art(keys[stage],46,45,85,74);t('VITALITY',12,131,5.3,58);t(st.vit==null?'—':st.vit+'%',65,125,17,59,'disp');k.circ(136,134,2.2,k.a(feeding?p.mint:p.lilac,1));return;}
+  title('Personal reserve.',12,32,big?331:119,big?36:25,big?1:2);t('LOT '+(st.lot||'—'),14,big?80:92,big?6.6:5.4,big?210:115);
+  const ax=big?14:132,ay=big?100:27,aw=big?191:107,ah=big?174:125;hbOrgan(c,keys[stage],ax,ay,aw,ah,'SPECIMEN VAT',st.lot||'—');
+  if(!big){t(names[stage],14,111,6.8,108);t(feeding?'FEEDING / CHARGING':'CULTURE ACTIVE',14,126,5.3,108);}
+  const rx=big?222:252,ry=big?110:72,bw=big?126:99;
+  [['NUTRIENT',st.nut],['VITALITY',st.vit],['STRESS',st.stress]].forEach(([lab,val],i)=>{const y=ry+i*(big?34:24);t(lab,rx,y,big?6.5:5.8,bw-23);t(val??'—',rx+bw-20,y,big?9:7,20);bar(rx,y+(big?15:10),bw,big?9:7,(val||0)/100,i===2?p.lilac:p.mint,14);});
+  if(big){t('VITALITY / RECENT CYCLES',222,209,4.9,130);hbTrace(c,st.hist,223,221,123,17,p.ink);t('STATE',223,244,6.3,119);k.circ(225,260,2.4,k.a(feeding?p.mint:p.lilac,1));t(feeding?'FEEDING / CHARGING':'CULTURE ACTIVE',232,256,5.8,116);t('CYCLE '+(st.age??'—'),223,268,6.5,122);hr(279);
+    keys.forEach((key,i)=>{const x=14+i*68;art(key,x,284,49,30);t(names[i],x,318,4.7,60);if(i<4)t('→',x+51,294,9,16);if(i===stage)line(x,326,x+49,326,k.a(p.lilac,1),1.4);});
+    const log=st.log?.slice(-1)[0],entry=typeof log==='string'?log:log?.m;t(entry||'No new observations filed.',14,338,6.4,333);t(st.traits?.length?'TRAITS / '+st.traits.join(' · '):'TRAITS / NONE ON FILE',14,350,5.7,332);
+  }
+}
+function hbCelestial(c){const {k,W,H,d,p,small,big,t,title,art,line,hr,grid,cross}=c,seed=Math.abs(d.seed||0),known=['saturn','neptune','jupiter'][seed%3],fiction=['knot','membrane','loops'][seed%3],id=['HB-09','THE SOFT RETURN','VESSEL 014'][seed%3];
+  function panel(key,x,y,w,h,label,kind){k.rect(x,y,w,h,k.a('#041A19',.8),k.a(p.mint,.5),.55);if(kind==='PROVISIONAL')grid(x+5,y+5,w-10,h-27,10);else{for(let i=0;i<35;i++)k.circ(x+5+(i*37%(w-10)),y+5+(i*19%(h-29)),i%4===0?.6:.35,k.a('#EDF5E8',.35));}art(key,x+2,y+2,w-4,h-25);line(x+6,y+h-24,x+w-6,y+h-24,c.faint);t(label,x+7,y+h-20,6.8,w-14);t(kind,x+7,y+h-10,4.7,w-14);}
+  if(small){const fictional=seed%2===1;panel(fictional?fiction:known,12,31,146,112,fictional?id:known.toUpperCase(),fictional?'PROVISIONAL':'CATALOGUE');return;}
+  if(!big){title('Some things\nare still becoming.',12,35,142,22,3,16);t('A CLOSER TOMORROW',12,126,5.7,142);panel(known,166,31,87,112,known.toUpperCase(),'CATALOGUE');panel(fiction,261,31,91,112,id,'PROVISIONAL');}
+  else{title('Some things\nare still becoming.',14,33,320,33,2);t('DISTANT CARE / FOR A WIDER YOU',14,110,6.6,333);panel(fiction,14,129,215,162,id,'PROVISIONAL');panel(known,242,129,108,111,known.toUpperCase(),'CATALOGUE');t('FURTHER',248,258,6.8,99);t('STILL TOGETHER.',248,269,6.8,99);cross(291,295,7);hr(309);t('ROTATING CATALOGUE',14,320,6.1,217);t('Known worlds. Provisional returns.',14,334,13,332,'disp');t('ILLUSTRATED / NOT LIVE TELEMETRY',14,354,5.3,330);}
+}
+function hbPaint(k,W,H,d){if(d.mode==='solar'&&W>200&&H<200)return hbClimateMedium(k,W,H,d);const c=hbInstrument(k,W,H,d);({status:hbSubject,shift:hbAssigned,solar:hbClimateOther,audio:hbRadio,transmission:hbTransmission,feeds:hbNeural,youtube:hbCulture,instagram:hbCulture,discord:hbCulture,oddity:hbMood,game:hbSpecimen,tracker:hbCelestial}[d.mode]||hbSubject)(c);}
+
 // ---------- END THEMED PAINT BLOCK ----------
 // ---------- art runner: theme art as the body background, live timers laid on top ----------
 async function artWidget(o) {
@@ -5163,11 +5424,120 @@ async function gameWidget() {
   for (let i = 0; i < steps; i++) G.step(st, inp)
   if (!st.last) st.last = now; else if (steps > 0) st.last = Math.max(st.last + steps * STEP, now - STEP)
   try { if (fm && path) fm.writeString(path, JSON.stringify(st)) } catch (e) {}
+  if (f === "halcyon") return hbWidget("game", {st, inp})
   return artWidget({ title: G.title, right: fam() === "small" ? null : G.right(st, inp), alt: false, refresh: new Date(now + STEP), paint: (k, W, H, d) => G.paint(k, W, H, d.st, d.inp), data: { st, inp } })
+}
+
+// Scriptable adapters: artwork is fetched once from the Foundry site and cached; personal data stays on the device.
+// Artwork is downloaded from the Foundry site the first time a widget needs it, then kept on the phone
+// (Scriptable's local documents, folder foundry-art). A new art version has a new file name, so it re-downloads once.
+// Offline on first run: the widget draws without the art and picks it up on a later refresh.
+async function hbLoadArt(mode) {
+  const keys={tracker:['saturn','neptune','jupiter','knot','membrane','loops'],transmission:['signal'],status:['heart','heartDetail'],solar:['lungs','lungsDetail'],feeds:['neural'],youtube:['optical'],instagram:['archive'],discord:['collective'],game:['neural','tissue','collective','heart','lungs','heartDetail','lungsDetail']}[mode]||[];
+  T.hbImages=T.hbImages||{};
+  let fm=null,dir=null; try{fm=FileManager.local();dir=fm.joinPath(fm.documentsDirectory(),'foundry-art');if(!fm.fileExists(dir))fm.createDirectory(dir,true);}catch(e){fm=null;}
+  const originals={};
+  for(const key of keys){
+    if(T.hbImages[key])continue;
+    const url=T.hbArt&&T.hbArt[key];
+    if(url){
+      const ver=(String(url).split('v=')[1]||'0').replace(/[^a-z0-9]/gi,''),path=fm?fm.joinPath(dir,'halcyon-'+key+'-'+ver+'.png'):null;
+      try{if(path&&fm.fileExists(path)){const img=Image.fromFile(path);if(img){T.hbImages[key]=img;continue;}}}catch(e){}
+      try{const data=await new Request(url).load(),img=data&&Image.fromData(data);if(img){T.hbImages[key]=img;if(path)try{fm.write(path,data);}catch(e){}}}catch(e){}
+      continue;
+    }
+    if(T.hbSprites?.[key]){T.hbImages[key]=Image.fromData(Data.fromBase64String(T.hbSprites[key]));continue;}
+    const [sheet,x,y,w,h]=HB_SPRITES[key], data=T.hbAssets?.[sheet]; if(!data)continue;
+    const img=originals[sheet]||(originals[sheet]=Image.fromData(Data.fromBase64String(data)));
+    const ratio=HB_SHEET_ASPECT[sheet]*w/h, W=360, H=W/ratio;
+    const dc=new DrawContext();dc.size=new Size(W,H);dc.opaque=false;dc.respectScreenScale=false;
+    dc.drawImageInRect(img,new Rect(-x*W/w,-y*H/h,W/w,H/h));T.hbImages[key]=dc.getImage();
+  }
+}
+function hbSettings(value) {
+  const fm=FileManager.local(),path=fm.joinPath(fm.documentsDirectory(),'foundry-halcyon-'+Script.name().replace(/[^a-z0-9_-]/gi,'_')+'.json');
+  if(value){fm.writeString(path,JSON.stringify(value));return value;}
+  try{return JSON.parse(fm.readString(path));}catch(e){return {};}
+}
+async function hbChooseAllocation() {
+  if(config.runsInWidget)return hbWidget('shift');
+  const now=new Date(),end=new Date(+now+90*86400000);
+  let events;
+  try{events=(await CalendarEvent.between(now,end,[])).filter(e=>!e.isAllDay&&e.endDate>now).sort((a,b)=>a.startDate-b.startDate);}
+  catch(e){const a=new Alert();a.title='Calendar unavailable';a.message='Allow Scriptable to read your calendars in Settings, then try again.';a.addAction('OK');await a.presentAlert();return hbWidget('shift');}
+  const unique=events.filter((e,i,all)=>all.findIndex(q=>q.title===e.title&&q.calendar.identifier===e.calendar.identifier)===i);
+  const a=new Alert();a.title='Choose your allocation';a.message='Track occurrences with this exact event title on this calendar, including repeats. Your calendar is not changed. Search covers the next 90 days.';
+  unique.slice(0,80).forEach(e=>a.addAction(e.title+' · '+e.calendar.title));a.addCancelAction('Cancel');
+  if(!unique.length){a.message='No timed events found in the next 90 days. Add an event in Calendar, then return.';a.addAction('OK');}
+  const pick=await a.presentSheet();
+  if(pick>=0&&unique[pick]){const e=unique[pick],settings=hbSettings();settings.allocation={match:'title',identifier:e.identifier,title:e.title,calendar:e.calendar.identifier};hbSettings(settings);}
+  return hbWidget('shift');
+}
+async function hbChooseRadio() {
+  if(config.runsInWidget)return hbWidget('audio');
+  const settings=hbSettings(),a=new Alert();a.title='Halcyon Radio destination';a.message='The corporate programming is fictional. Choose the music app or stream that opens when you tap the channel.';a.addTextField('App or stream URL',settings.radio||'youtubemusic://');a.addAction('Save');a.addCancelAction('Cancel');
+  if(await a.presentAlert()===0){const url=a.textFieldValue(0).trim();if(/^(https?:\/\/|[a-z][a-z0-9+.-]*:\/\/)/i.test(url)&&!/^javascript:/i.test(url)){settings.radio=url;hbSettings(settings);}}
+  return hbWidget('audio');
+}
+async function hbClimate() {
+  const wx=await weather();let atm=null,daylight=null,sun=null;
+  try{
+    const c=await coords();if(!c)return {wx};
+    const req=new Request(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=relative_humidity_2m,wind_speed_10m&hourly=precipitation_probability,uv_index&daily=sunrise,sunset&forecast_days=2&timezone=auto&wind_speed_unit=mph&timeformat=unixtime`);req.timeoutInterval=12;
+    const j=await req.loadJSON(),now=Date.now(),hour=j.hourly||{},idx=Math.max(0,(hour.time||[]).findIndex(t=>t*1000>=now));
+    atm={rh:j.current?.relative_humidity_2m,ws:j.current?.wind_speed_10m==null?null:Math.round(j.current.wind_speed_10m),uv:hour.uv_index?.[idx],probs:hour.precipitation_probability?.slice(idx,idx+12)};
+    const rise=(j.daily?.sunrise||[]).map(t=>t==null?NaN:t*1000),sets=(j.daily?.sunset||[]).map(t=>t==null?NaN:t*1000);
+    sun=hbSunWindow(rise,sets,now);
+    if(sun)daylight=(sun.phase==='day'?'SUNSET IN ':'SUNRISE IN ')+hbDuration(sun.remaining);
+  }catch(e){}
+  return {wx,atm,daylight,sun};
+}
+async function hbWidget(mode, extra={}) {
+  const now=new Date(),d={mode,now,seed:Math.floor(+now/1800000),...extra};
+  if(mode==='status'){
+    d.wx=await weather();d.ev=evData(await nextEvent());try{d.batt=Device.batteryLevel();if(d.batt<0)d.batt=null;}catch(e){d.batt=null;}
+  }
+  if(mode==='shift'){
+    try{const end=new Date(+now+90*86400000);d.allocation=hbAllocation(await CalendarEvent.between(new Date(+now-86400000),end,[]),hbSettings().allocation,now);}
+    catch(e){d.allocation={phase:'error',title:'Allocation unavailable',note:'Calendar access is unavailable.'};}
+  }
+  if(mode==='solar')Object.assign(d,await hbClimate());
+  if(mode==='transmission'){
+    d.archival=!!T.archive&&d.seed%4===0;
+    if(d.archival&&ARCHIVE.length){const q=ARCHIVE[Math.floor(d.seed/4)%ARCHIVE.length];d.text=q.t;d.by=q.by;}
+    else{d.archival=false;const s=T.slogans[d.seed%T.slogans.length]||['You can leave the rest to us.','CONTINUITY SERVICES'];d.text=s[0];d.by=T.company.toUpperCase()+' / '+s[1];}
+  }
+  await hbLoadArt(mode);
+  const [W,H]=DIMS[fam()]||DIMS.small,w=new ListWidget(),a=d.allocation;
+  w.setPadding(0,0,0,0);w.backgroundColor=new Color(hbPalette(mode).bg);
+  // WidgetDate updates the count without repeatedly running the script. iOS controls phase refresh timing.
+  d.live=mode==='shift'&&!!a?.target;
+  w.backgroundImage=artImage(W,H,hbPaint,d);
+  w.refreshAfterDate=new Date(+now+15*60000);
+  if(d.live){
+    const target=a.phase==='active'?a.end:a.start;
+    w.refreshAfterDate=new Date(Math.min(+now+15*60000,+target+1000));
+    const {x,y,w:timerWidth,fs}=hbAllocationLayout(W,H);
+    w.addSpacer(y);const row=w.addStack();row.layoutHorizontally();row.addSpacer(x);row.size=new Size(W,fs*1.45);
+    const timer=row.addStack();timer.size=new Size(timerWidth,fs*1.45);
+    const dt=timer.addDate(a.target);dt.applyTimerStyle();dt.font=disp(fs);dt.textColor=new Color(hbPalette(mode).ink);dt.lineLimit=1;dt.minimumScaleFactor=.5;row.addSpacer();w.addSpacer();
+  }else if(mode==='feeds'&&W>200){
+    const row=w.addStack();row.layoutHorizontally();row.size=new Size(W,H);for(const url of ['youtube://','instagram://app']){const half=row.addStack();half.size=new Size(W/2,H);half.url=url;half.addSpacer();}
+  }
+  const urls={status:'calshow://',shift:'calshow://',audio:hbSettings().radio||'youtubemusic://',feeds:'youtube://',youtube:'youtube://',instagram:'instagram://app',discord:'discord://'};
+  if(urls[mode])w.url=urls[mode];
+  if(mode==='shift'&&a?.phase==='setup')w.url=URLScheme.forRunningScript();
+  return w;
 }
 
 const MODES = { status, shift, transmission, solar: solarWidget, audio: audioWidget, feeds: () => feedsWidget(null), youtube: () => feedsWidget("youtube"), instagram: () => feedsWidget("instagram"), discord: () => feedsWidget("discord"), oddity: oddityWidget, game: gameWidget }
 
+if (T.frame === "halcyon") {
+  for (const mode of Object.keys(HB_META)) if (mode !== "game") MODES[mode] = () => hbWidget(mode);
+  MODES.allocation = () => hbWidget("shift");
+  MODES.allocation_setup = hbChooseAllocation;
+  MODES.radio_setup = hbChooseRadio;
+}
 if (config.runsInWidget) {
   Script.setWidget(await (MODES[MODE] || status)())
 } else {
@@ -5344,12 +5714,12 @@ const APPS = [
 
 const PRESETS = {
   halcyon: {
-    id: 'halcyon', title: 'Halcyon Biofab', blurb: 'Technocratic biotech. A wireframe globe, mint paper and lavender.',
+    id: 'halcyon', title: 'Halcyon Biofab', blurb: 'Synthetic humanity. Grown organs, clinical pastels and a little more life.',
     company: 'Halcyon Biofab', unit: 'HB-2893',
     colors: { ground: '#A6F3CC', ink: '#0E1512', accent: '#9D8CF2', panel: '#E3F7EC', glow: '#9D8CF2' },
     fonts: { display: 'Newsreader', mono: 'IBM Plex Mono' },
     motif: 'globe', texture: 'dots', marks: 'cross', iconStyle: 'frame', units: 'fahrenheit', upper: false,
-    phrases: [['Mortality Is A', 'Legacy Feature'], ['Your Pulse,', 'Fully Licensed'], ['Upgrade Path:', 'Eternal'], ['Grown For What', 'Comes Next']],
+    phrases: [['A little', 'more life.'], ['Room', 'to feel.'], ['Breathe now.', 'Pay later.'], ['A kinder', 'second chance.']],
     text: {
       headL: ['HALCYON', 'BIOFAB'], headR: ['LOT HB-2893-07', 'SENTIENCE: LEASED'],
       readL: ['NEURAL LEASE: ACTIVE', 'BIOSYNC: 99.7% STABLE', 'WARRANTY: PERPETUAL*'],
@@ -7499,6 +7869,64 @@ Object.keys(QUOTE_PACKS).forEach(id => {
   p.widget.archive = true;
 });
 
+// Generated by scripts/art.py. Served copies of each theme's artwork, with content hashes.
+const ART_MANIFEST = {
+ "halcyon": {
+  "sheets": {
+   "celestial": "assets/halcyon/web/celestial.webp?v=e85c43c73c",
+   "culture": "assets/halcyon/web/culture.webp?v=38edf9cb16",
+   "heart-detail": "assets/halcyon/web/heart-detail.webp?v=02ff940864",
+   "lungs-detail": "assets/halcyon/web/lungs-detail.webp?v=d689754e82",
+   "organs": "assets/halcyon/web/organs.webp?v=4ebbf8c7be",
+   "signal": "assets/halcyon/web/signal.webp?v=cd73f00e10"
+  },
+  "thumbs": {
+   "celestial": "assets/halcyon/thumb/celestial.webp?v=b5d73051f5",
+   "culture": "assets/halcyon/thumb/culture.webp?v=51b10d81e3",
+   "heart-detail": "assets/halcyon/thumb/heart-detail.webp?v=3b8182069a",
+   "lungs-detail": "assets/halcyon/thumb/lungs-detail.webp?v=0bafa0c73a",
+   "organs": "assets/halcyon/thumb/organs.webp?v=399bde03b1",
+   "signal": "assets/halcyon/thumb/signal.webp?v=462df4c8b1"
+  },
+  "widget": {
+   "heartDetail": "assets/halcyon/widget/heartDetail.png?v=8c832477fb",
+   "lungsDetail": "assets/halcyon/widget/lungsDetail.png?v=eb76c23a42",
+   "signal": "assets/halcyon/widget/signal.png?v=169038e05f",
+   "saturn": "assets/halcyon/widget/saturn.png?v=a7ef6b9b2b",
+   "neptune": "assets/halcyon/widget/neptune.png?v=99a6a7965d",
+   "jupiter": "assets/halcyon/widget/jupiter.png?v=d0f9319607",
+   "knot": "assets/halcyon/widget/knot.png?v=5b33c1a843",
+   "membrane": "assets/halcyon/widget/membrane.png?v=8228155144",
+   "loops": "assets/halcyon/widget/loops.png?v=2c5f5a301f",
+   "heart": "assets/halcyon/widget/heart.png?v=a4cb109b6f",
+   "lungs": "assets/halcyon/widget/lungs.png?v=b8f9144d19",
+   "tissue": "assets/halcyon/widget/tissue.png?v=b27e4c9131",
+   "optical": "assets/halcyon/widget/optical.png?v=ce926fe448",
+   "archive": "assets/halcyon/widget/archive.png?v=681aa0fec9",
+   "collective": "assets/halcyon/widget/collective.png?v=21869ff806",
+   "neural": "assets/halcyon/widget/neural.png?v=e128662bed"
+  }
+ }
+};
+
+// Theme artwork is served as separate files (see scripts/art.py and src/art-manifest.js) and loaded only when a
+// theme needs it, so adding art to more themes never slows down the first page load.
+const ART_LOADS = {};
+function artLoad(theme, tier) {
+  const id = theme + ':' + tier;
+  if (ART_LOADS[id]) return ART_LOADS[id];
+  const files = ((typeof ART_MANIFEST !== 'undefined' && ART_MANIFEST[theme]) || {})[tier] || {};
+  return ART_LOADS[id] = Promise.all(Object.entries(files).map(([name, url]) => new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve([name, img]);
+    img.onerror = () => reject(new Error('Could not load ' + url));
+    img.src = url;
+  }))).then(Object.fromEntries).catch(e => { delete ART_LOADS[id]; throw e; });
+}
+// Absolute address for files the iPhone script downloads: the live site, or the published site when built locally.
+function artURL(path) { return new URL(path, location.protocol === 'https:' ? location.href : 'https://lucidfuzz.github.io/foundry/').href; }
+function artFor(theme, tier) { return ((typeof ART_MANIFEST !== 'undefined' && ART_MANIFEST[theme]) || {})[tier] || {}; }
+
 function K(th) { const k = th.knobs || {}; return { scale: k.scale == null ? 1 : k.scale, shift: k.shift || 0, texture: k.texture == null ? 1 : k.texture, glow: k.glow == null ? 1 : k.glow, details: k.details !== false }; }
 function seedOf(th, base) { return base + (th.seed || 0) * 7919; }
 function xfBegin(ctx, th, cx, cy) { const k = K(th); ctx.save(); ctx.translate(cx, cy + k.shift); ctx.scale(k.scale, k.scale); ctx.translate(-cx, -cy); }
@@ -7741,6 +8169,7 @@ function drawWallpaper(canvas, th, mode, phraseIdx) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, W, H);
   ctx.save(); ctx.scale(s, s);
+  if (['globe','radar'].includes(th.motif)) { hbWallpaper(ctx, th, Hl, mode, phraseIdx || 0); ctx.restore(); return; }
   if (th.motif === 'alert') { drawAlert(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'map') { drawMap(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'night') { drawNight(ctx, th, Hl, mode, phraseIdx); ctx.restore(); return; }
@@ -7813,6 +8242,7 @@ function drawIcon(canvas, th, app, idx) {
   const c = th.colors, mono = th.fonts.mono, num = String(idx + 1).padStart(2, '0'), code = (th.codes[app] || app.slice(0, 3)).toUpperCase();
   const set = (th.glyphs && GLYPHSETS[th.glyphs]) || GLYPHS;
   const glyph = new Path2D(set[app] || GLYPHS[app]);
+  if (['globe','radar'].includes(th.motif)) { hbIcon(ctx, th, glyph, code); ctx.restore(); return; }
   if (th.iconStyle === 'pearl') {
     drawPearlIcon(ctx, th, glyph, num, code);
   } else if (th.iconStyle === 'neon') { drawNeonIcon(ctx, th, glyph, num, code);
@@ -10346,6 +10776,111 @@ function drawNeonLock(ctx, th, Hl, phraseIdx) {
   neonGlitch(ctx, r, Hl, Math.round(5 * k.texture));
 }
 
+const HB_IMAGES = {};
+let hbExportCache;
+function hbExportSprites() {
+  if(hbExportCache)return hbExportCache;
+  const sprites={};
+  for(const [key,img] of Object.entries(HB_IMAGES)){
+    const scale=Math.min(1,480/Math.max(img.width,img.height)),c=document.createElement('canvas');
+    c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    sprites[key]=c.toDataURL('image/png').split(',')[1];
+  }
+  if(!sprites.heart)throw new Error('Wait for Halcyon artwork to load before exporting.');
+  return hbExportCache=sprites;
+}
+// Artwork loads in two tiers: small thumbnails first (theme picker, first paint), then full resolution once Halcyon is open.
+const hbTierLoads={}; let hbTier=null;
+function hbIsDark(th) {
+  const hex=th.colors.ground.replace('#','');
+  return hex.length===6 && (.2126*parseInt(hex.slice(0,2),16)+.7152*parseInt(hex.slice(2,4),16)+.0722*parseInt(hex.slice(4,6),16))<95;
+}
+function hbReady(tier='sheets') {
+  return hbTierLoads[tier] ||= artLoad('halcyon',tier).then(sheets=>{
+    const K=scriptableKit(PRESETS.halcyon);if(!K)throw new Error('Halcyon renderer could not initialize');
+    const map={};
+    for(const [key,[sheet,x,y,w,h]] of Object.entries(K.HB_SPRITES)){
+      const img=sheets[sheet];if(!img)continue;const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*w));c.height=Math.max(1,Math.round(img.height*h));
+      c.getContext('2d').drawImage(img,img.width*x,img.height*y,img.width*w,img.height*h,0,0,c.width,c.height);map[key]=c;
+    }
+    if(tier==='sheets'||hbTier!=='sheets'){Object.assign(HB_IMAGES,map);hbTier=tier;hbExportCache=null;}
+    return map;
+  }).catch(e=>{delete hbTierLoads[tier];throw e;});
+}
+// Redraw whatever is showing Halcyon once a tier of artwork arrives.
+function hbArtArrived() {
+  const card=document.querySelector('.preset[data-id="halcyon"] canvas');if(card)drawWallpaper(card,PRESETS.halcyon,'lock',0);
+  if(frameFor(state.th)==='halcyon')refresh();
+}
+function hbWarm(full) { hbReady('thumbs').then(hbArtArrived).catch(e=>console.warn(e)); if(full)hbReady('sheets').then(hbArtArrived).catch(e=>{console.warn(e);setStatus('Halcyon artwork could not load. Check your connection and reload.');}); }
+// Addresses of the widget crops the iPhone script downloads once and keeps on the phone.
+function hbWidgetArt() { return Object.fromEntries(Object.entries(artFor('halcyon','widget')).map(([k,u])=>[k,artURL(u)])); }
+const HB_NAMES={status:'Subject Status',shift:'Allocation',solar:'Personal Climate',audio:'Audio Channel',transmission:'Transmission',feeds:'Neural Link',youtube:'Culture Feed',instagram:'Specimen Archive',oddity:'Mood Lease',discord:'Collective',game:'Specimen Vat',tracker:'Distant Care'};
+function hbWidgetList(th,original) {
+  const list=original.concat({mode:'tracker',name:'Distant Care',title:'HB-R / DISTANT CARE',tap:'Leave as is',desc:'A rotating celestial catalogue with familiar planets and fictional provisional objects. Illustrative catalogue views, not live telescope telemetry.'});
+  return list.map(item=>({...item,name:HB_NAMES[item.mode]||item.name,size:'small, medium or large',
+    ...(item.mode==='shift'?{title:'W-02 / ALLOCATION',desc:'Choose an event in Scriptable using allocation_setup. Counts down until it starts, counts up during its scheduled duration, then finds the next occurrence with the same title on that calendar. iOS controls refresh timing.',tap:'Calendar; setup is in Scriptable'}:{}),
+    ...(item.mode==='audio'?{desc:'A regulated corporate radio facade with an abstract growing approval seal. Tap opens your chosen music app or stream. Set it using radio_setup in Scriptable. The broadcast schedule is fiction.'}:{}),
+    ...(item.mode==='feeds'?{desc:'Neural interface artwork. The left half opens YouTube and the right half opens Instagram. Small size opens YouTube.'}:{})}));
+}
+function hbSample(mode,th) {
+  const now=new Date(),d={...sampleData(mode,th),mode,now,seed:6};
+  if(mode==='status')Object.assign(d,{ev:{title:'Design review',start:new Date(+now+24*60000)},batt:.68});
+  if(mode==='shift')d.allocation={title:'Design review',phase:'before',label:'NEXT ALLOCATION IN',start:new Date(+now+24*60000),end:new Date(+now+69*60000),target:new Date(+now+24*60000),note:'Prepared for your participation.',frac:0};
+  if(mode==='solar')Object.assign(d,{wx:{temp:th.units==='celsius'?22:72,hi:th.units==='celsius'?24:75,lo:th.units==='celsius'?17:62,cond:'Mostly clear'},daylight:'SUNSET IN 5:12:00',sun:{phase:'day',remaining:312*60000,left:.46},atm:{rh:54,ws:6,uv:3,probs:[5,12,24,42,50,36,22,16,5,20,40,18]}});
+  if(mode==='transmission')Object.assign(d,{text:'I ought to be thy Adam, but I am rather the fallen angel.',by:'MARY SHELLEY / FRANKENSTEIN',archival:true});
+  if(mode==='game')Object.assign(d,{inp:{charging:true},st:{lot:'HB-2893-14',stage:3,age:46,nut:74,vit:82,stress:16,traits:['sensory filaments'],hist:[71,74,78,76,82],shist:[30,25,22,18,16],log:[{m:'Specimen requested a name. Request under consideration.'}]}});
+  return d;
+}
+function hbPreviewWidget(item,th) {
+  const family=item.family||state.hbSize||(item.mode==='shift'?'small':'medium'),[W,H]=family==='small'?[170,170]:family==='large'?[364,382]:[364,170];
+  const K=scriptableKit(th),card=pv('div',`width:${W}px;height:${H}px;border-radius:18px;overflow:hidden;flex:none`);
+  if(K){const c=K.artImage(W,H,K.hbPaint,hbSample(item.mode,th));c.style.width=W+'px';c.style.height=H+'px';card.append(c);}
+  return {el:card,w:W,h:H};
+}
+function hbSizeControls() {
+  let host=document.getElementById('hb-size-controls');
+  if(!host){host=pv('div','display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 18px');host.id='hb-size-controls';document.getElementById('wg-list').before(host);}
+  host.hidden=frameFor(state.th)!=='halcyon';host.style.display=host.hidden?'none':'flex';if(host.hidden)return;
+  host.replaceChildren();host.append(pv('span','font-size:12px','Sample data · widget size'));
+  for(const [value,label] of [['','Suggested'],['small','Small'],['medium','Medium'],['large','Large']]){
+    const b=pv('button','',label);b.type='button';b.className='btn';b.setAttribute('aria-pressed',String((state.hbSize||'')===value));b.onclick=()=>{state.hbSize=value;buildWidgetList();};host.append(b);
+  }
+}
+function hbWallpaper(ctx,th,H,mode,idx) {
+  const dark=hbIsDark(th),ink=dark?'#F5F7EC':'#073C30',bg=th.colors.ground;
+  ctx.fillStyle=bg;ctx.fillRect(0,0,390,H);
+  const g=ctx.createRadialGradient(240,H*.49,10,195,H*.52,340);g.addColorStop(0,dark?'#205746':'#FFFFFFC0');g.addColorStop(1,'#FFFFFF00');ctx.fillStyle=g;ctx.fillRect(0,0,390,H);
+  const mono=(s,x,y,size=7)=>spaced(ctx,s,x,y,size,th.fonts.mono,400,.08,'left',ink);
+  const title=(s,x,y,size=38)=>spaced(ctx,s,x,y,size,th.fonts.display,400,-.02,'left',ink);
+  const label=idx%4,art=HB_IMAGES[['heart','tissue','lungs','neural'][label]];
+  if(mode==='lock'){
+    mono(th.company.toUpperCase(),24,54,10);mono('CONTINUITY SERVICES / '+String(label+1).padStart(2,'0'),24,70,6);
+    // The system clock/date occupy the upper third; never bake a fake clock into exports.
+    const aw=Math.min(316,300*K(th).scale), ah=Math.min(334,aw*(art?art.height/art.width:1)),y=H*.335;
+    if(art)ctx.drawImage(art,(390-aw)/2,y,aw,ah);
+    const headlines=th.phrases?.[label]||[['A little','more life.'],['Room','to feel.'],['Breathe now.','Pay later.'],['A kinder','second chance.']][label];
+    const by=Math.min(H-171,y+ah+47);const fs=Math.min(43,43*342/Math.max(1,...headlines.map(s=>measureSpaced(ctx,s,43,th.fonts.display,400,-.02))));title(headlines[0],24,by,fs);title(headlines[1],24,by+fs,fs);
+    seg(ctx,24,by+62,366,by+62,hexA(ink,.4),.7);mono(['CARDIAC LEASE / AUTO-RENEW ON','EMOTIONAL CULTURE / PLAN DEPENDENT','RESPIRATORY FINANCE / TERMS APPLY','CONTINUITY ASSURANCE / UNIT 002'][label],24,by+79,6);
+    mono('Biology for a more manageable tomorrow.',24,by+98,6);mono('Property of Halcyon Biofab.',24,by+110,5.5);
+  }else{
+    // Quiet upper field for actual widgets and icons, with a low-contrast organ behind the lower grid.
+    if(art){ctx.globalAlpha=dark?.25:.18;const aw=292,ah=aw*art.height/art.width;ctx.drawImage(art,49,H*.46,aw,ah);ctx.globalAlpha=1;}
+    mono(th.company.toUpperCase(),24,H-139,9);mono('A LITTLE MORE LIFE. EVERY DAY.',24,H-122,6);
+  }
+  [[18,245],[372,245],[18,H-102],[372,H-102]].forEach(([x,y])=>{seg(ctx,x-4,y,x+4,y,hexA(ink,.5),.6);seg(ctx,x,y-4,x,y+4,hexA(ink,.5),.6);});
+}
+function hbIcon(ctx,th,glyph,code) {
+  const dark=hbIsDark(th),ink=dark?'#EFF9EB':'#073C30';
+  const g=ctx.createLinearGradient(0,0,1024,1024);g.addColorStop(0,dark?'#164C3D':'#F7FFF8');g.addColorStop(1,dark?'#082F26':'#CEF6E6');ctx.fillStyle=g;ctx.fillRect(0,0,1024,1024);
+  ctx.strokeStyle=dark?'#73D8B2':'#65BB9C';ctx.lineWidth=8;ctx.beginPath();ctx.roundRect(26,26,972,972,164);ctx.stroke();
+  ctx.fillStyle='#A68AE6';ctx.beginPath();ctx.arc(139,130,28,0,Math.PI*2);ctx.fill();
+  ctx.save();ctx.translate(290,200);ctx.scale(18.5,18.5);ctx.fillStyle=ink;ctx.fill(glyph);ctx.restore();
+  spaced(ctx,code,512,841,90,th.fonts.mono,400,.12,'center',ink);
+  seg(ctx,825,126,850,150,ink,8);seg(ctx,850,150,876,106,ink,8);
+}
+
 const ROLES = {
   halcyon: { panel: 'panel', ink: 'ink', headBg: 'ink', headText: 'ground', altBg: 'accent', altText: 'ink', accent: 'accent' },
   directive: { panel: 'panel', ink: 'ink', headBg: 'alert', headText: 'ink', altBg: 'accent', altText: 'ground', accent: 'glow' },
@@ -10388,6 +10923,7 @@ function buildPresets() {
     b.append(cv, ic, t, d);
     b.addEventListener('click', () => {
       state.th = clone(p); state.lock = 0; applyVariant(0, true); syncFields(); markPresets(); buildVariants(); refresh(true);
+      if (frameFor(p) === 'halcyon') hbWarm(true);
     });
     host.append(b);
     fontsFor(p).then(() => {
@@ -10610,10 +11146,10 @@ function buildHomeUI() {
 
 // Widgets tab, full-size list: every widget at readable size, no phone frame
 function buildWidgetList() {
-  const th = state.th, host = $('wg-list'); host.textContent = ''
+  const th = state.th, host = $('wg-list'); host.textContent = ''; hbSizeControls();
   const avail = Math.min(host.clientWidth || 360, 460)
   widgetList(th).forEach((item, i) => {
-    const p = previewWidget(item, th), s = Math.min(1.25, avail / p.w * (item.mode === 'shift' ? 0.5 : 1))
+    const p = previewWidget(item, th), s = Math.min(1.25, avail / p.w * (frameFor(th) !== 'halcyon' && item.mode === 'shift' ? 0.5 : 1))
     const fig = document.createElement('figure'); fig.className = 'wg-full'
     const wrap = document.createElement('div'); wrap.style.cssText = `width:${p.w * s}px;height:${p.h * s}px`; p.el.style.transform = `scale(${s})`; p.el.style.transformOrigin = '0 0'; wrap.append(p.el)
     const cap = document.createElement('figcaption'); cap.innerHTML = `<strong></strong><code></code>`; cap.firstChild.textContent = item.name; cap.lastChild.textContent = item.mode
@@ -10629,14 +11165,14 @@ function buildWidgetPhone() {
   const k = phone.clientWidth / 390, S = 338 / 364;
   const inner = el('div', `width:390px;transform:scale(${k});transform-origin:0 0;padding:58px 0 40px;box-sizing:border-box`);
   const list = widgetList(th), by = (m) => list.find(x => x.mode === m);
-  const all = widgetList(th), slot = (item) => { const p = previewWidget(item, th); const wrap = el('div', `width:${p.w * S}px;height:${p.h * S}px;flex:none`); p.el.style.transform = `scale(${S})`; p.el.style.transformOrigin = '0 0'; p.el.style.boxShadow = '0 6px 16px rgba(0,0,0,.28)'; wrap.append(p.el); const wi = all.indexOf(item); makeInspectable(wrap, `Enlarge ${item.name}`, () => openInspector(widgetItems(), wi, wrap)); return wrap; };
+  const all = widgetList(th), slot = (item) => { const p = previewWidget({...item, family: item.mode === 'shift' ? 'small' : item.mode === 'solar' ? 'large' : 'medium'}, th); const wrap = el('div', `width:${p.w * S}px;height:${p.h * S}px;flex:none`); p.el.style.transform = `scale(${S})`; p.el.style.transformOrigin = '0 0'; p.el.style.boxShadow = '0 6px 16px rgba(0,0,0,.28)'; wrap.append(p.el); const wi = all.indexOf(item); makeInspectable(wrap, `Enlarge ${item.name}`, () => openInspector(widgetItems(), wi, wrap)); return wrap; };
   const row = (kids, gap) => { const r = el('div', `display:flex;justify-content:center;gap:${gap || 22}px;margin:0 0 20px`); kids.forEach(c => r.append(c)); inner.append(r); };
   const lbl = (t) => inner.append(el('div', `text-align:center;margin:-12px 0 16px;font:600 11px -apple-system,system-ui,sans-serif;color:${th.colors.ink};text-shadow:0 1px 2px ${hexA(th.colors.ground, 0.85)}`, t));
   row([slot(by('status'))]); lbl('status');
   const grid = el('div', 'width:158px;height:158px;display:grid;grid-template-columns:repeat(2,1fr);place-items:center;flex:none');
   APPS.slice(0, 4).forEach(([key], i) => { const img = el('img', 'width:60px;height:60px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,.25)'); img.src = iconURL(key, i, 120); img.alt = ''; grid.append(img); });
   row([slot(by('shift')), grid]); lbl('shift');
-  ;['audio', 'transmission', 'solar', 'feeds', 'youtube', 'instagram', 'discord', 'game', 'oddity'].forEach(m => { const it = by(m); if (!it) return; row([slot(it)]); lbl(m); });
+  ;['audio', 'transmission', 'solar', 'feeds', 'youtube', 'instagram', 'discord', 'game', 'oddity', 'tracker'].forEach(m => { const it = by(m); if (!it) return; row([slot(it)]); lbl(m); });
   const sizer = el('div', 'width:1px');
   scr.append(inner, sizer);
   requestAnimationFrame(() => { sizer.style.height = (inner.offsetHeight * k) + 'px'; inner.style.position = 'absolute'; inner.style.top = '0'; inner.style.left = '0'; scr.scrollTop = keep; });
@@ -10685,7 +11221,7 @@ const GAME_META = {
   nature: ['W-10 // THE GROVE', 'The Grove', 'Seeds sprout, leaves unfurl and flowers bloom across the seasons while wrens, foxes and owls stop by. Charging brings rain. If everything wilts, new seeds scatter on the wind.'],
   market: ['W-10 // THE BANKROLL', 'The Bankroll', 'Your bankroll trades existential markets on its own: positions open and resolve each refresh, with breaking news in between. Charging tops up your margin. Hit zero and the universe opens a new account.']
 };
-function widgetList(th) {
+function originalWidgetList(th) {
   const L = th.widget.L, o = ODD_INFO[oddityFor(th)];
   return [
     { mode: 'status', size: 'medium', title: L.status, name: 'Status', tap: 'Open URL calshow:// to open Calendar', desc: 'Your next calendar event, live temperature and conditions, feels-like, today\'s high and low, battery and the date, with a live link timer in the header.' },
@@ -10701,6 +11237,7 @@ function widgetList(th) {
     { mode: 'oddity', size: 'small or medium', title: 'W-08 // ' + o[0].toUpperCase(), name: o[0], tap: 'Leave as is', desc: o[1] + ' Purely for fun, and it changes about every 30 minutes.' }
   ];
 }
+function widgetList(th) { const list = originalWidgetList(th); return frameFor(th) === "halcyon" ? hbWidgetList(th, list) : list; }
 function pv(tag, css, text) { const e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
 function pvCanvas(w, h, draw) { const c = document.createElement('canvas'); const d = pvD(); c.width = w * d; c.height = h * d; c.style.cssText = `width:${w}px;height:${h}px;display:block`; const x = c.getContext('2d'); x.scale(d, d); draw(x); return c; }
 
@@ -10743,7 +11280,7 @@ function scriptableKit(th) {
   class Size { constructor(w, h) { this.width = w; this.height = h; } }
   class Path { constructor() { this.ops = []; } move(p) { this.ops.push(['m', p]); } addLine(p) { this.ops.push(['l', p]); } addLines(ps) { ps.forEach((p, i) => this.ops.push([i ? 'l' : 'm', p])); } addQuadCurve(p, c) { this.ops.push(['q', p, c]); } closeSubpath() { this.ops.push(['z']); } }
   const dispCss = (s) => `${th.fonts.display === 'Archivo' ? 800 : 400} ${s}px "${th.fonts.display}", Georgia, serif`;
-  class Font { constructor(n, s) { this.css = dispCss(s); } static boldMonospacedSystemFont(s) { return `700 ${s}px "${th.fonts.mono}", ui-monospace, monospace`; } static mediumMonospacedSystemFont(s) { return `500 ${s}px "${th.fonts.mono}", ui-monospace, monospace`; } static heavySystemFont(s) { return `800 ${s}px system-ui, sans-serif`; } static boldSystemFont(s) { return `700 ${s}px system-ui, sans-serif`; } }
+  class Font { constructor(n, s) { this.css = n==='Georgia-BoldItalic'?`italic 700 ${s}px Georgia, serif`:dispCss(s); } static boldMonospacedSystemFont(s) { return `700 ${s}px "${th.fonts.mono}", ui-monospace, monospace`; } static mediumMonospacedSystemFont(s) { return `500 ${s}px "${th.fonts.mono}", ui-monospace, monospace`; } static heavySystemFont(s) { return `800 ${s}px system-ui, sans-serif`; } static boldSystemFont(s) { return `700 ${s}px system-ui, sans-serif`; } }
   class DrawContext {
     set size(s) { this.c = document.createElement('canvas'); this.c.width = Math.ceil(s.width * D); this.c.height = Math.ceil(s.height * D); this.c.style.width = s.width + 'px'; this.c.style.height = s.height + 'px'; this.x = this.c.getContext('2d'); this.x.scale(D, D); this.al = 'left'; }
     setFillColor(c) { this.x.fillStyle = c.css(); } setStrokeColor(c) { this.x.strokeStyle = c.css(); } setLineWidth(w) { this.x.lineWidth = w; }
@@ -10763,10 +11300,10 @@ function scriptableKit(th) {
   const l0 = src.indexOf('const LIVE = {'), l1 = src.indexOf('async function themedStatus');
   const f0 = src.indexOf('// theme frame drawn under the content'), f1 = src.indexOf('function txt(stack, text, size, color, isDisp)');
   const deck = deckFor(th);
-  T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th);
+  T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th); T.hbImages = HB_IMAGES; T.hbDark = hbIsDark(th); T.hbVariant = th.variant || 0;
   const tf = { string: (d) => { let h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; } };
   try {
-    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
+    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { hbPaint, HB_SPRITES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
       T, new Color(T.ink), new Color(T.ink, 0.72), Color, Point, Rect, Size, Path, DrawContext, Font, deck.audio.lines, deck,
       (w, f) => { const d = new DrawContext(); d.size = new Size(w, 4); d.setFillColor(new Color(T.ink, 0.22)); d.fillRect(new Rect(0, 0, w, 4)); d.setFillColor(new Color(T.ink)); d.fillRect(new Rect(0, 0, w * f, 4)); return d.getImage(); }, tf, new Color(T.panel));
   } catch (e) { console.warn(e); return null; }
@@ -10802,6 +11339,7 @@ function themedBody(item, th, wc, W, H) {
   return null;
 }
 function previewWidget(item, th) {
+  if (frameFor(th) === "halcyon") return hbPreviewWidget(item, th);
   const wc = widgetColors(th), mono = `"${th.fonts.mono}", ui-monospace, monospace`, disp = `"${th.fonts.display}", Georgia, serif`;
   const W = item.mode === 'shift' ? 170 : 364, H = item.mode === 'solar' || item.big ? 382 : 170;
   const alt = ['shift', 'transmission', 'oddity'].includes(item.mode);
@@ -11006,7 +11544,7 @@ function screenItems(mode) {
 }
 function widgetItems() {
   const th = state.th
-  return widgetList(th).map(item => ({ title: item.name + ' · ' + item.mode, render(z, aw) { const W = item.mode === 'shift' ? 170 : 364, s = Math.min(aw, item.mode === 'shift' ? 340 : 600) / W * z; window.__pvRes = Math.min(3, s); let p; try { p = previewWidget(item, th) } finally { window.__pvRes = 1 } const wrap = document.createElement('div'); wrap.style.cssText = `width:${p.w * s}px;height:${p.h * s}px;flex:none`; p.el.style.transform = `scale(${s})`; p.el.style.transformOrigin = '0 0'; wrap.append(p.el); return wrap } }))
+  return widgetList(th).map(item => ({ title: item.name + ' · ' + item.mode, render(z, aw) { const W = frameFor(th) === 'halcyon' ? ((state.hbSize || (item.mode === 'shift' ? 'small' : 'medium')) === 'small' ? 170 : 364) : item.mode === 'shift' ? 170 : 364, s = Math.min(aw, item.mode === 'shift' ? 340 : 600) / W * z; window.__pvRes = Math.min(3, s); let p; try { p = previewWidget(item, th) } finally { window.__pvRes = 1 } const wrap = document.createElement('div'); wrap.style.cssText = `width:${p.w * s}px;height:${p.h * s}px;flex:none`; p.el.style.transform = `scale(${s})`; p.el.style.transformOrigin = '0 0'; wrap.append(p.el); return wrap } }))
 }
 function iconItems() {
   const th = state.th
@@ -11036,6 +11574,7 @@ function makeInspectable(el, label, open) { el.setAttribute('role', 'button'); e
 function scriptTheme() {
   const th = state.th, wc = widgetColors(th);
   return {
+    hbArt: frameFor(th) === "halcyon" ? hbWidgetArt() : undefined, hbDark: hbIsDark(th), hbVariant: th.variant || 0,
     company: th.company, unit: th.unit, ink: wc.ink, panel: wc.panel, headBg: wc.headBg, headText: wc.headText, altBg: wc.altBg, altText: wc.altText, accent: wc.accent,
     scriptFont: SCRIPT_FONTS[th.fonts.display] || th.widget.scriptFont, texture: th.texture, units: th.units, txGraphic: th.widget.txGraphic,
     archive: th.widget.archive, archiveList: th.widget.archiveList || null, C: th.widget.C || {}, codes: { youtube: th.codes.youtube, instagram: th.codes.instagram, discord: th.codes.discord, music: th.codes.music }, oddity: th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', radar: 'hostile', rabbit: 'heist', neon: 'market', market: 'bet', vapor: 'mall', botanical: 'species' }[th.motif] || 'mood'), frame: frameFor(th), L: th.widget.L, classes: th.widget.classes, slogans: th.slogans.length ? th.slogans : [['Stand By', 'HEADQUARTERS']]
@@ -11085,6 +11624,18 @@ function renderChecklist() {
       'For status and shift, set When Interacting to Open URL and type calshow:// so a tap opens Calendar.'
     ]]
   ];
+  if (frameFor(th) === 'halcyon') {
+    steps[steps.length - 1][2] = [
+      'Install Scriptable on iPhone and open it once.',
+      'Create a script, paste the exported Halcyon widget script and save it. All artwork is included.',
+      'Run the script and choose allocation_setup. Choose the event and calendar to follow. Exact-title matching includes recurring occurrences within the next 90 days.',
+      'Optionally run radio_setup to choose the music app or stream opened by Audio Channel.',
+      'Add a Scriptable widget in any of the three sizes, select this script, and set Parameter to status, shift, transmission, solar, audio, feeds, youtube, instagram, discord, oddity, game or tracker.',
+      'Leave the default interaction setting so the script controls app links. Medium and large Neural Link use separate left/right links.',
+      'Allow calendar and location access for the real readings. Charging feeds the specimen. iOS chooses when widgets refresh; timers update between refreshes, but phase changes may be delayed.',
+      'Radio programming, emotional credits and provisional celestial objects are fictional. Catalogue planets are illustrations, not live imagery.'
+    ];
+  }
   const ol = $('checklist'); ol.textContent = '';
   steps.forEach(([id, title, items]) => {
     const li = document.createElement('li'); if (checks[id]) li.className = 'done';
@@ -11112,12 +11663,15 @@ function exportSize() {
   const w = Math.min(2000, Math.max(600, +$('f-w').value || 1179)), h = Math.min(4000, Math.max(1200, +$('f-h').value || 2556));
   return [w, h];
 }
-function renderBlob(mode, idx) {
+async function renderBlob(mode, idx) {
+  await artFullyLoaded();
   const [W, H] = exportSize(); const c = document.createElement('canvas'); c.width = W; c.height = H;
   drawWallpaper(c, state.th, mode, idx);
   return new Promise(r => c.toBlob(r, 'image/png'));
 }
-function iconBlob(app, i) { const c = document.createElement('canvas'); c.width = 1024; c.height = 1024; drawIcon(c, state.th, app, i); return new Promise(r => c.toBlob(r, 'image/png')); }
+// Exports always wait for full-resolution theme artwork, so a downloaded image never ships without it.
+async function artFullyLoaded() { if (frameFor(state.th) === 'halcyon') { try { await hbReady('sheets'); } catch (e) { setStatus('Halcyon artwork could not load, so this export is paused. Check your connection and try again.'); throw e; } } }
+async function iconBlob(app, i) { await artFullyLoaded(); const c = document.createElement('canvas'); c.width = 1024; c.height = 1024; drawIcon(c, state.th, app, i); return new Promise(r => c.toBlob(r, 'image/png')); }
 function setStatus(msg) { $('exp-status').textContent = msg; }
 function mimeFor(name) { return name.endsWith('.png') ? 'image/png' : name.endsWith('.zip') ? 'application/zip' : 'text/plain'; }
 let pendingFile = null;
@@ -11218,8 +11772,10 @@ $('btn-copy').addEventListener('click', copyScript);
 $('btn-txt').addEventListener('click', () => saveFile(`${slug(state.th.company)}-widgets.txt`, buildScript()));
 window.addEventListener('resize', () => { renderPreview(); fitGallery(); });
 if (state.th.variant == null) applyVariant(0, true);
+// The page starts right away; theme artwork arrives in the background and redraws what it touches.
 buildPresets(); buildFields(); buildSingles(); syncFields(); buildVariants();
 fontsFor(state.th).then(() => refresh());
+hbWarm(frameFor(state.th) === 'halcyon');
 
 </script>
 </body>

@@ -1,0 +1,10 @@
+{
+  "name": "foundry-theme-builder",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.cjs",
+    "start": "node scripts/serve.cjs",
+    "test": "node --test tests/*.test.cjs && node scripts/build.cjs --check",
+    "art": "python3 scripts/art.py"
+  }
+}

@@ -240,6 +240,7 @@ function drawWallpaper(canvas, th, mode, phraseIdx) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, W, H);
   ctx.save(); ctx.scale(s, s);
+  if (['globe','radar'].includes(th.motif)) { hbWallpaper(ctx, th, Hl, mode, phraseIdx || 0); ctx.restore(); return; }
   if (th.motif === 'alert') { drawAlert(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'map') { drawMap(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'night') { drawNight(ctx, th, Hl, mode, phraseIdx); ctx.restore(); return; }
@@ -312,6 +313,7 @@ function drawIcon(canvas, th, app, idx) {
   const c = th.colors, mono = th.fonts.mono, num = String(idx + 1).padStart(2, '0'), code = (th.codes[app] || app.slice(0, 3)).toUpperCase();
   const set = (th.glyphs && GLYPHSETS[th.glyphs]) || GLYPHS;
   const glyph = new Path2D(set[app] || GLYPHS[app]);
+  if (['globe','radar'].includes(th.motif)) { hbIcon(ctx, th, glyph, code); ctx.restore(); return; }
   if (th.iconStyle === 'pearl') {
     drawPearlIcon(ctx, th, glyph, num, code);
   } else if (th.iconStyle === 'neon') { drawNeonIcon(ctx, th, glyph, num, code);

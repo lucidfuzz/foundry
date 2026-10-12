@@ -53,6 +53,10 @@ Weather comes from Open-Meteo (no account needed). Nothing leaves your phone exc
 - Any colors or fonts you have in mind
 - Which widgets you want most (weather, calendar, music, a game, something new)
 
-## Credits
+## Halcyon Biofab development build
+
+The approved Halcyon art system is integrated into wallpapers, icons and all widget sizes. See [Halcyon setup and validation notes](docs/HALCYON.md) for Allocation, Radio, the specimen game and the new Distant Care catalogue. Run `npm run build` after source changes, `npm test` for integration checks, and `npm start` for a local preview.
+
+### Artwork credits
 
 Real quotes in the Transmission widgets come only from public-domain works. All theme artwork and writing are original.

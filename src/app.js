@@ -40,6 +40,7 @@ function buildPresets() {
     b.append(cv, ic, t, d);
     b.addEventListener('click', () => {
       state.th = clone(p); state.lock = 0; applyVariant(0, true); syncFields(); markPresets(); buildVariants(); refresh(true);
+      if (frameFor(p) === 'halcyon') hbWarm(true);
     });
     host.append(b);
     fontsFor(p).then(() => {
@@ -262,10 +263,10 @@ function buildHomeUI() {
 
 // Widgets tab, full-size list: every widget at readable size, no phone frame
 function buildWidgetList() {
-  const th = state.th, host = $('wg-list'); host.textContent = ''
+  const th = state.th, host = $('wg-list'); host.textContent = ''; hbSizeControls();
   const avail = Math.min(host.clientWidth || 360, 460)
   widgetList(th).forEach((item, i) => {
-    const p = previewWidget(item, th), s = Math.min(1.25, avail / p.w * (item.mode === 'shift' ? 0.5 : 1))
+    const p = previewWidget(item, th), s = Math.min(1.25, avail / p.w * (frameFor(th) !== 'halcyon' && item.mode === 'shift' ? 0.5 : 1))
     const fig = document.createElement('figure'); fig.className = 'wg-full'
     const wrap = document.createElement('div'); wrap.style.cssText = `width:${p.w * s}px;height:${p.h * s}px`; p.el.style.transform = `scale(${s})`; p.el.style.transformOrigin = '0 0'; wrap.append(p.el)
     const cap = document.createElement('figcaption'); cap.innerHTML = `<strong></strong><code></code>`; cap.firstChild.textContent = item.name; cap.lastChild.textContent = item.mode
@@ -281,14 +282,14 @@ function buildWidgetPhone() {
   const k = phone.clientWidth / 390, S = 338 / 364;
   const inner = el('div', `width:390px;transform:scale(${k});transform-origin:0 0;padding:58px 0 40px;box-sizing:border-box`);
   const list = widgetList(th), by = (m) => list.find(x => x.mode === m);
-  const all = widgetList(th), slot = (item) => { const p = previewWidget(item, th); const wrap = el('div', `width:${p.w * S}px;height:${p.h * S}px;flex:none`); p.el.style.transform = `scale(${S})`; p.el.style.transformOrigin = '0 0'; p.el.style.boxShadow = '0 6px 16px rgba(0,0,0,.28)'; wrap.append(p.el); const wi = all.indexOf(item); makeInspectable(wrap, `Enlarge ${item.name}`, () => openInspector(widgetItems(), wi, wrap)); return wrap; };
+  const all = widgetList(th), slot = (item) => { const p = previewWidget({...item, family: item.mode === 'shift' ? 'small' : item.mode === 'solar' ? 'large' : 'medium'}, th); const wrap = el('div', `width:${p.w * S}px;height:${p.h * S}px;flex:none`); p.el.style.transform = `scale(${S})`; p.el.style.transformOrigin = '0 0'; p.el.style.boxShadow = '0 6px 16px rgba(0,0,0,.28)'; wrap.append(p.el); const wi = all.indexOf(item); makeInspectable(wrap, `Enlarge ${item.name}`, () => openInspector(widgetItems(), wi, wrap)); return wrap; };
   const row = (kids, gap) => { const r = el('div', `display:flex;justify-content:center;gap:${gap || 22}px;margin:0 0 20px`); kids.forEach(c => r.append(c)); inner.append(r); };
   const lbl = (t) => inner.append(el('div', `text-align:center;margin:-12px 0 16px;font:600 11px -apple-system,system-ui,sans-serif;color:${th.colors.ink};text-shadow:0 1px 2px ${hexA(th.colors.ground, 0.85)}`, t));
   row([slot(by('status'))]); lbl('status');
   const grid = el('div', 'width:158px;height:158px;display:grid;grid-template-columns:repeat(2,1fr);place-items:center;flex:none');
   APPS.slice(0, 4).forEach(([key], i) => { const img = el('img', 'width:60px;height:60px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,.25)'); img.src = iconURL(key, i, 120); img.alt = ''; grid.append(img); });
   row([slot(by('shift')), grid]); lbl('shift');
-  ;['audio', 'transmission', 'solar', 'feeds', 'youtube', 'instagram', 'discord', 'game', 'oddity'].forEach(m => { const it = by(m); if (!it) return; row([slot(it)]); lbl(m); });
+  ;['audio', 'transmission', 'solar', 'feeds', 'youtube', 'instagram', 'discord', 'game', 'oddity', 'tracker'].forEach(m => { const it = by(m); if (!it) return; row([slot(it)]); lbl(m); });
   const sizer = el('div', 'width:1px');
   scr.append(inner, sizer);
   requestAnimationFrame(() => { sizer.style.height = (inner.offsetHeight * k) + 'px'; inner.style.position = 'absolute'; inner.style.top = '0'; inner.style.left = '0'; scr.scrollTop = keep; });
@@ -337,7 +338,7 @@ const GAME_META = {
   nature: ['W-10 // THE GROVE', 'The Grove', 'Seeds sprout, leaves unfurl and flowers bloom across the seasons while wrens, foxes and owls stop by. Charging brings rain. If everything wilts, new seeds scatter on the wind.'],
   market: ['W-10 // THE BANKROLL', 'The Bankroll', 'Your bankroll trades existential markets on its own: positions open and resolve each refresh, with breaking news in between. Charging tops up your margin. Hit zero and the universe opens a new account.']
 };
-function widgetList(th) {
+function originalWidgetList(th) {
   const L = th.widget.L, o = ODD_INFO[oddityFor(th)];
   return [
     { mode: 'status', size: 'medium', title: L.status, name: 'Status', tap: 'Open URL calshow:// to open Calendar', desc: 'Your next calendar event, live temperature and conditions, feels-like, today\'s high and low, battery and the date, with a live link timer in the header.' },
@@ -353,6 +354,7 @@ function widgetList(th) {
     { mode: 'oddity', size: 'small or medium', title: 'W-08 // ' + o[0].toUpperCase(), name: o[0], tap: 'Leave as is', desc: o[1] + ' Purely for fun, and it changes about every 30 minutes.' }
   ];
 }
+function widgetList(th) { const list = originalWidgetList(th); return frameFor(th) === "halcyon" ? hbWidgetList(th, list) : list; }
 function pv(tag, css, text) { const e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
 function pvCanvas(w, h, draw) { const c = document.createElement('canvas'); const d = pvD(); c.width = w * d; c.height = h * d; c.style.cssText = `width:${w}px;height:${h}px;display:block`; const x = c.getContext('2d'); x.scale(d, d); draw(x); return c; }
 
@@ -395,7 +397,7 @@ function scriptableKit(th) {
   class Size { constructor(w, h) { this.width = w; this.height = h; } }
   class Path { constructor() { this.ops = []; } move(p) { this.ops.push(['m', p]); } addLine(p) { this.ops.push(['l', p]); } addLines(ps) { ps.forEach((p, i) => this.ops.push([i ? 'l' : 'm', p])); } addQuadCurve(p, c) { this.ops.push(['q', p, c]); } closeSubpath() { this.ops.push(['z']); } }
   const dispCss = (s) => `${th.fonts.display === 'Archivo' ? 800 : 400} ${s}px "${th.fonts.display}", Georgia, serif`;
-  class Font { constructor(n, s) { this.css = dispCss(s); } static boldMonospacedSystemFont(s) { return `700 ${s}px "${th.fonts.mono}", ui-monospace, monospace`; } static mediumMonospacedSystemFont(s) { return `500 ${s}px "${th.fonts.mono}", ui-monospace, monospace`; } static heavySystemFont(s) { return `800 ${s}px system-ui, sans-serif`; } static boldSystemFont(s) { return `700 ${s}px system-ui, sans-serif`; } }
+  class Font { constructor(n, s) { this.css = n==='Georgia-BoldItalic'?`italic 700 ${s}px Georgia, serif`:dispCss(s); } static boldMonospacedSystemFont(s) { return `700 ${s}px "${th.fonts.mono}", ui-monospace, monospace`; } static mediumMonospacedSystemFont(s) { return `500 ${s}px "${th.fonts.mono}", ui-monospace, monospace`; } static heavySystemFont(s) { return `800 ${s}px system-ui, sans-serif`; } static boldSystemFont(s) { return `700 ${s}px system-ui, sans-serif`; } }
   class DrawContext {
     set size(s) { this.c = document.createElement('canvas'); this.c.width = Math.ceil(s.width * D); this.c.height = Math.ceil(s.height * D); this.c.style.width = s.width + 'px'; this.c.style.height = s.height + 'px'; this.x = this.c.getContext('2d'); this.x.scale(D, D); this.al = 'left'; }
     setFillColor(c) { this.x.fillStyle = c.css(); } setStrokeColor(c) { this.x.strokeStyle = c.css(); } setLineWidth(w) { this.x.lineWidth = w; }
@@ -415,10 +417,10 @@ function scriptableKit(th) {
   const l0 = src.indexOf('const LIVE = {'), l1 = src.indexOf('async function themedStatus');
   const f0 = src.indexOf('// theme frame drawn under the content'), f1 = src.indexOf('function txt(stack, text, size, color, isDisp)');
   const deck = deckFor(th);
-  T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th);
+  T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th); T.hbImages = HB_IMAGES; T.hbDark = hbIsDark(th); T.hbVariant = th.variant || 0;
   const tf = { string: (d) => { let h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; } };
   try {
-    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
+    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { hbPaint, HB_SPRITES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
       T, new Color(T.ink), new Color(T.ink, 0.72), Color, Point, Rect, Size, Path, DrawContext, Font, deck.audio.lines, deck,
       (w, f) => { const d = new DrawContext(); d.size = new Size(w, 4); d.setFillColor(new Color(T.ink, 0.22)); d.fillRect(new Rect(0, 0, w, 4)); d.setFillColor(new Color(T.ink)); d.fillRect(new Rect(0, 0, w * f, 4)); return d.getImage(); }, tf, new Color(T.panel));
   } catch (e) { console.warn(e); return null; }
@@ -454,6 +456,7 @@ function themedBody(item, th, wc, W, H) {
   return null;
 }
 function previewWidget(item, th) {
+  if (frameFor(th) === "halcyon") return hbPreviewWidget(item, th);
   const wc = widgetColors(th), mono = `"${th.fonts.mono}", ui-monospace, monospace`, disp = `"${th.fonts.display}", Georgia, serif`;
   const W = item.mode === 'shift' ? 170 : 364, H = item.mode === 'solar' || item.big ? 382 : 170;
   const alt = ['shift', 'transmission', 'oddity'].includes(item.mode);
@@ -658,7 +661,7 @@ function screenItems(mode) {
 }
 function widgetItems() {
   const th = state.th
-  return widgetList(th).map(item => ({ title: item.name + ' · ' + item.mode, render(z, aw) { const W = item.mode === 'shift' ? 170 : 364, s = Math.min(aw, item.mode === 'shift' ? 340 : 600) / W * z; window.__pvRes = Math.min(3, s); let p; try { p = previewWidget(item, th) } finally { window.__pvRes = 1 } const wrap = document.createElement('div'); wrap.style.cssText = `width:${p.w * s}px;height:${p.h * s}px;flex:none`; p.el.style.transform = `scale(${s})`; p.el.style.transformOrigin = '0 0'; wrap.append(p.el); return wrap } }))
+  return widgetList(th).map(item => ({ title: item.name + ' · ' + item.mode, render(z, aw) { const W = frameFor(th) === 'halcyon' ? ((state.hbSize || (item.mode === 'shift' ? 'small' : 'medium')) === 'small' ? 170 : 364) : item.mode === 'shift' ? 170 : 364, s = Math.min(aw, item.mode === 'shift' ? 340 : 600) / W * z; window.__pvRes = Math.min(3, s); let p; try { p = previewWidget(item, th) } finally { window.__pvRes = 1 } const wrap = document.createElement('div'); wrap.style.cssText = `width:${p.w * s}px;height:${p.h * s}px;flex:none`; p.el.style.transform = `scale(${s})`; p.el.style.transformOrigin = '0 0'; wrap.append(p.el); return wrap } }))
 }
 function iconItems() {
   const th = state.th
@@ -688,6 +691,7 @@ function makeInspectable(el, label, open) { el.setAttribute('role', 'button'); e
 function scriptTheme() {
   const th = state.th, wc = widgetColors(th);
   return {
+    hbArt: frameFor(th) === "halcyon" ? hbWidgetArt() : undefined, hbDark: hbIsDark(th), hbVariant: th.variant || 0,
     company: th.company, unit: th.unit, ink: wc.ink, panel: wc.panel, headBg: wc.headBg, headText: wc.headText, altBg: wc.altBg, altText: wc.altText, accent: wc.accent,
     scriptFont: SCRIPT_FONTS[th.fonts.display] || th.widget.scriptFont, texture: th.texture, units: th.units, txGraphic: th.widget.txGraphic,
     archive: th.widget.archive, archiveList: th.widget.archiveList || null, C: th.widget.C || {}, codes: { youtube: th.codes.youtube, instagram: th.codes.instagram, discord: th.codes.discord, music: th.codes.music }, oddity: th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', radar: 'hostile', rabbit: 'heist', neon: 'market', market: 'bet', vapor: 'mall', botanical: 'species' }[th.motif] || 'mood'), frame: frameFor(th), L: th.widget.L, classes: th.widget.classes, slogans: th.slogans.length ? th.slogans : [['Stand By', 'HEADQUARTERS']]
@@ -737,6 +741,18 @@ function renderChecklist() {
       'For status and shift, set When Interacting to Open URL and type calshow:// so a tap opens Calendar.'
     ]]
   ];
+  if (frameFor(th) === 'halcyon') {
+    steps[steps.length - 1][2] = [
+      'Install Scriptable on iPhone and open it once.',
+      'Create a script, paste the exported Halcyon widget script and save it. All artwork is included.',
+      'Run the script and choose allocation_setup. Choose the event and calendar to follow. Exact-title matching includes recurring occurrences within the next 90 days.',
+      'Optionally run radio_setup to choose the music app or stream opened by Audio Channel.',
+      'Add a Scriptable widget in any of the three sizes, select this script, and set Parameter to status, shift, transmission, solar, audio, feeds, youtube, instagram, discord, oddity, game or tracker.',
+      'Leave the default interaction setting so the script controls app links. Medium and large Neural Link use separate left/right links.',
+      'Allow calendar and location access for the real readings. Charging feeds the specimen. iOS chooses when widgets refresh; timers update between refreshes, but phase changes may be delayed.',
+      'Radio programming, emotional credits and provisional celestial objects are fictional. Catalogue planets are illustrations, not live imagery.'
+    ];
+  }
   const ol = $('checklist'); ol.textContent = '';
   steps.forEach(([id, title, items]) => {
     const li = document.createElement('li'); if (checks[id]) li.className = 'done';
@@ -757,28 +773,52 @@ function installText() {
 }
 
 // ---------- export ----------
-let downloads = null, sample = null;
+
 function exportSize() {
   const d = DEVICES[state.device];
   if (d[1]) return [d[1], d[2]];
   const w = Math.min(2000, Math.max(600, +$('f-w').value || 1179)), h = Math.min(4000, Math.max(1200, +$('f-h').value || 2556));
   return [w, h];
 }
-function renderBlob(mode, idx) {
+async function renderBlob(mode, idx) {
+  await artFullyLoaded();
   const [W, H] = exportSize(); const c = document.createElement('canvas'); c.width = W; c.height = H;
   drawWallpaper(c, state.th, mode, idx);
   return new Promise(r => c.toBlob(r, 'image/png'));
 }
-function iconBlob(app, i) { const c = document.createElement('canvas'); c.width = 1024; c.height = 1024; drawIcon(c, state.th, app, i); return new Promise(r => c.toBlob(r, 'image/png')); }
+// Exports always wait for full-resolution theme artwork, so a downloaded image never ships without it.
+async function artFullyLoaded() { if (frameFor(state.th) === 'halcyon') { try { await hbReady('sheets'); } catch (e) { setStatus('Halcyon artwork could not load, so this export is paused. Check your connection and try again.'); throw e; } } }
+async function iconBlob(app, i) { await artFullyLoaded(); const c = document.createElement('canvas'); c.width = 1024; c.height = 1024; drawIcon(c, state.th, app, i); return new Promise(r => c.toBlob(r, 'image/png')); }
 function setStatus(msg) { $('exp-status').textContent = msg; }
-async function saveFile(filename, data) {
-  if (!downloads) { setStatus('Saving files is not available in this view. Open the page in the Claude app or on claude.ai.'); return; }
-  try { await downloads.save({ filename, data }); setStatus(`Saved ${filename}.`); }
+function mimeFor(name) { return name.endsWith('.png') ? 'image/png' : name.endsWith('.zip') ? 'application/zip' : 'text/plain'; }
+let pendingFile = null;
+function offerSave(file) {
+  pendingFile = file;
+  $('savebar-text').textContent = `${file.name} is ready.`;
+  $('savebar').hidden = false;
+  setStatus('Tap Save to open the share sheet.');
+}
+async function shareFile(file) {
+  try { await navigator.share({ files: [file] }); setStatus(`Saved ${file.name}.`); $('savebar').hidden = true; return true; }
   catch (e) {
-    if (e && e.code === 'declined') setStatus('Save cancelled.');
-    else if (e && e.code === 'rate_limited') setStatus('Another save is still open. Finish it, then try again.');
-    else setStatus(`Could not save ${filename}${e && e.message ? ': ' + e.message : '.'}`);
+    if (e && e.name === 'AbortError') { setStatus('Save cancelled.'); $('savebar').hidden = true; return true; }
+    return false;
   }
+}
+async function saveFile(filename, data) {
+  const blob = data instanceof Blob ? data : new Blob([data], { type: mimeFor(filename) });
+  let file = null;
+  try { file = new File([blob], filename, { type: blob.type || mimeFor(filename) }); } catch (e) {}
+  const touch = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || navigator.maxTouchPoints > 1;
+  if (touch && file && navigator.canShare && navigator.canShare({ files: [file] })) {
+    if (!(await shareFile(file))) offerSave(file);
+    return;
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.rel = 'noopener';
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  setStatus(`Downloaded ${filename}.`);
 }
 function buildSingles() {
   const host = $('single-btns'); host.textContent = '';
@@ -815,32 +855,6 @@ async function copyScript() {
   catch (e) { const box = $('scriptbox'); box.focus(); box.select(); try { document.execCommand('copy'); setStatus('Script copied. Paste it into a new Scriptable script.'); } catch (e2) { setStatus('Select the script in the box and copy it.'); } }
 }
 
-// ---------- Claude ----------
-async function generate() {
-  const vibe = $('f-vibe').value.trim(), st = $('gen-status');
-  if (!vibe) { st.textContent = 'Describe a vibe first, like "deep-sea mining union".'; return; }
-  if (!sample) { st.textContent = 'Writing with Claude is not available in this view.'; return; }
-  st.textContent = 'Thinking…'; $('btn-gen').setAttribute('aria-disabled', 'true');
-  const prompt = `You write copy for a fictional organization used on a phone theme. Vibe: "${vibe}". Organization name: "${state.th.company}".
-Write original, deadpan, darkly funny institutional copy in that vibe. Never use names, places, characters, slogans, logos or quotes from any real book, film, game or brand.
-Return ONLY JSON: {"slogans":[{"text":"...","dept":"..."}],"phrases":[["line one","line two"]]}
-- 12 slogans, Title Case, max 7 words, each with a fictional department in UPPER CASE (max 4 words).
-- 4 lock screen headlines, each split into two short lines (max 14 characters per line), Title Case.`;
-  try {
-    const out = await sample.json(prompt, { modelTier: 'default' });
-    const sl = Array.isArray(out.slogans) ? out.slogans.filter(x => x && x.text).map(x => [String(x.text).slice(0, 60), String(x.dept || 'HEADQUARTERS').toUpperCase().slice(0, 40)]) : [];
-    const ph = Array.isArray(out.phrases) ? out.phrases.filter(p => Array.isArray(p)).slice(0, 4).map(p => [String(p[0] || '').slice(0, 22), String(p[1] || '').slice(0, 22)]) : [];
-    if (sl.length) state.th.slogans = sl;
-    ph.forEach((p, i) => { state.th.phrases[i] = p; });
-    syncFields(); refresh(); st.textContent = `Added ${sl.length} slogans and ${ph.length} headlines. Edit anything you like.`;
-  } catch (e) {
-    if (e && e.code === 'not_granted') { st.textContent = 'Claude was not allowed for this page, so this feature is off.'; $('claude-box').hidden = true; }
-    else if (e && e.code === 'rate_limited') st.textContent = 'Too many requests right now. Wait a moment, then try again.';
-    else st.textContent = 'That did not work. Try a different vibe or try again.';
-  }
-  $('btn-gen').removeAttribute('aria-disabled');
-}
-
 // ---------- boot ----------
 document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { state.view = b.dataset.view; renderPreview(); }));
 if (state.wgMode == null) state.wgMode = (window.matchMedia && window.matchMedia('(max-width: 700px)').matches) ? 'full' : 'phone';
@@ -870,14 +884,12 @@ $('toggle-icons').addEventListener('click', () => { state.hideIcons = !state.hid
 document.querySelectorAll('[data-lock]').forEach(b => b.addEventListener('click', () => { state.lock = +b.dataset.lock; renderPreview(); }));
 document.querySelectorAll('[data-frame]').forEach(b => b.addEventListener('click', () => { state.frame = +b.dataset.frame; renderPreview(); }));
 $('btn-zip').addEventListener('click', exportZip);
+$('savebar-btn').addEventListener('click', () => { if (pendingFile) shareFile(pendingFile).then(ok => { if (!ok) setStatus('Your browser blocked saving. Try again, or use a computer.'); }); });
 $('btn-copy').addEventListener('click', copyScript);
 $('btn-txt').addEventListener('click', () => saveFile(`${slug(state.th.company)}-widgets.txt`, buildScript()));
-$('btn-gen').addEventListener('click', generate);
 window.addEventListener('resize', () => { renderPreview(); fitGallery(); });
 if (state.th.variant == null) applyVariant(0, true);
+// The page starts right away; theme artwork arrives in the background and redraws what it touches.
 buildPresets(); buildFields(); buildSingles(); syncFields(); buildVariants();
 fontsFor(state.th).then(() => refresh());
-if (window.claude && window.claude.use) {
-  window.claude.use('downloads').then(d => { downloads = d; if (!d) setStatus('Saving files is not available in this view. You can still copy the widget script.'); });
-  window.claude.use('sample').then(s => { sample = s; if (!s) $('claude-box').hidden = true; });
-} else { setStatus('Saving files is not available outside Claude. You can still copy the widget script.'); $('claude-box').hidden = true; }
+hbWarm(frameFor(state.th) === 'halcyon');

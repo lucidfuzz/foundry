@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Foundry — phone theme builder</title>
+<meta name="description" content="Design a whole phone theme: lock screens, home wallpaper, icons and live widgets.">
+<meta name="theme-color" content="#16181B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Foundry">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=Orbitron:wght@700&family=Righteous&family=VT323&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,500&family=Oxanium:wght@500;700&family=Shippori+Mincho+B1:wght@800&family=Barlow+Condensed:wght@500;700&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Cormorant+SC:wght@500&family=Share+Tech+Mono&family=Fraunces:opsz,wght@9..144,400;9..144,700&family=Space+Grotesk:wght@400;600&family=DM+Mono:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root {
+  --bg: #EDEEEA; --surface: #FAFAF7; --text: #16181B; --muted: #4E545B; --line: #C9CCC5;
+  --accent: #9D8CF2; --accent-ink: #0E1512;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #15171A; --surface: #1D2024; --text: #ECEDEA; --muted: #A5ABB2; --line: #353A40; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #15171A; --surface: #1D2024; --text: #ECEDEA; --muted: #A5ABB2; --line: #353A40; color-scheme: dark; }
+:root { box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+*, *::before, *::after { box-sizing: inherit; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 16px; line-height: 1.5; }
+img, canvas { max-width: 100%; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 20px 18px 64px; }
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px 0 18px; border-bottom: 2px solid var(--text); }
+.brand { font-stretch: 125%; font-weight: 800; font-size: 34px; letter-spacing: -0.02em; margin: 0; line-height: 1; }
+.brand span { display: inline-block; width: 18px; height: 18px; background: var(--accent); margin-left: 8px; border: 2px solid var(--text); vertical-align: 2px; }
+.lede { margin: 0; color: var(--muted); max-width: 46ch; }
+.layout { display: grid; grid-template-columns: 1fr; gap: 28px; margin-top: 24px; }
+@media (min-width: 960px) {
+  .layout { grid-template-columns: minmax(0, 1fr) 420px; align-items: start; }
+  .stage { position: sticky; top: calc(72px + env(safe-area-inset-top, 0px)); max-height: calc(100vh - 88px - env(safe-area-inset-top, 0px)); max-height: calc(100dvh - 88px - env(safe-area-inset-top, 0px)); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  .stage .phone { width: min(100%, 360px, max(220px, calc((100vh - 300px) * 390 / 844))); width: min(100%, 360px, max(220px, calc((100dvh - 300px) * 390 / 844))); }
+}
+section.step { padding: 22px 0; border-bottom: 1px solid var(--line); }
+section.step:first-child { padding-top: 0; }
+.step h2 { margin: 0 0 4px; font-stretch: 112%; font-weight: 700; font-size: 22px; letter-spacing: -0.01em; display: flex; gap: 12px; align-items: baseline; }
+.step h2 b { font-stretch: 100%; display: inline-grid; place-items: center; width: 30px; height: 30px; border: 2px solid var(--text); border-radius: 50%; font-size: 14px; flex: none; }
+.step p.hint { margin: 0 0 16px 42px; color: var(--muted); font-size: 15px; max-width: 60ch; }
+.presets { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.preset { all: unset; cursor: pointer; display: grid; gap: 8px; padding: 10px; border: 2px solid var(--line); border-radius: 14px; background: var(--surface); }
+.preset[aria-pressed="true"] { border-color: var(--text); box-shadow: 4px 4px 0 var(--accent); }
+.preset canvas { width: 100%; aspect-ratio: 390 / 844; border-radius: 10px; display: block; }
+.preset strong { font-stretch: 112%; font-size: 15px; line-height: 1.2; }
+.preset-icons { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.preset-icons img { width: 100%; aspect-ratio: 1; border-radius: 22%; display: block; }
+.preset small { color: var(--muted); font-size: 13px; line-height: 1.35; }
+.preset:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.fields { display: grid; gap: 16px; }
+.variants-wrap { margin-top: 18px; }
+.vh { margin: 0 0 8px; font-size: 15px; font-stretch: 112%; }
+.variants { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.variant { all: unset; cursor: pointer; display: grid; gap: 4px; justify-items: center; padding: 6px; border: 2px solid var(--line); border-radius: 12px; background: var(--surface); font-size: 12px; text-align: center; line-height: 1.2; }
+.variant[aria-pressed="true"] { border-color: var(--text); box-shadow: 3px 3px 0 var(--accent); }
+.variant canvas { width: 100%; aspect-ratio: 390 / 844; border-radius: 8px; display: block; }
+.variant:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.look { display: grid; gap: 10px; padding: 14px; border: 2px solid var(--line); border-radius: 14px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); min-height: 28px; }
+label.f.chk { display: flex; align-items: center; gap: 10px; font-weight: 600; align-self: end; min-height: 44px; }
+label.f.chk input { width: 22px; height: 22px; accent-color: var(--accent); }
+.row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+label.f, div.f { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
+label.f span.sub { font-weight: 400; color: var(--muted); font-size: 13px; }
+input[type="text"], input[type="number"], select, textarea { font: inherit; font-size: 15px; color: var(--text); background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 10px 12px; width: 100%; }
+textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+.sw { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 2px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 14px; }
+.sw input[type="color"] { width: 36px; height: 36px; border: 2px solid var(--text); border-radius: 8px; padding: 0; background: none; flex: none; }
+.phrases { display: grid; gap: 8px; }
+.phrase { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.seg { display: inline-flex; border: 2px solid var(--text); border-radius: 999px; overflow: hidden; }
+.seg button { all: unset; cursor: pointer; padding: 8px 16px; font-size: 14px; font-weight: 600; min-height: 28px; }
+.seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+.btn { all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border: 2px solid var(--text); border-radius: 12px; font-weight: 700; font-size: 15px; background: var(--surface); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); box-shadow: 3px 3px 0 var(--text); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.btns[hidden] { display: none; }
+.status { font-size: 14px; color: var(--muted); min-height: 1.4em; }
+.stage-card { background: var(--surface); border: 2px solid var(--text); border-radius: 22px; padding: 14px; }
+.fab, .stage-head { display: none; }
+@media (max-width: 959px) {
+  .fab { display: inline-flex; align-items: center; gap: 8px; position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 40; min-height: 52px; padding: 0 20px; border-radius: 999px; border: 2px solid var(--text); background: var(--accent); color: #16181B; font: 700 16px/1 inherit; font-family: inherit; box-shadow: 0 6px 18px rgba(0,0,0,.28); cursor: pointer; }
+  .fab:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }
+  body.preview-open .fab { display: none; }
+  .stage { position: fixed; inset: 0; z-index: 50; background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: calc(10px + env(safe-area-inset-top, 0px)) 10px calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateY(100%); visibility: hidden; transition: transform .28s ease, visibility 0s linear .28s; }
+  body.preview-open { overflow: hidden; }
+  .layout { padding-bottom: 84px; }
+  body.preview-open .stage { transform: none; visibility: visible; transition: transform .28s ease, visibility 0s; }
+  .stage-card { border: 0; padding: 4px 2px; background: transparent; }
+  .stage-head { display: flex; justify-content: space-between; align-items: center; margin: 0 4px 10px; font-size: 18px; }
+  .stage .phone { width: min(100%, calc((100dvh - 178px) * 390 / 844)); max-width: none; }
+  .stage-head { margin-bottom: 6px; }
+  .stage .seg { margin-bottom: 8px; }
+  .stage .icon-sheet { max-width: 520px; margin: 0 auto; }
+}
+.stage .seg { margin-bottom: 12px; }
+.phone { position: relative; width: 100%; max-width: 360px; margin: 0 auto; aspect-ratio: 390 / 844; border-radius: 36px; overflow: hidden; border: 3px solid var(--text); background: #000; }
+.phone > canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.phone .ui { position: absolute; left: 0; top: 0; width: 390px; height: 844px; transform-origin: 0 0; }
+.icon-sheet { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.icon-sheet figure { margin: 0; display: grid; gap: 4px; justify-items: center; font-size: 12px; color: var(--muted); }
+.icon-sheet img { width: 100%; border-radius: 22%; display: block; }
+.exports { display: grid; gap: 14px; }
+.wg-scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.wg-scroll::-webkit-scrollbar { display: none; }
+.wg-scroll:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.gallery { display: grid; gap: 18px; }
+.wg { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 14px; border: 2px solid var(--line); border-radius: 16px; background: var(--surface); }
+@media (min-width: 720px) { .wg { grid-template-columns: minmax(0, 380px) 1fr; align-items: start; } }
+.wg-frame { position: relative; overflow: hidden; border-radius: 22px; }
+.inspectable { cursor: zoom-in; }
+.inspectable:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.wg-frame::after { content: "⤢"; position: absolute; right: 6px; bottom: 6px; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 999px; background: rgba(0,0,0,.45); color: #fff; font-size: 13px; pointer-events: none; }
+.phone .zoom-chip { position: absolute; right: 10px; bottom: 10px; z-index: 5; padding: 6px 10px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font-size: 12px; font-weight: 700; pointer-events: none; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.steps-nav { position: sticky; top: 0; z-index: 30; display: flex; gap: 6px; overflow-x: auto; padding: calc(8px + env(safe-area-inset-top, 0px)) 0 8px; margin: 0 0 4px; background: var(--bg); border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.steps-nav::-webkit-scrollbar { display: none; }
+.steps-nav a { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border: 2px solid var(--line); border-radius: 999px; color: var(--text); text-decoration: none; font-weight: 700; font-size: 14px; }
+.steps-nav a b { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 999px; background: var(--text); color: var(--bg); font-size: 11px; }
+.steps-nav a[aria-current="true"] { border-color: var(--text); background: var(--surface); }
+.steps-nav a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+section.step { scroll-margin-top: 70px; }
+.contact-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 720px) { .contact-grid { grid-template-columns: 1fr 1.3fr; align-items: start; } }
+.contact-card { padding: 16px; border: 2px solid var(--line); border-radius: 16px; background: var(--surface); }
+.contact-card.feature { border-color: var(--text); box-shadow: 4px 4px 0 var(--text); }
+.contact-card h3 { margin: 0 0 6px; font-size: 18px; }
+.contact-card p { margin: 0 0 10px; }
+.contact-card ul { margin: 0 0 14px; padding-left: 20px; display: grid; gap: 4px; }
+.contact-card .btn { text-decoration: none; color: var(--text); }
+.contact-card .btn.primary { color: var(--accent-ink); }
+.seg-sm { margin-bottom: 10px; }
+.seg-sm button { padding: 6px 14px; font-size: 13px; min-height: 32px; }
+.wg-list { display: grid; gap: 18px; justify-items: center; }
+.wg-full { margin: 0; display: grid; gap: 6px; justify-items: center; }
+.wg-full > div { border-radius: 22px; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+.wg-full figcaption { display: flex; gap: 8px; align-items: baseline; font-size: 13px; color: var(--muted); }
+.wg-full figcaption strong { color: var(--text); }
+.wg-full figcaption code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; }
+.icon-sheet figure.inspectable img { transition: transform .15s ease; }
+.icon-sheet figure.inspectable:active img { transform: scale(.96); }
+body.insp-open { overflow: hidden; }
+.insp { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; background: #0b0c0e; color: #f4f4f2; }
+.insp[hidden] { display: none; }
+.insp-bar, .insp-foot { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+.insp-bar { padding-top: calc(10px + env(safe-area-inset-top, 0px)); border-bottom: 1px solid rgba(255,255,255,.1); }
+.insp-foot { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid rgba(255,255,255,.1); }
+.insp-title { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.insp-title strong { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.insp-title span { font-size: 12px; color: #a9a9a4; }
+.insp-zoom { display: inline-flex; border: 1.5px solid rgba(255,255,255,.4); border-radius: 999px; overflow: hidden; flex: none; }
+.insp-zoom button { all: unset; cursor: pointer; padding: 0 12px; min-height: 36px; display: inline-grid; place-items: center; font-weight: 700; font-size: 13px; }
+.insp-zoom button[aria-pressed="true"] { background: #f4f4f2; color: #0b0c0e; }
+.insp-close, .insp-save, .insp-nav { all: unset; cursor: pointer; display: inline-grid; place-items: center; min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,.4); font-weight: 700; font-size: 15px; box-sizing: border-box; }
+.insp-nav { font-size: 26px; padding: 0; line-height: 1; }
+.insp-nav:disabled { opacity: .3; cursor: default; }
+.insp-save { background: #f4f4f2; color: #0b0c0e; border-color: #f4f4f2; }
+.insp-save[hidden] { display: none; }
+.insp-hint { flex: 1; text-align: center; font-size: 12px; color: #a9a9a4; }
+.insp-close:focus-visible, .insp-save:focus-visible, .insp-nav:focus-visible, .insp-zoom button:focus-visible { outline: 3px solid #8fd3ff; outline-offset: 2px; }
+.insp-stage { flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; display: flex; padding: 12px; touch-action: pan-x pan-y pinch-zoom; }
+.insp-content { margin: auto; }
+.insp-content > * { box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+@media (max-width: 520px) { .insp-hint { display: none; } }
+.wg-scale { transform-origin: 0 0; box-shadow: 0 2px 0 rgba(0,0,0,0.08); border-radius: 22px; }
+.wg-meta h3 { margin: 0 0 4px; font-size: 18px; font-stretch: 112%; }
+.wg-meta p { margin: 0 0 10px; font-size: 15px; line-height: 1.5; }
+.wg-meta dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 14px; }
+.wg-meta dt { color: var(--muted); }
+.wg-meta dd { margin: 0; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13px; word-break: break-word; }
+.exp-group { display: grid; gap: 8px; }
+.exp-group h3 { margin: 0; font-size: 16px; font-stretch: 112%; }
+.exp-group p { margin: 0; color: var(--muted); font-size: 14px; }
+.check { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; counter-reset: s; }
+.check li { border: 2px solid var(--line); border-radius: 14px; padding: 14px 14px 14px 16px; background: var(--surface); }
+.check li.done { border-color: var(--text); }
+.check label { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
+.check input { width: 24px; height: 24px; margin-top: 2px; accent-color: var(--accent); flex: none; }
+.check h3 { margin: 0 0 4px; font-size: 16px; font-stretch: 112%; }
+.check ol { margin: 6px 0 0; padding-left: 20px; color: var(--muted); font-size: 14px; display: grid; gap: 4px; }
+.check code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13px; background: var(--bg); padding: 1px 6px; border-radius: 6px; color: var(--text); }
+.scriptbox { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; min-height: 120px; white-space: pre; overflow: auto; }
+.note { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+.savebar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px; border: 2px solid var(--text); border-radius: 14px; background: var(--surface); }
+.savebar[hidden] { display: none; }
+.tip { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1 class="brand">Foundry<span aria-hidden="true"></span></h1>
+    <div><p class="lede">Design a whole phone theme (lock screens, home wallpaper, icons and live widgets), then install it step by step.</p><p class="tip">On iPhone, tap Share, then Add to Home Screen to keep Foundry like an app.</p></div>
+  </header>
+
+  <nav class="steps-nav" aria-label="Steps">
+    <a href="#pick" aria-current="true"><b>1</b>Pick</a><a href="#make"><b>2</b>Customize</a><a href="#widgets"><b>3</b>Widgets</a><a href="#export"><b>4</b>Export</a><a href="#install"><b>5</b>Install</a><a href="#contact"><b>@</b>Contact</a>
+  </nav>
+  <div class="layout">
+    <main>
+      <section class="step" id="pick">
+        <h2><b>1</b>Pick a starting point</h2>
+        <p class="hint">These are pre-fabricated themes: complete, ready-to-install designs with wallpapers, icons, widgets and a little idle game. Install one as is, or start from the closest and make it yours. Want one made just for you? <a href="#contact">Get in touch</a>.</p>
+        <div class="presets" id="presets"></div>
+        <div class="variants-wrap">
+          <h3 class="vh">Pick a variant</h3>
+          <div class="variants" id="variants"></div>
+        </div>
+      </section>
+
+      <section class="step" id="make">
+        <h2><b>2</b>Make it yours</h2>
+        <p class="hint">Changes show up in the preview right away and are kept in this browser.</p>
+        <div class="fields">
+          <div class="row2">
+            <label class="f">Company or faction name<input type="text" id="f-company" maxlength="28"></label>
+            <label class="f">Unit code<span class="sub">Shows up on widgets and labels</span><input type="text" id="f-unit" maxlength="14"></label>
+          </div>
+          <div>
+            <div class="f" style="font-weight:600;font-size:14px;margin-bottom:6px">Colors</div>
+            <div class="swatches" id="swatches"></div>
+          </div>
+          <div class="look">
+            <div class="f" style="font-weight:600;font-size:14px">Look</div>
+            <div class="row2">
+              <label class="f">Centerpiece size<input type="range" id="k-scale" min="0.8" max="1.2" step="0.01"></label>
+              <label class="f">Centerpiece position<input type="range" id="k-shift" min="-60" max="60" step="1"></label>
+              <label class="f">Texture<input type="range" id="k-texture" min="0" max="1.6" step="0.05"></label>
+              <label class="f">Glow<input type="range" id="k-glow" min="0" max="1.6" step="0.05"></label>
+            </div>
+            <div class="row2">
+              <label class="f">Icon frame<select id="f-iconstyle"></select></label>
+              <label class="f">Icon symbols<select id="f-glyphs"></select></label>
+              <label class="f">Headline case<select id="f-case"><option value="title">Title Case</option><option value="upper">ALL CAPS</option></select></label>
+              <label class="f chk"><input type="checkbox" id="k-details"> Show fine-print details</label>
+            </div>
+          </div>
+          <div class="row2">
+            <label class="f">Headline font<select id="f-display"></select></label>
+            <label class="f">Label font<select id="f-mono"></select></label>
+          </div>
+          <div class="row2">
+            <label class="f" style="grid-column:1/-1">Centerpiece<select id="f-motif">
+              <option value="globe">Wireframe globe</option>
+              <option value="alert">Ring analyzer and hex grid</option>
+              <option value="map">Hand-drawn map</option>
+              <option value="night">Night helmet display</option>
+              <option value="grimoire">Arcane card and sigil</option>
+              <option value="orbital">Deep range tracker</option>
+              <option value="rabbit">White rabbit capsule</option>
+              <option value="neon">Neon billboard</option>
+              <option value="market">Market board</option>
+              <option value="vapor">Vapor sunset</option>
+              <option value="botanical">Botanical plate</option>
+            </select></label>
+            <div class="f">Temperature
+              <div class="seg" role="group" aria-label="Temperature units">
+                <button type="button" data-units="fahrenheit">°F</button>
+                <button type="button" data-units="celsius">°C</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="f" style="font-weight:600;font-size:14px;margin-bottom:6px">Lock screen headlines<span class="sub" style="display:block;font-weight:400">Four lock screens, one headline each, split over two lines</span></div>
+            <div class="phrases" id="phrases"></div>
+          </div>
+          <label class="f">Widget slogans<span class="sub">One per line, written as Slogan | Department</span><textarea id="f-slogans" spellcheck="false"></textarea></label>
+        </div>
+      </section>
+
+      <section class="step" id="widgets">
+        <h2><b>3</b>Widgets</h2>
+        <p class="hint">Every widget comes in one script. Each preview below uses your current theme. Add a Scriptable widget, pick your script and type the parameter shown. Tap any preview to see it full size.</p>
+        <div class="gallery" id="gallery"></div>
+      </section>
+
+      <section class="step" id="export">
+        <h2><b>4</b>Export</h2>
+        <p class="hint">Pick your phone so the wallpapers come out at its exact resolution.</p>
+        <div class="exports">
+          <label class="f">Phone<select id="f-device"></select></label>
+          <div class="row2" id="custom-size" hidden>
+            <label class="f">Width (px)<input type="number" id="f-w" min="600" max="2000" value="1179"></label>
+            <label class="f">Height (px)<input type="number" id="f-h" min="1200" max="4000" value="2556"></label>
+          </div>
+          <div class="exp-group">
+            <h3>Everything at once</h3>
+            <p>One zip with all four lock screens, the home wallpaper (plus six rotating frames for themes that have them), eleven icons, the widget script and an install guide.</p>
+            <div class="btns"><button type="button" class="btn primary" id="btn-zip">Download theme pack</button></div>
+          </div>
+          <div class="exp-group">
+            <h3>One at a time</h3>
+            <p>On a phone, each image opens the share sheet so you can tap Save Image.</p>
+            <div class="btns" id="single-btns"></div>
+          </div>
+          <div class="exp-group">
+            <h3>Widget script</h3>
+            <p>Paste this into a new script in the free Scriptable app. It holds every widget, already in your colors.</p>
+            <div class="btns"><button type="button" class="btn" id="btn-copy">Copy script</button><button type="button" class="btn" id="btn-txt">Save as text file</button></div>
+            <textarea class="scriptbox" id="scriptbox" readonly aria-label="Widget script"></textarea>
+          </div>
+          <div class="savebar" id="savebar" hidden><span id="savebar-text"></span><button type="button" class="btn primary" id="savebar-btn">Save</button></div>
+          <div class="status" id="exp-status" role="status"></div>
+        </div>
+      </section>
+
+      <section class="step" id="install">
+        <h2><b>5</b>Install</h2>
+        <p class="hint">iPhone only lets people arrange their own home screen, so these steps are by hand. Check them off as you go.</p>
+        <ol class="check" id="checklist"></ol>
+      </section>
+      <section class="step" id="contact">
+        <h2><b>@</b>Suggestions and custom themes</h2>
+        <div class="contact-grid">
+          <div class="contact-card">
+            <h3>Ideas, bugs or suggestions</h3>
+            <p>Found something broken, or have an idea for a theme, widget or game? Send it over.</p>
+            <a class="btn" href="mailto:lucidfuzz@gmail.com?subject=Foundry%20suggestion">Email a suggestion</a>
+          </div>
+          <div class="contact-card feature">
+            <h3>A theme made just for you</h3>
+            <p>Send your assets and we will work with you to create a widget script and asset pack just for you.</p>
+            <ul>
+              <li>A name and a few words about the vibe</li>
+              <li>Reference images: screenshots, art, photos, a game or show you love (large files are fine as a shared link)</li>
+              <li>Any colors or fonts you have in mind</li>
+              <li>Which widgets you want most</li>
+            </ul>
+            <a class="btn primary" href="mailto:lucidfuzz@gmail.com?subject=Custom%20Foundry%20theme&amp;body=Theme%20name%3A%0AThe%20vibe%20in%20a%20few%20words%3A%0AColors%20or%20fonts%20I%20like%3A%0AWidgets%20I%20want%20most%3A%0A%0AReference%20images%20are%20attached%20or%20linked%20below%3A%0A">Request a custom theme</a>
+          </div>
+        </div>
+        <p class="note">Or write to <a href="mailto:lucidfuzz@gmail.com">lucidfuzz@gmail.com</a>.</p>
+      </section>
+    </main>
+
+    <aside class="stage" id="preview-stage" aria-label="Preview">
+      <div class="stage-card">
+        <div class="stage-head">
+          <strong>Preview</strong>
+          <button type="button" class="btn" id="close-preview">Done</button>
+        </div>
+        <div class="seg" role="group" aria-label="Preview view">
+          <button type="button" data-view="lock" aria-pressed="true">Lock</button>
+          <button type="button" data-view="home">Home</button>
+          <button type="button" data-view="widgets">Widgets</button>
+          <button type="button" data-view="icons">Icons</button>
+        </div>
+        <div id="view-lock">
+          <div class="phone"><canvas id="pv-lock" width="390" height="844"></canvas><span class="zoom-chip" aria-hidden="true">⤢ Tap to inspect</span></div>
+          <div class="btns" style="justify-content:center;margin-top:10px" role="group" aria-label="Lock screen headline">
+            <button type="button" class="btn" data-lock="0">1</button><button type="button" class="btn" data-lock="1">2</button><button type="button" class="btn" data-lock="2">3</button><button type="button" class="btn" data-lock="3">4</button>
+          </div>
+        </div>
+        <div id="view-home" hidden>
+          <div class="phone" id="home-phone"><canvas id="pv-home" width="390" height="844"></canvas><div class="ui" id="home-ui"></div><span class="zoom-chip" aria-hidden="true">⤢ Tap to inspect</span></div>
+          <div class="btns" id="home-frames" style="justify-content:center;margin-top:10px" role="group" aria-label="Home frame (this theme draws six different ones)">
+            <button type="button" class="btn" data-frame="0">1</button><button type="button" class="btn" data-frame="1">2</button><button type="button" class="btn" data-frame="2">3</button><button type="button" class="btn" data-frame="3">4</button><button type="button" class="btn" data-frame="4">5</button><button type="button" class="btn" data-frame="5">6</button>
+          </div>
+          <div class="btns" style="justify-content:center;margin-top:8px"><button type="button" class="btn" id="toggle-icons" aria-pressed="true">Hide icons</button></div>
+          <p class="note">Icons sit in the top row and the dock so the artwork stays clear. Arrange your own the same way for the best look.</p>
+        </div>
+        <div id="view-widgets" hidden>
+          <div class="seg seg-sm" role="group" aria-label="Widget view"><button type="button" data-wgmode="full">Full size</button><button type="button" data-wgmode="phone">On phone</button></div>
+          <div class="wg-list" id="wg-list" hidden></div>
+          <div class="phone" id="wg-phone"><canvas id="pv-wg" width="390" height="844"></canvas><div class="wg-scroll" id="wg-scroll" tabindex="0" aria-label="Widget preview, scrollable"></div></div>
+          <p class="note" id="wg-note">Every widget on your home screen, in your colors. Scroll inside the phone, tap a widget to inspect it.</p>
+        </div>
+        <div id="view-icons" hidden>
+          <div class="icon-sheet" id="icon-sheet"></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <div class="insp" id="insp" role="dialog" aria-modal="true" aria-labelledby="insp-title" hidden>
+    <div class="insp-bar">
+      <div class="insp-title"><strong id="insp-title">Preview</strong><span id="insp-count"></span></div>
+      <div class="insp-zoom" role="group" aria-label="Zoom"><button type="button" data-z="1" aria-pressed="true">Fit</button><button type="button" data-z="2">2×</button><button type="button" data-z="3">3×</button></div>
+      <button type="button" class="insp-close" id="insp-close">Done</button>
+    </div>
+    <div class="insp-stage" id="insp-stage" tabindex="-1"><div class="insp-content" id="insp-content"></div></div>
+    <div class="insp-foot">
+      <button type="button" class="insp-nav" id="insp-prev" aria-label="Previous">‹</button>
+      <span class="insp-hint">Double-tap to zoom · swipe for the next one</span>
+      <button type="button" class="insp-save" id="insp-dl">Save PNG</button>
+      <button type="button" class="insp-nav" id="insp-next" aria-label="Next">›</button>
+    </div>
+  </div>
+  <button type="button" class="fab" id="open-preview" aria-controls="preview-stage" aria-expanded="false">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 2v16h10V4zm3 13h4v1.5h-4z"/></svg>
+    Preview
+  </button>
+</div>
+
+<script type="text/plain" id="tpl">
+@@WIDGET_SCRIPT@@
+</script>
+<script>
+@@APPLICATION@@
+</script>
+</body>
+</html>
