@@ -61,6 +61,7 @@ section.step:first-child { padding-top: 0; }
 .vh { margin: 0 0 8px; font-size: 15px; font-stretch: 112%; }
 .variants { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .variant { all: unset; cursor: pointer; display: grid; gap: 4px; justify-items: center; padding: 6px; border: 2px solid var(--line); border-radius: 12px; background: var(--surface); font-size: 12px; text-align: center; line-height: 1.2; }
+.android-why { margin-top: 8px; font-size: 13px; } .android-why summary { cursor: pointer; font-weight: 700; } .android-why p { margin: 6px 0 0; }
 .ed-tag { justify-self: start; margin-top: 2px; padding: 2px 8px; border: 1.5px solid var(--text); border-radius: 999px; font-size: 11px; font-weight: 700; }
 .variants-wrap[hidden] { display: none; }
 .variant[aria-pressed="true"] { border-color: var(--text); box-shadow: 3px 3px 0 var(--accent); }
@@ -304,6 +305,14 @@ body.insp-open { overflow: hidden; }
             <h3>Everything at once</h3>
             <p>One zip with all four lock screens, the home wallpaper (plus six rotating frames for themes that have them), eleven icons, the widget script and an install guide.</p>
             <div class="btns"><button type="button" class="btn primary" id="btn-zip">Download theme pack</button></div>
+          </div>
+          <div class="exp-group" id="android-group">
+            <h3>Android</h3>
+            <p>A free pack for Android phones: lock screens that cycle on their own, a home wallpaper, icons, and widget pictures that rotate in any free photo-widget app. No paid apps. Pick an Android phone above first.</p>
+            <div class="btns"><button type="button" class="btn" id="btn-android">Download Android pack</button></div>
+            <details class="android-why"><summary>Why don't the Android widgets update live?</summary>
+              <p>On iPhone, the free Scriptable app runs the widgets, so they show your real calendar, weather and battery. Android has no free equivalent, so these widgets are pictures that cycle instead. To keep pictures honest, the pack only includes the in-world widgets (transmissions, galleries, oddities and so on), never fake weather or calendar readings. Live Android widgets need an app to run them: a free Foundry app for Android is in progress, so you won't need a paid widget app.</p>
+            </details>
           </div>
           <div class="exp-group">
             <h3>One at a time</h3>

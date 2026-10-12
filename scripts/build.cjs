@@ -22,7 +22,7 @@ const tpl = tplSrc
   .replace('// @deeprange-paint', () => read('src/deeprange/paint.js') + '\n' + read('src/deeprange/details.js'))
   .replace('// @deeprange-runtime', () => read('src/deeprange/runtime.js'));
 if (tpl.includes('</script')) throw new Error('The widget script cannot contain a closing script tag');
-const app = [read('src/foundry-data.js'), read('src/art-manifest.js'), read('src/art.js'), read('src/render.js'), read('src/halcyon/browser.js'), read('src/deeprange/browser.js'), read('src/deeprange/wallpapers.js'), read('src/app.js')].join('\n');
+const app = [read('src/foundry-data.js'), read('src/art-manifest.js'), read('src/art.js'), read('src/render.js'), read('src/halcyon/browser.js'), read('src/deeprange/browser.js'), read('src/deeprange/wallpapers.js'), read('android/runtime/foundry-runtime.js'), read('src/app.js')].join('\n');
 const html = read('src/page.html').replace('@@WIDGET_SCRIPT@@', () => tpl).replace('@@APPLICATION@@', () => app);
 if (check) { if (read('index.html') !== html) throw new Error('index.html is stale. Run node scripts/build.cjs'); }
 else fs.writeFileSync('index.html', html);

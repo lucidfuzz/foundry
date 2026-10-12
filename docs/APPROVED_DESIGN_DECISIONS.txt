@@ -184,6 +184,23 @@ from Claude; Jordan can adjust them. Everything else here is binding for all new
 - Behavior checks (real data, unavailable states, saves, links) and the site-size check.
 - Approvals and corrections recorded here, with superseded decisions marked.
 
+[ADDED] ANDROID
+- APPROVED (Jordan, 12 Oct): Android support must be free and easy: no paid apps. Each prefab gets a free Android picture pack,
+  self-serve from the site's Export step ("Download Android pack"), sized to the user's phone.
+- APPROVED: Lock screens cycle on their own (Samsung rotates up to 15 lock screens, one per wake). The home screen is a single
+  wallpaper laid out for Android's dock, which sits higher than iPhone's; captions that would sit under it are lifted
+  (ANDROID_HOME_LIFT in src/app.js). Long Road is left as designed because its caption sits inside a drawn frame.
+- APPROVED: Android widgets in the pack are pictures for any free photo-widget slideshow: six frames per widget and size, half
+  an hour apart, never repeating. Only in-world widgets are included; pictures never show fake calendar, weather or battery
+  readings (Status, Shift and Solar are left out).
+- APPROVED (Jordan, 12 Oct): live Android widgets come from a free Foundry app that runs the same widget scripts as iPhone
+  (android/runtime/foundry-runtime.js), not from KWGT, which would cost every user a paid key and mean rebuilding every widget
+  by hand. The site explains this beside the Android button.
+- APPROVED: the runtime's Android fonts are chosen to match each iPhone font's width (e.g. Futura Condensed -> Barlow
+  Condensed), because the widget layouts assume those widths.
+- OPEN: the cycling lock-screen pools are 4 headlines per theme today; Samsung allows 15. More in-world headlines per theme
+  (under the WORLD-BUILDING STANDARD) would fill them.
+
 [ADDED] OPEN ITEMS AND CONFLICTS
 - CONFLICT: The current Halcyon snapshot (2ad0d7e) assumes embedded full-size PNGs (scripts/build.cjs, ASSET_INVENTORY.json)
   and embeds two fonts. Production uses hosted crops and Google Fonts. Production behavior wins (site-speed rule); integration
