@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Foundry Android runtime test</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,700&family=IBM+Plex+Mono:wght@400;500;700&family=Archivo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>body{font:14px system-ui;margin:20px;background:#1c1c20;color:#eee}textarea{width:100%;height:120px}#out{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}figure{margin:0}img{display:block;border-radius:18px;width:auto;height:auto;max-width:364px}figcaption{font-size:12px;color:#aaa;margin-top:4px}.err{color:#ff8080}</style>
+</head><body>
+<h1>Foundry Android runtime test</h1>
+<p>Paste a widget script exported from Foundry (the same file iPhone users paste into Scriptable), then render. Uses an in-memory file store and no calendar or location.</p>
+<textarea id="src" placeholder="Paste the exported script here"></textarea>
+<p><label>Name <input id="name" value="Halcyon"></label> <button id="go">Render every widget</button></p>
+<div id="out"></div>
+<script src="foundry-runtime.js"></script>
+<script>
+const MODES=['status','shift','transmission','solar','audio','feeds','youtube','instagram','discord','oddity','game','tracker','dossier'];
+document.getElementById('go').onclick=async()=>{
+  const src=document.getElementById('src').value, out=document.getElementById('out'); out.textContent='';
+  await document.fonts.ready;
+  for(const fam of ['small','medium','large'])for(const m of MODES){
+    const f=document.createElement('figure'); out.append(f);
+    try{ const r=await FoundryRuntime.run({script:src,family:fam,param:m,scale:2,name:document.getElementById('name').value});
+      f.innerHTML=`<img src="${r.png}" width="${r.width/2}"><figcaption>${m} / ${fam} · ${r.ms} ms</figcaption>`; }
+    catch(e){ f.innerHTML=`<figcaption class="err">${m} / ${fam}: ${String(e).slice(0,160)}</figcaption>`; }
+  }
+};
+</script>
+</body></html>

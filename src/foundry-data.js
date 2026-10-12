@@ -572,7 +572,11 @@ const DEVICES = [
   ['iPhone 14 Pro Max, 15 Plus, 15 Pro Max, 16 Plus', 1290, 2796],
   ['iPhone 16 Pro', 1206, 2622],
   ['iPhone 16 Pro Max', 1320, 2868],
-  ['Another size (enter it)', 0, 0]
+  ['Another size (enter it)', 0, 0],
+  ['Android: most phones, Galaxy A series, Pixel 8', 1080, 2400],
+  ['Android: Galaxy S24, S25', 1080, 2340],
+  ['Android: Pixel 9', 1080, 2424],
+  ['Android: high-resolution QHD+', 1440, 3120],
 ];
 
 const VARIANTS = {

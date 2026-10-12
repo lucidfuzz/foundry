@@ -873,6 +873,103 @@ async function exportZip() {
   } catch (e) { setStatus('Could not build the pack. Try the single downloads.'); }
   btn.removeAttribute('aria-disabled');
 }
+// ---------- Android pack: free, no paid apps ----------
+// Lock screens cycle on their own (Samsung rotates up to 15); widgets are pictures for any photo-widget slideshow. Only in-world
+// widgets are included: a picture can't show live calendar, weather or battery, and Foundry never fakes real data.
+const ANDROID_FICTION = ['transmission', 'audio', 'feeds', 'youtube', 'instagram', 'discord', 'oddity', 'game', 'tracker', 'dossier'];
+const ANDROID_FRAMES = 6;
+// Home screens whose bottom caption sits where Android's dock is (it's higher than iPhone's): fraction of height to lift.
+const ANDROID_HOME_LIFT = { 'halcyon:illustrated': 0.0833, 'deeprange:expanded': 0.095, wild: 0.075, neon: 0.035, rabbit: 0.035 };
+function androidSize() { const d = DEVICES[state.device]; return /^Android/.test(d[0]) ? [d[1], d[2]] : d[1] === 0 ? exportSize() : [1080, 2400]; }
+async function androidWall(mode, idx, W, H) { await artFullyLoaded(); const c = document.createElement('canvas'); c.width = W; c.height = H; drawWallpaper(c, state.th, mode, idx); return c; }
+async function androidHome(W, H) {
+  const lift = ANDROID_HOME_LIFT[state.th.id + ':' + (state.th.edition || '')] || ANDROID_HOME_LIFT[state.th.id] || 0;
+  if (!lift) return androidWall('home', 0, W, H);
+  const cut = Math.round(H * lift), short = await androidWall('home', 0, W, H - cut), keep = H - cut - Math.round(cut * 0.4);
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  x.drawImage(short, 0, 0, W, keep, 0, 0, W, keep);
+  x.drawImage(short, 0, keep, W, H - cut - keep, 0, keep, W, H - keep); // stretch the plain band under the caption to the bottom
+  return c;
+}
+const canvasBlob = (c, type, q) => new Promise(r => c.toBlob(r, type || 'image/png', q));
+function androidSizesFor(item, th) {
+  if (hbOn(th) || drOn(th)) return ['small', 'medium'];
+  const s = String(item.size || ''); if (/any/i.test(s)) return ['small', 'medium'];
+  const out = ['small', 'medium'].filter(f => s.includes(f)); return out.length ? out : ['medium'];
+}
+function androidGuide(W, H) {
+  const th = state.th, appFor = { safari: 'your browser', photos: 'Gallery or Photos', music: 'your music app', maps: 'Google Maps' };
+  const icons = APPS.map(([k, n], i) => `  ${String(i + 1).padStart(2, '0')} ${n} > ${appFor[k] || n}`).join('\n');
+  return `${th.company} for Android, made with Foundry (lucidfuzz.github.io/foundry)
+Sized for ${W} x ${H}. Everything here is free; no paid apps needed.
+
+1) LOCK SCREENS THAT CYCLE
+- Samsung Galaxy: touch and hold the lock screen (or Settings > Wallpaper and style) > Wallpapers > Gallery, and select all four
+  lock screens. Your phone shows a different one each time you wake it (Samsung allows up to 15).
+- Other Android phones: set your favourite as the lock screen. Some phones' wallpaper settings or free wallpaper apps can rotate a
+  folder of pictures too.
+
+2) HOME SCREEN
+- Set home.jpg as the home screen wallpaper.
+
+3) ICONS
+- Samsung: install Good Lock from Galaxy Store, add Theme Park, then Icon > create an icon pack > tap an app > choose a picture.
+- Other phones: a free launcher such as Lawnchair can set a custom icon for each app.
+- Which icon goes with which app:
+${icons}
+
+4) WIDGETS THAT ROTATE
+- Install any free photo-widget app that has a slideshow option.
+- Add its widget to your home screen and point it at one folder, for example widgets/01-.../medium.
+- Set it to change every 30 minutes. Each folder has ${ANDROID_FRAMES} pictures (about three hours of rotation) and loops.
+- small = square widget, medium = wide widget.
+
+WHY THESE WIDGETS DON'T UPDATE LIVE
+On iPhone, the free Scriptable app runs Foundry's widgets, so they show your real calendar, weather and battery. Android has no
+free equivalent, so these widgets are pictures that cycle instead. To keep them honest, this pack only includes the in-world
+widgets, never fake weather or calendar readings. Live Android widgets need an app to run them: a free Foundry app for Android is
+in progress, so you won't need a paid widget app.
+`;
+}
+async function androidPack() {
+  if (typeof JSZip === 'undefined' || typeof FoundryRuntime === 'undefined') { setStatus('The Android pack tools did not load. Reload the page and try again.'); return; }
+  const btn = $('btn-android'); btn.setAttribute('aria-disabled', 'true');
+  const [W, H] = androidSize(), th = state.th, base = slug(th.company);
+  const saved = [window.__mockBattery, window.__mockCalendar, window.__mockLocation];
+  try {
+    const z = new JSZip();
+    setStatus('Building your Android pack: wallpapers…');
+    for (let i = 0; i < 4; i++) z.file(`lock-screens/lock-${i + 1}.jpg`, await canvasBlob(await androidWall('lock', i, W, H), 'image/jpeg', 0.92));
+    z.file('home.jpg', await canvasBlob(await androidHome(W, H), 'image/jpeg', 0.92));
+    for (let i = 0; i < APPS.length; i++) { const [k, n] = APPS[i]; const ic = document.createElement('canvas'); ic.width = 512; ic.height = 512; drawIcon(ic, th, k, i); z.file(`icons/${String(i + 1).padStart(2, '0')}_${n}.png`, await canvasBlob(ic)); }
+    const script = buildScript(), name = String(th.company || 'Foundry').split(' ')[0];
+    try { await Promise.race([Promise.all(FoundryRuntime.fontsNeeded(script).map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 4000))]); } catch (e) { }
+    const items = widgetList(th).filter(it => ANDROID_FICTION.includes(it.mode)), groups = [];
+    items.forEach((it, n) => androidSizesFor(it, th).forEach(f => groups.push([it, n, f])));
+    window.__mockBattery = JSON.stringify({ level: 0.8, charging: true }); window.__mockCalendar = '[]'; window.__mockLocation = 'null';
+    let done = 0; const total = groups.length * ANDROID_FRAMES;
+    for (const [it, n, f] of groups) {
+      // each widget size starts fresh, so games grow across its frames; repeats are skipped by looking further ahead
+      FoundryRuntime._mem.files = {}; const seen = new Set(); let k = 0;
+      for (let step = 0; k < ANDROID_FRAMES && step < ANDROID_FRAMES * 3; step++) {
+        try {
+          const r = await FoundryRuntime.run({ script, family: f, param: it.mode, scale: 2, name, timeOffset: step * 1800000 });
+          if (seen.has(r.png)) continue; seen.add(r.png);
+          setStatus(`Building your Android pack: widget pictures ${++done} of ${total}…`);
+          const img = new Image(); img.src = r.png; await img.decode();
+          const c = document.createElement('canvas'); c.width = r.width; c.height = r.height; const x = c.getContext('2d'); x.fillStyle = '#000'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0);
+          z.file(`widgets/${String(n + 1).padStart(2, '0')}-${slug(it.name || it.mode)}/${f}/frame-${++k}.jpg`, await canvasBlob(c, 'image/jpeg', 0.9));
+        } catch (e) { console.warn('android widget', it.mode, f, e); break; }
+      }
+    }
+    z.file('ANDROID-SETUP.txt', androidGuide(W, H));
+    setStatus('Building your Android pack: zipping…');
+    await saveFile(`${base}-android-pack.zip`, await z.generateAsync({ type: 'blob' }));
+    setStatus('Android pack ready.');
+  } catch (e) { setStatus('Could not build the Android pack. Try again, or use the single downloads.'); }
+  [window.__mockBattery, window.__mockCalendar, window.__mockLocation] = saved;
+  btn.removeAttribute('aria-disabled');
+}
 async function copyScript() {
   const t = buildScript();
   try { await navigator.clipboard.writeText(t); setStatus('Script copied. Paste it into a new Scriptable script.'); }
@@ -908,6 +1005,7 @@ $('toggle-icons').addEventListener('click', () => { state.hideIcons = !state.hid
 document.querySelectorAll('[data-lock]').forEach(b => b.addEventListener('click', () => { state.lock = +b.dataset.lock; renderPreview(); }));
 document.querySelectorAll('[data-frame]').forEach(b => b.addEventListener('click', () => { state.frame = +b.dataset.frame; renderPreview(); }));
 $('btn-zip').addEventListener('click', exportZip);
+$('btn-android').addEventListener('click', androidPack);
 $('savebar-btn').addEventListener('click', () => { if (pendingFile) shareFile(pendingFile).then(ok => { if (!ok) setStatus('Your browser blocked saving. Try again, or use a computer.'); }); });
 $('btn-copy').addEventListener('click', copyScript);
 $('btn-txt').addEventListener('click', () => saveFile(`${slug(state.th.company)}-widgets.txt`, buildScript()));

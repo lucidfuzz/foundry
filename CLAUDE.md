@@ -52,3 +52,13 @@ Report anything worth sending back to GPT before integrating.
 - After pushing, prove it landed: `git ls-remote origin main` must equal the new commit. Then confirm the live site updated
   (GitHub Pages takes a minute or two). Report the commit ID.
 - If sign-in is needed, stop and let Jordan do it.
+
+## Android (in progress)
+- `android/` holds Foundry for Android. Read `android/SPEC.md` before working on it.
+- One widget codebase: Android runs the same exported widget script as iPhone, through `android/runtime/foundry-runtime.js`
+  (a Scriptable-compatible runtime for Android's WebView). Never fork widget drawing code per platform. If a widget needs an
+  API the runtime lacks, add it to the runtime.
+- After any runtime change, render every mode at every size for at least Halcyon Original and Illustrated, and compare them
+  with the site previews.
+- The Android app is built by GitHub Actions (`.github/workflows/android.yml`); Jordan doesn't install Android tools.
+  Testers get the debug APK from the workflow run.
