@@ -240,7 +240,7 @@ function drawWallpaper(canvas, th, mode, phraseIdx) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, W, H);
   ctx.save(); ctx.scale(s, s);
-  if (['globe','radar'].includes(th.motif)) { hbWallpaper(ctx, th, Hl, mode, phraseIdx || 0); ctx.restore(); return; }
+  if (hbOn(th)) { hbWallpaper(ctx, th, Hl, mode, phraseIdx || 0); ctx.restore(); return; }
   if (th.motif === 'alert') { drawAlert(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'map') { drawMap(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'night') { drawNight(ctx, th, Hl, mode, phraseIdx); ctx.restore(); return; }
@@ -249,7 +249,7 @@ function drawWallpaper(canvas, th, mode, phraseIdx) {
   if (th.motif === 'market') { drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'vapor') { drawVapor(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'botanical') { drawBotanical(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
-  if (th.motif === 'orbital') { if (mode === 'home') drawOrbitalHome(ctx, th, Hl, W, H, s, phraseIdx); else drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
+  if (th.motif === 'orbital') { if (drOn(th)) drWallpaper(ctx, th, Hl, mode, phraseIdx || 0); else if (mode === 'home') drawOrbitalHome(ctx, th, Hl, W, H, s, phraseIdx); else drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'grimoire') { drawGrimoire(ctx, th, Hl, mode, phraseIdx); ctx.restore(); return; }
   const T = th.text, ink = th.colors.ink, mono = th.fonts.mono;
   const art = th.motif === 'radar' ? radarArt : globeArt;
@@ -313,7 +313,7 @@ function drawIcon(canvas, th, app, idx) {
   const c = th.colors, mono = th.fonts.mono, num = String(idx + 1).padStart(2, '0'), code = (th.codes[app] || app.slice(0, 3)).toUpperCase();
   const set = (th.glyphs && GLYPHSETS[th.glyphs]) || GLYPHS;
   const glyph = new Path2D(set[app] || GLYPHS[app]);
-  if (['globe','radar'].includes(th.motif)) { hbIcon(ctx, th, glyph, code); ctx.restore(); return; }
+  if (hbOn(th)) { hbIcon(ctx, th, glyph, code); ctx.restore(); return; }
   if (th.iconStyle === 'pearl') {
     drawPearlIcon(ctx, th, glyph, num, code);
   } else if (th.iconStyle === 'neon') { drawNeonIcon(ctx, th, glyph, num, code);
@@ -1744,7 +1744,7 @@ function drawGildedIcon(ctx, th, glyph, num, code, idx) {
 }
 
 // ---------- ORBITAL motif (deep range tracking display) ----------
-function drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s) {
+function drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s, contactScene = null) {
   const c = th.colors, T = th.text, mono = th.fonts.mono, disp = th.fonts.display, dw = dispWeight(disp), k = K(th)
   const RED = c.accent, YEL = c.ink, BLU = c.glow, GRN = c.alert || '#3DFF8A', CYN = '#39D6FF'
   ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 390, Hl);
@@ -1763,6 +1763,7 @@ function drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s) {
     for (let i = 0; i <= 8; i++) { const t = i / 8, a = L(q[0], q[1], t), b = L(q[3], q[2], t); ctx.strokeStyle = hexA('#9AA8AE', i % 4 === 0 ? 0.4 : 0.18); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
     for (let i = 0; i <= 6; i++) { const t = i / 6, a = L(q[0], q[3], t), b = L(q[1], q[2], t); ctx.strokeStyle = hexA('#9AA8AE', i % 3 === 0 ? 0.4 : 0.18); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
     ctx.strokeStyle = hexA('#C9D2D6', 0.55); ctx.lineWidth = 1; ctx.beginPath(); q.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); ctx.stroke();
+    if (contactScene) { contactScene(ctx, th, {top,baseY,q}); return; }
     if (k.details) {
       [[120, top + 150, 'K-17'], [250, top + 120, 'K-04'], [300, top + 200, 'R-88'], [150, top + 230, 'K-22']].forEach(([x, y, l]) => { ctx.fillStyle = RED; ctx.fillRect(x - 3, y - 3, 6, 6); lab(l, x + 6, y + 3, 7, hexA(RED, 0.9)); });
       [[205, top + 175, 'RELAY 04'], [96, top + 196, 'BUOY 11']].forEach(([x, y, l]) => { ctx.strokeStyle = YEL; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(x - 7, y - 10); ctx.lineTo(x + 7, y - 10); ctx.lineTo(x, y + 1); ctx.closePath(); ctx.stroke(); ctx.fillStyle = YEL; ctx.beginPath(); ctx.arc(x, y - 6.5, 1.4, 0, Math.PI * 2); ctx.fill(); lab(l, x + 10, y - 4, 7.5, '#F2F2F2', 'left', 700); });

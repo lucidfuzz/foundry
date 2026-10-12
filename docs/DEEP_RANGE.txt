@@ -1,0 +1,43 @@
+FOUNDRY / DEEP RANGE
+
+Integration base: 2ebae1c91c1033f51a6d5a5a60f0168d027e4e28
+Branch: codex/deep-range-design
+This is an addition to the completed local Halcyon work, not a replacement for it. It has not been pushed to GitHub. If the destination does not yet include Halcyon, integrate the earlier Foundry-Claude-Handoff.html first; then merge this addition against the latest Foundry changes.
+
+DESIGN
+Project-wide variety rule: see docs/PREFAB_VARIETY.txt. All future prefabs should have a varied, coherent content pool with distinct visual forms and recurring identities.
+Black fields, signal-yellow typography, red contact markers and framing, cobalt orbital geometry, sparse green active vectors. Keep diagram density and tiny registration details subordinate to the primary reading. Deep Range is vector-only across lock screens, home screens, widgets and icons. No rendered 3D craft may be used. The earlier relay PNG is superseded reference material and is not loaded or exported. Preserve the detailed instrument geometry and live text.
+
+IMPLEMENTATION
+Detail pass: src/deeprange/details.js adds calibrated instrument frames, multi-pass signal traces, structured spectral waterfalls, trajectory envelopes, banded and shaded planets, varied reconstructed intercepts, annotated relay routing, and saved-route breadcrumbs in the salvage field. It is included in the same browser/Scriptable paint block. Primary widget layouts, palette, live adapters and game simulation remain in place. Decorative signal packets, topology and debris are illustrations; battery bars and weather gauges reflect their supplied readings. Missing data does not produce lit gauges.
+
+src/deeprange/paint.js is shared by the browser and Scriptable. Each of 12 modes has small (170x170), medium (364x170), and large (364x382) compositions. src/deeprange/browser.js handles samples and widget listings. src/deeprange/wallpapers.js draws the vector wallpaper scenes. src/deeprange/runtime.js supplies device/calendar/weather data and native tap targets. scripts/build.cjs embeds the vector source and two browser fonts in index.html. Use index.html#deep-range to open this theme directly. The regular default and other themes remain available.
+
+MODES / PARAMETERS
+status: Contact Status; real upcoming/current calendar event, weather, device battery.
+shift: Return Window; native countdown to event start, then countdown to event end. Afterward, selects the next timed event from today/tomorrow. This follows Deep Range's existing pass-window behavior; it is separate from Halcyon's selected recurring allocation. The progress diagram is refreshed when iOS runs the script.
+solar: Surface Telemetry; actual weather, relative humidity, wind (mph), UV, daytime fraction or next sunrise, and next 12 hours of precipitation probability. Temperature honors the theme unit. Solar curve is an illustrative diagram, not measured irradiance. Missing data uses dashes/unavailable labels.
+audio: Carrier Wave; fictional radio instrumentation. Tap opens YouTube Music. This does not stream audio or measure radio reception.
+transmission: Deep Range Comms; rotating existing archival quotations and attributed fictional Range Control messages. All quotations remain text; long text adapts to the layout.
+feeds: Downlinks; YouTube and Instagram launchers. Small opens YouTube. Medium uses left/right tap regions; large uses top/bottom regions.
+youtube: Video Downlink launcher. Bandwidth and packet graphics are fictional instrumentation.
+instagram: Image Intercepts launcher. Procedurally illustrated signals, not actual photos or intercepted communications.
+oddity: Signal Decoder; rotating fictional intercepted messages and illustrated waveforms.
+discord: Relay Net launcher. Network names, graph and counts are fictional.
+game: Salvage Run. Retains the existing simulation, save path foundry-game-deeprange.json, charging behavior, cargo, credits, hull/fuel, logs and best-run state. Normal tick remains 15 minutes with at most eight catch-up steps. It advances on widget refresh, not continuously in the background.
+tracker: Contact Catalogue. Rotates 21 entries: all eight Solar System planets, six fictional worlds (Seam, Twofold, Hollow, Facet, Night Side, Remainder), four fictional ships (Dead Letter, Wayfarer, Long Wake, Quiet Sail), and three anomalies (Palinode, Lens, Choir). Every world has a distinct sparse line signature, such as craters, oblique clouds, tilted rings, broken shells or paired bodies. Real-world diagrams are stylized identifiers, not accurate surface maps. The selection advances every 30 minutes when refreshed; medium shows two adjacent entries. iOS controls actual refresh timing. Known planets have recognizable illustrative forms. These are catalogue illustrations, not live telescope data or calculated sky positions.
+The :alt and :main header suffixes work for Deep Range.
+
+WALLPAPERS / ICONS
+Four original-layout vector lock variants: Contact Lost (vessel return paths), World Unresolved (projected planet and moon), Carrier Return (relay routing), Salvage Window (fragment field and recovery course). All retain the original yellow headline, tilted tracking plane, red edge glyphs, year placement, clear clock area and cobalt planet horizon. Only subjects and telemetry vary. Six quiet home arrangements use the same instrument vocabulary without raster assets. Wallpaper readings are fictional static graphics. Existing code-native Deep Range app glyphs and red-corner framing are retained. The output pack exports wallpapers at 1170x2532 and icons at 1024x1024; Foundry can export its other supported device sizes.
+
+BUILD / CHECKS
+node scripts/build.cjs
+node --test tests/*.test.cjs
+node scripts/build.cjs --check
+
+VALIDATION
+16 automated tests pass, including all 36 Deep Range modes/families and the prior Halcyon regression checks. Deep Range checks cover calendar transitions, timer bounds, actual text rectangles, data-unavailable behavior, links and tap-region geometry, header override, archive/fiction labeling, and saved-game continuity. Every theme's generated Scriptable source compiles. All 36 Deep Range layouts plus 74 extra states were rendered from the shared paint code, along with 10 wallpapers and 11 icons. Visual review used native Canvas, not screenshots of an independently drawn mockup.
+
+PHYSICAL-DEVICE CHECKS STILL REQUIRED
+Browser interaction/download flow and physical iPhone rendering have not been verified in this pass. The in-app browser previously could not reach local previews. Confirm Scriptable font substitutions, widget cropping, tap targets, permissions, actual weather values, timer transitions and iOS refresh behavior on a phone. Do not claim deployment or device verification from the rendered sheets. Other themes continue to use their pre-existing font delivery; Deep Range's two fonts and vector artwork source are embedded.

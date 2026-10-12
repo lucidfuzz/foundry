@@ -4,7 +4,7 @@
 Originals in assets/<theme>/*.png are never modified. For each theme this writes:
   assets/<theme>/web/<sheet>.webp     full resolution, compressed, for the website
   assets/<theme>/thumb/<sheet>.webp   small, for the theme picker card (loads first, so the page stays fast)
-  assets/<theme>/widget/<sprite>.png  each widget crop at up to 480 px, downloaded once by the iPhone script
+  assets/<theme>/widget/<sprite>.png  each widget crop sized for the largest widget that draws it (WIDGET_PX), downloaded once by the iPhone script
 and src/art-manifest.js, listing every file with a content hash so browsers and phones refresh changed art.
 Needs Python 3 with Pillow.
 """
@@ -15,6 +15,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # theme -> (source file holding its sprite table, name of the table)
 THEMES = {'halcyon': ('src/halcyon/paint.js', 'HB_SPRITES')}
 WIDGET_MAX, THUMB_MAX = 480, 360
+# Long edge in pixels for each widget crop: 3x (iPhone screen density) the largest size that crop is drawn at in any
+# widget, measured across all 12 widgets in all 3 sizes, rounded up. Never larger than the original art allows.
+# Each widget only downloads the few crops it draws, so the phone's widget memory stays comfortable.
+WIDGET_PX = {'signal': 912, 'optical': 672, 'archive': 688, 'collective': 672, 'lungsDetail': 608, 'heartDetail': 544,
+             'neural': 512, 'heart': 544, 'lungs': 608, 'saturn': 432, 'neptune': 432, 'jupiter': 432, 'knot': 432,
+             'membrane': 432, 'loops': 432, 'tissue': 192}
 
 def sprites(src, name):
     body = re.search(r'const %s\s*=\s*\{(.*?)\n\};' % name, open(os.path.join(ROOT, src)).read(), re.S).group(1)
@@ -37,7 +43,7 @@ for theme, (src, table) in THEMES.items():
     for key, (sheet, x, y, w, h) in sprites(src, table).items():
         im = originals[sheet]; W, H = im.size
         crop = im.crop((round(W * x), round(H * y), round(W * (x + w)), round(H * (y + h))))
-        crop.thumbnail((WIDGET_MAX, WIDGET_MAX), Image.LANCZOS)
+        px = WIDGET_PX.get(key, WIDGET_MAX); crop.thumbnail((px, px), Image.LANCZOS)
         out = os.path.join(base, 'widget', key + '.png'); crop.save(out, 'PNG', optimize=True)
         entry['widget'][key] = f'{rel(out)}?v={tag(out)}'
     manifest[theme] = entry

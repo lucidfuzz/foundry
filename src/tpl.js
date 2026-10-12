@@ -4634,6 +4634,7 @@ const THEME_PAINT = { directive: DIR, longroad: LR, nightfall: NF, grimoire: GM,
 Object.keys(GAMES).forEach(f => { if (THEME_PAINT[f]) { THEME_PAINT[f].game = (k, W, H, d) => GAMES[f].paint(k, W, H, d.st, d.inp); THEME_PAINT[f].gameSample = () => gameSample(f) } })
 
 // @halcyon-paint
+// @deeprange-paint
 // ---------- END THEMED PAINT BLOCK ----------
 // ---------- art runner: theme art as the body background, live timers laid on top ----------
 async function artWidget(o) {
@@ -4759,18 +4760,23 @@ async function gameWidget() {
   for (let i = 0; i < steps; i++) G.step(st, inp)
   if (!st.last) st.last = now; else if (steps > 0) st.last = Math.max(st.last + steps * STEP, now - STEP)
   try { if (fm && path) fm.writeString(path, JSON.stringify(st)) } catch (e) {}
-  if (f === "halcyon") return hbWidget("game", {st, inp})
+  if (f === "halcyon" && T.hbOn) return hbWidget("game", {st, inp})
+  if (f === "deeprange" && T.drOn) return drWidget("game", {st, inp})
   return artWidget({ title: G.title, right: fam() === "small" ? null : G.right(st, inp), alt: false, refresh: new Date(now + STEP), paint: (k, W, H, d) => G.paint(k, W, H, d.st, d.inp), data: { st, inp } })
 }
 
 // @halcyon-runtime
+// @deeprange-runtime
 const MODES = { status, shift, transmission, solar: solarWidget, audio: audioWidget, feeds: () => feedsWidget(null), youtube: () => feedsWidget("youtube"), instagram: () => feedsWidget("instagram"), discord: () => feedsWidget("discord"), oddity: oddityWidget, game: gameWidget }
 
-if (T.frame === "halcyon") {
+if (T.frame === "halcyon" && T.hbOn) {
   for (const mode of Object.keys(HB_META)) if (mode !== "game") MODES[mode] = () => hbWidget(mode);
   MODES.allocation = () => hbWidget("shift");
   MODES.allocation_setup = hbChooseAllocation;
   MODES.radio_setup = hbChooseRadio;
+}
+if (T.frame === "deeprange" && T.drOn) {
+  for (const mode of Object.keys(DR_META)) if (mode !== "game") MODES[mode] = () => drWidget(mode);
 }
 if (config.runsInWidget) {
   Script.setWidget(await (MODES[MODE] || status)())

@@ -15,6 +15,7 @@ const STORE = 'foundry.v1', CHECKS = 'foundry.checks.v1';
 const $ = (id) => document.getElementById(id);
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const state = { th: clone(PRESETS.halcyon), lock: 0, view: 'lock', device: 3 };
+if (typeof location !== 'undefined' && location.hash === '#deep-range') { state.th = clone(PRESETS.deeprange); state.th.edition = 'expanded'; state.th.phrases = clone(EDITIONS.deeprange[1].phrases); }
 let checks = {};
 try { const saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.th && PRESETS[saved.th.id]) Object.assign(state, saved); } catch (e) {}
 try { checks = JSON.parse(localStorage.getItem(CHECKS) || '{}') || {}; } catch (e) { checks = {}; }
@@ -38,9 +39,10 @@ function buildPresets() {
     const t = document.createElement('strong'); t.textContent = p.title;
     const d = document.createElement('small'); d.textContent = p.blurb;
     b.append(cv, ic, t, d);
+    if (EDITIONS[p.id]) { const tag = document.createElement('span'); tag.className = 'ed-tag'; tag.textContent = EDITIONS[p.id].length + ' editions'; b.append(tag); }
     b.addEventListener('click', () => {
       state.th = clone(p); state.lock = 0; applyVariant(0, true); syncFields(); markPresets(); buildVariants(); refresh(true);
-      if (frameFor(p) === 'halcyon') hbWarm(true);
+      buildEditions();
     });
     host.append(b);
     fontsFor(p).then(() => {
@@ -53,6 +55,27 @@ function buildPresets() {
   });
 }
 function markPresets() { document.querySelectorAll('.preset').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === state.th.id))); }
+
+// ---------- editions ----------
+function buildEditions() {
+  const wrap = $('editions-wrap'), host = $('editions'), eds = editionsFor(state.th); if (!wrap || !host) return;
+  wrap.hidden = !eds; host.textContent = ''; if (!eds) return;
+  const cur = editionOf(state.th);
+  eds.forEach(e => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'variant'; b.dataset.edition = e.id; b.setAttribute('aria-pressed', String(cur.id === e.id));
+    const cv = document.createElement('canvas'); cv.width = 130; cv.height = 281;
+    const name = document.createElement('span'); name.textContent = e.name;
+    b.append(cv, name); b.addEventListener('click', () => applyEdition(e.id)); host.append(b);
+    const t = clone(state.th); t.edition = e.id; t.phrases = clone(e.phrases);
+    fontsFor(t).then(() => { if (hbOn(t)) hbWarm(false); drawWallpaper(cv, t, 'lock', 0); });
+  });
+}
+function applyEdition(id) {
+  const e = (editionsFor(state.th) || []).find(x => x.id === id); if (!e) return;
+  state.th.edition = id; state.th.phrases = clone(e.phrases); state.th.blurb = e.blurb; state.lock = 0;
+  if (hbOn(state.th)) hbWarm(true);
+  syncFields(); buildEditions(); buildVariants(); refresh(true);
+}
 
 // ---------- variants ----------
 function applyVariant(i, silent) {
@@ -79,7 +102,7 @@ function buildVariants() {
   });
   markVariants();
 }
-function markVariants() { document.querySelectorAll('.variant').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.i === (state.th.variant || 0)))); }
+function markVariants() { document.querySelectorAll('#variants .variant').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.i === (state.th.variant || 0)))); }
 
 // ---------- fields ----------
 const COLOR_FIELDS = [['ground', 'Background'], ['ink', 'Lines and text'], ['accent', 'Accent'], ['glow', 'Glow'], ['panel', 'Widget panel']];
@@ -354,7 +377,7 @@ function originalWidgetList(th) {
     { mode: 'oddity', size: 'small or medium', title: 'W-08 // ' + o[0].toUpperCase(), name: o[0], tap: 'Leave as is', desc: o[1] + ' Purely for fun, and it changes about every 30 minutes.' }
   ];
 }
-function widgetList(th) { const list = originalWidgetList(th); return frameFor(th) === "halcyon" ? hbWidgetList(th, list) : list; }
+function widgetList(th) { const list = originalWidgetList(th); return hbOn(th) ? hbWidgetList(th, list) : drOn(th) ? drWidgetList(th, list) : list; }
 function pv(tag, css, text) { const e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
 function pvCanvas(w, h, draw) { const c = document.createElement('canvas'); const d = pvD(); c.width = w * d; c.height = h * d; c.style.cssText = `width:${w}px;height:${h}px;display:block`; const x = c.getContext('2d'); x.scale(d, d); draw(x); return c; }
 
@@ -417,10 +440,10 @@ function scriptableKit(th) {
   const l0 = src.indexOf('const LIVE = {'), l1 = src.indexOf('async function themedStatus');
   const f0 = src.indexOf('// theme frame drawn under the content'), f1 = src.indexOf('function txt(stack, text, size, color, isDisp)');
   const deck = deckFor(th);
-  T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th); T.hbImages = HB_IMAGES; T.hbDark = hbIsDark(th); T.hbVariant = th.variant || 0;
+  T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th); T.hbImages = HB_IMAGES; T.drImages = DR_IMAGES; T.hbDark = hbIsDark(th); T.hbVariant = th.variant || 0;
   const tf = { string: (d) => { let h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; } };
   try {
-    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { hbPaint, HB_SPRITES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
+    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { drPaint, drTimerLayout, DR_META, hbPaint, HB_SPRITES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
       T, new Color(T.ink), new Color(T.ink, 0.72), Color, Point, Rect, Size, Path, DrawContext, Font, deck.audio.lines, deck,
       (w, f) => { const d = new DrawContext(); d.size = new Size(w, 4); d.setFillColor(new Color(T.ink, 0.22)); d.fillRect(new Rect(0, 0, w, 4)); d.setFillColor(new Color(T.ink)); d.fillRect(new Rect(0, 0, w * f, 4)); return d.getImage(); }, tf, new Color(T.panel));
   } catch (e) { console.warn(e); return null; }
@@ -456,7 +479,8 @@ function themedBody(item, th, wc, W, H) {
   return null;
 }
 function previewWidget(item, th) {
-  if (frameFor(th) === "halcyon") return hbPreviewWidget(item, th);
+  if (hbOn(th)) return hbPreviewWidget(item, th);
+  if (drOn(th)) return drPreviewWidget(item, th);
   const wc = widgetColors(th), mono = `"${th.fonts.mono}", ui-monospace, monospace`, disp = `"${th.fonts.display}", Georgia, serif`;
   const W = item.mode === 'shift' ? 170 : 364, H = item.mode === 'solar' || item.big ? 382 : 170;
   const alt = ['shift', 'transmission', 'oddity'].includes(item.mode);
@@ -661,7 +685,7 @@ function screenItems(mode) {
 }
 function widgetItems() {
   const th = state.th
-  return widgetList(th).map(item => ({ title: item.name + ' · ' + item.mode, render(z, aw) { const W = frameFor(th) === 'halcyon' ? ((state.hbSize || (item.mode === 'shift' ? 'small' : 'medium')) === 'small' ? 170 : 364) : item.mode === 'shift' ? 170 : 364, s = Math.min(aw, item.mode === 'shift' ? 340 : 600) / W * z; window.__pvRes = Math.min(3, s); let p; try { p = previewWidget(item, th) } finally { window.__pvRes = 1 } const wrap = document.createElement('div'); wrap.style.cssText = `width:${p.w * s}px;height:${p.h * s}px;flex:none`; p.el.style.transform = `scale(${s})`; p.el.style.transformOrigin = '0 0'; wrap.append(p.el); return wrap } }))
+  return widgetList(th).map(item => ({ title: item.name + ' · ' + item.mode, render(z, aw) { const W = hbOn(th) ? ((state.hbSize || (item.mode === 'shift' ? 'small' : 'medium')) === 'small' ? 170 : 364) : item.mode === 'shift' ? 170 : 364, s = Math.min(aw, item.mode === 'shift' ? 340 : 600) / W * z; window.__pvRes = Math.min(3, s); let p; try { p = previewWidget(item, th) } finally { window.__pvRes = 1 } const wrap = document.createElement('div'); wrap.style.cssText = `width:${p.w * s}px;height:${p.h * s}px;flex:none`; p.el.style.transform = `scale(${s})`; p.el.style.transformOrigin = '0 0'; wrap.append(p.el); return wrap } }))
 }
 function iconItems() {
   const th = state.th
@@ -691,7 +715,7 @@ function makeInspectable(el, label, open) { el.setAttribute('role', 'button'); e
 function scriptTheme() {
   const th = state.th, wc = widgetColors(th);
   return {
-    hbArt: frameFor(th) === "halcyon" ? hbWidgetArt() : undefined, hbDark: hbIsDark(th), hbVariant: th.variant || 0,
+    hbOn: hbOn(th), hbArt: hbOn(th) ? hbWidgetArt() : undefined, drOn: drOn(th), drSprites: drOn(th) ? drExportSprites() : undefined, hbDark: hbIsDark(th), hbVariant: th.variant || 0,
     company: th.company, unit: th.unit, ink: wc.ink, panel: wc.panel, headBg: wc.headBg, headText: wc.headText, altBg: wc.altBg, altText: wc.altText, accent: wc.accent,
     scriptFont: SCRIPT_FONTS[th.fonts.display] || th.widget.scriptFont, texture: th.texture, units: th.units, txGraphic: th.widget.txGraphic,
     archive: th.widget.archive, archiveList: th.widget.archiveList || null, C: th.widget.C || {}, codes: { youtube: th.codes.youtube, instagram: th.codes.instagram, discord: th.codes.discord, music: th.codes.music }, oddity: th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', radar: 'hostile', rabbit: 'heist', neon: 'market', market: 'bet', vapor: 'mall', botanical: 'species' }[th.motif] || 'mood'), frame: frameFor(th), L: th.widget.L, classes: th.widget.classes, slogans: th.slogans.length ? th.slogans : [['Stand By', 'HEADQUARTERS']]
@@ -741,7 +765,7 @@ function renderChecklist() {
       'For status and shift, set When Interacting to Open URL and type calshow:// so a tap opens Calendar.'
     ]]
   ];
-  if (frameFor(th) === 'halcyon') {
+  if (hbOn(th)) {
     steps[steps.length - 1][2] = [
       'Install Scriptable on iPhone and open it once.',
       'Create a script, paste the exported Halcyon widget script and save it. All artwork is included.',
@@ -787,7 +811,7 @@ async function renderBlob(mode, idx) {
   return new Promise(r => c.toBlob(r, 'image/png'));
 }
 // Exports always wait for full-resolution theme artwork, so a downloaded image never ships without it.
-async function artFullyLoaded() { if (frameFor(state.th) === 'halcyon') { try { await hbReady('sheets'); } catch (e) { setStatus('Halcyon artwork could not load, so this export is paused. Check your connection and try again.'); throw e; } } }
+async function artFullyLoaded() { if (hbOn(state.th)) { try { await hbReady('sheets'); } catch (e) { setStatus('Halcyon artwork could not load, so this export is paused. Check your connection and try again.'); throw e; } } }
 async function iconBlob(app, i) { await artFullyLoaded(); const c = document.createElement('canvas'); c.width = 1024; c.height = 1024; drawIcon(c, state.th, app, i); return new Promise(r => c.toBlob(r, 'image/png')); }
 function setStatus(msg) { $('exp-status').textContent = msg; }
 function mimeFor(name) { return name.endsWith('.png') ? 'image/png' : name.endsWith('.zip') ? 'application/zip' : 'text/plain'; }
@@ -891,5 +915,7 @@ window.addEventListener('resize', () => { renderPreview(); fitGallery(); });
 if (state.th.variant == null) applyVariant(0, true);
 // The page starts right away; theme artwork arrives in the background and redraws what it touches.
 buildPresets(); buildFields(); buildSingles(); syncFields(); buildVariants();
+if (editionsFor(state.th) && !state.th.edition) { const ill = editionsFor(state.th).find(e => e.id === 'illustrated'); state.th.edition = ill && JSON.stringify(state.th.phrases) === JSON.stringify(ill.phrases) ? 'illustrated' : 'original'; }
+buildEditions();
 fontsFor(state.th).then(() => refresh());
-hbWarm(frameFor(state.th) === 'halcyon');
+hbWarm(hbOn(state.th));

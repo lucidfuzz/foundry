@@ -1,6 +1,6 @@
 // Builds the site: node scripts/build.cjs   (check that index.html and src/tpl.js are current: --check)
-// 1. Joins src/paint/*.js (each theme's widget art) into the paint block of src/tpl.js, keeping the Halcyon marker.
-// 2. Splices the Halcyon modules into the widget script template.
+// 1. Joins src/paint/*.js (each theme's widget art) into the paint block of src/tpl.js, keeping the Halcyon and Deep Range markers.
+// 2. Splices the Halcyon and Deep Range modules into the widget script template (their editions switch them on).
 // 3. Joins the page shell, theme data, art manifest and browser code into the standalone index.html.
 // Theme artwork is NOT embedded: it is served from assets/ (run python3 scripts/art.py after changing art).
 const fs = require('node:fs');
@@ -14,13 +14,15 @@ const paint = PAINT.map(f => read(`src/paint/${f}`).replace(/\n+$/, '') + '\n').
 let tplSrc = read('src/tpl.js');
 const a = tplSrc.indexOf(OPEN) + OPEN.length, b = tplSrc.indexOf(CLOSE);
 if (a < OPEN.length || b < 0) throw new Error('src/tpl.js is missing its paint block markers');
-const synced = tplSrc.slice(0, a) + paint + '\n// @halcyon-paint\n' + tplSrc.slice(b);
+const synced = tplSrc.slice(0, a) + paint + '\n// @halcyon-paint\n// @deeprange-paint\n' + tplSrc.slice(b);
 if (synced !== tplSrc) { if (check) throw new Error('src/tpl.js is out of date with src/paint/. Run node scripts/build.cjs'); fs.writeFileSync('src/tpl.js', synced); tplSrc = synced; }
 const tpl = tplSrc
   .replace('// @halcyon-paint', () => read('src/halcyon/paint.js') + '\n' + read('src/halcyon/fidelity.js'))
-  .replace('// @halcyon-runtime', () => read('src/halcyon/runtime.js'));
+  .replace('// @halcyon-runtime', () => read('src/halcyon/runtime.js'))
+  .replace('// @deeprange-paint', () => read('src/deeprange/paint.js') + '\n' + read('src/deeprange/details.js'))
+  .replace('// @deeprange-runtime', () => read('src/deeprange/runtime.js'));
 if (tpl.includes('</script')) throw new Error('The widget script cannot contain a closing script tag');
-const app = [read('src/foundry-data.js'), read('src/art-manifest.js'), read('src/art.js'), read('src/render.js'), read('src/halcyon/browser.js'), read('src/app.js')].join('\n');
+const app = [read('src/foundry-data.js'), read('src/art-manifest.js'), read('src/art.js'), read('src/render.js'), read('src/halcyon/browser.js'), read('src/deeprange/browser.js'), read('src/deeprange/wallpapers.js'), read('src/app.js')].join('\n');
 const html = read('src/page.html').replace('@@WIDGET_SCRIPT@@', () => tpl).replace('@@APPLICATION@@', () => app);
 if (check) { if (read('index.html') !== html) throw new Error('index.html is stale. Run node scripts/build.cjs'); }
 else fs.writeFileSync('index.html', html);

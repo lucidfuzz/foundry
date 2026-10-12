@@ -61,6 +61,8 @@ section.step:first-child { padding-top: 0; }
 .vh { margin: 0 0 8px; font-size: 15px; font-stretch: 112%; }
 .variants { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .variant { all: unset; cursor: pointer; display: grid; gap: 4px; justify-items: center; padding: 6px; border: 2px solid var(--line); border-radius: 12px; background: var(--surface); font-size: 12px; text-align: center; line-height: 1.2; }
+.ed-tag { justify-self: start; margin-top: 2px; padding: 2px 8px; border: 1.5px solid var(--text); border-radius: 999px; font-size: 11px; font-weight: 700; }
+.variants-wrap[hidden] { display: none; }
 .variant[aria-pressed="true"] { border-color: var(--text); box-shadow: 3px 3px 0 var(--accent); }
 .variant canvas { width: 100%; aspect-ratio: 390 / 844; border-radius: 8px; display: block; }
 .variant:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
@@ -213,6 +215,10 @@ body.insp-open { overflow: hidden; }
         <h2><b>1</b>Pick a starting point</h2>
         <p class="hint">These are pre-fabricated themes: complete, ready-to-install designs with wallpapers, icons, widgets and a little idle game. Install one as is, or start from the closest and make it yours. Want one made just for you? <a href="#contact">Get in touch</a>.</p>
         <div class="presets" id="presets"></div>
+        <div class="variants-wrap" id="editions-wrap" hidden>
+          <h3 class="vh">Pick an edition</h3>
+          <div class="variants" id="editions"></div>
+        </div>
         <div class="variants-wrap">
           <h3 class="vh">Pick a variant</h3>
           <div class="variants" id="variants"></div>
@@ -5299,6 +5305,334 @@ function hbCelestial(c){const {k,W,H,d,p,small,big,t,title,art,line,hr,grid,cros
 }
 function hbPaint(k,W,H,d){if(d.mode==='solar'&&W>200&&H<200)return hbClimateMedium(k,W,H,d);const c=hbInstrument(k,W,H,d);({status:hbSubject,shift:hbAssigned,solar:hbClimateOther,audio:hbRadio,transmission:hbTransmission,feeds:hbNeural,youtube:hbCulture,instagram:hbCulture,discord:hbCulture,oddity:hbMood,game:hbSpecimen,tracker:hbCelestial}[d.mode]||hbSubject)(c);}
 
+// One renderer for exported Scriptable widgets and the Foundry preview.
+// Instrument graphics are original, deterministic illustrations, not measured telemetry.
+const DR_META = {
+  status:['W-01','CONTACT STATUS','YOUR NEXT CONTACT IS STILL EXPECTED'],
+  shift:['W-02','RETURN WINDOW','ALL DEPARTURES REMAIN ON RECORD'],
+  solar:['W-03','SURFACE TELEMETRY','LOCAL ATMOSPHERE / EARTH STATION'],
+  audio:['W-04','CARRIER WAVE','DO NOT CHANGE FREQUENCY'],
+  transmission:['W-05','DEEP RANGE COMMS','CONTACT LOST IS NOT CONTACT GONE'],
+  feeds:['W-06','DOWNLINKS','TWO CHANNELS / ONE WAY HOME'],
+  youtube:['W-06','VIDEO DOWNLINK','THE FEED CONTINUES WITHOUT YOU'],
+  instagram:['W-07','IMAGE INTERCEPTS','EVERY IMAGE ARRIVED FROM SOMEWHERE'],
+  oddity:['W-08','SIGNAL DECODER','SOURCE UNCONFIRMED / DO NOT REPLY'],
+  discord:['W-09','RELAY NET','SOMEONE IS ALWAYS ON FREQUENCY'],
+  game:['W-10','SALVAGE RUN','NOTHING OUT HERE IS ABANDONED'],
+  tracker:['DR-R','CONTACT CATALOGUE','KNOWN WORLDS / UNRESOLVED RETURNS']
+};
+function drPalette(){return {bg:'#050608',panel:'#0B0D10',ink:T.ink||'#FFE14A',red:T.headBg||'#FF3B30',blue:T.altBg||'#2340FF',green:'#3DFF8A',grid:'#33403D'};}
+function drTools(k){const p=drPalette();return {
+  ...p,I:k.a(p.ink,1),R:k.a(p.red,1),B:k.a(p.blue,1),G:k.a(p.green,1),S:k.a(p.ink,.56),grid:k.a(p.grid,.8),
+  t:(s,x,y,fs=6,w=320,c=null,f='mono')=>k.t(String(s),x,y,fs,c||k.a(p.ink,1),{w,f}),
+  line:(x,y,xx,yy,c=null,lw=.5)=>k.ln([[x,y],[xx,yy]],c||k.a(p.ink,.28),lw)
+};}
+function drGrid(k,x,y,w,h,step=12) { drDetailGrid(k,x,y,w,h,step); }
+function drBracket(k,x,y,w,h){const a=drTools(k);for(const [xx,yy,dx,dy]of [[x,y,1,1],[x+w,y,-1,1],[x,y+h,1,-1],[x+w,y+h,-1,-1]])k.ln([[xx,yy+dy*7],[xx,yy],[xx+dx*7,yy]],a.I,.8);}
+function drWave(k,x,y,w,h,seed=1,kind=0) { drDetailWave(k,x,y,w,h,seed,kind); }
+function drWaterfall(k,x,y,w,h,seed=1) { drDetailWaterfall(k,x,y,w,h,seed); }
+function drTrajectory(k,x,y,w,h,seed=0) { drDetailTrajectory(k,x,y,w,h,seed); }
+function drPlanet(k,x,y,r,kind='neptune') { drDetailPlanet(k,x,y,r,kind); }
+function drShip(k,x,y,w,h){drRadarShip(k,{hull:'frame'},x,y,w,h);}
+function drMeter(k,label,value,x,y,w,color){const a=drTools(k);a.t(label,x,y,5.5,w-27,a.S);a.t(value==null?'—':Math.round(value)+'%',x+w-27,y,5.5,27);k.segs(x,y+10,w,3,24,(value||0)/100,color||a.I,k.a(a.ink,.09),1);}
+function drFrame(k,W,H,mode){const a=drTools(k),m=DR_META[mode],small=W<200,alt=typeof FLIP!=='undefined'&&FLIP!==null?FLIP:['shift','transmission','oddity','tracker'].includes(mode);k.rect(0,0,W,H,k.a(a.bg,1));k.rect(0,0,W,20,alt?a.B:a.R);a.t(m[0]+' / '+m[1],10,6,small?5.8:7,W-34,alt?a.I:k.a(a.bg,1));for(let i=0;i<4;i++)k.rect(W-23+i*4,4,2,i%2?8:12,alt?a.I:k.a(a.bg,1));k.rect(0,24,3,22,a.R);k.rect(0,49,3,5,a.R);k.rect(W-3,H-38,3,20,a.R);a.line(10,H-19,W-10,H-19);a.t(small?'RELAY 07 / '+m[0]:m[2],10,H-13,small?4.6:5,W-20,a.S);for(let y=23;y<H-21;y+=3)k.rect(4,y,W-8,.35,k.a(a.ink,.025));return a;}
+function drTimerLayout(W,H){return W<200?{x:10,y:69,w:150,fs:26}:H>200?{x:14,y:87,w:336,fs:49}:{x:12,y:77,w:198,fs:32};}
+function drStatus(k,W,H,d,a){const small=W<200,big=H>200,wx=d.wx||{},ev=d.ev;const x=small?10:12,w=small?150:192;a.t(ev?.active?'CONTACT IN PROGRESS':'NEXT SCHEDULED CONTACT',x,29,5.6,w,a.R);k.para(ev?.title||'NO CONTACT SCHEDULED',x,42,w,small?14:17,a.I,'disp',2,1.05);a.t(ev?hbClock(ev.start)+' / '+(ev.active?'IN WINDOW':'INBOUND'):'CALENDAR / STANDING BY',x,small?80:83,6.5,w,a.S);a.line(x,100,x+w,100);a.t(wx.temp==null?'—':wx.temp+'°',x,107,small?28:32,78,a.I,'disp');a.t((wx.cond||'WEATHER UNAVAILABLE').toUpperCase(),x+(small?70:80),108,5.2,small?80:112);a.t('RESERVE '+(d.batt==null?'—':Math.round(d.batt*100)+'%'),x+(small?70:80),124,6.5,90);if(!small){drTrajectory(k,222,31,130,107,1);a.t('TRACK HISTORY / ILLUSTRATED',222,142,4.4,130,a.S);}if(big){drGrid(k,12,168,340,169,17);drShip(k,37,176,290,145);a.t('RELAY 07 / ASSET ACQUISITION',21,175,6,265,a.R);a.t('AUTOMATED CONTACT ASSURANCE',21,326,5,290,a.S);a.t('YOUR ABSENCE HAS BEEN NOTED.',14,346,6,325);}}
+function drWindow(k,W,H,d,a){const s=W<200,b=H>200,e=d.ev,l=drTimerLayout(W,H),target=e?(e.active?e.end:e.start):null;a.t(e?(e.active?'PASS IN PROGRESS / CLOSES IN':'NEXT WINDOW OPENS IN'):'NO WINDOW SCHEDULED',s?10:12,30,6,W-24,a.R);k.para(e?.title||'Awaiting next contact',s?10:12,43,s?150:b?340:197,s?12:16,a.I,'disp',2,1.05);if(!d.live)a.t(target?hbDuration(Math.max(0,target-d.now)):'—',l.x,l.y,l.fs,l.w,a.I,'disp');if(s){k.ell(84,122,66,19,null,a.I,.8);drPlanet(k,85,123,13);k.rect(49,101,5,5,a.R);a.t('AOS',11,139,5,24,a.S);a.t('LOS',139,139,5,24,a.S);}else{const cx=b?182:280,cy=b?226:85,rx=b?154:70,ry=b?70:42;k.ell(cx,cy,rx,ry,null,a.I,1);k.ell(cx,cy,rx-8,ry-5,null,k.a(a.blue,.7),.45);drPlanet(k,cx,cy,b?39:22);for(let i=0;i<48;i++){let u=i*Math.PI/24;a.line(cx+Math.cos(u)*rx,cy+Math.sin(u)*ry,cx+Math.cos(u)*(rx+3),cy+Math.sin(u)*(ry+3),a.S,.35);}const frac=e?.active?Math.max(0,Math.min(1,(d.now-e.start)/(e.end-e.start))):0;const u=frac*Math.PI*2-Math.PI/2;k.rect(cx+Math.cos(u)*rx-3,cy+Math.sin(u)*ry-3,6,6,a.R);a.t(e?'AOS '+hbClock(e.start)+' / LOS '+hbClock(e.end):'CALENDAR ACCESS / NO CONTACT',12,b?326:130,6,b?340:199,a.S);if(b){a.t('RETURN IS A SCHEDULED EVENT.',14,348,7,336);a.t('EVENT WINDOW / YOUR CALENDAR',14,145,5.5,335,a.S);}}}
+function drClimate(k,W,H,d,a){const s=W<200,b=H>200,wx=d.wx||{},at=d.atm||{},sun=d.sun;const temp=wx.temp==null?'—':wx.temp+'°';a.t('SURFACE',12,29,5.5,76,a.R);a.t(temp,12,40,s?33:38,90,a.I,'disp');a.t(sun?.phase==='night'?'SUNRISE IN':'LOSS OF LIGHT',s?99:122,29,5.4,s?60:110,a.S);a.t(sun?hbDuration(sun.remaining):'—',s?99:122,42,s?12:24,s?60:147,a.I,'disp');if(!s){a.t(sun?Math.round(sun.left*100)+'%':'—',290,42,24,64,a.I,'disp');a.t('DAY LEFT',298,29,5.4,57,a.S);}a.t((wx.cond||'WEATHER UNAVAILABLE').toUpperCase(),12,80,6,W-24,a.S);const gy=96,gh=b?92:s?31:31;drGrid(k,12,gy,W-24,gh,12);if(sun){const pts=[];for(let i=0;i<=120;i++){const u=i/120;pts.push([12+u*(W-24),gy+gh*(.82-.63*Math.sin(u*Math.PI))]);}k.poly([[12,gy+gh],...pts,[W-12,gy+gh]],k.a(a.blue,.65));k.ln(pts,a.I,.8);let p=sun.phase==='day'?1-sun.left:.02;k.circ(12+p*(W-24),gy+gh*(.82-.63*Math.sin(p*Math.PI)),3,null,a.R,1);}else a.t('SUN DATA UNAVAILABLE',18,gy+9,5.5,W-36,a.S);if(s){a.t('RH '+(at.rh==null?'—':at.rh+'%')+' / UV '+(at.uv==null?'—':at.uv),12,137,6,145);return;}if(!b){a.t('RH '+(at.rh==null?'—':at.rh+'%')+'   WIND '+(at.ws==null?'—':at.ws+' MPH')+'   UV '+(at.uv==null?'—':at.uv),12,137,7,340);return;}const vals=[['HUMIDITY',at.rh==null?'—':at.rh+'%'],['WIND',at.ws==null?'—':at.ws+' MPH'],['UV INDEX',at.uv==null?'—':at.uv],['HIGH',wx.hi==null?'—':wx.hi+'°'],['LOW',wx.lo==null?'—':wx.lo+'°'],['FEELS LIKE',wx.feels==null?'—':wx.feels+'°']];vals.forEach(([l,v],i)=>{const x=12+i%3*116,y=203+Math.floor(i/3)*47;k.rect(x,y,2,32,a.R);a.t(l,x+7,y+1,5.3,98,a.S);a.t(v,x+7,y+12,19,98,a.I,'disp');});a.t('PRECIPITATION PROBABILITY / NEXT 12H',12,302,5.6,340,a.S);const probs=at.probs||[];drGrid(k,12,316,340,31,17);if(probs.some(v=>v!=null)){probs.slice(0,12).forEach((v,i)=>{if(v==null)return;const h=Math.max(.5,v*.28);k.rect(16+i*28,346-h,19,h,v>50?a.R:a.B);});}else a.t('FORECAST UNAVAILABLE',20,324,6,300);a.t('NOW',12,351,4.6,60,a.S);a.t('+6H',179,351,4.6,60,a.S);a.t('+12H',326,351,4.6,30,a.S);}
+function drAudio(k,W,H,d,a){const s=W<200,b=H>200;drWaterfall(k,12,31,W-24,b?106:s?55:57,d.seed);a.t('88.0',12,b?142:94,5,50,a.S);a.t('93.4',s?65:101,b?142:94,5,50);a.t('108 MHz',W-55,b?142:94,5,45,a.S);a.t(s?'CARRIER':'CARRIER LOCKED',12,b?163:107,s?21:25,W-24,a.I,'disp');if(s)a.t('LOCKED',12,130,16,145,a.I,'disp');else{a.t('93.4 MHz / RELAY 07',13,b?196:137,6.5,225,a.S);a.t('OPEN MUSIC >',263,b?196:137,6.5,90);}if(b){drWave(k,12,220,340,83,d.seed,1);drMeter(k,'SIGNAL / SIMULATED',93,12,314,155);drMeter(k,'NOISE FLOOR / SIMULATED',18,196,314,156,a.R);a.t('A VOICE IS NOT PROOF OF A PERSON.',12,344,7,340,a.S);}}
+function drTransmission(k,W,H,d,a){const s=W<200,b=H>200,txt=d.text||'CONTACT LOST IS NOT CONTACT GONE',width=W-24;const fs=fitFs(k,txt,width,s?3:b?4:2,s?16:b?26:21,'disp',s?11:13);a.t(d.archival?'ARCHIVE / RECEIVED TEXT':'RANGE CONTROL / FICTIONAL BULLETIN',12,29,5.3,width,a.R);k.para(txt.toUpperCase(),12,41,width,fs,a.I,'disp',b?4:s?3:2,1.03);const byY=s?96:b?158:91;k.para(d.by||'DEEP RANGE / RANGE CONTROL',12,byY,width,5.4,a.S,'mono',2,1.1);if(b){drTrajectory(k,12,191,340,125,d.seed);a.t('RX 7F3A / REPEAT BUFFER / 04 HOPS',12,327,6,340,a.S);a.t('THE RELAY REMEMBERS YOUR VOICE.',12,347,7,340);}else drWave(k,12,s?116:111,width,s?28:34,d.seed,1);}
+function drFeeds(k,W,H,d,a){const s=W<200,b=H>200;const panel=(x,y,w,h,name,seed)=>{drWave(k,x,y,w,h,seed);a.t(name,x,y+h+8,8,w,a.I,'disp');a.t('OPEN '+(seed===7?'YOUTUBE':'INSTAGRAM')+' >',x,y+h+24,5.5,w,a.S);};if(s){panel(12,32,146,58,'VIDEO DOWNLINK',7);a.t('RELAY 07 / VIDEO ONLY',12,132,4.9,145,a.S);}else if(b){panel(12,32,340,103,'01 / VIDEO DOWNLINK',7);panel(12,205,340,94,'02 / IMAGE INTERCEPTS',13);a.t('ILLUSTRATED CHANNELS / TAP TO OPEN',12,346,5.5,340,a.S);}else{panel(12,32,158,64,'VIDEO DOWNLINK',7);panel(194,32,158,64,'IMAGE INTERCEPTS',13);a.line(182,28,182,145,a.R,.5);}}
+function drVideo(k,W,H,d,a){const s=W<200,b=H>200;const x=12,y=32,w=s?146:b?340:177,h=b?173:s?68:108;drGrid(k,x,y,w,h,12);for(let n=0;n<9;n++){const xx=x+n*w/9;k.rect(xx+1,y+1,w/9-2,h-2,k.a(a.blue,n%3===0?.9:.4));const pts=[];for(let i=0;i<55;i++)pts.push([xx+w/18+Math.sin(i*.2+n)*w/25,y+3+i/54*(h-6)]);k.ln(pts,a.I,.7);}drBracket(k,x,y,w,h);const xx=s?12:b?12:205,yy=s?109:b?221:34;a.t('FRAME LOCK',xx,yy,5.6,s?140:145,a.R);a.t('2.6 MBPS',xx,yy+12,s?20:b?35:23,s?145:b?330:147,a.I,'disp');if(!s){a.t('DOWNLINK / SIMULATED',xx,yy+(b?57:46),5.5,150,a.S);drMeter(k,'PACKET INTEGRITY',99,xx,yy+(b?81:64),b?340:147);a.t('OPEN YOUTUBE >',xx,b?347:135,6,145);}else a.t('OPEN YOUTUBE >',12,139,5.5,145,a.S);}
+function drIntercept(k,x,y,w,h,seed) { drDetailIntercept(k,x,y,w,h,seed); }
+function drArchive(k,W,H,d,a){const s=W<200,b=H>200,n=s?2:b?6:4,cols=s?2:b?3:4,gap=10,cw=(W-24-(cols-1)*gap)/cols,ch=s?66:b?108:78;for(let i=0;i<n;i++){const x=12+i%cols*(cw+gap),y=32+Math.floor(i/cols)*(ch+22);drIntercept(k,x,y,cw,ch,d.seed+i*23);a.t('IMG '+String(410+i),x,y+ch+5,5,cw,a.S);}const y=s?121:b?311:127;a.t(s?'INTERCEPTS 123':'123 INTERCEPTS / 28 DECODED',12,y,s?12:15,W-24,a.I,'disp');a.t('OPEN INSTAGRAM >',12,b?346:143,5.6,W-24,a.S);if(b)a.t('ILLUSTRATED SIGNALS / NO PHOTOS ACCESSED',12,333,5.3,340,a.R);}
+function drDecoder(k,W,H,d,a){const s=W<200,b=H>200,messages=['IS ANYONE GETTING THESE','WE HAVE BEEN HERE BEFORE','DO NOT FOLLOW THE SECOND SIGNAL','THE RETURN ADDRESS IS YOURS'];const txt=messages[Math.abs(d.seed||0)%messages.length];a.t('TRANSMISSION '+String(8417+(d.seed||0)%97),12,30,5.4,W-24,a.R);k.para(txt,12,43,W-24,s?14:b?29:20,a.I,'disp',s?3:b?3:2,1.05);drWave(k,12,b?157:s?105:97,W-24,b?93:s?26:32,d.seed);if(s){a.t('SOURCE / UNCONFIRMED',12,140,5.6,146);return;}const y=b?269:137;[['CONFIDENCE','64%'],['ECHO DELAY','4.2 YR'],['SOURCE','BEHIND YOU']].forEach(([l,v],i)=>{let x=12+i*116;a.t(l,x,y,5,108,a.S);a.t(v,x,y+(b?12:7),b?13:6.3,108);});if(b){a.t('DECODED BY A SYSTEM THAT WANTS AN ANSWER.',12,314,6,340,a.S);a.t('FICTIONAL INTERCEPT / NOT A LIVE RECEIVER',12,346,5.5,340,a.R);}}
+function drNetwork(k,x,y,w,h,seed) { drDetailNetwork(k,x,y,w,h,seed); }
+function drRelay(k,W,H,d,a){const s=W<200,b=H>200;drNetwork(k,12,32,s?146:b?340:177,b?205:s?73:111,37);let x=s?12:b?12:205,y=s?114:b?254:32;a.t('10 ONLINE',x,y,s?19:b?32:24,s?146:b?340:148,a.I,'disp');if(!s){a.t('# DEEP-FIELD',x,y+(b?43:42),7,148);a.t('# SALVAGE-RIGHTS',x,y+(b?57:60),7,148);a.t('# RELAY 07',x,y+(b?71:78),7,148);}a.t('OPEN DISCORD >',x,b?346:139,5.5,s?146:148,a.S);if(b)a.t('DIRECTORY IS FICTIONAL / APP LAUNCHER',12,334,5.1,340,a.R);}
+function drSalvage(k,W,H,d,a){const s=W<200,b=H>200,st=d.st||{},vx=12,vy=32,vw=s?146:b?340:200,vh=s?69:b?170:110;drGrid(k,vx,vy,vw,vh,14);const rnd=k.rng(st.vseed||37);for(let i=0;i<95;i++){const xx=vx+rnd()*vw,yy=vy+rnd()*vh;k.rect(xx,yy,i%9===0?1.7:.6,.6,k.a(a.ink,rnd()*.6));}const trail=(st.trail||[[.2,.6],[.4,.4],[.5,.55]]).map(p=>[vx+p[0]*vw,vy+p[1]*vh]);if(trail.length>1)k.ln(trail,a.G,1);const pos=st.pos||[.5,.55],xx=vx+pos[0]*vw,yy=vy+pos[1]*vh;k.poly([[xx+5,yy],[xx-4,yy-4],[xx-2,yy],[xx-4,yy+4]],a.G);k.rect(vx+vw*.79,vy+vh*.28,5,5,null,a.I,.7);a.t('SECTOR 07 / RUN '+(st.run||1),vx+5,vy+5,4.8,vw-10,a.S);const x=s?12:b?12:225,y=s?108:b?215:32,rw=s?146:b?340:127;a.t(st.drone||'SR-01',x,y,s?18:24,rw,a.I,'disp');if(!s)a.t(d.inp?.charging?'DOCKED / CHARGING':st.status||'IN TRANSIT',x,y+30,5.5,rw,a.R);drMeter(k,'HULL',st.hull==null?100:st.hull,x,s?131:y+43,rw);if(!s){drMeter(k,'FUEL',st.fuel==null?100:st.fuel,x,y+62,rw,a.G);a.t('JUMPS '+(st.jumps||0)+' / '+(st.cargo||0)+'t',x,y+84,6,rw,a.S);a.t('CREDITS '+(st.credits||0),x,y+98,6,rw,a.S);}if(b){a.line(12,325,352,325);const logs=(st.log||[]).slice(-2).reverse();logs.forEach((l,i)=>a.t('> '+l.m,12,331+i*11,5.4,340,a.S));}}
+const DR_CONTACTS=[
+  {name:'SATURN',kind:'saturn',type:'KNOWN / SOLAR SYSTEM',note:'RINGED GAS GIANT'},
+  {name:'N-04 / PALINODE',kind:'echo',type:'FICTIONAL / PROVISIONAL',note:'RETURN WITHOUT A SOURCE'},
+  {name:'NEPTUNE',kind:'neptune',type:'KNOWN / SOLAR SYSTEM',note:'OUTER SYSTEM / ICE GIANT'},
+  {name:'DR-09 / DEAD LETTER',kind:'relay',hull:'frame',type:'FICTIONAL / UNRESOLVED',note:'TRANSPONDER STILL ANSWERING'},
+  {name:'SR-12 / WAYFARER',kind:'relay',hull:'tug',type:'FICTIONAL / SALVAGE TUG',note:'CARGO DECLARED / CREW UNLISTED'},
+  {name:'RX-03 / LONG WAKE',kind:'relay',hull:'needle',type:'FICTIONAL / RELAY PROBE',note:'OUTBOUND / NO RETURN WINDOW'},
+  {name:'SV-06 / QUIET SAIL',kind:'relay',hull:'sail',type:'FICTIONAL / SURVEY CRAFT',note:'COASTING BEYOND ASSIGNED RANGE'},
+  {name:'MERCURY',kind:'world',world:'mercury',type:'KNOWN / SOLAR SYSTEM',note:'INNER SYSTEM / CRATERED SURFACE'},
+  {name:'K-17 / SEAM',kind:'world',world:'seam',type:'FICTIONAL / FRACTURED WORLD',note:'THE FAULT LINE HAS CHANGED AGAIN'},
+  {name:'VENUS',kind:'world',world:'venus',type:'KNOWN / SOLAR SYSTEM',note:'CLOUD DECK / SURFACE OBSCURED'},
+  {name:'D-02 / TWOFOLD',kind:'world',world:'binary',type:'FICTIONAL / PAIRED WORLDS',note:'TWO RETURNS / ONE CATALOGUE ADDRESS'},
+  {name:'EARTH',kind:'world',world:'earth',type:'KNOWN / SOLAR SYSTEM',note:'ORIGIN STATION / KEEP ON RECORD'},
+  {name:'V-11 / HOLLOW',kind:'world',world:'hollow',type:'FICTIONAL / SHELL WORLD',note:'INTERIOR RETURN / EXTERIOR SILENT'},
+  {name:'MARS',kind:'world',world:'mars',type:'KNOWN / SOLAR SYSTEM',note:'TERRESTRIAL / CANYON TRACE'},
+  {name:'P-08 / FACET',kind:'world',world:'facet',type:'FICTIONAL / ANGULAR BODY',note:'NATURAL ORIGIN HAS BEEN ASSUMED'},
+  {name:'JUPITER',kind:'world',world:'jupiter',type:'KNOWN / SOLAR SYSTEM',note:'BANDED GAS GIANT / STORM SIGNATURE'},
+  {name:'R-31 / NIGHT SIDE',kind:'world',world:'crescent',type:'FICTIONAL / OCCLUDED WORLD',note:'THE LIT SIDE DOES NOT FACE US'},
+  {name:'URANUS',kind:'world',world:'uranus',type:'KNOWN / SOLAR SYSTEM',note:'ICE GIANT / HIGH AXIAL TILT'},
+  {name:'F-05 / REMAINDER',kind:'world',world:'shards',type:'FICTIONAL / DISRUPTED BODY',note:'FORMERLY A SINGLE ENTRY'},
+  {name:'X-19 / LENS',kind:'echo',form:'lens',type:'FICTIONAL / ANOMALOUS RETURN',note:'BACKGROUND STARS FAIL TO AGREE'},
+  {name:'N-22 / CHOIR',kind:'echo',form:'choir',type:'FICTIONAL / MULTIPLE ECHO',note:'ONE PING / SEVERAL ANSWERS'}
+];
+// Radar reconstruction: deliberately sparse, code-native hulls at every widget size.
+// Coordinates share an instrument frame; these are fictional returns, not live detections.
+function drRadarShip(k,c,x,y,w,h){
+  const a=drTools(k),scale=Math.min(w/144,h/86),cx=x+w*.52,cy=y+h*.5;
+  const hulls={
+    frame:[[[ -38,-16],[-17,-16],[-17,-25],[23,-25],[23,-15],[37,-15],[37,16],[23,16],[23,25],[-17,25],[-17,16],[-38,16],[-38,-16]], [[-10,-15],[16,-15],[16,15],[-10,15],[-10,-15]], [[-38,-6],[-17,-6]], [[-38,6],[-17,6]], [[23,-5],[43,-5],[47,0],[43,5],[23,5]]],
+    tug:[[[ -36,-22],[-7,-22],[-7,-11],[20,-11],[35,-23],[43,-23],[31,-4],[18,0],[31,4],[43,23],[35,23],[20,11],[-7,11],[-7,22],[-36,22],[-36,12],[-20,12],[-20,-12],[-36,-12],[-36,-22]], [[-6,-11],[-6,11]], [[-32,-18],[-14,-18]], [[-32,18],[-14,18]], [[-20,0],[-42,0]]],
+    needle:[[[ -45,-4],[23,-4],[48,0],[23,4],[-45,4],[-45,-4]], [[-13,-4],[-13,-27],[4,-27],[4,-4]], [[-13,4],[-13,27],[4,27],[4,4]], [[-9,-12],[0,-12]], [[-9,12],[0,12]], [[19,-4],[19,-11]], [[-37,0],[-51,0]]],
+    sail:[[[ -30,-29],[40,0],[-30,29],[-14,0],[-30,-29]], [[-30,-29],[8,0],[-30,29]], [[-14,0],[40,0]], [[-20,-7],[-39,-15],[-45,-15]], [[-20,7],[-39,15],[-45,15]], [[0,-6],[13,0],[0,6]]]
+  },paths=hulls[c.hull]||hulls.frame;
+  const map=(p,dx=0,dy=0)=>p.map(([u,v])=>[cx+(u+dx)*scale,cy+(v+dy)*scale]);
+  // Two fading past returns, not an elaborate rendered model.
+  for(const [dx,dy,alpha]of [[-12,6,.13],[-6,3,.26]])k.ln(map(paths[0],dx,dy),k.a(a.blue,alpha),.65);
+  paths.forEach((p,i)=>k.ln(map(p),i===0?a.I:k.a(a.ink,.62),i===0?1:.7));
+  const sx=cx+56*scale,sy=cy-29*scale;
+  k.ln([[sx-5,sy],[sx,sy],[sx,sy+5]],a.R,.8);
+  k.ln([[cx-56*scale+5,cy+29*scale],[cx-56*scale,cy+29*scale],[cx-56*scale,cy+29*scale-5]],a.R,.8);
+  k.ln([[cx-60*scale,cy+21*scale],[cx-48*scale,cy+17*scale]],k.a(a.ink,.3),.5);
+  k.rect(cx-60*scale,cy+21*scale,1.3,1.3,a.R);
+}
+function drContact(k,c,x,y,w,h){const a=drTools(k);drGrid(k,x,y,w,h,12);if(c.kind==='world'||c.kind==='saturn'||c.kind==='neptune')drRadarWorld(k,c,x,y,w,h);else if(c.kind==='relay')drRadarShip(k,c,x+4,y+4,w-8,h-8);else if(c.form)drRadarAnomaly(k,c,x,y,w,h);else{for(let n=0;n<27;n++){const pts=[];for(let i=0;i<=90;i++){const t=i/90*Math.PI*2,rr=Math.min(w,h)*(.24+.035*Math.sin(t*3+n*.1));pts.push([x+w/2+Math.cos(t+n*.04)*rr*(1+n*.012),y+h/2+Math.sin(t*2+n*.035)*rr*.7]);}k.ln(pts,k.a(n<12?a.red:a.blue,.75),.5);}}drBracket(k,x,y,w,h);}
+function drTracker(k,W,H,d,a){const s=W<200,b=H>200,idx=Math.abs(d.seed||0)%DR_CONTACTS.length,c=DR_CONTACTS[idx],other=DR_CONTACTS[(idx+1)%DR_CONTACTS.length];if(s){a.t(c.name,12,29,10,146,a.I,'disp');drContact(k,c,12,46,146,85);a.t(c.type,12,139,4.9,146,a.S);}else if(!b){[c,other].forEach((q,i)=>{const x=12+i*176;a.t(q.name,x,29,8.5,164,a.I,'disp');drContact(k,q,x,44,164,85);a.t(q.type,x,138,4.7,164,a.S);});}else{a.t(c.name,12,30,23,340,a.I,'disp');a.t(c.type,12,60,6.5,340,a.R);drContact(k,c,12,78,340,202);a.t(c.note,12,292,10,340,a.I,'disp');a.t('CATALOGUE '+String(idx+1).padStart(2,'0')+' / '+String(DR_CONTACTS.length).padStart(2,'0'),12,312,6,340,a.S);a.t('ILLUSTRATED OBJECT / NOT LIVE POSITION',12,329,5.8,340,a.S);a.t('NEXT RETURN / '+other.name,12,347,6,340);}}
+function drPaint(k,W,H,d){const a=drFrame(k,W,H,d.mode);({status:drStatus,shift:drWindow,solar:drClimate,audio:drAudio,transmission:drTransmission,feeds:drFeeds,youtube:drVideo,instagram:drArchive,oddity:drDecoder,discord:drRelay,game:drSalvage,tracker:drTracker}[d.mode]||drStatus)(k,W,H,d,a);drAddDetails(k,W,H,d);}
+
+// Instrument detail at native widget scale. These graphics are illustrative;
+// calendar, weather, battery and game values continue to come from their adapters.
+function drDetailGrid(k,x,y,w,h,step=12) {
+  const a=drTools(k);
+  k.rect(x,y,w,h,null,a.grid,.5);
+  for(let i=step;i<w;i+=step)a.line(x+i,y,x+i,y+h,a.grid,.3);
+  for(let i=step;i<h;i+=step)a.line(x,y+i,x+w,y+i,a.grid,.3);
+  for(let i=0;i<=w;i+=step/2){const len=i%step===0?3:1.4;a.line(x+i,y,x+i,y+len,a.S,.35);a.line(x+i,y+h-len,x+i,y+h,a.S,.35);}
+  for(let i=step/2;i<h;i+=step/2){const len=i%step===0?3:1.4;a.line(x,y+i,x+len,y+i,a.S,.35);a.line(x+w-len,y+i,x+w,y+i,a.S,.35);}
+  for(let j=step;j<h;j+=step*2)for(let i=step;i<w;i+=step*2){a.line(x+i-1,y+j,x+i+1,y+j,k.a(a.ink,.16),.35);a.line(x+i,y+j-1,x+i,y+j+1,k.a(a.ink,.16),.35);}
+}
+function drPacketStrip(k,x,y,w,h,seed) {
+  const a=drTools(k),rnd=k.rng(seed),count=Math.floor(w/3.5);
+  for(let i=0;i<count;i++){const n=rnd();k.rect(x+i*w/count,y,w/count-1,h,n>.94?a.R:n>.48?k.a(a.ink,.38):k.a(a.blue,.6));if(n>.85)a.line(x+i*w/count,y-1,x+i*w/count,y+h+1,a.S,.35);}
+}
+function drDetailWave(k,x,y,w,h,seed=1,kind=0) {
+  const a=drTools(k);drGrid(k,x,y,w,h,12);
+  const wave=(u,n)=>Math.sin(u*(kind===1?12:31)+seed+n*.033)*Math.sin(u*8+n*.055)*.29+Math.sin(u*119+seed+n*.3)*.028;
+  // Close-spaced traces read as a captured signal envelope, not one generic sine.
+  const layers=kind===1?32:12;
+  for(let n=layers-1;n>=0;n--){const pts=[];for(let i=0;i<=180;i++){const u=i/180,v=wave(u,n);pts.push([x+u*w,y+h*(.49+v+(n-layers/2)*.004)]);}k.ln(pts,n===0?a.I:k.a(n%7===0?a.red:a.blue,n%7===0?.28:.55),n===0?.85:.35);}
+  a.line(x,y+h*.49,x+w,y+h*.49,k.a(a.ink,.22),.35);
+  for(const u of [.19,.52,.81]){const xx=x+u*w,yy=y+h*(.49+wave(u,0));a.line(xx,y+4,xx,y+h-4,k.a(a.ink,.2),.35);k.circ(xx,yy,1.6,null,a.I,.5);k.rect(xx-1,y+1,2,2,a.R);}
+  drPacketStrip(k,x+3,y+h-4,w-6,2,seed+23);
+  if(h>55){a.t(kind===1?'COHERENCE / MULTIPASS':'RX / PHASE CAPTURE',x+5,y+5,4.1,w-10,a.S);a.t('0',x+5,y+h-12,4,15,a.S);a.t('1.0',x+w-17,y+h-12,4,15,a.S);}
+}
+function drDetailWaterfall(k,x,y,w,h,seed=1) {
+  const a=drTools(k),rnd=k.rng(seed),cols=w<180?64:96,rows=h>80?30:20,cw=w/cols,ch=h/rows;
+  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
+    const u=i/cols,peak=Math.exp(-Math.pow((u-.272-Math.sin(j*.31)*.01)/.026,2)),side=Math.exp(-Math.pow((u-.66-Math.sin(j*.12)*.008)/.008,2)),noise=rnd();
+    const v=peak*.84+side*.32+noise*.27,drop=j%11===0?.6:1;
+    k.rect(x+i*cw,y+j*ch,Math.max(.3,cw-.35),Math.max(.3,ch-.3),k.a(v>.48?a.ink:a.blue,Math.min(1,(.12+v*.9)*drop)));
+  }
+  for(let i=1;i<8;i++)a.line(x+i*w/8,y,x+i*w/8,y+h,k.a(a.ink,.14),.4);
+  a.line(x+w*.272,y,x+w*.272,y+h,a.R,.7);
+  k.poly([[x+w*.272-3,y+2],[x+w*.272+3,y+2],[x+w*.272,y+6]],a.I);
+  for(let j=0;j<5;j++){const yy=y+7+j*(h-14)/4;a.line(x+2,yy,x+6,yy,a.I,.5);a.line(x+w-6,yy,x+w-2,yy,a.I,.5);}
+  drBracket(k,x,y,w,h);
+}
+function drDetailTrajectory(k,x,y,w,h,seed=0) {
+  const a=drTools(k);drGrid(k,x,y,w,h,Math.max(10,w/14));
+  const pt=t=>[x+w*(.09+.80*t),y+h*(.83-.64*Math.sin(t*1.4))];
+  for(let band=-2;band<=2;band++){let pts=[];for(let i=0;i<=80;i++){const t=i/80,p=pt(t);pts.push([p[0],p[1]+band*(1.5+t*3)]);}k.ln(pts,band===0?a.I:k.a(a.blue,.6),band===0?.8:.4);}
+  for(let i=0;i<10;i++){
+    const t=.07+i*.093,[xx,yy]=pt(t),s=h*(.115-i*.0065),ang=-.8+t*.45,pts=[];
+    for(let j=0;j<4;j++){const u=(j===0||j===3?-1:1)*s,v=(j<2?-1:1)*s*.64;pts.push([xx+u*Math.cos(ang)-v*Math.sin(ang),yy+u*Math.sin(ang)+v*Math.cos(ang)]);}
+    k.poly(pts,null,k.a(a.red,.9-i*.035),.65);k.circ(xx,yy,1,k.a(a.ink,.7));
+    if(i%3===0)a.line(xx,yy+4,xx,y+h-7,k.a(a.ink,.14),.35);
+  }
+  const [cx,cy]=pt(.97);k.circ(cx,cy,3,null,a.R,1);k.circ(cx,cy,8,null,k.a(a.red,.4),.4);a.line(cx-11,cy,cx+11,cy,a.S,.35);a.line(cx,cy-10,cx,cy+10,a.S,.35);
+  for(let i=0;i<3;i++){const xx=x+w*(.19+i*.27),yy=y+h*(.38+i*.17);k.poly([[xx,yy],[xx+3,yy-5],[xx-3,yy-5]],null,a.I,.65);a.t(['WPT 11','RELAY 07','ECHO 04'][i],i===2?xx-32:xx+5,yy-5,3.9,i===2?30:45,a.S);}
+  if(w>220){a.t('VECTOR HISTORY / ILLUSTRATED',x+6,y+5,4.4,w-12,a.S);a.t('T-04',x+6,y+h-12,4.2,40,a.S);a.t('T-00',x+w-28,y+h-12,4.2,24,a.S);}
+  drBracket(k,x,y,w,h);
+}
+// Catalogue bodies use this sparse radar vocabulary; orbital UI retains its own globe.
+function drRadarWorld(k,c,x,y,w,h){
+  const a=drTools(k),kind=c.world||c.kind,cx=x+w/2,cy=y+h/2,r=Math.min(w*.27,h*(kind==='uranus'?.27:.35));
+  const stroke=k.a(a.ink,.82),faint=k.a(a.blue,.65),soft=k.a(a.ink,.31);
+  const path=(pts,color=stroke,width=.7)=>k.ln(pts.map(([u,v])=>[cx+u*r,cy+v*r]),color,width);
+  const circle=(u,v,rr,color=stroke)=>k.circ(cx+u*r,cy+v*r,rr*r,null,color,.7);
+  const ellipse=(u,v,rx,ry,color=soft)=>k.ell(cx+u*r,cy+v*r,rx*r,ry*r,null,color,.6);
+  const curve=(fn,color=stroke,start=0,end=Math.PI*2)=>{const p=[];for(let i=0;i<=64;i++)p.push(fn(start+(end-start)*i/64));path(p,color);};
+  // Calibration/last-return marks stay separate from the recognizable body silhouette.
+  path([[-1.48,.64],[-1.18,.48]],soft,.5);circle(-1.48,.64,.025,a.R);
+  if(kind==='binary'){
+    ellipse(0,0,1.42,.56,faint);circle(-.57,-.12,.63);circle(.68,.16,.42);
+    ellipse(-.57,-.12,.25,.63);ellipse(.68,.16,.42,.13);path([[-.05,.05],[.23,.12]],a.R,.65);return;
+  }
+  if(kind==='facet'){
+    const pts=[[-.9,-.36],[-.24,-1],[.64,-.74],[1,.12],[.43,.94],[-.55,.8],[-.9,-.36]];path(pts);
+    for(let i=0;i<6;i++)path([pts[i],[.12,-.08]],i%2?soft:faint);
+    path([pts[0],pts[2],pts[4],pts[0]],soft);return;
+  }
+  if(kind==='shards'){
+    for(const [u,v,rr,rot]of [[-.53,-.46,.44,.1],[.4,-.58,.35,.7],[.65,.18,.32,.2],[-.14,.43,.48,.5],[-.82,.31,.19,.4]]){
+      const pts=[];for(let i=0;i<=5;i++){const t=rot+i*Math.PI*2/5;pts.push([u+Math.cos(t)*rr,v+Math.sin(t)*rr]);}path(pts);path([pts[0],pts[2],pts[4]],soft);
+    }
+    curve(t=>[1.18*Math.cos(t),1.18*Math.sin(t)],faint,.1,2.1);return;
+  }
+  if(kind==='hollow'){
+    curve(t=>[Math.cos(t),Math.sin(t)],stroke,.42,5.5);
+    curve(t=>[.73*Math.cos(t),.73*Math.sin(t)],soft,.42,5.5);
+    for(const t of [.42,5.5])path([[Math.cos(t),Math.sin(t)],[.73*Math.cos(t),.73*Math.sin(t)]]);
+    ellipse(-.05,0,.28,.51,faint);path([[-.3,0],[.3,0]],a.R);return;
+  }
+  if(kind==='crescent'){
+    curve(t=>[Math.cos(t),Math.sin(t)],stroke,-Math.PI/2,Math.PI/2);
+    curve(t=>[.32*Math.cos(t),Math.sin(t)],soft,-Math.PI/2,Math.PI/2);
+    curve(t=>[Math.cos(t),Math.sin(t)],faint,Math.PI/2,Math.PI*1.5);
+    for(let i=0;i<5;i++){const yy=-.68+i*.34,edge=Math.sqrt(1-yy*yy);path([[edge*.45,yy],[edge*.95,yy]],soft);}
+    return;
+  }
+  if(kind==='seam'){
+    curve(t=>[Math.cos(t),Math.sin(t)],stroke,0,Math.PI*2);
+    path([[.05,-1],[-.21,-.56],[.14,-.21],[-.17,.12],[.2,.49],[-.08,1]],a.R,.95);
+    path([[-.14,-.83],[-.38,-.54],[-.05,-.19],[-.35,.16],[-.06,.52]],soft);
+    ellipse(0,0,.48,1,faint);return;
+  }
+  // Familiar worlds: recognizable attributes, interpreted as line returns, never photos.
+  circle(0,0,1);
+  if(kind==='saturn'){
+    for(const n of [1.35,1.65,1.87])ellipse(0,0,n,n*.25,n===1.65?stroke:soft);
+    ellipse(0,0,.38,1,faint);path([[-.78,-.42],[.78,-.42]],soft);return;
+  }
+  if(kind==='uranus'){
+    for(const n of [1.3,1.61])ellipse(0,0,n*.22,n,n===1.3?stroke:soft);
+    ellipse(0,0,1,.26,faint);return;
+  }
+  if(kind==='mercury'){
+    for(const [u,v,rr]of [[-.35,-.4,.23],[.36,-.25,.13],[.17,.41,.28],[-.57,.19,.12],[-.02,-.74,.075]]){circle(u,v,rr,soft);ellipse(u+.025,v+.025,rr*.65,rr*.62,faint);}return;
+  }
+  if(kind==='earth'){
+    ellipse(0,0,.39,1,faint);ellipse(0,0,1,.28,faint);
+    path([[-.71,-.58],[-.31,-.78],[-.05,-.48],[-.27,-.22],[-.11,.03],[-.32,.21],[-.39,-.08],[-.65,-.2],[-.71,-.58]]);
+    path([[-.28,.17],[.04,.26],[.1,.48],[-.15,.85],[-.26,.47],[-.28,.17]]);
+    path([[.14,-.65],[.55,-.61],[.81,-.31],[.57,-.15],[.72,.19],[.41,.25],[.3,.58],[.12,.24],[.2,-.02],[.03,-.21],[.14,-.65]]);return;
+  }
+  if(kind==='mars'){
+    ellipse(0,0,.48,1,faint);ellipse(0,0,.96,.24,soft);
+    path([[-.75,.08],[-.43,-.09],[-.21,.01],[.1,-.14],[.41,-.05],[.76,-.22]],a.R,.85);
+    path([[-.37,-.63],[-.15,-.69],[.03,-.54]],soft);circle(.48,.44,.13,soft);return;
+  }
+  if(kind==='neptune'){
+    ellipse(0,0,.36,1,faint);for(const yy of [-.55,0,.5])ellipse(0,yy,Math.sqrt(1-yy*yy),.12,soft);
+    ellipse(.36,-.25,.2,.075,stroke);path([[-.46,.53],[-.04,.6],[.31,.51]],a.R,.55);return;
+  }
+  // Jupiter's horizontal banding and Venus's oblique cloud traces read differently.
+  for(let j=-3;j<=3;j++){
+    const yy=j*.22,half=Math.sqrt(1-yy*yy)*.97,pts=[];
+    for(let i=0;i<=26;i++){const u=-half+i/26*half*2;pts.push([u,yy+Math.sin(u*(kind==='venus'?5:8)+j)*.035]);}
+    if(kind==='venus')path(pts.map(([u,v])=>[u*.8-v*.6,u*.6+v*.8]),j%2?soft:stroke);else path(pts,j%2?soft:stroke);
+  }
+  if(kind==='jupiter')ellipse(.33,.31,.25,.12,a.R);
+}
+function drRadarAnomaly(k,c,x,y,w,h){
+  const a=drTools(k),cx=x+w/2,cy=y+h/2,r=Math.min(w,h)*.32;
+  if(c.form==='lens'){
+    for(let i=0;i<7;i++)k.ell(cx,cy,r*(.33+i*.13),r*(.95-i*.06),null,k.a(i%2?a.ink:a.blue,.7),.65);
+    k.ln([[cx-r*1.4,cy-r*.6],[cx-r*.55,cy-r*.36],[cx+r*.4,cy-r*.66],[cx+r*1.35,cy-r*.56]],a.R,.7);
+  }else{
+    for(let j=0;j<3;j++){const xx=cx+(j-1)*r*.75,yy=cy+(j===1?-.28:.22)*r;
+      for(let i=1;i<=3;i++)k.circ(xx,yy,r*(.15+i*.12),null,k.a(j===1?a.ink:a.blue,.85-i*.15),.7);
+      k.rect(xx-1,yy-1,2,2,a.R);
+    }
+  }
+}
+function drDetailPlanet(k,x,y,r,kind='neptune') {
+  const a=drTools(k),sat=kind==='saturn',base=sat?'#D4B978':a.blue;
+  if(sat)for(let i=0;i<24;i++)k.ell(x,y,r*(1.38+i*.025),r*(.34+i*.007),null,k.a(a.ink,i%7===0?.18:.44),Math.max(.35,r*.01));
+  k.circ(x,y,r,k.a(base,1),k.a(a.ink,.5),.5);
+  // Banded surface clipped analytically to the sphere; no bitmap placeholder.
+  for(let j=-32;j<=32;j++){const dy=j*r/33,rx=Math.sqrt(Math.max(0,r*r-dy*dy)),n=(Math.sin(j*1.81)+1)/2;k.ln([[x-rx,y+dy],[x+rx,y+dy]],k.a(sat?'#594D31':a.ink,.08+n*.18),Math.max(.35,r/34));}
+  for(let i=0;i<25;i++){const u=i/25,xx=x+r*(.1+.87*u),ry=Math.sqrt(Math.max(0,r*r-(xx-x)**2));a.line(xx,y-ry,xx,y+ry,k.a('#02040B',u*.52),Math.max(.45,r*.038));}
+  for(let j=1;j<=3;j++)k.ell(x,y,j*r/4,r,null,k.a(a.ink,.21),.35);
+  for(let j=-2;j<=2;j++)k.ell(x,y+j*r*.3,Math.sqrt(1-j*j*.09)*r,r*.12,null,k.a(a.ink,.17),.3);
+  if(sat)for(let i=0;i<24;i++){const pts=[];for(let q=0;q<=60;q++){const u=q/60*Math.PI;pts.push([x+Math.cos(u)*r*(1.38+i*.025),y+Math.sin(u)*r*(.34+i*.007)]);}k.ln(pts,k.a(a.ink,i%7===0?.2:.62),Math.max(.35,r*.012));}
+}
+function drDetailIntercept(k,x,y,w,h,seed) {
+  const a=drTools(k),rnd=k.rng(seed),cols=w>100?38:26,rows=h>80?32:24,kind=Math.abs(seed)%3;
+  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
+    const nx=(i/cols-.5)*2,ny=(j/rows-.5)*2,rr=Math.sqrt(nx*nx+ny*ny);
+    const shape=kind===0?Math.exp(-Math.pow((rr-.53)/.11,2))*(.6+.4*Math.cos(nx*8)):kind===1?Math.exp(-Math.pow((ny-.4*Math.sin(nx*4))/.15,2)):Math.max(0,1-Math.abs(nx*.9+ny*.55))*(.5+.5*Math.cos(ny*17));
+    const v=shape*.76+rnd()*.28;
+    k.rect(x+i*w/cols,y+j*h/rows,Math.max(.4,w/cols-.35),Math.max(.4,h/rows-.35),k.a(v>.5?a.ink:a.blue,.12+v*.82));
+  }
+  a.line(x+w*.5,y+4,x+w*.5,y+h-4,k.a(a.ink,.34),.4);a.line(x+4,y+h*.5,x+w-4,y+h*.5,k.a(a.ink,.34),.4);
+  k.rect(x+w*.35,y+h*.32,w*.29,h*.36,null,k.a(a.red,.8),.55);drPacketStrip(k,x+4,y+h-5,w-8,2,seed+8);drBracket(k,x,y,w,h);
+}
+function drDetailNetwork(k,x,y,w,h,seed) {
+  const a=drTools(k),rnd=k.rng(seed),pts=Array.from({length:10},(_,i)=>{const angle=i*Math.PI*.2-.3,rr=.27+rnd()*.13;return [x+w*(.5+Math.cos(angle)*rr),y+h*(.5+Math.sin(angle)*rr)];});
+  drGrid(k,x,y,w,h,14);
+  pts.forEach((p,i)=>{for(let j=i+1;j<pts.length;j++)if((i+j)%4===0||j===i+1){const q=pts[j];k.ln([p,q],k.a(a.blue,.9),.65);const f=.2+(i%4)*.16,m=[p[0]+(q[0]-p[0])*f,p[1]+(q[1]-p[1])*f];k.rect(m[0]-.7,m[1]-.7,1.4,1.4,a.I);}k.circ(...p,5,null,a.S,.4);if(i===4)k.circ(...p,8,null,k.a(a.red,.5),.5);k.rect(p[0]-2,p[1]-2,4,4,i===4?a.R:a.I);a.t(String(i+1).padStart(2,'0'),p[0]+6,p[1]-3,4,15,a.S);});
+  if(h>130){a.t('RELAY TOPOLOGY / ILLUSTRATED',x+6,y+6,4.8,w-12,a.S);drPacketStrip(k,x+7,y+h-9,w-14,3,seed);}
+}
+function drOrbitDetail(k,W,H,d) {
+  const a=drTools(k),s=W<200,b=H>200,cx=s?84:b?182:280,cy=s?122:b?226:85,rx=s?66:b?154:70,ry=s?19:b?70:42;
+  a.line(cx-rx+5,cy,cx+rx-5,cy,k.a(a.ink,.16),.4);
+  for(let n=1;n<=3;n++)k.ell(cx,cy,rx-n*3,ry-n*1.2,null,k.a(a.blue,.30),.4);
+  for(let i=0;i<64;i++){const u=i*Math.PI/32,len=i%8===0?4:1.7;a.line(cx+Math.cos(u)*(rx-len),cy+Math.sin(u)*(ry-len*.4),cx+Math.cos(u)*rx,cy+Math.sin(u)*ry,a.S,.35);}
+  if(b){for(const [label,x,y]of [['ACQUISITION',19,165],['OCCULTATION',263,282],['N',180,157],['S',180,302]])a.t(label,x,y,4.5,80,a.S);drPacketStrip(k,14,312,336,3,21);}
+}
+function drContactDetail(k,c,x,y,w,h,labels=true) {
+  const a=drTools(k);a.line(x+w*.5,y+3,x+w*.5,y+8,a.I,.7);a.line(x+w*.5,y+h-8,x+w*.5,y+h-3,a.I,.7);
+  for(let i=0;i<4;i++){a.line(x+5,y+14+i*7,x+8+(i%2)*3,y+14+i*7,a.S,.4);a.line(x+w-11,y+14+i*7,x+w-5,y+14+i*7,a.S,.4);}
+  const c1=!c.type?.startsWith('KNOWN');if(labels)a.t(c1?'UNR':'CAT',x+6,y+5,3.7,24,c1?a.R:a.S);
+  if(labels)drPacketStrip(k,x+8,y+h-7,w-16,2,c1?19:31);
+  if(h>130){const xx=x+w*.71,yy=y+h*.33;k.ln([[xx,yy],[x+w-32,yy-13],[x+w-8,yy-13]],a.S,.5);k.circ(xx,yy,2,null,a.R,.65);if(labels)a.t(c.kind==='relay'?'RADAR RECONSTRUCTION':c1?'PROVISIONAL SCAN':'CATALOGUE SCAN',x+8,y+h-20,4.4,w-16,a.S);}
+}
+function drSalvageDetail(k,W,H,d) {
+  const a=drTools(k),s=W<200,b=H>200,st=d.st||{},x=12,y=32,w=s?146:b?340:200,h=s?69:b?170:110,rnd=k.rng((st.vseed||37)+13);
+  // Illustrative salvage field; all drone positions and breadcrumbs are saved game state.
+  for(let n=0;n<(s?4:9);n++){
+    const xx=x+10+rnd()*(w-20),yy=y+17+rnd()*(h-28),r=2+rnd()*4,pts=[];
+    for(let j=0;j<6;j++){const u=j*Math.PI/3,rr=r*(.6+rnd()*.4);pts.push([xx+Math.cos(u)*rr,yy+Math.sin(u)*rr]);}
+    k.poly(pts,null,k.a(a.ink,.24),.4);if(n%3===0)k.circ(xx,yy,r+3,null,k.a(a.blue,.5),.35);
+  }
+  const trail=st.trail||[];for(let i=0;i<trail.length;i++){const p=trail[i],xx=x+p[0]*w,yy=y+p[1]*h;k.circ(xx,yy,1.3,null,k.a(a.green,.65),.5);}
+  const pos=st.pos||[.5,.55],xx=x+pos[0]*w,yy=y+pos[1]*h;
+  for(let i=0;i<3;i++)k.arc(xx,yy,7+i*5,-1.1,.7,k.a(a.green,.32-i*.07),.45);
+  a.line(xx,y+15,xx,y+h-6,k.a(a.green,.12),.35);a.line(x+5,yy,x+w-5,yy,k.a(a.green,.12),.35);
+  if(!s)a.t('GRID '+pos.map(v=>Number(v).toFixed(3)).join(' / '),x+5,y+h-10,4.4,w-10,a.S);
+  if(b){a.t('BEST '+(st.best||0)+' J',263,244,5.5,89,a.S);}
+}
+function drAddDetails(k,W,H,d) {
+  const a=drTools(k),s=W<200,b=H>200,m=d.mode;
+  // Fine registration marks live at the frame edge, away from primary type.
+  for(let y=62;y<H-42;y+=11){a.line(5,y,y%2?8:7,y,k.a(a.ink,.28),.35);a.line(W-8,y,W-5,y,k.a(a.ink,.24),.35);}
+  if(m==='status'){
+    const bx=s?80:92,bw=s?77:107;if(d.batt!=null)k.segs(bx,138,bw,3,s?18:24,d.batt,a.I,k.a(a.ink,.12),1);
+    for(let x=12;x<(s?160:204);x+=8)a.line(x,98,x,100,k.a(a.ink,.4),.35);
+    if(b){drContactDetail(k,{kind:'relay'},12,168,340,169,false);a.t('RX / 07',307,188,4.5,39,a.S);}
+  }else if(m==='shift')drOrbitDetail(k,W,H,d);
+  else if(m==='solar'){
+    if(d.sun){const x=12,y=96,w=W-24,h=b?92:31;for(let i=1;i<6;i++){const yy=y+h*i/6;a.line(x,yy,x+w,yy,k.a(a.ink,.13),.35);}for(let i=0;i<12;i++)a.line(x+i*w/12,y+h-3,x+i*w/12,y+h,a.S,.4);}
+    if(b){const at=d.atm||{},wx=d.wx||{},temp=v=>v==null?null:((T.units==='celsius'?v*9/5+32:v)+50)/180,values=[at.rh==null?null:at.rh/100,at.ws==null?null:at.ws/60,at.uv==null?null:at.uv/11,temp(wx.hi),temp(wx.lo),temp(wx.feels)];values.forEach((v,i)=>{if(v==null)return;const x=19+i%3*116,y=238+Math.floor(i/3)*47;k.segs(x,y,93,2.3,23,v,i===2?a.R:a.B,k.a(a.ink,.11),1);});}
+  }else if(m==='transmission'){if(b)drPacketStrip(k,12,178,340,4,d.seed);}
+  else if(m==='feeds'){
+    if(!s&&!b)for(let side=0;side<2;side++){const x=12+side*182;for(let i=0;i<3;i++){a.t(['SIGNAL','BUFFER','PARITY'][i],x,131+i*6,3.8,38,a.S);k.segs(x+43,132+i*6,114,2.2,24,[.86,.55,.94][(i+side)%3],i===1?a.B:a.I,k.a(a.ink,.12),1);}}
+    if(b){drPacketStrip(k,12,181,340,4,7);drPacketStrip(k,12,335,340,3,13);}
+  }else if(m==='youtube'){
+    const x=12,y=32,w=s?146:b?340:177,h=b?173:s?68:108;
+    for(let n=0;n<9;n++){const xx=x+n*w/9;for(let j=0;j<Math.floor(h/5);j++){const yy=y+3+j*5,len=(1+Math.sin(n*7+j*2.1))*.3*w/9;a.line(xx+2,yy,xx+2+len,yy,k.a(a.ink,.27),.4);}a.line(xx+w/18,y+3,xx+w/18,y+h-3,k.a(a.ink,.24),.35);k.rect(xx+2,y+h-5,w/9-4,2,n===5?a.R:a.I);}
+    if(b){drPacketStrip(k,12,332,340,4,412);a.t('FRAME 0412 / CONTINUOUS BUFFER',12,319,5,340,a.S);}
+    else if(!s)a.t('RX 07 / FRAME 0412',205,121,5,147,a.S);
+  }else if(m==='instagram'){if(b)drPacketStrip(k,12,292,340,4,d.seed);}
+  else if(m==='oddity')drPacketStrip(k,12,b?142:s?94:88,W-24,b?5:3,d.seed+71);
+  else if(m==='discord'){
+    if(!s&&!b)drPacketStrip(k,205,64,147,3,37);
+    if(b){drPacketStrip(k,206,298,145,4,37);a.t('ROUTES / ILLUSTRATED',206,285,4.5,145,a.S);a.t('REPEATER / 07',206,313,5,145,a.S);}
+  }else if(m==='game')drSalvageDetail(k,W,H,d);
+  else if(m==='tracker'){
+    const idx=Math.abs(d.seed||0)%DR_CONTACTS.length,c=DR_CONTACTS[idx];
+    if(s)drContactDetail(k,c,12,46,146,85);else if(b)drContactDetail(k,c,12,78,340,202);else [c,DR_CONTACTS[(idx+1)%DR_CONTACTS.length]].forEach((q,i)=>drContactDetail(k,q,12+i*176,44,164,85));
+  }
+}
+
 // ---------- END THEMED PAINT BLOCK ----------
 // ---------- art runner: theme art as the body background, live timers laid on top ----------
 async function artWidget(o) {
@@ -5424,7 +5758,8 @@ async function gameWidget() {
   for (let i = 0; i < steps; i++) G.step(st, inp)
   if (!st.last) st.last = now; else if (steps > 0) st.last = Math.max(st.last + steps * STEP, now - STEP)
   try { if (fm && path) fm.writeString(path, JSON.stringify(st)) } catch (e) {}
-  if (f === "halcyon") return hbWidget("game", {st, inp})
+  if (f === "halcyon" && T.hbOn) return hbWidget("game", {st, inp})
+  if (f === "deeprange" && T.drOn) return drWidget("game", {st, inp})
   return artWidget({ title: G.title, right: fam() === "small" ? null : G.right(st, inp), alt: false, refresh: new Date(now + STEP), paint: (k, W, H, d) => G.paint(k, W, H, d.st, d.inp), data: { st, inp } })
 }
 
@@ -5530,13 +5865,44 @@ async function hbWidget(mode, extra={}) {
   return w;
 }
 
+// Keep the existing calendar, weather and salvage persistence adapters.
+async function drWidget(mode,extra={}) {
+  const now=new Date(),d={mode,now,seed:Math.floor(+now/1800000),...extra};
+  if(mode==='status'||mode==='shift')d.ev=evData(await nextEvent());
+  if(mode==='status'){
+    d.wx=await weather();try{d.batt=Device.batteryLevel();if(d.batt<0)d.batt=null;}catch(e){d.batt=null;}
+  }
+  if(mode==='solar')Object.assign(d,await hbClimate());
+  if(mode==='transmission'){
+    d.archival=!!T.archive&&d.seed%4===0&&ARCHIVE.length>0;
+    if(d.archival){const q=ARCHIVE[Math.floor(d.seed/4)%ARCHIVE.length];d.text=q.t;d.by=q.by;}
+    else{const q=T.slogans[d.seed%T.slogans.length]||['Contact lost is not contact gone.','RANGE CONTROL'];d.text=q[0];d.by=T.company.toUpperCase()+' / '+q[1];}
+  }
+  const [W,H]=DIMS[fam()]||DIMS.small,w=new ListWidget();w.setPadding(0,0,0,0);w.backgroundColor=new Color('#050608');
+  const target=mode==='shift'&&d.ev?(d.ev.active?d.ev.end:d.ev.start):null;d.live=!!target;
+  w.backgroundImage=artImage(W,H,drPaint,d);w.refreshAfterDate=new Date(+now+15*60000);
+  if(target){
+    w.refreshAfterDate=new Date(Math.min(+now+15*60000,+target+1000));const l=drTimerLayout(W,H);
+    w.addSpacer(l.y);const row=w.addStack();row.layoutHorizontally();row.addSpacer(l.x);row.size=new Size(W,l.fs*1.35);
+    const stack=row.addStack();stack.size=new Size(l.w,l.fs*1.35);const dt=stack.addDate(target);dt.applyTimerStyle();dt.font=disp(l.fs);dt.textColor=new Color(T.ink);dt.lineLimit=1;dt.minimumScaleFactor=.5;row.addSpacer();w.addSpacer();
+  } else if(mode==='feeds'&&W>200){
+    const row=w.addStack();H>200?row.layoutVertically():row.layoutHorizontally();row.size=new Size(W,H);
+    for(const url of ['youtube://','instagram://app']){const half=row.addStack();half.size=new Size(H>200?W:W/2,H>200?H/2:H);half.url=url;half.addSpacer();}
+  }
+  const urls={status:'calshow://',shift:'calshow://',audio:'youtubemusic://',feeds:'youtube://',youtube:'youtube://',instagram:'instagram://app',discord:'discord://'};if(urls[mode])w.url=urls[mode];
+  return w;
+}
+
 const MODES = { status, shift, transmission, solar: solarWidget, audio: audioWidget, feeds: () => feedsWidget(null), youtube: () => feedsWidget("youtube"), instagram: () => feedsWidget("instagram"), discord: () => feedsWidget("discord"), oddity: oddityWidget, game: gameWidget }
 
-if (T.frame === "halcyon") {
+if (T.frame === "halcyon" && T.hbOn) {
   for (const mode of Object.keys(HB_META)) if (mode !== "game") MODES[mode] = () => hbWidget(mode);
   MODES.allocation = () => hbWidget("shift");
   MODES.allocation_setup = hbChooseAllocation;
   MODES.radio_setup = hbChooseRadio;
+}
+if (T.frame === "deeprange" && T.drOn) {
+  for (const mode of Object.keys(DR_META)) if (mode !== "game") MODES[mode] = () => drWidget(mode);
 }
 if (config.runsInWidget) {
   Script.setWidget(await (MODES[MODE] || status)())
@@ -5714,12 +6080,12 @@ const APPS = [
 
 const PRESETS = {
   halcyon: {
-    id: 'halcyon', title: 'Halcyon Biofab', blurb: 'Synthetic humanity. Grown organs, clinical pastels and a little more life.',
+    id: 'halcyon', title: 'Halcyon Biofab', blurb: 'Technocratic biotech. A wireframe globe, mint paper and lavender.', edition: 'original',
     company: 'Halcyon Biofab', unit: 'HB-2893',
     colors: { ground: '#A6F3CC', ink: '#0E1512', accent: '#9D8CF2', panel: '#E3F7EC', glow: '#9D8CF2' },
     fonts: { display: 'Newsreader', mono: 'IBM Plex Mono' },
     motif: 'globe', texture: 'dots', marks: 'cross', iconStyle: 'frame', units: 'fahrenheit', upper: false,
-    phrases: [['A little', 'more life.'], ['Room', 'to feel.'], ['Breathe now.', 'Pay later.'], ['A kinder', 'second chance.']],
+    phrases: [['Mortality Is A', 'Legacy Feature'], ['Your Pulse,', 'Fully Licensed'], ['Upgrade Path:', 'Eternal'], ['Grown For What', 'Comes Next']],
     text: {
       headL: ['HALCYON', 'BIOFAB'], headR: ['LOT HB-2893-07', 'SENTIENCE: LEASED'],
       readL: ['NEURAL LEASE: ACTIVE', 'BIOSYNC: 99.7% STABLE', 'WARRANTY: PERPETUAL*'],
@@ -5920,7 +6286,7 @@ const PRESETS = {
     ]
   },
   deeprange: {
-    id: 'deeprange', title: 'Deep Range', blurb: 'A long-range tracking display. Black glass, red contact frames, a yellow trajectory and a blue planet below.',
+    id: 'deeprange', title: 'Deep Range', blurb: 'A long-range tracking display. Black glass, red contact frames, a yellow trajectory and a blue planet below.', edition: 'original',
     company: 'Deep Range', unit: 'RELAY 07',
     colors: { ground: '#050608', ink: '#FFE14A', accent: '#FF3B30', glow: '#2340FF', panel: '#0B0D10', alert: '#3DFF8A' },
     fonts: { display: 'Archivo', mono: 'Share Tech Mono' },
@@ -7869,6 +8235,27 @@ Object.keys(QUOTE_PACKS).forEach(id => {
   p.widget.archive = true;
 });
 
+// ---------- editions ----------
+// A theme can ship more than one edition. The Original is drawn in code; an Illustrated edition uses production artwork.
+// New editions are added here alongside the original, never in place of it. Choosing an edition swaps its blurb and
+// headlines; colorways, customize controls and everything else stay shared.
+const EDITIONS = {
+  halcyon: [
+    { id: 'original', name: 'Original', blurb: 'Technocratic biotech. A wireframe globe, mint paper and lavender.', phrases: [['Mortality Is A', 'Legacy Feature'], ['Your Pulse,', 'Fully Licensed'], ['Upgrade Path:', 'Eternal'], ['Grown For What', 'Comes Next']] },
+    { id: 'illustrated', name: 'Illustrated', blurb: 'Synthetic humanity. Grown organs, clinical pastels and a little more life.', phrases: [['A little', 'more life.'], ['Room', 'to feel.'], ['Breathe now.', 'Pay later.'], ['A kinder', 'second chance.']] }
+  ],
+  deeprange: [
+    { id: 'original', name: 'Original', blurb: 'A long-range tracking display. Black glass, red contact frames, a yellow trajectory and a blue planet below.', phrases: [['Contact', 'Lost'], ['Signal', 'Acquired'], ['Return', 'Window'], ['Deep', 'Range']] },
+    { id: 'expanded', name: 'Expanded', blurb: 'Deeper into the range. New contacts, worlds, relays and salvage, all in vector instrument art.', phrases: [['Contact', 'Lost'], ['World', 'Unresolved'], ['Carrier', 'Return'], ['Salvage', 'Window']] }
+  ]
+};
+function editionsFor(th) { return (th && EDITIONS[th.id]) || null; }
+function editionOf(th) { const e = editionsFor(th); return e ? (e.find(x => x.id === th.edition) || e[0]) : null; }
+// The illustrated Halcyon renderer runs only when that edition is chosen; otherwise Halcyon is the original code-drawn theme.
+// The expanded Deep Range renderer runs only when that edition is chosen; otherwise Deep Range is the original theme.
+function drOn(th) { return !!th && th.motif === 'orbital' && th.edition === 'expanded'; }
+function hbOn(th) { return !!th && ['globe', 'radar'].includes(th.motif) && th.edition === 'illustrated'; }
+
 // Generated by scripts/art.py. Served copies of each theme's artwork, with content hashes.
 const ART_MANIFEST = {
  "halcyon": {
@@ -7889,22 +8276,22 @@ const ART_MANIFEST = {
    "signal": "assets/halcyon/thumb/signal.webp?v=462df4c8b1"
   },
   "widget": {
-   "heartDetail": "assets/halcyon/widget/heartDetail.png?v=8c832477fb",
-   "lungsDetail": "assets/halcyon/widget/lungsDetail.png?v=eb76c23a42",
-   "signal": "assets/halcyon/widget/signal.png?v=169038e05f",
-   "saturn": "assets/halcyon/widget/saturn.png?v=a7ef6b9b2b",
-   "neptune": "assets/halcyon/widget/neptune.png?v=99a6a7965d",
-   "jupiter": "assets/halcyon/widget/jupiter.png?v=d0f9319607",
-   "knot": "assets/halcyon/widget/knot.png?v=5b33c1a843",
-   "membrane": "assets/halcyon/widget/membrane.png?v=8228155144",
-   "loops": "assets/halcyon/widget/loops.png?v=2c5f5a301f",
-   "heart": "assets/halcyon/widget/heart.png?v=a4cb109b6f",
-   "lungs": "assets/halcyon/widget/lungs.png?v=b8f9144d19",
-   "tissue": "assets/halcyon/widget/tissue.png?v=b27e4c9131",
-   "optical": "assets/halcyon/widget/optical.png?v=ce926fe448",
-   "archive": "assets/halcyon/widget/archive.png?v=681aa0fec9",
-   "collective": "assets/halcyon/widget/collective.png?v=21869ff806",
-   "neural": "assets/halcyon/widget/neural.png?v=e128662bed"
+   "heartDetail": "assets/halcyon/widget/heartDetail.png?v=896b0fbe56",
+   "lungsDetail": "assets/halcyon/widget/lungsDetail.png?v=dbe8acf818",
+   "signal": "assets/halcyon/widget/signal.png?v=3b0d20c6d7",
+   "saturn": "assets/halcyon/widget/saturn.png?v=04f91aaae5",
+   "neptune": "assets/halcyon/widget/neptune.png?v=bda4ca7694",
+   "jupiter": "assets/halcyon/widget/jupiter.png?v=0cbd2127bf",
+   "knot": "assets/halcyon/widget/knot.png?v=5a568d2449",
+   "membrane": "assets/halcyon/widget/membrane.png?v=a788413a40",
+   "loops": "assets/halcyon/widget/loops.png?v=0a5b23dcec",
+   "heart": "assets/halcyon/widget/heart.png?v=54d18cf2b0",
+   "lungs": "assets/halcyon/widget/lungs.png?v=676795085e",
+   "tissue": "assets/halcyon/widget/tissue.png?v=b11c4f63ea",
+   "optical": "assets/halcyon/widget/optical.png?v=94a4e808c2",
+   "archive": "assets/halcyon/widget/archive.png?v=985ae1fd56",
+   "collective": "assets/halcyon/widget/collective.png?v=6670f921d1",
+   "neural": "assets/halcyon/widget/neural.png?v=3101ed8a75"
   }
  }
 };
@@ -8169,7 +8556,7 @@ function drawWallpaper(canvas, th, mode, phraseIdx) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, W, H);
   ctx.save(); ctx.scale(s, s);
-  if (['globe','radar'].includes(th.motif)) { hbWallpaper(ctx, th, Hl, mode, phraseIdx || 0); ctx.restore(); return; }
+  if (hbOn(th)) { hbWallpaper(ctx, th, Hl, mode, phraseIdx || 0); ctx.restore(); return; }
   if (th.motif === 'alert') { drawAlert(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'map') { drawMap(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'night') { drawNight(ctx, th, Hl, mode, phraseIdx); ctx.restore(); return; }
@@ -8178,7 +8565,7 @@ function drawWallpaper(canvas, th, mode, phraseIdx) {
   if (th.motif === 'market') { drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'vapor') { drawVapor(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'botanical') { drawBotanical(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
-  if (th.motif === 'orbital') { if (mode === 'home') drawOrbitalHome(ctx, th, Hl, W, H, s, phraseIdx); else drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
+  if (th.motif === 'orbital') { if (drOn(th)) drWallpaper(ctx, th, Hl, mode, phraseIdx || 0); else if (mode === 'home') drawOrbitalHome(ctx, th, Hl, W, H, s, phraseIdx); else drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s); ctx.restore(); return; }
   if (th.motif === 'grimoire') { drawGrimoire(ctx, th, Hl, mode, phraseIdx); ctx.restore(); return; }
   const T = th.text, ink = th.colors.ink, mono = th.fonts.mono;
   const art = th.motif === 'radar' ? radarArt : globeArt;
@@ -8242,7 +8629,7 @@ function drawIcon(canvas, th, app, idx) {
   const c = th.colors, mono = th.fonts.mono, num = String(idx + 1).padStart(2, '0'), code = (th.codes[app] || app.slice(0, 3)).toUpperCase();
   const set = (th.glyphs && GLYPHSETS[th.glyphs]) || GLYPHS;
   const glyph = new Path2D(set[app] || GLYPHS[app]);
-  if (['globe','radar'].includes(th.motif)) { hbIcon(ctx, th, glyph, code); ctx.restore(); return; }
+  if (hbOn(th)) { hbIcon(ctx, th, glyph, code); ctx.restore(); return; }
   if (th.iconStyle === 'pearl') {
     drawPearlIcon(ctx, th, glyph, num, code);
   } else if (th.iconStyle === 'neon') { drawNeonIcon(ctx, th, glyph, num, code);
@@ -9673,7 +10060,7 @@ function drawGildedIcon(ctx, th, glyph, num, code, idx) {
 }
 
 // ---------- ORBITAL motif (deep range tracking display) ----------
-function drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s) {
+function drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s, contactScene = null) {
   const c = th.colors, T = th.text, mono = th.fonts.mono, disp = th.fonts.display, dw = dispWeight(disp), k = K(th)
   const RED = c.accent, YEL = c.ink, BLU = c.glow, GRN = c.alert || '#3DFF8A', CYN = '#39D6FF'
   ctx.fillStyle = c.ground; ctx.fillRect(0, 0, 390, Hl);
@@ -9692,6 +10079,7 @@ function drawOrbital(ctx, th, Hl, mode, phraseIdx, W, H, s) {
     for (let i = 0; i <= 8; i++) { const t = i / 8, a = L(q[0], q[1], t), b = L(q[3], q[2], t); ctx.strokeStyle = hexA('#9AA8AE', i % 4 === 0 ? 0.4 : 0.18); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
     for (let i = 0; i <= 6; i++) { const t = i / 6, a = L(q[0], q[3], t), b = L(q[1], q[2], t); ctx.strokeStyle = hexA('#9AA8AE', i % 3 === 0 ? 0.4 : 0.18); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
     ctx.strokeStyle = hexA('#C9D2D6', 0.55); ctx.lineWidth = 1; ctx.beginPath(); q.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); ctx.stroke();
+    if (contactScene) { contactScene(ctx, th, {top,baseY,q}); return; }
     if (k.details) {
       [[120, top + 150, 'K-17'], [250, top + 120, 'K-04'], [300, top + 200, 'R-88'], [150, top + 230, 'K-22']].forEach(([x, y, l]) => { ctx.fillStyle = RED; ctx.fillRect(x - 3, y - 3, 6, 6); lab(l, x + 6, y + 3, 7, hexA(RED, 0.9)); });
       [[205, top + 175, 'RELAY 04'], [96, top + 196, 'BUOY 11']].forEach(([x, y, l]) => { ctx.strokeStyle = YEL; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(x - 7, y - 10); ctx.lineTo(x + 7, y - 10); ctx.lineTo(x, y + 1); ctx.closePath(); ctx.stroke(); ctx.fillStyle = YEL; ctx.beginPath(); ctx.arc(x, y - 6.5, 1.4, 0, Math.PI * 2); ctx.fill(); lab(l, x + 10, y - 4, 7.5, '#F2F2F2', 'left', 700); });
@@ -10842,7 +11230,7 @@ function hbPreviewWidget(item,th) {
 function hbSizeControls() {
   let host=document.getElementById('hb-size-controls');
   if(!host){host=pv('div','display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 18px');host.id='hb-size-controls';document.getElementById('wg-list').before(host);}
-  host.hidden=frameFor(state.th)!=='halcyon';host.style.display=host.hidden?'none':'flex';if(host.hidden)return;
+  host.hidden=!(hbOn(state.th)||drOn(state.th));host.style.display=host.hidden?'none':'flex';if(host.hidden)return;
   host.replaceChildren();host.append(pv('span','font-size:12px','Sample data · widget size'));
   for(const [value,label] of [['','Suggested'],['small','Small'],['medium','Medium'],['large','Large']]){
     const b=pv('button','',label);b.type='button';b.className='btn';b.setAttribute('aria-pressed',String((state.hbSize||'')===value));b.onclick=()=>{state.hbSize=value;buildWidgetList();};host.append(b);
@@ -10881,6 +11269,172 @@ function hbIcon(ctx,th,glyph,code) {
   seg(ctx,825,126,850,150,ink,8);seg(ctx,850,150,876,106,ink,8);
 }
 
+const DR_IMAGES={};let drExportCache;
+async function drReady(){}
+function drExportSprites(){return {};}
+const DR_NAMES={status:'Contact Status',shift:'Return Window',solar:'Surface Telemetry',audio:'Carrier Wave',transmission:'Deep Range Comms',feeds:'Downlinks',youtube:'Video Downlink',instagram:'Image Intercepts',oddity:'Signal Decoder',discord:'Relay Net',game:'Salvage Run',tracker:'Contact Catalogue'};
+function drWidgetList(th,list){return list.concat({mode:'tracker',name:'Contact Catalogue',tap:'Leave as is',desc:'21 rotating radar contacts: eight known planets, six fictional worlds, four ships and three anomalies. Illustrations, not live radar or sky positions.'}).map(i=>({...i,name:DR_NAMES[i.mode]||i.name,size:'small, medium or large',...(i.mode==='shift'?{desc:'Counts down to your next calendar event, then to the end of its window. Uses a native timer; iOS controls refresh timing.'}:{}),...(i.mode==='audio'?{desc:'An illustrated radio receiver. Tap opens YouTube Music. Carrier frequency and signal graphics are fiction.'}:{}),...(i.mode==='feeds'?{desc:'Two illustrated channels: YouTube and Instagram. Medium has left/right tap targets; large has top/bottom targets. Small opens YouTube.'}:{}),...(i.mode==='game'?{desc:'Persistent Salvage Run: your drone explores, recovers cargo and returns to refuel. Uses the existing saved game.'}:{}),...(i.mode==='solar'?{desc:'Actual local weather, daylight and forecast data. Missing readings stay unavailable.'}:{})}));}
+function drSample(mode,th){const now=new Date(),d={...sampleData(mode,th),mode,now,seed:3};
+  if(mode==='status')d.ev={title:'Your next calendar event',start:new Date(+now+6720000),end:new Date(+now+10320000),active:false};
+  if(mode==='shift')d.ev={title:'Your current event',start:new Date(+now-1080000),end:new Date(+now+1333000),active:true};
+  if(mode==='solar')Object.assign(d,{wx:{temp:th.units==='celsius'?21:69,feels:th.units==='celsius'?20:68,hi:th.units==='celsius'?24:75,lo:th.units==='celsius'?12:54,cond:'PARTLY CLOUDY'},sun:{phase:'day',remaining:14048000,left:.66}});
+  if(mode==='game')Object.assign(d,{inp:{charging:false},st:{v:1,game:'deeprange',run:2,drone:'SR-02',vseed:4242,jumps:4,hull:85,fuel:77,cargo:5,credits:120,best:19,pos:[.59,.52],trail:[[.25,.73],[.44,.41],[.54,.46],[.39,.29],[.59,.52]],status:'IN TRANSIT',log:[{m:'Salvaged 5t from derelict FREIGHTER KESTREL.'},{m:'Long-range scan: empty. Suspiciously empty.'}]}});
+  return d;
+}
+function drPreviewWidget(item,th){const family=item.family||state.hbSize||(item.mode==='shift'?'small':item.mode==='solar'?'large':'medium'),[W,H]=family==='small'?[170,170]:family==='large'?[364,382]:[364,170];const kit=scriptableKit(th),card=pv('div',`width:${W}px;height:${H}px;border-radius:18px;overflow:hidden;flex:none`);if(kit){const c=kit.artImage(W,H,kit.drPaint,drSample(item.mode,th));c.style.width=W+'px';c.style.height=H+'px';card.append(c);}return {el:card,w:W,h:H};}
+
+// Deep Range is vector-only. Every wallpaper is a different instrument scene.
+// Draw in the existing 390-point wallpaper coordinate system; no raster assets.
+function drWallTools(ctx,th){
+  const c=th.colors,I=c.ink,R=c.accent,B=c.glow,G=c.alert||'#3DFF8A';
+  const line=(p,col=I,width=.7,close=false)=>{ctx.beginPath();p.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));if(close)ctx.closePath();ctx.strokeStyle=col;ctx.lineWidth=width;ctx.stroke();};
+  const ell=(x,y,rx,ry,col=I,width=.7,rot=0,start=0,end=Math.PI*2)=>{ctx.beginPath();ctx.ellipse(x,y,rx,ry,rot,start,end);ctx.strokeStyle=col;ctx.lineWidth=width;ctx.stroke();};
+  const text=(s,x,y,size=6,col=I)=>{ctx.fillStyle=col;ctx.font=`400 ${size}px ${th.fonts.mono}`;ctx.textAlign='left';ctx.fillText(s,x,y);};
+  const rect=(x,y,w,h,col=I)=>{ctx.fillStyle=col;ctx.fillRect(x,y,w,h);};
+  const cross=(x,y,col=R)=>{line([[x-4,y],[x+4,y]],col);line([[x,y-4],[x,y+4]],col);};
+  const bracket=(x,y,w,h)=>{for(const [xx,yy,dx,dy]of [[x,y,1,1],[x+w,y,-1,1],[x,y+h,1,-1],[x+w,y+h,-1,-1]])line([[xx,yy+dy*7],[xx,yy],[xx+dx*7,yy]],R,1.2);};
+  const grid=(x,y,w,h,step=20)=>{for(let xx=x;xx<=x+w;xx+=step)line([[xx,y],[xx,y+h]],hexA(I,.1),.4);for(let yy=y;yy<=y+h;yy+=step)line([[x,yy],[x+w,yy]],hexA(I,.1),.4);};
+  const ship=(x,y,s=1,turn=0,type=0)=>{const shapes=[[[ -13,-5],[-5,-5],[-5,-9],[8,-9],[8,-4],[14,0],[8,4],[8,9],[-5,9],[-5,5],[-13,5],[-13,-5]], [[-15,-6],[5,-6],[15,-13],[9,0],[15,13],[5,6],[-15,6],[-8,0],[-15,-6]], [[-17,-2],[-5,-2],[-5,-12],[2,-12],[2,-2],[19,0],[2,2],[2,12],[-5,12],[-5,2],[-17,2],[-17,-2]]];const map=p=>p.map(([u,v])=>[x+s*(u*Math.cos(turn)-v*Math.sin(turn)),y+s*(u*Math.sin(turn)+v*Math.cos(turn))]);line(map(shapes[type%3]),I,.9);line(map([[-3,-3],[5,-3],[5,3],[-3,3],[-3,-3]]),hexA(I,.4),.45);};
+  return {I,R,B,G,line,ell,text,rect,cross,bracket,grid,ship};
+}
+function drWallSweep(ctx,th,top,bottom,quiet=false){
+  const a=drWallTools(ctx,th),{I,R,B,G,line,ell,text,cross,bracket,ship}=a,h=bottom-top,cx=192,cy=top+h*.52,r=Math.min(164,h*.44);
+  for(let j=1;j<=5;j++)ell(cx,cy,r*j/5,r*j/5,hexA(j===5?I:B,j===5?.6:.55),j===5?.9:.55);
+  for(let i=0;i<72;i++){const u=i*Math.PI/36,rr=r+(i%6===0?8:3);line([[cx+Math.cos(u)*r,cy+Math.sin(u)*r],[cx+Math.cos(u)*rr,cy+Math.sin(u)*rr]],hexA(I,i%6===0?.65:.27),.5);}
+  for(let i=0;i<8;i++){const u=i*Math.PI/4;line([[cx,cy],[cx+Math.cos(u)*r,cy+Math.sin(u)*r]],hexA(I,.12),.45);}
+  for(let i=0;i<13;i++){const u=-.78-i*.015;line([[cx,cy],[cx+Math.cos(u)*r,cy+Math.sin(u)*r]],hexA(G,.45-i*.03),.7);}
+  cross(cx,cy,I);text('07',cx+7,cy-6,6);
+  for(let i=0;i<9;i++){const u=i*2.399+.2,rr=r*(.24+(i%4)*.19),x=cx+Math.cos(u)*rr,y=cy+Math.sin(u)*rr;a.rect(x-1,y-1,2,2,hexA(R,.8));line([[x-4,y+5],[x-8,y+8]],hexA(R,.4),.5);if(!quiet&&i%3===0)text('U-'+(i+4),x+5,y-3,4,hexA(R,.7));}
+  if(!quiet)for(let i=0;i<8;i++){const u=i*Math.PI/4;const x=cx+Math.cos(u)*(r-12),y=cy+Math.sin(u)*(r-12);text(String(i*45).padStart(3,'0'),x-5,y+2,3.7,hexA(I,.5));}
+  const contacts=[[-.56,.2,1.05,-.55,0,'DEAD LETTER'],[.52,-.45,.7,.35,2,'LONG WAKE'],[.22,.61,.63,-.1,1,'WAYFARER']];
+  contacts.forEach(([u,v,s,t,k,label],i)=>{const x=cx+u*r,y=cy+v*r;ship(x,y,s,t,k);bracket(x-22,y-20,44,40);for(let j=1;j<=4;j++)ell(x-j*8,y+j*5,1,1,hexA(R,.6-j*.1),.6);if(!quiet){text('0'+(i+1)+' / '+label,x-28,y+31,4.8);text('RETURN '+[81,47,63][i]+'%',x-28,y+40,4,hexA(I,.5));}});
+  if(!quiet){text('AZ / 000',cx-17,cy-r-13,5);text('SCAN ARC  /  315',22,bottom-5,5,hexA(I,.6));text('3 VESSELS / 9 UNRESOLVED',220,bottom-5,5,R);}
+}
+function drWallSurvey(ctx,th,top,bottom,quiet=false){
+  const a=drWallTools(ctx,th),{I,R,B,line,ell,text,cross,bracket}=a,h=bottom-top,cx=276,cy=top+h*.48,r=Math.min(137,h*.37);
+  // An off-centre planetary wire scan with a detached moon and plotted occultation.
+  ctx.save();ctx.beginPath();ctx.rect(14,top,362,h);ctx.clip();
+  ell(cx,cy,r,r,I,1.1);
+  for(let i=1;i<=5;i++)ell(cx,cy,r*i/6,r,hexA(B,.9),.65);
+  for(let j=-3;j<=3;j++){const dy=j*r*.23;ell(cx,cy+dy,Math.sqrt(r*r-dy*dy),r*.1,hexA(I,.35),.6);}
+  const fault=[[-.27,-.95],[-.42,-.66],[-.14,-.45],[-.26,-.16],[.01,.11],[-.16,.42],[.12,.7],[.06,.99]];line(fault.map(([u,v])=>[cx+u*r,cy+v*r]),R,1.25);
+  for(let n=0;n<3;n++)ell(cx,cy,r*(1.27+n*.08),r*(.35+n*.026),hexA(B,.7-n*.13),.8,-.45);
+  ctx.restore();
+  const mx=72,my=top+h*.2;ell(mx,my,27,27,I,.8);ell(mx,my,10,27,hexA(B,.8),.6);ell(mx-7,my-8,6,5,hexA(I,.4));ell(mx+9,my+7,4,4,hexA(I,.4));bracket(mx-35,my-35,70,70);
+  line([[mx+28,my+13],[cx-r*.73,cy-r*.49]],hexA(I,.3),.6);
+  cross(cx-r*.24,cy+r*.32);line([[cx-r*.24,cy+r*.32],[66,cy+r*.32],[42,cy+r*.32+27]],R,.65);
+  if(!quiet){text('K-17 / SEAM',23,top+8,8);text('MOON 02',41,my+47,5);text('FAULT DISPLACEMENT',24,cy+r*.32+40,5);text('CLASSIFICATION PENDING',24,cy+r*.32+50,4.4,hexA(I,.5));text('ILLUSTRATIVE / NOT LIVE EPHEMERIS',22,bottom-5,4.5,hexA(I,.55));}
+  if(!quiet){
+    const yy=bottom-66;text('SURFACE RETURN / SLICE 04',24,yy-10,4.3,hexA(I,.55));
+    for(let j=0;j<3;j++){const pts=[];for(let i=0;i<66;i++)pts.push([24+i*1.24,yy+j*8+Math.sin(i*.27+j)*2+Math.sin(i*.63)*1.5]);line(pts,hexA(j===1?R:B,.7),.55);}
+    for(let i=0;i<12;i++){line([[360,top+12+i*15],[365+(i%3===0?4:0),top+12+i*15]],hexA(I,.55),.45);if(i%3===0)text(String(90-i*10),342,top+14+i*15,4,hexA(I,.55));}
+    text('TERMINATOR / INFERRED',215,bottom-19,4.5,hexA(I,.5));
+  }
+}
+function drWallRelay(ctx,th,top,bottom,quiet=false){
+  const a=drWallTools(ctx,th),{I,R,B,G,line,ell,text,rect,bracket,grid}=a,h=bottom-top;
+  grid(22,top+7,346,h-18,23);
+  const nodes=[[.15,.16],[.72,.12],[.45,.34],[.87,.43],[.12,.55],[.65,.68],[.34,.84]],p=nodes.map(([u,v])=>[22+u*346,top+v*h]);
+  const links=[[0,2],[1,2],[1,3],[2,3],[2,4],[2,5],[3,5],[4,6],[5,6]];
+  links.forEach(([i,j],n)=>{const [x,y]=p[i],[xx,yy]=p[j];line([[x,y],[xx,yy]],hexA(n===4?R:B,.9),n===4?1.1:.8);const dx=yy-y,dy=x-xx,len=Math.hypot(dx,dy);line([[x+dx/len*3,y+dy/len*3],[xx+dx/len*3,yy+dy/len*3]],hexA(I,.2),.4);for(let k=1;k<4;k++){const u=k/4;rect(x+(xx-x)*u-1,y+(yy-y)*u-1,2,2,n===4?R:I);}});
+  p.forEach(([x,y],i)=>{const pts=[];for(let k=0;k<=6;k++){const u=k*Math.PI/3;pts.push([x+Math.cos(u)*(i===2?21:12),y+Math.sin(u)*(i===2?21:12)]);}line(pts,i===4?R:I,.95);ell(x,y,i===2?9:4,i===2?9:4,hexA(I,.6));rect(x-1,y-1,2,2,i===4?R:G);if(!quiet){text(i===2?'RELAY 07':'STATION '+String(i+1).padStart(2,'0'),x-24,y+(i===2?33:23),5);text(i===4?'NO REPLY':'ACK / '+(12+i*7)+' MS',x-24,y+(i===2?42:32),4,i===4?R:hexA(I,.45));}});
+  bracket(22,top+7,346,h-18);
+  if(!quiet){
+    for(const [x,y,n]of [[192,top+23,0],[34,top+h*.34,1],[251,top+h*.87,2]]){
+      text(['UPLINK / 07','RETRY BUFFER','ROUTE CHECK'][n],x,y,4.4,hexA(I,.5));
+      for(let j=0;j<13;j++){rect(x+j*5,y+7,3,3,hexA((j+n)%5===0?R:I,(j+n)%4===0?.8:.24));}
+      line([[x,y+17],[x+62,y+17]],hexA(B,.6),.5);
+    }
+    links.forEach(([i,j],n)=>{if(n%3)return;const x=(p[i][0]+p[j][0])/2,y=(p[i][1]+p[j][1])/2;text('HOP '+(n+1),x+4,y-6,4,hexA(I,.5));});
+  }
+}
+function drWallDebris(ctx,th,top,bottom,quiet=false){
+  const a=drWallTools(ctx,th),{I,R,B,G,line,ell,text,ship,bracket}=a,h=bottom-top,cy=top+h*.41;
+  // Fragment distribution and a routed recovery path, not another vessel portrait.
+  for(let j=0;j<9;j++){const yy=top+20+j*(h-35)/8;line([[22,yy],[368,yy]],hexA(B,.3),.55);}
+  for(let i=0;i<12;i++)line([[195+(i-5.5)*6,top],[22+i*31.45,bottom]],hexA(B,.4),.5);
+  for(let i=0;i<23;i++){
+    const u=i*2.399,rr=33+(i%7)*15,x=190+Math.cos(u)*rr*1.12,y=cy+Math.sin(u)*rr*.84,size=3+(i%5)*2.8;
+    const pts=[];for(let j=0;j<=5;j++){const t=j*Math.PI*2/5+i,rad=size*(j%2?.68:1);pts.push([x+Math.cos(t)*rad,y+Math.sin(t)*rad]);}line(pts,i%6===0?R:hexA(I,.45+(i%3)*.15),.7);
+    if(i%5===0&&!quiet){line([[x+size,y],[x+size+12,y-10]],hexA(I,.4),.45);text('F-'+String(i+1).padStart(2,'0'),x+size+13,y-10,4.3);}
+  }
+  const route=[[34,bottom-31],[112,bottom-70],[88,cy+39],[220,cy+67],[299,cy-31],[270,cy-72]];line(route,G,1);
+  for(let i=0;i<70;i++){const x=28+(i*73%334),y=top+18+(i*97%Math.max(20,Math.floor(h-45)));a.rect(x,y,.55,.55,hexA(I,.24));}
+  ell(190,cy,108,75,hexA(R,.36),.6,0,.4,2.3);ell(190,cy,112,79,hexA(R,.2),.4,0,.4,2.3);
+  if(!quiet){text('DISPERSAL ENVELOPE',24,top+21,4.6,hexA(R,.75));text('F-05 / REMAINDER',24,top+31,4,hexA(I,.5));text('PATH / PROJECTED',217,bottom-37,4.5,G);text('DOCKING SOLUTION PENDING',217,bottom-26,4,hexA(I,.5));}
+  route.slice(1,-1).forEach(([x,y],i)=>{ell(x,y,3,3,G,.65);if(!quiet)text('WP'+(i+1),x+7,y+9,4.7,G);});ship(270,cy-72,.8,-.9,1);bracket(248,cy-93,44,42);
+  if(!quiet){text('RECOVERY CORRIDOR / SR-12',23,bottom-5,5);text('OWNERSHIP UNRESOLVED',252,bottom-5,4.5,R);}
+}
+// Original lock composition is the template: headline, inclined grid, year, horizon.
+// Only the observed scene and its labels vary. Ships and worlds remain line returns.
+function drLockContactScene(ctx,th,{top,baseY,q},idx){
+  const a=drWallTools(ctx,th),{I,R,B,G,line,ell,text,rect,ship,bracket}=a;
+  const map=(u,v)=>[(1-v)*((1-u)*q[0][0]+u*q[1][0])+v*((1-u)*q[3][0]+u*q[2][0]),(1-v)*((1-u)*q[0][1]+u*q[1][1])+v*((1-u)*q[3][1]+u*q[2][1])];
+  const path=(uv,col=I,lw=.8)=>line(uv.map(([u,v])=>map(u,v)),col,lw);
+  const curve=(fn,col=I,lw=.8)=>{const p=[];for(let i=0;i<=80;i++)p.push(fn(i/80));path(p,col,lw);};
+  const ring=(u,v,rx,ry,col=I,lw=.8)=>curve(t=>[u+rx*Math.cos(t*Math.PI*2),v+ry*Math.sin(t*Math.PI*2)],col,lw);
+  const mark=(u,v,label,col=I)=>{const [x,y]=map(u,v);line([[x-5,y-6],[x+5,y-6],[x,y+3],[x-5,y-6]],col,1);ell(x,y-3,1,1,col);text(label,x+9,y-1,5.6,col);};
+  const glow=(fn)=>{ctx.save();ctx.shadowColor=hexA(I,.7);ctx.shadowBlur=4;fn();ctx.restore();};
+  for(let i=1;i<8;i++){const [x,y]=map(i/8,1);line([[x,y],[x+1,y+4]],hexA(I,.55),.5);text(String(i*12).padStart(3,'0'),x-4,y+11,4.3,hexA(I,.5));}
+  if(idx===0){
+    const start=[32,baseY+27],control=[117,top+54],end=map(.76,.26);
+    const flight=t=>[(1-t)**2*start[0]+2*(1-t)*t*control[0]+t*t*end[0],(1-t)**2*start[1]+2*(1-t)*t*control[1]+t*t*end[1]];
+    for(let i=0;i<7;i++){const t=.17+i*.11,[x,y]=flight(t),p=flight(t+.01),ang=Math.atan2(p[1]-y,p[0]-x),r=34-i*3.1,pts=[[-r,-r*.55],[r,-r*.55],[r,r*.55],[-r,r*.55],[-r,-r*.55]].map(([u,v])=>[x+Math.cos(ang)*u-Math.sin(ang)*v,y+Math.sin(ang)*u+Math.cos(ang)*v]);line(pts,hexA(R,.82-i*.055),1);}
+    glow(()=>{const pts=[];for(let i=0;i<=90;i++)pts.push(flight(i/90));line(pts,I,1.1);});
+    const [ex,ey]=end;ship(ex,ey,.9,-.15,2);bracket(ex-23,ey-21,46,42);text('RX-03 / LAST RETURN',ex-25,ey+33,5,R);
+    mark(.19,.54,'BUOY 11');mark(.56,.72,'RELAY 04');
+    const [x,y]=map(.69,.63);ship(x,y,.65,.15,1);text('SR-12',x-12,y+20,4.7,hexA(I,.7));
+    path([[.28,.31],[.42,.2],[.54,.19]],hexA(R,.55),.7);
+  }else if(idx===1){
+    // A projected planet and satellite: same inclined plot, a different discovery.
+    const u=.58,v=.51,rx=.26,ry=.36;
+    ring(u,v,rx,ry,I,1.2);
+    for(const f of [.25,.55,.82])ring(u,v,rx*f,ry,hexA(I,.4),.65);
+    for(const dy of [-.2,-.1,.1,.2])ring(u,v+dy,rx*Math.sqrt(1-dy*dy/(ry*ry)),.046,hexA(B,.9),.65);
+    for(const f of [1.18,1.32])curve(t=>[u+Math.cos(t*Math.PI*2)*rx*f,v+Math.sin(t*Math.PI*2)*.13+Math.cos(t*Math.PI*2)*.16],hexA(R,.76),.85);
+    path([[.59,.17],[.52,.34],[.62,.43],[.54,.58],[.65,.7],[.61,.84]],R,1.15);
+    ring(.17,.3,.058,.083,I,.8);ring(.17,.3,.027,.083,hexA(I,.45),.6);mark(.17,.48,'MOON 02');
+    const [x,y]=map(.66,.59);line([[x,y],[x+28,y+30],[x+63,y+30]],hexA(I,.75),.6);text('K-17 / SEAM',x+12,y+41,5.6);
+    const [px,py]=map(.13,.73);text('FAULT / UNRESOLVED',px-8,py+16,4.7,R);
+    glow(()=>line([[47,baseY-5],map(.28,.85),map(.36,.68)],hexA(I,.6),.8));
+  }else if(idx===2){
+    const nodes=[[.13,.32],[.43,.16],[.83,.3],[.51,.52],[.18,.8],[.8,.84]],links=[[0,1],[1,2],[0,3],[1,3],[2,3],[3,4],[3,5],[4,5]];
+    for(const [i,j]of links){const [u,v]=nodes[i],[uu,vv]=nodes[j];path([[u,v],[uu,vv]],i===3&&j===4?R:hexA(I,.65),.9);for(let k=1;k<5;k++){const [x,y]=map(u+(uu-u)*k/5,v+(vv-v)*k/5);rect(x-1,y-1,2,2,hexA(i===3&&j===4?R:B,.85));}}
+    nodes.forEach(([u,v],i)=>{ring(u,v,.036,.05,i===4?R:I,.9);mark(u,v,'R-'+['02','04','08','07','11','19'][i],i===4?R:I);});
+    for(const rr of [.085,.12,.155])ring(.51,.52,rr,rr*1.3,hexA(R,.65-rr*2),.75);
+    const p=map(.51,.52);glow(()=>line([[44,baseY+8],[109,baseY-92],p],I,1));
+    text('RELAY 07 / REPEATING',99,baseY-75,5.8,I);text('ONE CHANNEL HAS NO OPERATOR',99,baseY-63,4.6,R);
+  }else{
+    // A disrupted world, recovery corridors and a tug, plotted on the same field.
+    for(let i=0;i<19;i++){const t=i*2.399,rr=.1+(i%5)*.052,u=.5+Math.cos(t)*rr,v=.46+Math.sin(t)*rr*1.25,sz=.012+(i%4)*.01,pts=[];for(let j=0;j<=5;j++){const ang=j*Math.PI*2/5+i;pts.push([u+Math.cos(ang)*sz,v+Math.sin(ang)*sz*1.2]);}path(pts,i%6===0?R:hexA(I,.8),.75);}
+    ring(.5,.46,.36,.43,hexA(R,.35),.7);
+    const uv=[[.06,.95],[.28,.75],[.17,.48],[.44,.62],[.68,.33],[.89,.15]];glow(()=>path(uv,I,1.05));
+    uv.slice(1,-1).forEach(([u,v],i)=>{ring(u,v,.016,.022,G,.8);const [x,y]=map(u,v);text('WP'+(i+1),x+6,y+8,4.5,G);});
+    const [x,y]=map(.89,.15);ship(x,y,.85,-.42,1);bracket(x-19,y-17,38,34);
+    const [xx,yy]=map(.04,.66);text('F-05 / REMAINDER',xx,yy+22,5,R);
+    const p=map(.06,.95);line([p,[54,baseY+12]],hexA(I,.6),.85);text('RECOVERY RIGHTS / OPEN',92,baseY-67,5.5);text('NO REGISTERED OWNER',92,baseY-56,4.6,R);
+  }
+}
+function drOriginalLayoutLock(ctx,th,H,idx){
+  const n=((idx%4)+4)%4;
+  const heads=['CONTACT LOST','WORLD UNRESOLVED','CARRIER RETURN','SALVAGE WINDOW'];
+  const text={...th.text,topL:['TRACKING 12 CONTACTS','SURVEYING 08 WORLDS','LISTENING ON 06 RELAYS','TRACKING 19 FRAGMENTS'][n],coords:['RANGE 0.4 AU // RELAY 07','SECTOR K-17 // SURFACE SCAN','CHANNEL 93.4 // RETURN PATH','SECTOR F-05 // RECOVERY 12'][n],fine:['RX-03 / SIGNAL DEGRADING','K-17 / ORIGIN UNCONFIRMED','RELAY 07 / KEEP LISTENING','SR-12 / NOTHING ABANDONED'][n],foot:'DEEP RANGE // RELAY 07'};
+  const variant={...th,text,phrases:[(th.phrases&&th.phrases[n])||[heads[n],'']],seed:(th.seed||0)+n};
+  const W=ctx.canvas?.width||390,pxH=ctx.canvas?.height||H;
+  drawOrbital(ctx,variant,H,'lock',0,W,pxH,W/390,(c,t,g)=>drLockContactScene(c,t,g,n));
+}
+function drWallpaper(ctx,th,H,mode,idx=0){
+  if(mode==='lock'){drOriginalLayoutLock(ctx,th,H,idx);return;}
+  const a=drWallTools(ctx,th),{I,B,line,text,rect}=a;
+  rect(0,0,390,H,th.colors.ground);
+  const scenes=[drWallSweep,drWallSurvey,drWallRelay,drWallDebris],titles=['CONTACT SWEEP','PLANETARY SURVEY','RELAY CHAIN','SALVAGE CORRIDOR'];
+  const n=((idx%4)+4)%4,top=H*.58,bottom=H*.88;
+  ctx.save();ctx.globalAlpha=.62;scenes[n](ctx,th,top,bottom,true);ctx.restore();
+  if(idx>=4){line([[22,top-26],[368,top-26]],hexA(B,.6),.7);for(let i=0;i<38;i++)rect(22+i*9,top-21,4,2+(i*17%13),hexA(I,.22));}
+  text('DEEP RANGE / '+titles[n],22,bottom+22,5.5,hexA(I,.65));
+  for(let y=0;y<H;y+=3)rect(0,y,390,.35,hexA(I,.02));
+}
+
 const ROLES = {
   halcyon: { panel: 'panel', ink: 'ink', headBg: 'ink', headText: 'ground', altBg: 'accent', altText: 'ink', accent: 'accent' },
   directive: { panel: 'panel', ink: 'ink', headBg: 'alert', headText: 'ink', altBg: 'accent', altText: 'ground', accent: 'glow' },
@@ -10898,6 +11452,7 @@ const STORE = 'foundry.v1', CHECKS = 'foundry.checks.v1';
 const $ = (id) => document.getElementById(id);
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const state = { th: clone(PRESETS.halcyon), lock: 0, view: 'lock', device: 3 };
+if (typeof location !== 'undefined' && location.hash === '#deep-range') { state.th = clone(PRESETS.deeprange); state.th.edition = 'expanded'; state.th.phrases = clone(EDITIONS.deeprange[1].phrases); }
 let checks = {};
 try { const saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.th && PRESETS[saved.th.id]) Object.assign(state, saved); } catch (e) {}
 try { checks = JSON.parse(localStorage.getItem(CHECKS) || '{}') || {}; } catch (e) { checks = {}; }
@@ -10921,9 +11476,10 @@ function buildPresets() {
     const t = document.createElement('strong'); t.textContent = p.title;
     const d = document.createElement('small'); d.textContent = p.blurb;
     b.append(cv, ic, t, d);
+    if (EDITIONS[p.id]) { const tag = document.createElement('span'); tag.className = 'ed-tag'; tag.textContent = EDITIONS[p.id].length + ' editions'; b.append(tag); }
     b.addEventListener('click', () => {
       state.th = clone(p); state.lock = 0; applyVariant(0, true); syncFields(); markPresets(); buildVariants(); refresh(true);
-      if (frameFor(p) === 'halcyon') hbWarm(true);
+      buildEditions();
     });
     host.append(b);
     fontsFor(p).then(() => {
@@ -10936,6 +11492,27 @@ function buildPresets() {
   });
 }
 function markPresets() { document.querySelectorAll('.preset').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === state.th.id))); }
+
+// ---------- editions ----------
+function buildEditions() {
+  const wrap = $('editions-wrap'), host = $('editions'), eds = editionsFor(state.th); if (!wrap || !host) return;
+  wrap.hidden = !eds; host.textContent = ''; if (!eds) return;
+  const cur = editionOf(state.th);
+  eds.forEach(e => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'variant'; b.dataset.edition = e.id; b.setAttribute('aria-pressed', String(cur.id === e.id));
+    const cv = document.createElement('canvas'); cv.width = 130; cv.height = 281;
+    const name = document.createElement('span'); name.textContent = e.name;
+    b.append(cv, name); b.addEventListener('click', () => applyEdition(e.id)); host.append(b);
+    const t = clone(state.th); t.edition = e.id; t.phrases = clone(e.phrases);
+    fontsFor(t).then(() => { if (hbOn(t)) hbWarm(false); drawWallpaper(cv, t, 'lock', 0); });
+  });
+}
+function applyEdition(id) {
+  const e = (editionsFor(state.th) || []).find(x => x.id === id); if (!e) return;
+  state.th.edition = id; state.th.phrases = clone(e.phrases); state.th.blurb = e.blurb; state.lock = 0;
+  if (hbOn(state.th)) hbWarm(true);
+  syncFields(); buildEditions(); buildVariants(); refresh(true);
+}
 
 // ---------- variants ----------
 function applyVariant(i, silent) {
@@ -10962,7 +11539,7 @@ function buildVariants() {
   });
   markVariants();
 }
-function markVariants() { document.querySelectorAll('.variant').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.i === (state.th.variant || 0)))); }
+function markVariants() { document.querySelectorAll('#variants .variant').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.i === (state.th.variant || 0)))); }
 
 // ---------- fields ----------
 const COLOR_FIELDS = [['ground', 'Background'], ['ink', 'Lines and text'], ['accent', 'Accent'], ['glow', 'Glow'], ['panel', 'Widget panel']];
@@ -11237,7 +11814,7 @@ function originalWidgetList(th) {
     { mode: 'oddity', size: 'small or medium', title: 'W-08 // ' + o[0].toUpperCase(), name: o[0], tap: 'Leave as is', desc: o[1] + ' Purely for fun, and it changes about every 30 minutes.' }
   ];
 }
-function widgetList(th) { const list = originalWidgetList(th); return frameFor(th) === "halcyon" ? hbWidgetList(th, list) : list; }
+function widgetList(th) { const list = originalWidgetList(th); return hbOn(th) ? hbWidgetList(th, list) : drOn(th) ? drWidgetList(th, list) : list; }
 function pv(tag, css, text) { const e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
 function pvCanvas(w, h, draw) { const c = document.createElement('canvas'); const d = pvD(); c.width = w * d; c.height = h * d; c.style.cssText = `width:${w}px;height:${h}px;display:block`; const x = c.getContext('2d'); x.scale(d, d); draw(x); return c; }
 
@@ -11300,10 +11877,10 @@ function scriptableKit(th) {
   const l0 = src.indexOf('const LIVE = {'), l1 = src.indexOf('async function themedStatus');
   const f0 = src.indexOf('// theme frame drawn under the content'), f1 = src.indexOf('function txt(stack, text, size, color, isDisp)');
   const deck = deckFor(th);
-  T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th); T.hbImages = HB_IMAGES; T.hbDark = hbIsDark(th); T.hbVariant = th.variant || 0;
+  T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th); T.hbImages = HB_IMAGES; T.drImages = DR_IMAGES; T.hbDark = hbIsDark(th); T.hbVariant = th.variant || 0;
   const tf = { string: (d) => { let h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; } };
   try {
-    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { hbPaint, HB_SPRITES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
+    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { drPaint, drTimerLayout, DR_META, hbPaint, HB_SPRITES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
       T, new Color(T.ink), new Color(T.ink, 0.72), Color, Point, Rect, Size, Path, DrawContext, Font, deck.audio.lines, deck,
       (w, f) => { const d = new DrawContext(); d.size = new Size(w, 4); d.setFillColor(new Color(T.ink, 0.22)); d.fillRect(new Rect(0, 0, w, 4)); d.setFillColor(new Color(T.ink)); d.fillRect(new Rect(0, 0, w * f, 4)); return d.getImage(); }, tf, new Color(T.panel));
   } catch (e) { console.warn(e); return null; }
@@ -11339,7 +11916,8 @@ function themedBody(item, th, wc, W, H) {
   return null;
 }
 function previewWidget(item, th) {
-  if (frameFor(th) === "halcyon") return hbPreviewWidget(item, th);
+  if (hbOn(th)) return hbPreviewWidget(item, th);
+  if (drOn(th)) return drPreviewWidget(item, th);
   const wc = widgetColors(th), mono = `"${th.fonts.mono}", ui-monospace, monospace`, disp = `"${th.fonts.display}", Georgia, serif`;
   const W = item.mode === 'shift' ? 170 : 364, H = item.mode === 'solar' || item.big ? 382 : 170;
   const alt = ['shift', 'transmission', 'oddity'].includes(item.mode);
@@ -11544,7 +12122,7 @@ function screenItems(mode) {
 }
 function widgetItems() {
   const th = state.th
-  return widgetList(th).map(item => ({ title: item.name + ' · ' + item.mode, render(z, aw) { const W = frameFor(th) === 'halcyon' ? ((state.hbSize || (item.mode === 'shift' ? 'small' : 'medium')) === 'small' ? 170 : 364) : item.mode === 'shift' ? 170 : 364, s = Math.min(aw, item.mode === 'shift' ? 340 : 600) / W * z; window.__pvRes = Math.min(3, s); let p; try { p = previewWidget(item, th) } finally { window.__pvRes = 1 } const wrap = document.createElement('div'); wrap.style.cssText = `width:${p.w * s}px;height:${p.h * s}px;flex:none`; p.el.style.transform = `scale(${s})`; p.el.style.transformOrigin = '0 0'; wrap.append(p.el); return wrap } }))
+  return widgetList(th).map(item => ({ title: item.name + ' · ' + item.mode, render(z, aw) { const W = hbOn(th) ? ((state.hbSize || (item.mode === 'shift' ? 'small' : 'medium')) === 'small' ? 170 : 364) : item.mode === 'shift' ? 170 : 364, s = Math.min(aw, item.mode === 'shift' ? 340 : 600) / W * z; window.__pvRes = Math.min(3, s); let p; try { p = previewWidget(item, th) } finally { window.__pvRes = 1 } const wrap = document.createElement('div'); wrap.style.cssText = `width:${p.w * s}px;height:${p.h * s}px;flex:none`; p.el.style.transform = `scale(${s})`; p.el.style.transformOrigin = '0 0'; wrap.append(p.el); return wrap } }))
 }
 function iconItems() {
   const th = state.th
@@ -11574,7 +12152,7 @@ function makeInspectable(el, label, open) { el.setAttribute('role', 'button'); e
 function scriptTheme() {
   const th = state.th, wc = widgetColors(th);
   return {
-    hbArt: frameFor(th) === "halcyon" ? hbWidgetArt() : undefined, hbDark: hbIsDark(th), hbVariant: th.variant || 0,
+    hbOn: hbOn(th), hbArt: hbOn(th) ? hbWidgetArt() : undefined, drOn: drOn(th), drSprites: drOn(th) ? drExportSprites() : undefined, hbDark: hbIsDark(th), hbVariant: th.variant || 0,
     company: th.company, unit: th.unit, ink: wc.ink, panel: wc.panel, headBg: wc.headBg, headText: wc.headText, altBg: wc.altBg, altText: wc.altText, accent: wc.accent,
     scriptFont: SCRIPT_FONTS[th.fonts.display] || th.widget.scriptFont, texture: th.texture, units: th.units, txGraphic: th.widget.txGraphic,
     archive: th.widget.archive, archiveList: th.widget.archiveList || null, C: th.widget.C || {}, codes: { youtube: th.codes.youtube, instagram: th.codes.instagram, discord: th.codes.discord, music: th.codes.music }, oddity: th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', radar: 'hostile', rabbit: 'heist', neon: 'market', market: 'bet', vapor: 'mall', botanical: 'species' }[th.motif] || 'mood'), frame: frameFor(th), L: th.widget.L, classes: th.widget.classes, slogans: th.slogans.length ? th.slogans : [['Stand By', 'HEADQUARTERS']]
@@ -11624,7 +12202,7 @@ function renderChecklist() {
       'For status and shift, set When Interacting to Open URL and type calshow:// so a tap opens Calendar.'
     ]]
   ];
-  if (frameFor(th) === 'halcyon') {
+  if (hbOn(th)) {
     steps[steps.length - 1][2] = [
       'Install Scriptable on iPhone and open it once.',
       'Create a script, paste the exported Halcyon widget script and save it. All artwork is included.',
@@ -11670,7 +12248,7 @@ async function renderBlob(mode, idx) {
   return new Promise(r => c.toBlob(r, 'image/png'));
 }
 // Exports always wait for full-resolution theme artwork, so a downloaded image never ships without it.
-async function artFullyLoaded() { if (frameFor(state.th) === 'halcyon') { try { await hbReady('sheets'); } catch (e) { setStatus('Halcyon artwork could not load, so this export is paused. Check your connection and try again.'); throw e; } } }
+async function artFullyLoaded() { if (hbOn(state.th)) { try { await hbReady('sheets'); } catch (e) { setStatus('Halcyon artwork could not load, so this export is paused. Check your connection and try again.'); throw e; } } }
 async function iconBlob(app, i) { await artFullyLoaded(); const c = document.createElement('canvas'); c.width = 1024; c.height = 1024; drawIcon(c, state.th, app, i); return new Promise(r => c.toBlob(r, 'image/png')); }
 function setStatus(msg) { $('exp-status').textContent = msg; }
 function mimeFor(name) { return name.endsWith('.png') ? 'image/png' : name.endsWith('.zip') ? 'application/zip' : 'text/plain'; }
@@ -11774,8 +12352,10 @@ window.addEventListener('resize', () => { renderPreview(); fitGallery(); });
 if (state.th.variant == null) applyVariant(0, true);
 // The page starts right away; theme artwork arrives in the background and redraws what it touches.
 buildPresets(); buildFields(); buildSingles(); syncFields(); buildVariants();
+if (editionsFor(state.th) && !state.th.edition) { const ill = editionsFor(state.th).find(e => e.id === 'illustrated'); state.th.edition = ill && JSON.stringify(state.th.phrases) === JSON.stringify(ill.phrases) ? 'illustrated' : 'original'; }
+buildEditions();
 fontsFor(state.th).then(() => refresh());
-hbWarm(frameFor(state.th) === 'halcyon');
+hbWarm(hbOn(state.th));
 
 </script>
 </body>

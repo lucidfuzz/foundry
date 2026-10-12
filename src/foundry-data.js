@@ -152,12 +152,12 @@ const APPS = [
 
 const PRESETS = {
   halcyon: {
-    id: 'halcyon', title: 'Halcyon Biofab', blurb: 'Synthetic humanity. Grown organs, clinical pastels and a little more life.',
+    id: 'halcyon', title: 'Halcyon Biofab', blurb: 'Technocratic biotech. A wireframe globe, mint paper and lavender.', edition: 'original',
     company: 'Halcyon Biofab', unit: 'HB-2893',
     colors: { ground: '#A6F3CC', ink: '#0E1512', accent: '#9D8CF2', panel: '#E3F7EC', glow: '#9D8CF2' },
     fonts: { display: 'Newsreader', mono: 'IBM Plex Mono' },
     motif: 'globe', texture: 'dots', marks: 'cross', iconStyle: 'frame', units: 'fahrenheit', upper: false,
-    phrases: [['A little', 'more life.'], ['Room', 'to feel.'], ['Breathe now.', 'Pay later.'], ['A kinder', 'second chance.']],
+    phrases: [['Mortality Is A', 'Legacy Feature'], ['Your Pulse,', 'Fully Licensed'], ['Upgrade Path:', 'Eternal'], ['Grown For What', 'Comes Next']],
     text: {
       headL: ['HALCYON', 'BIOFAB'], headR: ['LOT HB-2893-07', 'SENTIENCE: LEASED'],
       readL: ['NEURAL LEASE: ACTIVE', 'BIOSYNC: 99.7% STABLE', 'WARRANTY: PERPETUAL*'],
@@ -358,7 +358,7 @@ const PRESETS = {
     ]
   },
   deeprange: {
-    id: 'deeprange', title: 'Deep Range', blurb: 'A long-range tracking display. Black glass, red contact frames, a yellow trajectory and a blue planet below.',
+    id: 'deeprange', title: 'Deep Range', blurb: 'A long-range tracking display. Black glass, red contact frames, a yellow trajectory and a blue planet below.', edition: 'original',
     company: 'Deep Range', unit: 'RELAY 07',
     colors: { ground: '#050608', ink: '#FFE14A', accent: '#FF3B30', glow: '#2340FF', panel: '#0B0D10', alert: '#3DFF8A' },
     fonts: { display: 'Archivo', mono: 'Share Tech Mono' },
@@ -2306,3 +2306,24 @@ Object.keys(QUOTE_PACKS).forEach(id => {
   p.widget.archiveList = (p.widget.archiveList || []).concat(QUOTE_PACKS[id].archive.filter(q => !have.has(q.t)));
   p.widget.archive = true;
 });
+
+// ---------- editions ----------
+// A theme can ship more than one edition. The Original is drawn in code; an Illustrated edition uses production artwork.
+// New editions are added here alongside the original, never in place of it. Choosing an edition swaps its blurb and
+// headlines; colorways, customize controls and everything else stay shared.
+const EDITIONS = {
+  halcyon: [
+    { id: 'original', name: 'Original', blurb: 'Technocratic biotech. A wireframe globe, mint paper and lavender.', phrases: [['Mortality Is A', 'Legacy Feature'], ['Your Pulse,', 'Fully Licensed'], ['Upgrade Path:', 'Eternal'], ['Grown For What', 'Comes Next']] },
+    { id: 'illustrated', name: 'Illustrated', blurb: 'Synthetic humanity. Grown organs, clinical pastels and a little more life.', phrases: [['A little', 'more life.'], ['Room', 'to feel.'], ['Breathe now.', 'Pay later.'], ['A kinder', 'second chance.']] }
+  ],
+  deeprange: [
+    { id: 'original', name: 'Original', blurb: 'A long-range tracking display. Black glass, red contact frames, a yellow trajectory and a blue planet below.', phrases: [['Contact', 'Lost'], ['Signal', 'Acquired'], ['Return', 'Window'], ['Deep', 'Range']] },
+    { id: 'expanded', name: 'Expanded', blurb: 'Deeper into the range. New contacts, worlds, relays and salvage, all in vector instrument art.', phrases: [['Contact', 'Lost'], ['World', 'Unresolved'], ['Carrier', 'Return'], ['Salvage', 'Window']] }
+  ]
+};
+function editionsFor(th) { return (th && EDITIONS[th.id]) || null; }
+function editionOf(th) { const e = editionsFor(th); return e ? (e.find(x => x.id === th.edition) || e[0]) : null; }
+// The illustrated Halcyon renderer runs only when that edition is chosen; otherwise Halcyon is the original code-drawn theme.
+// The expanded Deep Range renderer runs only when that edition is chosen; otherwise Deep Range is the original theme.
+function drOn(th) { return !!th && th.motif === 'orbital' && th.edition === 'expanded'; }
+function hbOn(th) { return !!th && ['globe', 'radar'].includes(th.motif) && th.edition === 'illustrated'; }

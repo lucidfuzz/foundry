@@ -18,22 +18,22 @@ const ART_MANIFEST = {
    "signal": "assets/halcyon/thumb/signal.webp?v=462df4c8b1"
   },
   "widget": {
-   "heartDetail": "assets/halcyon/widget/heartDetail.png?v=8c832477fb",
-   "lungsDetail": "assets/halcyon/widget/lungsDetail.png?v=eb76c23a42",
-   "signal": "assets/halcyon/widget/signal.png?v=169038e05f",
-   "saturn": "assets/halcyon/widget/saturn.png?v=a7ef6b9b2b",
-   "neptune": "assets/halcyon/widget/neptune.png?v=99a6a7965d",
-   "jupiter": "assets/halcyon/widget/jupiter.png?v=d0f9319607",
-   "knot": "assets/halcyon/widget/knot.png?v=5b33c1a843",
-   "membrane": "assets/halcyon/widget/membrane.png?v=8228155144",
-   "loops": "assets/halcyon/widget/loops.png?v=2c5f5a301f",
-   "heart": "assets/halcyon/widget/heart.png?v=a4cb109b6f",
-   "lungs": "assets/halcyon/widget/lungs.png?v=b8f9144d19",
-   "tissue": "assets/halcyon/widget/tissue.png?v=b27e4c9131",
-   "optical": "assets/halcyon/widget/optical.png?v=ce926fe448",
-   "archive": "assets/halcyon/widget/archive.png?v=681aa0fec9",
-   "collective": "assets/halcyon/widget/collective.png?v=21869ff806",
-   "neural": "assets/halcyon/widget/neural.png?v=e128662bed"
+   "heartDetail": "assets/halcyon/widget/heartDetail.png?v=896b0fbe56",
+   "lungsDetail": "assets/halcyon/widget/lungsDetail.png?v=dbe8acf818",
+   "signal": "assets/halcyon/widget/signal.png?v=3b0d20c6d7",
+   "saturn": "assets/halcyon/widget/saturn.png?v=04f91aaae5",
+   "neptune": "assets/halcyon/widget/neptune.png?v=bda4ca7694",
+   "jupiter": "assets/halcyon/widget/jupiter.png?v=0cbd2127bf",
+   "knot": "assets/halcyon/widget/knot.png?v=5a568d2449",
+   "membrane": "assets/halcyon/widget/membrane.png?v=a788413a40",
+   "loops": "assets/halcyon/widget/loops.png?v=0a5b23dcec",
+   "heart": "assets/halcyon/widget/heart.png?v=54d18cf2b0",
+   "lungs": "assets/halcyon/widget/lungs.png?v=676795085e",
+   "tissue": "assets/halcyon/widget/tissue.png?v=b11c4f63ea",
+   "optical": "assets/halcyon/widget/optical.png?v=94a4e808c2",
+   "archive": "assets/halcyon/widget/archive.png?v=985ae1fd56",
+   "collective": "assets/halcyon/widget/collective.png?v=6670f921d1",
+   "neural": "assets/halcyon/widget/neural.png?v=3101ed8a75"
   }
  }
 };

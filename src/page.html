@@ -61,6 +61,8 @@ section.step:first-child { padding-top: 0; }
 .vh { margin: 0 0 8px; font-size: 15px; font-stretch: 112%; }
 .variants { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .variant { all: unset; cursor: pointer; display: grid; gap: 4px; justify-items: center; padding: 6px; border: 2px solid var(--line); border-radius: 12px; background: var(--surface); font-size: 12px; text-align: center; line-height: 1.2; }
+.ed-tag { justify-self: start; margin-top: 2px; padding: 2px 8px; border: 1.5px solid var(--text); border-radius: 999px; font-size: 11px; font-weight: 700; }
+.variants-wrap[hidden] { display: none; }
 .variant[aria-pressed="true"] { border-color: var(--text); box-shadow: 3px 3px 0 var(--accent); }
 .variant canvas { width: 100%; aspect-ratio: 390 / 844; border-radius: 8px; display: block; }
 .variant:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
@@ -213,6 +215,10 @@ body.insp-open { overflow: hidden; }
         <h2><b>1</b>Pick a starting point</h2>
         <p class="hint">These are pre-fabricated themes: complete, ready-to-install designs with wallpapers, icons, widgets and a little idle game. Install one as is, or start from the closest and make it yours. Want one made just for you? <a href="#contact">Get in touch</a>.</p>
         <div class="presets" id="presets"></div>
+        <div class="variants-wrap" id="editions-wrap" hidden>
+          <h3 class="vh">Pick an edition</h3>
+          <div class="variants" id="editions"></div>
+        </div>
         <div class="variants-wrap">
           <h3 class="vh">Pick a variant</h3>
           <div class="variants" id="variants"></div>

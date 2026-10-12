@@ -1,0 +1,24 @@
+FOUNDRY / PREFAB VARIETY
+
+User design direction: every prefab should support the feeling of inhabiting a larger world. Apply this pattern in future design and implementation passes. This document records the shared requirement; it does not claim that all existing prefabs have already been expanded.
+
+Keep a stable visual identity: palette, typography, hierarchy, framing and interaction language. Vary the things discovered within that identity. A new name or color on the same illustration is not enough.
+
+Build curated pools of recognizably different subjects. Change silhouette, structure, composition, signal behavior and short contextual writing. Returning subjects should retain their names and visual identities so they become familiar. Procedural detail may enrich those identities, not replace them with arbitrary noise.
+
+Use each prefab's own world. Deep Range has planetary scans, vessels, anomalies, intercepted signals and salvage. Halcyon has synthetic organs, culture stages, corporate transmissions and biological instruments. Apply the variety principle through each theme's approved art direction, rather than giving every theme radar graphics.
+
+Keep practical readings and functions authoritative. Calendar, weather, battery and saved game state remain driven by their real adapters. Fictional discoveries must retain their fictional classification. Known objects should have recognizable identifying traits; stylized scans are not live measurements.
+
+Cycle content at a deliberate pace with repeatable selection. Avoid immediate duplicates and keep neighboring medium-size cards distinct. Do not imply continuous background animation when the platform only updates on refresh. Preserve the user's place and persistent simulation state where appropriate.
+
+Render each subject in small, medium and large layouts. Smaller sizes simplify secondary detail while preserving its distinctive form. Ship the shared renderer and source content, not only concept sheets. Include the variety pool and rotation checks in handoff material.
+
+CURRENT EXAMPLE / DEEP RANGE
+21 contacts: eight known Solar System planets, six fictional worlds, four fictional ships, three anomalies. Sparse vector scans use different silhouettes and structures. A deterministic 30-minute slot selects one contact, or two adjacent contacts in medium; iOS controls the actual refresh. All 21 states have previews at all three sizes. Other widgets retain their established art and behaviors.
+
+DEEP RANGE / CORRECTED ART RULE
+Deep Range uses vector instrument graphics throughout, including lock screens, home screens and status. Do not reintroduce the superseded 3D relay asset. Wallpaper variants must differ in subject and composition, not merely captions or overlays. Preserve the clock and app areas. This vector-only rule belongs to Deep Range; other prefabs retain their own approved media and style. Halcyon lock/home rework is deferred.
+
+LOCK SCREEN LAYOUT REFINEMENT
+Use the original Deep Range lock screen as the layout and style reference: reserved clock space, yellow headline and metadata, inclined tracking plane, red edge marks, year above the cobalt horizon. Create variety inside that composition by changing contacts, trajectories and observations. Do not substitute four unrelated dashboard layouts.

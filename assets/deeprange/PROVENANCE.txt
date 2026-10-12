@@ -1,0 +1,15 @@
+STATUS: SUPERSEDED REFERENCE ONLY. The 3D relay below is not part of the current Deep Range build or export. Current Deep Range graphics are code-native vectors.
+
+DEEP RANGE / PRODUCTION ART / RELAY REVISION 2
+
+relay.png: replacement relay craft generated with the built-in OpenAI image-generation tool. The user clarified that only the previous craft was too close to the reference. Layouts, palette and instrumentation are preserved. This replacement was generated without reference images. A compact, asymmetric open-core machine replaces the long axial craft and paired crescent dishes.
+
+Final generation prompt:
+Use case: stylized-concept. Create one original production artwork asset for the DEEP RANGE orbital tracking interface. A genuinely transparent-background isolated industrial spacecraft, high detail, vivid signal vermilion red with very dark burgundy shadows and tiny sulfur-yellow instrument lights. No background, text, grid, ground, logos, stars or lettering.
+
+The user likes the established black/red/yellow/cobalt theme and only wants a more ORIGINAL SHIP SILHOUETTE. Invent a compact, asymmetrical unmanned salvage and listening platform, entirely different from a long axial spacecraft with crescent dishes. Three-quarter orthographic view of a squat irregular cuboid framework, a conspicuous square empty passage through its center, offset rectangular armored instrument cassettes clustered on three sides, one dense accordion-fold radiator stack extending sideways, two short asymmetrical articulated manipulator booms folded toward the core, a suspended little sample-capture box beneath. Six angular ceramic sensor blades oriented in different directions, inset rectangular sockets, fine trusses, bundled cables, tiny exposed fasteners, panel vents. A strange but believable industrial machine assembled to retrieve things it cannot identify. Overall silhouette roughly as wide as tall, visually strongly asymmetric, angular negative space at the heart of the object. The cubic empty center must be clearly visible, not filled with a sphere or engine.
+
+Render as a severe scientific-computer volumetric visualization: predominantly saturated red, sharp hard-surface edges, very finely resolved mechanical construction, dark material recesses. Moderately lit so it remains legible when small against pure black. No glossy toy finish. Whole object fully visible with generous transparent margins. Especially avoid: paired semicircular or crescent dishes, circular dish antennas, a long diagonal spine, long straight lance, a symmetrical horizontal satellite, any recognizable existing sci-fi vehicle, UESC or Marathon marks. This is an original isolated spacecraft asset; no interface or concept-board layout.
+
+Fonts: Archivo and Share Tech Mono; the accompanying SIL Open Font Licenses remain in fonts/. Scriptable uses native fonts and requires physical-device verification.
+
