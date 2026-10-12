@@ -198,8 +198,42 @@ from Claude; Jordan can adjust them. Everything else here is binding for all new
   by hand. The site explains this beside the Android button.
 - APPROVED: the runtime's Android fonts are chosen to match each iPhone font's width (e.g. Futura Condensed -> Barlow
   Condensed), because the widget layouts assume those widths.
-- OPEN: the cycling lock-screen pools are 4 headlines per theme today; Samsung allows 15. More in-world headlines per theme
-  (under the WORLD-BUILDING STANDARD) would fill them.
+- APPROVED (Jordan, 12 Oct): every theme and edition gets more lock-screen headlines, up to 15 in total (11 new each), so
+  Android lock screens can cycle through 15 and iPhone users get more choice. GPT writes them; Claude adds them to the site.
+  See HEADLINE POOLS below.
+
+[ADDED] HEADLINE POOLS: REQUEST FOR GPT (APPROVED, Jordan 12 Oct)
+Write 11 new lock-screen headlines for each theme and edition below, so each has 15 in total.
+- Shape: two lines, exactly like the current four, with the same capitalization style (most themes use Title Case; Halcyon
+  Illustrated uses sentence case, e.g. "A little / more life.").
+- Length limits (characters per line, spaces and punctuation included) are hard limits. They equal the longest current lines,
+  which are proven to fit each layout. Shorter is fine.
+- Voice: each theme's one-line register and world notes in Foundry_Theme_Bible.md. Every headline must be something that world
+  would actually say, drawn from its institutions, places, records or recurring entities.
+- Variety: no repeats or near-repeats of the existing four or of each other. Each headline takes a different angle (a different
+  department, entity, object or moment), and don't reuse the same opening word more than twice per theme.
+- Rules: no real Japanese, Chinese or Korean characters; no real brands, people or places (except real astronomical objects
+  where a theme already uses them); no stereotypes; nothing that claims to be the user's real data; never "...".
+- Deliver: one list per theme/edition, each headline as ["line one", "line two"], plus a few words on which part of the world it
+  draws from, so Claude can check variety.
+
+| theme / edition | line 1 max | line 2 max | current four |
+|---|---|---|---|
+| Halcyon Biofab, Original | 14 | 14 | Mortality Is A / Legacy Feature; Your Pulse, / Fully Licensed; Upgrade Path: / Eternal; Grown For What / Comes Next |
+| Halcyon Biofab, Illustrated | 12 | 14 | A little / more life.; Room / to feel.; Breathe now. / Pay later.; A kinder / second chance. |
+| Directive Zero | 6 | 8 | Remain / Calm; Hold / Position; Do Not / Hesitate; Return / To Base |
+| The Long Road | 9 | 11 | Pack More / Bread; Keep The / Lantern Lit; The Long / Way Home; Walk On, / Wanderer |
+| Nightfall Descent | 11 | 5 | Drop Window / Open; Stay / Low; Night / Shift; Rain / Check |
+| Planar Grimoire | 7 | 14 | The / Wandering Star; Seer Of / Small Hours; Gilded / Familiar; Oath Of / Embers |
+| Deep Range, Original | 7 | 8 | Contact / Lost; Signal / Acquired; Return / Window; Deep / Range |
+| Deep Range, Expanded | 7 | 10 | Contact / Lost; World / Unresolved; Carrier / Return; Salvage / Window |
+| White Rabbit | 16 | 10 | What's Yours / Is Mine; Catch Me / If You Can; Before I / Catch You; Seven Heirlooms, / One Night |
+| Neon District | 12 | 12 | Buy Now, / Pay Forever; Breathe / Premium Air; Your Debt Is / Our Future; Sleep Is A / Subscription |
+| Vapor Plaza | 10 | 11 | Eternal / Sunset; Welcome To / The Plaza; Nothing Is / Real Here; Forever / Nineteen 95 |
+| Wildwood | 10 | 11 | Slow Down, / Look Closer; Grow Where / You Are; Every Path / Is A Story; Take Only / Photographs |
+| Long Odds | 17 | 13 | Will Today / Happen Twice?; Does The Void / Take Bets?; Will You Remember / This Tuesday?; Is Tomorrow / Priced In? |
+Note: Deep Range Expanded's lock screens draw their own scenes, so its headlines should name a subject the tracking display could
+show (a contact, world, relay, wreck or anomaly).
 
 [ADDED] OPEN ITEMS AND CONFLICTS
 - CONFLICT: The current Halcyon snapshot (2ad0d7e) assumes embedded full-size PNGs (scripts/build.cjs, ASSET_INVENTORY.json)
@@ -227,8 +261,10 @@ from Claude; Jordan can adjust them. Everything else here is binding for all new
   some of the original's real-object categories back in.
 
 [ADDED] PRODUCTION STATE (2026-10-12)
-- GitHub main 2dfdff4: Halcyon Original + Illustrated (Codex v1, sharper hosted crops), Deep Range Original + Expanded,
-  hosted-art pipeline, first-run fix, CLAUDE.md. index.html 1.14 MB. 20 automated tests pass.
+- GitHub main c14a47a (latest): Halcyon Original + Illustrated v2, Deep Range Original + Expanded, free Android picture packs
+  with the shared runtime (android/runtime), this design record and the theme bible in docs/, AGENTS.md and CLAUDE.md.
+  index.html 1.23 MB. 27 automated tests pass.
+- Earlier: 2dfdff4 added the editions system and Deep Range Expanded.
 - Codex snapshot 2ad0d7e: authoritative for the NEW Halcyon Illustrated widgets only (13 modes x 3 sizes, 36 contacts,
   specimen). Not authoritative for shared files, other themes, the build or the art pipeline.
 - Integrated by Claude (12 Oct, update "Halcyon Illustrated v2"): Codex snapshot 2ad0d7e replaces Illustrated v1. 13 widgets
