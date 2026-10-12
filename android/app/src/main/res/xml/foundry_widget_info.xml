@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- previewLayout, targetCell* and widgetFeatures are used on newer Android versions and ignored on older ones. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:configure="io.github.lucidfuzz.foundry.WidgetConfigActivity"
     android:description="@string/widget_description"
     android:initialLayout="@layout/foundry_widget"
@@ -14,4 +16,5 @@
     android:targetCellHeight="2"
     android:updatePeriodMillis="0"
     android:widgetCategory="home_screen"
-    android:widgetFeatures="reconfigurable" />
+    android:widgetFeatures="reconfigurable"
+    tools:ignore="UnusedAttribute" />

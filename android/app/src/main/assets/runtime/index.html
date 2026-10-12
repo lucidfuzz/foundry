@@ -38,11 +38,14 @@ html, body { margin: 0; background: transparent; }
 // FoundryNative.job(id), so large scripts never pass through evaluateJavascript.
 (function () {
   'use strict';
+  let allFaces = null;
   async function fontsFor(script) {
-    // Draw only once this theme's fonts are loaded (as the website does before its Android pack).
+    // Draw only once the fonts are loaded. Every bundled face is loaded once per page (they are local files), because
+    // scripts also draw weights FoundryRuntime.fontsNeeded() doesn't list, such as bold IBM Plex Mono.
+    allFaces = allFaces || Promise.all(Array.from(document.fonts, f => f.load().catch(() => null)));
     const wanted = FoundryRuntime.fontsNeeded(script);
     await Promise.race([
-      Promise.all(wanted.map(f => document.fonts.load(f).catch(() => null))),
+      Promise.all([allFaces].concat(wanted.map(f => document.fonts.load(f).catch(() => null)))),
       new Promise(r => setTimeout(r, 4000)),
     ]);
   }

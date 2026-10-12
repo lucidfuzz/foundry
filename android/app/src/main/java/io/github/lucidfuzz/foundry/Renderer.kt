@@ -91,6 +91,8 @@ class Renderer private constructor(private val app: Context) {
         private const val IDLE_CLOSE_MS = 120_000L
         private const val LOAD_TIMEOUT_MS = 30_000L
 
+        // Holds only the application context, so keeping one renderer for the process doesn't leak an activity.
+        @SuppressLint("StaticFieldLeak")
         @Volatile private var instance: Renderer? = null
         fun get(ctx: Context): Renderer =
             instance ?: synchronized(this) { instance ?: Renderer(ctx.applicationContext).also { instance = it } }
@@ -209,7 +211,9 @@ class Renderer private constructor(private val app: Context) {
                 // The web view's process crashed or was killed: drop it, fail the job in flight, start fresh on the next one.
                 if (v === web) {
                     drop()
-                    current?.let { finish(it.id, null, "The renderer stopped; it will retry on the next refresh") }
+                    val job = current
+                    if (job != null) finish(job.id, null, "The renderer stopped; it will retry on the next refresh")
+                    else failAll("The renderer stopped; it will retry on the next refresh")
                 } else {
                     try { v.destroy() } catch (e: Exception) { }
                 }

@@ -68,6 +68,7 @@
     <string name="radio_invalid">That isn’t a link Foundry can open. Use a https:// link or an app link such as youtubemusic://</string>
 
     <!-- Import -->
+    <string name="import_reading">Reading the script</string>
     <string name="import_done">Imported %1$s.</string>
     <string name="import_updated">Updated %1$s. Its widgets will redraw.</string>
     <string name="import_nothing_title">Nothing to import</string>

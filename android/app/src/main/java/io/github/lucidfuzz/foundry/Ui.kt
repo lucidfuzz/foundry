@@ -30,8 +30,13 @@ object Ui {
 
     fun dp(ctx: Context, v: Number): Int = (v.toFloat() * ctx.resources.displayMetrics.density).roundToInt()
 
-    /** A scrolling page whose content stays clear of the status and navigation bars. Returns the column to fill. */
-    fun page(activity: Activity): LinearLayout {
+    /**
+     * A scrolling page whose content stays clear of the status and navigation bars. Returns the column to fill.
+     * [keepScroll] keeps the scroll position of the page it replaces (redrawing the same screen after a choice).
+     */
+    fun page(activity: Activity, keepScroll: Boolean = false): LinearLayout {
+        val previous = ((activity.findViewById<ViewGroup>(android.R.id.content)?.getChildAt(0) as? ViewGroup)
+            ?.getChildAt(0) as? ScrollView)?.scrollY ?: 0
         val col = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
             val p = dp(activity, 16)
@@ -47,6 +52,7 @@ object Ui {
             addView(scroll, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         }
         activity.setContentView(root)
+        if (keepScroll && previous > 0) scroll.post { scroll.scrollTo(0, previous) }
         return col
     }
 

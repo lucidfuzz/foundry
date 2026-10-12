@@ -57,7 +57,7 @@ class WidgetConfigActivity : Activity() {
 
     private fun build() {
         Renderer.get(this).cancel(TAG)
-        val col = Ui.page(this)
+        val col = Ui.page(this, keepScroll = true)
         col.addView(Ui.title(this, getString(R.string.config_title)))
         val themes = ThemeStore.list(this)
         if (themes.isEmpty()) {

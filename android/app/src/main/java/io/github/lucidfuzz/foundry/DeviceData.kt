@@ -141,8 +141,13 @@ object LocationCache {
     private fun store(ctx: Context, l: Location) {
         val p = AppState.prefs(ctx)
         if (l.time < p.getLong("locTime", 0L)) return
+        val first = !p.contains("lat")
+        val moved = FloatArray(1)
+        if (!first) Location.distanceBetween(p.getFloat("lat", 0f).toDouble(), p.getFloat("lon", 0f).toDouble(), l.latitude, l.longitude, moved)
         p.edit().putFloat("lat", l.latitude.toFloat()).putFloat("lon", l.longitude.toFloat())
             .putFloat("acc", if (l.hasAccuracy()) l.accuracy else 3000f).putLong("locTime", l.time).apply()
+        // The first fix (often just after permission is granted) or a move to another town: redraw the weather now.
+        if (first || moved[0] > 5_000f) Refresh.now(ctx.applicationContext)
     }
 
     /** The newest last-known fix from any provider this app may use. Cheap; safe from a background worker. */

@@ -20,7 +20,7 @@ object ThemeStore {
 
     /** Saves a script. Returns the theme, or null if the text isn't a Foundry widget script. */
     fun save(ctx: Context, script: String): Theme? {
-        val text = script.replace("\r\n", "\n").trimStart('﻿')
+        val text = script.replace("\r\n", "\n").trimStart('\uFEFF')
         val info = ScriptInfo.parse(text) ?: return null
         val file = fileFor(ctx, info.name)
         val tmp = File(file.parentFile, file.name + ".tmp")
@@ -95,9 +95,14 @@ object WidgetStore {
     /** Keeps the latest good picture so a failed render (offline, timeout) can show it again. */
     fun saveImage(ctx: Context, id: Int, png: ByteArray, url: String?) {
         val f = imageFile(ctx, id)
-        val tmp = File(f.parentFile, f.name + ".tmp")
-        tmp.writeBytes(png)
-        if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f) }
+        // A temp file of its own, renamed over the old picture in one step: the old one stays until the new one is whole.
+        val tmp = File.createTempFile("$id-", ".tmp", f.parentFile)
+        try {
+            tmp.writeBytes(png)
+            if (!tmp.renameTo(f)) return
+        } finally {
+            tmp.delete()
+        }
         prefs(ctx).edit().putString("url$id", url).apply()
     }
 }

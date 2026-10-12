@@ -38,7 +38,7 @@ class ScriptInfoTest {
     @Test fun readsTheNameFromTheSiteExportAndTheSpecForm() {
         assertEquals("Halcyon Biofab", ScriptInfo.company("// Halcyon Biofab — made with Foundry\nconst x = 1"))
         assertEquals("Halcyon Biofab", ScriptInfo.company("// Halcyon Biofab, made with Foundry"))
-        assertEquals("Deep Range", ScriptInfo.company("﻿// Deep Range — made with Foundry"))
+        assertEquals("Deep Range", ScriptInfo.company("\uFEFF// Deep Range — made with Foundry"))
         assertNull(ScriptInfo.company("// some other script\nmade with Foundry"))
         assertNull(ScriptInfo.company(""))
     }

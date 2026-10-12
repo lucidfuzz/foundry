@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="foundry_bg">#16181B</color>
-    <color name="foundry_card">#202328</color>
     <color name="foundry_text">#EDEDE9</color>
     <color name="foundry_soft">#A3A6AD</color>
     <color name="foundry_accent">#9D8CF2</color>

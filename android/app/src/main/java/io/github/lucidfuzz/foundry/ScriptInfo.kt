@@ -62,7 +62,7 @@ object ScriptInfo {
 
     /** "// Halcyon Biofab — made with Foundry" (the site's export) or "// Halcyon Biofab, made with Foundry" -> "Halcyon Biofab". */
     fun company(script: String): String? {
-        val first = script.trimStart('﻿').lineSequence().firstOrNull() ?: return null
+        val first = script.trimStart('\uFEFF').lineSequence().firstOrNull() ?: return null
         return FIRST_LINE.find(first)?.groupValues?.get(1)?.trim()?.takeIf { it.isNotEmpty() }
     }
 
@@ -81,7 +81,7 @@ object ScriptInfo {
      * "any" means every size; otherwise every size word named inside the brackets is allowed ("small or medium").
      */
     fun headerModes(script: String): List<Mode> {
-        val header = script.trimStart('﻿').lineSequence().drop(1)
+        val header = script.trimStart('\uFEFF').lineSequence().drop(1)
             .takeWhile { it.trimStart().startsWith("//") }
             .joinToString(" ") { it.trimStart().removePrefix("//") }
         val found = LinkedHashMap<String, Mode>()

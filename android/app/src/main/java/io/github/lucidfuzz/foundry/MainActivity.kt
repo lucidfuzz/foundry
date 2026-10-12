@@ -1,6 +1,7 @@
 package io.github.lucidfuzz.foundry
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ClipboardManager
@@ -83,10 +84,15 @@ class MainActivity : Activity() {
 
     // ---------- navigation ----------
 
+    private var shown: String? = "" // the screen on display, so redrawing it keeps its scroll position
+
     private fun render() {
         Renderer.get(this).cancel(PREVIEWS)
         val theme = current?.let { ThemeStore.get(this, it) }
-        if (theme == null) { current = null; home() } else themeScreen(theme)
+        if (theme == null) current = null
+        val same = shown == current
+        shown = current
+        if (theme == null) home(same) else themeScreen(theme, same)
         setBackHandler(current != null)
     }
 
@@ -98,8 +104,11 @@ class MainActivity : Activity() {
 
     private fun goBack() = open(null)
 
+    // Android 8 to 12. From Android 13 the system uses the OnBackInvokedCallback registered below
+    // (android:enableOnBackInvokedCallback is on), so this is not called there.
     @Deprecated("Deprecated in Java")
     @Suppress("DEPRECATION")
+    @SuppressLint("GestureBackNavigation")
     override fun onBackPressed() {
         if (current != null) goBack() else super.onBackPressed()
     }
@@ -129,12 +138,12 @@ class MainActivity : Activity() {
                 val stream: Uri? = if (Build.VERSION.SDK_INT >= 33) i.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
                 else i.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
                 render()
-                importScript(stream?.let { readUri(it) } ?: text)
+                if (stream != null) importFrom(stream) else importScript(text)
                 return true
             }
             Intent.ACTION_VIEW -> {
                 val data = i.data
-                if (data != null && data.scheme != "foundry") { render(); importScript(readUri(data)); return true }
+                if (data != null && data.scheme != "foundry") { render(); importFrom(data); return true }
             }
         }
         val theme = i.getStringExtra(EXTRA_THEME)
@@ -150,8 +159,8 @@ class MainActivity : Activity() {
 
     // ---------- home ----------
 
-    private fun home() {
-        val col = Ui.page(this)
+    private fun home(keepScroll: Boolean) {
+        val col = Ui.page(this, keepScroll)
         col.addView(Ui.title(this, getString(R.string.app_name)))
         col.addView(Ui.text(this, getString(R.string.home_intro), 15f, Ui.SOFT, top = 6))
 
@@ -188,9 +197,9 @@ class MainActivity : Activity() {
 
     // ---------- one theme: setup and previews ----------
 
-    private fun themeScreen(theme: Theme) {
+    private fun themeScreen(theme: Theme, keepScroll: Boolean) {
         val info = theme.info
-        val col = Ui.page(this)
+        val col = Ui.page(this, keepScroll)
         col.addView(Ui.text(this, getString(R.string.back_to_themes), 15f, Ui.ACCENT).apply {
             setPadding(0, Ui.dp(context, 4), 0, Ui.dp(context, 12))
             setOnClickListener { goBack() }
@@ -239,7 +248,7 @@ class MainActivity : Activity() {
             AlertDialog.Builder(this)
                 .setTitle(getString(R.string.theme_remove_title, info.name))
                 .setMessage(R.string.theme_remove_message)
-                .setPositiveButton(R.string.theme_remove_confirm) { _, _ -> ThemeStore.delete(this, info.name); goBack() }
+                .setPositiveButton(R.string.theme_remove_confirm) { _, _ -> ThemeStore.delete(this, info.name); Refresh.now(this); goBack() }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
         })
@@ -352,7 +361,16 @@ class MainActivity : Activity() {
     @Suppress("DEPRECATION")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQ_OPEN && resultCode == RESULT_OK) data?.data?.let { importScript(readUri(it)) }
+        if (requestCode == REQ_OPEN && resultCode == RESULT_OK) data?.data?.let { importFrom(it) }
+    }
+
+    /** Reads a shared or opened file off the main thread (it may be downloading from a cloud drive), then imports it. */
+    private fun importFrom(uri: Uri) {
+        Toast.makeText(this, R.string.import_reading, Toast.LENGTH_SHORT).show()
+        Thread {
+            val text = readUri(uri)
+            runOnUiThread { if (!isFinishing && !isDestroyed) importScript(text) }
+        }.start()
     }
 
     private fun readUri(uri: Uri): String? = try {

@@ -51,11 +51,21 @@ object Refresh {
         WorkManager.getInstance(ctx).enqueueUniqueWork(NOW, ExistingWorkPolicy.APPEND_OR_REPLACE, req)
     }
 
-    /** One extra refresh at [timeMs] when a script wants to be redrawn before the next 15-minute refresh. */
+    /**
+     * One extra refresh at [timeMs] when a script wants to be redrawn before the next 15-minute refresh. An extra refresh
+     * already booked for an earlier time is kept; one that is already running is never cancelled (the new one follows it).
+     */
     fun at(ctx: Context, timeMs: Long) {
-        val delay = (timeMs - System.currentTimeMillis()).coerceAtLeast(0L)
-        val req = OneTimeWorkRequest.Builder(RefreshWorker::class.java).setInitialDelay(delay, TimeUnit.MILLISECONDS).build()
-        WorkManager.getInstance(ctx).enqueueUniqueWork(SOON, ExistingWorkPolicy.REPLACE, req)
+        val p = AppState.prefs(ctx)
+        val now = System.currentTimeMillis()
+        val pending = p.getLong("soonAt", 0L)
+        if (pending > now && pending <= timeMs) return
+        p.edit().putLong("soonAt", timeMs).apply()
+        val req = OneTimeWorkRequest.Builder(RefreshWorker::class.java)
+            .setInitialDelay((timeMs - now).coerceAtLeast(0L), TimeUnit.MILLISECONDS)
+            .build()
+        val policy = if (pending > now) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.APPEND_OR_REPLACE
+        WorkManager.getInstance(ctx).enqueueUniqueWork(SOON, policy, req)
     }
 
     /**
@@ -110,7 +120,12 @@ class ChargeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params)
 
 /** Boot, app update, clock and time zone changes: make sure refreshes are scheduled and redraw now. */
 class SystemEventsReceiver : BroadcastReceiver() {
+    private val actions = setOf(
+        Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED, Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED,
+    )
+
     override fun onReceive(ctx: Context, intent: Intent) {
+        if (intent.action !in actions) return
         Refresh.ensureScheduled(ctx)
         Refresh.now(ctx)
     }

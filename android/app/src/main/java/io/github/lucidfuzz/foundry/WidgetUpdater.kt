@@ -49,13 +49,19 @@ object WidgetUpdater {
     fun request(ctx: Context, id: Int, cfg: WidgetConfig, theme: Theme): RenderRequest =
         RenderRequest(theme.script, cfg.family, cfg.mode, scaleFor(ctx, id, cfg.family), theme.info.scriptName)
 
-    /** Renders widget [id] and shows it. Worker thread only. Returns the time the script asked to be redrawn by, if any. */
-    fun refresh(ctx: Context, id: Int): Long? {
+    /**
+     * Renders widget [id] and shows it. Worker thread only. Returns the time the script asked to be redrawn by, if any.
+     * Refresh passes can overlap (periodic, charger, app open); the lock keeps them to one widget at a time so two passes
+     * never save the same widget's picture at once.
+     */
+    fun refresh(ctx: Context, id: Int): Long? = synchronized(this) { refreshLocked(ctx, id) }
+
+    private fun refreshLocked(ctx: Context, id: Int): Long? {
         val cfg = WidgetStore.get(ctx, id)
         if (cfg == null) { showMessage(ctx, id, ctx.getString(R.string.widget_needs_setup)); return null }
         val theme = ThemeStore.get(ctx, cfg.theme)
         if (theme == null) {
-            if (!showCached(ctx, id, cfg)) showMessage(ctx, id, ctx.getString(R.string.widget_theme_missing, cfg.theme))
+            if (!showCached(ctx, id, cfg)) showMessage(ctx, id, ctx.getString(R.string.widget_theme_missing, cfg.theme), needsSetup = true)
             return null
         }
         return try {
@@ -86,9 +92,13 @@ object WidgetUpdater {
         return true
     }
 
-    fun showMessage(ctx: Context, id: Int, message: String) = show(ctx, id, WidgetStore.get(ctx, id), null, null, message)
+    /** A text message instead of a picture. [needsSetup] makes a tap open the widget picker for this widget. */
+    fun showMessage(ctx: Context, id: Int, message: String, needsSetup: Boolean = false) {
+        val cfg = WidgetStore.get(ctx, id)
+        show(ctx, id, cfg, null, null, message, needsSetup || cfg == null)
+    }
 
-    private fun show(ctx: Context, id: Int, cfg: WidgetConfig?, picture: Bitmap?, url: String?, message: String?) {
+    private fun show(ctx: Context, id: Int, cfg: WidgetConfig?, picture: Bitmap?, url: String?, message: String?, needsSetup: Boolean = cfg == null) {
         val rv = RemoteViews(ctx.packageName, R.layout.foundry_widget)
         if (picture != null) {
             rv.setInt(android.R.id.background, "setBackgroundResource", R.drawable.widget_clip)
@@ -103,7 +113,7 @@ object WidgetUpdater {
             rv.setViewVisibility(R.id.widget_message, View.VISIBLE)
             rv.setTextViewText(R.id.widget_message, message ?: "")
         }
-        rv.setOnClickPendingIntent(android.R.id.background, LinkActivity.pendingIntent(ctx, id, url, cfg?.theme, cfg == null))
+        rv.setOnClickPendingIntent(android.R.id.background, LinkActivity.pendingIntent(ctx, id, url, cfg?.theme, needsSetup))
         try { AppWidgetManager.getInstance(ctx).updateAppWidget(id, rv) } catch (e: Exception) { }
     }
 
