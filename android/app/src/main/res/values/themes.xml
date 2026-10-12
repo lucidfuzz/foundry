@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Foundry" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:colorPrimary">@color/foundry_bg</item>
+        <item name="android:colorPrimaryDark">@color/foundry_bg</item>
+        <item name="android:colorAccent">@color/foundry_accent</item>
+        <item name="android:windowBackground">@color/foundry_bg</item>
+        <item name="android:statusBarColor">@color/foundry_bg</item>
+        <item name="android:navigationBarColor">@color/foundry_bg</item>
+        <item name="android:textColorPrimary">@color/foundry_text</item>
+        <item name="android:textColorSecondary">@color/foundry_soft</item>
+    </style>
+
+    <!-- Invisible stop between a widget tap and the app or link it opens -->
+    <style name="Theme.Foundry.Link" parent="@android:style/Theme.Translucent.NoTitleBar">
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+</resources>

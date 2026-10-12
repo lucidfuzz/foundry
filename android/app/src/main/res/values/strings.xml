@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Foundry</string>
+
+    <!-- Widget -->
+    <string name="widget_label">Foundry</string>
+    <string name="widget_description">A live widget from your Foundry theme: status, shift, weather, music, feeds, games and more.</string>
+    <string name="widget_needs_setup">Tap to choose a Foundry theme and widget.</string>
+    <string name="widget_loading">Drawing your widget</string>
+    <string name="widget_failed">This widget could not be drawn yet. It will try again on the next refresh.</string>
+    <string name="widget_theme_missing">The theme “%1$s” was removed. Tap to choose another.</string>
+    <string name="widget_picture_description">%1$s, %2$s widget</string>
+
+    <!-- Home -->
+    <string name="home_intro">Live widgets for the themes you make at Foundry. Import a theme’s widget script, then add a Foundry widget to your home screen.</string>
+    <string name="home_themes">Your themes</string>
+    <string name="home_no_themes">No themes yet. On lucidfuzz.github.io/foundry, pick a theme, go to the Export step and copy the widget script (or download it), then bring it here.</string>
+    <string name="home_add">Add a theme</string>
+    <string name="import_paste">Paste the widget script</string>
+    <string name="import_file">Open a script file (.js)</string>
+    <string name="import_type">Type or paste it in a box</string>
+    <string name="import_type_hint">Paste the whole widget script here</string>
+    <string name="import_button">Import</string>
+    <string name="import_share_hint">You can also share the script file to Foundry from your Files or browser app.</string>
+    <string name="home_permissions">Permissions</string>
+    <string name="perm_calendar_on">Calendar: allowed</string>
+    <string name="perm_calendar_off">Calendar: tap to allow</string>
+    <string name="perm_calendar_use">Status and Shift show your real next event and countdown.</string>
+    <string name="perm_location_on">Approximate location: allowed</string>
+    <string name="perm_location_off">Approximate location: tap to allow</string>
+    <string name="perm_location_use">Status and Solar show the weather and daylight where you are.</string>
+    <string name="home_how">Put a widget on your home screen</string>
+    <string name="home_how_steps">1. Touch and hold an empty spot on your home screen.\n2. Tap Widgets, find Foundry and drag it onto the screen.\n3. Pick your theme, the widget you want and its size, then tap Add widget.\n4. To change it later, touch and hold the widget and choose its settings (or remove it and add it again).\n\nWidgets redraw about every 15 minutes, when you plug in or unplug the charger, and when you open this app.</string>
+    <string name="home_footer">Foundry runs the same widget scripts as iPhone. Your calendar and location stay on your phone; only your approximate position is sent to the free weather service, Open-Meteo.</string>
+    <plurals name="widget_count">
+        <item quantity="one">%d widget</item>
+        <item quantity="other">%d widgets</item>
+    </plurals>
+    <string name="theme_edition_line">%1$s edition · %2$s</string>
+
+    <!-- Theme screen -->
+    <string name="back_to_themes">‹ All themes</string>
+    <string name="theme_sizes_flexible">Every widget comes in small, medium and large.</string>
+    <string name="theme_sizes_fixed">Each widget comes in the size it was designed for.</string>
+    <string name="setup_heading">Halcyon setup</string>
+    <string name="setup_allocation">Allocation (Shift widget)</string>
+    <string name="setup_allocation_now">Following “%1$s”. Tap to change.</string>
+    <string name="setup_allocation_none">Not chosen yet. Tap to choose an event.</string>
+    <string name="setup_radio">Radio (Audio Channel widget)</string>
+    <string name="previews_heading">Widget previews</string>
+    <string name="preview_rendering">Drawing the preview</string>
+    <string name="preview_failed">This widget could not be drawn.</string>
+    <string name="theme_manage">Manage</string>
+    <string name="theme_remove">Remove this theme</string>
+    <string name="theme_remove_title">Remove %1$s?</string>
+    <string name="theme_remove_message">Widgets using it keep their last picture until you choose another theme for them. You can import it again at any time.</string>
+    <string name="theme_remove_confirm">Remove</string>
+
+    <!-- Allocation and radio setup -->
+    <string name="allocation_title">Choose your allocation</string>
+    <string name="allocation_explain">Shift follows every event with this exact title on this calendar, including repeats. Your calendar is not changed.</string>
+    <string name="allocation_none">No timed events found in the next 90 days. Add an event in your calendar app, then come back.</string>
+    <string name="allocation_saved">Shift will follow “%1$s”.</string>
+    <string name="calendar_unavailable">The calendar could not be read. Check that Foundry is allowed to read it.</string>
+    <string name="radio_title">Halcyon Radio destination</string>
+    <string name="radio_message">The corporate programming is fictional. Choose the music app or stream that opens when you tap the channel, for example youtubemusic:// or a https:// link.</string>
+    <string name="radio_save">Save</string>
+    <string name="radio_invalid">That isn’t a link Foundry can open. Use a https:// link or an app link such as youtubemusic://</string>
+
+    <!-- Import -->
+    <string name="import_done">Imported %1$s.</string>
+    <string name="import_updated">Updated %1$s. Its widgets will redraw.</string>
+    <string name="import_nothing_title">Nothing to import</string>
+    <string name="import_nothing">Foundry didn’t receive any text. Share or open the widget script file itself.</string>
+    <string name="import_clipboard_empty">Your clipboard is empty. In Foundry’s Export step, copy the widget script, then come back and tap Paste.</string>
+    <string name="import_no_picker">This phone has no file picker Foundry can open.</string>
+    <string name="import_not_foundry_title">Not a Foundry widget script</string>
+    <string name="import_not_foundry">This doesn’t look like a widget script made with Foundry. Its first line should end with “made with Foundry”. Copy the whole script from Foundry’s Export step and try again.</string>
+
+    <!-- Permissions -->
+    <string name="perm_calendar_title">Allow calendar?</string>
+    <string name="perm_calendar_why">Foundry reads your calendar so the Status widget can show your next event and the Shift widget can count down to the event you choose. It only reads; it never changes your calendar, and nothing leaves your phone.\n\nAndroid will ask you next.</string>
+    <string name="perm_location_title">Allow approximate location?</string>
+    <string name="perm_location_why">Foundry uses your approximate location (about a town’s width) to get local weather, sunrise and sunset for the Status and Solar widgets. It is only sent to the free weather service Open-Meteo, and Foundry only asks while the app is open.\n\nAndroid will ask you next.</string>
+    <string name="perm_continue">Continue</string>
+    <string name="perm_not_now">Not now</string>
+    <string name="perm_denied">Foundry wasn’t given access, so these widgets will show placeholders. You can allow it any time in Settings › Apps › Foundry › Permissions.</string>
+    <string name="perm_open_settings">Open settings</string>
+
+    <!-- Widget setup -->
+    <string name="config_title">Choose your widget</string>
+    <string name="config_no_themes">You haven’t imported a theme yet. Open Foundry, add a theme, then come back here (or add the widget again).</string>
+    <string name="config_open_app">Open Foundry</string>
+    <string name="config_theme">Theme</string>
+    <string name="config_widget">Widget</string>
+    <string name="config_size">Size</string>
+    <string name="config_size_fixed">%1$s, the size this widget was designed for.</string>
+    <string name="config_preview">Preview</string>
+    <string name="config_save">Add widget</string>
+    <string name="config_saving">Drawing your widget</string>
+</resources>

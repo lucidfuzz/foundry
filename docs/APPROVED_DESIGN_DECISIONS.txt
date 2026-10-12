@@ -198,6 +198,11 @@ from Claude; Jordan can adjust them. Everything else here is binding for all new
   by hand. The site explains this beside the Android button.
 - APPROVED: the runtime's Android fonts are chosen to match each iPhone font's width (e.g. Futura Condensed -> Barlow
   Condensed), because the widget layouts assume those widths.
+- APPROVED (Jordan, 12 Oct): the Foundry Android app (android/SPEC.md Phase 1) is built on its own branch, android, with a
+  GitHub Actions workflow (.github/workflows/android.yml) that builds the debug APK on every push to that branch. The android
+  branch is never merged into main. Corrections found while building are recorded in SPEC.md ("Phase 1 as built"): the
+  allocation setting the app writes is {match:'title', identifier, title, calendar id}, exactly as hbChooseAllocation writes
+  it; the script name passed to widgets is the company's first word ("Halcyon"), as in the site's Android pack.
 - APPROVED (Jordan, 12 Oct): every theme and edition gets more lock-screen headlines, up to 15 in total (11 new each), so
   Android lock screens can cycle through 15 and iPhone users get more choice. GPT writes them; Claude adds them to the site.
   See HEADLINE POOLS below.

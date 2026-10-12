@@ -1,0 +1,74 @@
+# Builds Foundry for Android (the android/ folder) and publishes the debug APK for testers.
+# Runs on every push to the android branch, and on demand from the Actions tab ("Run workflow").
+name: Android app
+
+on:
+  push:
+    branches: [android]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build the debug APK
+    # Pinned so a change of GitHub's default machine can't change the tools under us.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v7
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+
+      - name: Build the app
+        run: ./gradlew --no-daemon --stacktrace assembleDebug
+
+      - name: Run the unit tests
+        run: ./gradlew --no-daemon testDebugUnitTest
+
+      - name: Name the APK
+        run: |
+          mkdir -p out
+          cp app/build/outputs/apk/debug/app-debug.apk out/Foundry-debug.apk
+          ls -l out/Foundry-debug.apk
+          sha256sum out/Foundry-debug.apk
+
+      - name: Publish the APK for testers
+        uses: actions/upload-artifact@v7
+        with:
+          name: Foundry-debug.apk
+          path: android/out/Foundry-debug.apk
+          archive: false
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Check the code (lint report, does not fail the build)
+        run: ./gradlew --no-daemon lintDebug
+
+      - name: Explain where the APK is
+        if: success()
+        run: |
+          {
+            echo "## Foundry for Android: debug APK ready"
+            echo ""
+            echo "Scroll down to **Artifacts** on this page and click **Foundry-debug.apk** to download it."
+            echo "On the phone, open the downloaded file and allow your browser or Files app to install unknown apps when asked."
+          } >> "$GITHUB_STEP_SUMMARY"

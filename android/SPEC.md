@@ -59,8 +59,10 @@ keyed by the script name passed as `name`, so always pass the theme name, e.g. `
 Halcyon's `allocation_setup` and `radio_setup` normally run from the Scriptable app. Recreate them in MainActivity. Both write the
 same settings file the script reads: `filesDir/foundry/foundry-halcyon-<Name>.json`, where `<Name>` is the script name with
 anything outside `[A-Za-z0-9_-]` replaced by `_`.
-- Allocation: list timed events from the next 90 days. The pick saves `{allocation:{title, calendar, start, end}}`; match the
-  fields the script's `hbChooseAllocation` writes.
+- Allocation: list timed events from the next 90 days. The pick saves exactly what the script's `hbChooseAllocation` writes:
+  `{allocation:{match:'title', identifier, title, calendar}}`, where `calendar` is the calendar's id (a string) and
+  `identifier` the event's series id, merged into the existing settings so `radio` is kept. (Corrected 12 Oct: an earlier
+  draft said `{title, calendar, start, end}`, which the script would never match.)
 - Radio: one text field for a music app or stream URL, saved as `{radio: url}`.
 
 ## Permissions
@@ -98,3 +100,31 @@ Righteous, Fraunces. The runtime maps every iPhone font name to these (see `FRAM
 - Widgets with two tap targets (feeds: YouTube and Instagram) open the main link. Phase 2 adds transparent click zones from
   `links` boxes.
 - Animated live wallpapers are Phase 3.
+
+## Phase 1 as built (12 Oct)
+Built on the `android` branch (never merged into `main`). Details settled while building, all checked against the real
+Halcyon exports:
+- Name line: the site exports `// Halcyon Biofab — made with Foundry` (em dash); the comma form above is accepted too.
+- Theme names: an Original edition is stored under the company name ("Halcyon Biofab"); Illustrated and Expanded add the
+  edition ("Halcyon Biofab Illustrated"), so both editions can be installed side by side.
+- The `name` passed to the runtime is the company's first word ("Halcyon"), the same as the site's Android pack. It keys
+  the settings file, e.g. `foundry-halcyon-Halcyon.json`.
+- Widgets offered: Original editions read the header comment (`status (medium) · shift (small) · solar (large is best)`
+  and so on; "any" means every size). Illustrated and Expanded use their edition's widget table (`HB_META` / `DR_META`), which
+  adds tracker and dossier, at every size. Previews and the picker default to medium where allowed (as on the site).
+- Bridge: `calendar()` returns `null` without calendar permission, so scripts fail the read as on iPhone ("calendar access
+  is unavailable" rather than "no events"). `id` is the event's series id (`ORIGINAL_ID`, else `EVENT_ID`) and
+  `calendarId` a string, matching iPhone's identifiers. One extra method, `job(id)`, hands the page each render's options
+  so large scripts never pass through `evaluateJavascript`.
+- The page is served from `https://appassets.androidplatform.net/assets/runtime/index.html` (answered by the app), so the
+  bundled fonts load and `fetch` has a real origin. Open-Meteo and GitHub Pages allow any origin.
+- `writeFile` refuses to save non-image bytes under an image name (`.png`, `.jpg` and the like). A Wi-Fi sign-in or error page is
+  then never cached as art; the script downloads it again next time.
+- Taps: `calshow://` (mapped by the runtime to `content://com.android.calendar/time/`) gets the current time appended;
+  `instagram.com/app` opens Instagram's home; `foundry://run` (Shift before its allocation is chosen) opens the app's
+  allocation setup. Links nothing on the phone can open fall back to the app.
+- Charger: since Android 8 apps can't receive the plug-in broadcast from the manifest, so a WorkManager job that requires
+  charging wakes the app when a charger is connected (re-armed after 20 minutes), plus a live receiver while the app runs.
+- Known wording gap: Halcyon's Shift says "Choose an allocation in Scriptable." until one is chosen; on Android the
+  setup is in the Foundry app. That text lives in the Halcyon widget code, not the app.
+
