@@ -17,7 +17,7 @@ if (a < OPEN.length || b < 0) throw new Error('src/tpl.js is missing its paint b
 const synced = tplSrc.slice(0, a) + paint + '\n// @halcyon-paint\n// @deeprange-paint\n' + tplSrc.slice(b);
 if (synced !== tplSrc) { if (check) throw new Error('src/tpl.js is out of date with src/paint/. Run node scripts/build.cjs'); fs.writeFileSync('src/tpl.js', synced); tplSrc = synced; }
 const tpl = tplSrc
-  .replace('// @halcyon-paint', () => read('src/halcyon/paint.js') + '\n' + read('src/halcyon/fidelity.js'))
+  .replace('// @halcyon-paint', () => read('src/halcyon/paint.js') + '\n' + read('src/halcyon/fidelity.js') + '\n' + read('src/halcyon/clinical.js') + '\n' + read('src/halcyon/immersion.js') + '\n' + read('src/halcyon/living.js'))
   .replace('// @halcyon-runtime', () => read('src/halcyon/runtime.js'))
   .replace('// @deeprange-paint', () => read('src/deeprange/paint.js') + '\n' + read('src/deeprange/details.js'))
   .replace('// @deeprange-runtime', () => read('src/deeprange/runtime.js'));

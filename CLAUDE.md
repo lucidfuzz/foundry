@@ -4,6 +4,14 @@ Foundry (https://lucidfuzz.github.io/foundry) is a free web app that builds comp
 wallpaper, eleven app icons and live Scriptable widgets. Eleven pre-made themes, each with five colorways. The owner (Jordan) is
 not a developer: explain in plain language, one step at a time, and confirm before anything irreversible.
 
+## Read first, every session
+1. `docs/APPROVED_DESIGN_DECISIONS.txt` is the canonical design record shared with Codex. It includes the WORLD-BUILDING STANDARD
+   (world notes first, locked identity, cross-theme uniqueness, variety minimums, immersion, ship gate). It is binding for every
+   prefab and every edition; the latest explicit direction from Jordan overrides older notes.
+2. `docs/FOUNDRY_THEME_BIBLE.md`: each theme's world, look, voice, screens, copy, content pools, games and hard rules.
+3. This file: engineering, delivery and push rules.
+Record new approvals and corrections in the decisions file the same day, and mark superseded decisions.
+
 ## Layout and build
 - The live site is `index.html` at the repo root, generated — never edit it by hand.
 - Source lives in `src/`: `page.html` (shell), `foundry-data.js` (themes, colorways, EDITIONS), `render.js` (wallpapers, icons),
@@ -27,7 +35,9 @@ not a developer: explain in plain language, one step at a time, and confirm befo
    glyphs). Original designs only; no characters, logos or layouts from films, games or books; no stereotypes.
 6. **Screens.** Home screens keep content clear of the app icon row (about y 60–150 at 390x844) and the dock (y 752 and below).
    Each theme's home screen differs from its lock screen.
-7. **Check visually.** Render every changed screen and widget (all three widget sizes) and look at it before calling work done.
+7. **World-building gate.** Before a theme ships, run the gate in the decisions file: world notes updated, cross-theme matrix
+   checked, variety sheets at all three sizes, side-by-side with the approved reference and the Original edition.
+8. **Check visually.** Render every changed screen and widget (all three widget sizes) and look at it before calling work done.
    Untouched themes must render identically to before.
 
 ## Accepting a GPT/Codex handoff

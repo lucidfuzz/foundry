@@ -4362,12 +4362,12 @@ const GAMES = {
     morph: ["SEED NUCLEUS", "HELICAL STRAND", "MEMBRANE LATTICE", "RADIAL BLOOM", "LATTICE SPHERE"],
     TRAITS: ["secondary nucleus", "bioluminescence", "redundant heart", "sensory filaments", "unauthorized opinions", "crystalline lattice", "neural bloom"],
     OLD: { "a second eye": "secondary nucleus", "an extra heart": "redundant heart", "feelers": "sensory filaments", "opinions": "unauthorized opinions", "a tiny crown": "crystalline lattice", "gills": "neural bloom" },
-    init(now, prev) { const run = prev ? prev.run + 1 : 1; return { v: 1, vseed: (now % 99991), game: "halcyon", run, lot: `HB-2893-${String(13 + run).padStart(2, "0")}`, stage: 0, age: 0, nut: 62, vit: 80, stress: 18, traits: [], hist: [80], shist: [18], best: prev ? prev.best : 0, turn: prev ? prev.turn : 0, log: prev ? prev.log : [], seed: (now % 233280) || 11, last: prev ? prev.last : 0 } },
-    migrate(st) { const G = GAMES.halcyon; st.traits = (st.traits || []).map(t => G.OLD[t] || t); st.shist = st.shist || [st.stress]; return st },
+    init(now, prev) { const run = prev ? prev.run + 1 : 1; return { v: 1, vseed: (now % 99991), game: "halcyon", run, lot: `HB-2893-${String(13 + run).padStart(2, "0")}`, stage: 0, age: 0, growth: 0, nut: 62, vit: 80, stress: 18, traits: [], hist: [80], shist: [18], best: prev ? prev.best : 0, turn: prev ? prev.turn : 0, log: prev ? prev.log : [], seed: (now % 233280) || 11, last: prev ? prev.last : 0 } },
+    migrate(st) { const G = GAMES.halcyon; st.traits = (st.traits || []).map(t => G.OLD[t] || t); st.shist = st.shist || [st.stress]; st.growth = st.growth ?? st.age; return st },
     right(st, inp) { return inp.charging ? "FEEDING · CHARGING" : `LOT ${st.lot}` },
     step(st, inp) {
       const r = gRng(st), G = GAMES.halcyon, night = inp.hour < 6 || inp.hour >= 23
-      st.turn++; st.age++
+      st.growth = st.growth ?? st.age; st.turn++; st.age++; if (inp.charging) st.growth++
       if (inp.charging) { st.nut += 22; gLog(st, "Nutrient line open via charging port. +22.") } else st.nut -= 5
       if (night) { st.stress -= 8; st.vit += 3; if (r() < 0.5) gLog(st, gPick(r, ["Night cycle. Dormant. Dreaming of protein.", "Night cycle. Metabolism throttled to 12%.", "Lights down. Specimen counting something."])) }
       if (inp.busy >= 4 && !night) { st.stress += 7; gLog(st, `${inp.busy} allocations today. Specimen agitated.`) }
@@ -4381,7 +4381,7 @@ const GAMES = {
       else if (e < 0.36) { st.stress -= 5; gLog(st, "Technician lingered at the glass. Stress -5.") }
       else if (e < 0.42) gLog(st, gPick(r, ["Membrane resequenced. Integrity holding.", "Mass gain within projection.", "Lattice self-repair complete."]))
       st.nut = gClamp(st.nut); st.vit = gClamp(st.vit); st.stress = gClamp(st.stress)
-      if (st.stage < 4 && st.age >= G.th[st.stage + 1] && st.vit > 45) { st.stage++; gLog(st, `Growth milestone: ${G.stages[st.stage]}. Morphology: ${G.morph[st.stage].toLowerCase()}.`) }
+      if (inp.charging && st.stage < 4 && st.growth >= G.th[st.stage + 1] && st.vit > 45) { st.stage++; gLog(st, `Growth milestone: ${G.stages[st.stage]}. Morphology: ${G.morph[st.stage].toLowerCase()}.`) }
       st.hist = (st.hist || []).concat([st.vit]).slice(-24); st.shist = (st.shist || []).concat([st.stress]).slice(-24)
       if (st.vit <= 0) { const best = Math.max(st.best || 0, st.age), old = st.lot; Object.assign(st, G.init(Date.now(), st)); st.best = best; gLog(st, `Lot ${old} recycled into feedstock. Lot ${st.lot} opened.`) }
     },
@@ -5057,7 +5057,8 @@ const HB_META = {
   oddity: ['W-08', 'MOOD LEASE', 'Unused feelings do not roll over.'],
   discord: ['W-09', 'COLLECTIVE', 'Belonging is included.'],
   game: ['W-10', 'SPECIMEN VAT', 'Property status unchanged.'],
-  tracker: ['HB-R', 'DISTANT CARE', 'Return address pending.']
+  tracker: ['HB-R', 'DISTANT OBSERVATION', 'Return address pending.'],
+  dossier: ['HB-D', 'TARGET DOSSIER', 'Custody review pending.']
 };
 // Normalized source rectangles avoid the culture atlas's dividing lines.
 const HB_SHEET_ASPECT = {organs:3,culture:1,signal:1.5,celestial:1.5,'lungs-detail':1122/1402,'heart-detail':1122/1402};
@@ -5304,6 +5305,362 @@ function hbCelestial(c){const {k,W,H,d,p,small,big,t,title,art,line,hr,grid,cros
   else{title('Some things\nare still becoming.',14,33,320,33,2);t('DISTANT CARE / FOR A WIDER YOU',14,110,6.6,333);panel(fiction,14,129,215,162,id,'PROVISIONAL');panel(known,242,129,108,111,known.toUpperCase(),'CATALOGUE');t('FURTHER',248,258,6.8,99);t('STILL TOGETHER.',248,269,6.8,99);cross(291,295,7);hr(309);t('ROTATING CATALOGUE',14,320,6.1,217);t('Known worlds. Provisional returns.',14,334,13,332,'disp');t('ILLUSTRATED / NOT LIVE TELEMETRY',14,354,5.3,330);}
 }
 function hbPaint(k,W,H,d){if(d.mode==='solar'&&W>200&&H<200)return hbClimateMedium(k,W,H,d);const c=hbInstrument(k,W,H,d);({status:hbSubject,shift:hbAssigned,solar:hbClimateOther,audio:hbRadio,transmission:hbTransmission,feeds:hbNeural,youtube:hbCulture,instagram:hbCulture,discord:hbCulture,oddity:hbMood,game:hbSpecimen,tracker:hbCelestial}[d.mode]||hbSubject)(c);}
+
+// Halcyon labels never end in "…" (Foundry rule): when a label doesn't fit its box, shrink it a little, then drop trailing
+// " / " segments or words. A decorative label that can't fit even one word is skipped. Labels that already fit are unchanged.
+function hbFitText(k,s,x,y,fs,col,o){
+  s=String(s);const f=o.f||'mono',w=o.w||320,E=f==='disp'?0.52:0.62,cap=sz=>Math.max(1,Math.floor(w/(sz*E)));
+  if(s.length<=cap(fs)){k.t(s,x,y,fs,col,o);return;}
+  let sz=fs;const floor=Math.max(3.2,fs*0.8);while(sz>floor&&s.length>cap(sz))sz=Math.round((sz-0.1)*100)/100;
+  if(s.length>cap(sz)){const segs=s.split(' / ');while(segs.length>1&&segs.join(' / ').length>cap(sz))segs.pop();s=segs.join(' / ');}
+  if(s.length>cap(sz)){const words=s.split(' ');while(words.length>1&&words.join(' ').length>cap(sz))words.pop();s=words.join(' ');}
+  if(s.length>cap(sz))return;
+  k.t(s,x,y,sz,col,o);
+}
+// Halcyon production revision: clinical instruments informed by the user's phone references.
+// A common hierarchy at every size; illustration belongs inside a measured specimen field.
+const HB_CLINICAL={
+  status:['SUBJECT STATUS','SUBJECT RECORD / ACTIVE'],shift:['ALLOCATION','TIME REMAINS COMPANY PROPERTY'],
+  solar:['SOLAR + ATMOS','EXTERIOR CONDITIONS / MONITORED'],audio:['AUDIO CHANNEL','PROGRAMMING / PRE-APPROVED'],
+  transmission:['TRANSMISSION','ARCHIVE / ROUTE / PRESERVE'],feeds:['NEURAL INTAKE','INPUT SUBJECT TO RETENTION'],
+  youtube:['BROADCAST INTAKE','WATCH AS DIRECTED'],instagram:['PEER OBSERVATION','OBSERVE / COMPARE / REPEAT'],
+  oddity:['AFFECT REGISTER','UNUSED FEELINGS DO NOT ROLL OVER'],discord:['COLLECTIVE','INDIVIDUALITY RETAINED ON FILE'],
+  game:['SPECIMEN VAT','CHARGE TO FEED / PROPERTY STATUS UNCHANGED'],tracker:['DISTANT OBSERVATION','SIM ARRAY / RETURNS SUBJECT TO CLASSIFICATION'],dossier:['TARGET DOSSIER','HALCYON REMOTE CUSTODY / SCAN RECORD']
+};
+function hbPalette(mode){const dark=!!T.hbDark||mode==='tracker';return {dark,ink:dark?'#C3F0DA':'#102B24',bg:dark?'#10251F':T.hbVariant?T.panel:'#D9EEE3',mint:'#6ABBA0',lilac:'#9981DE'};}
+function hbAllocationLayout(W,H){return H>200?{x:14,y:93,w:224,fs:48}:W<200?{x:12,y:77,w:146,fs:27}:{x:12,y:64,w:195,fs:35};}
+function hbClinicalFrame(k,W,H,d){
+  const p=hbPalette(d.mode),small=W<200,big=H>200,ink=k.a(p.ink,1),soft=k.a(p.ink,.68),rule=k.a(p.ink,.28),faint=k.a(p.ink,.08);
+  const t=(s,x,y,fs=6.3,w=W-x-12,f='mono',col=ink)=>hbFitText(k,String(s),x,y,fs,col,{w,f});
+  const line=(x,y,xx,yy,col=rule,lw=.5)=>k.ln([[x,y],[xx,yy]],col,lw);
+  const hr=(y,x=12,w=W-24)=>line(x,y,x+w,y);
+  const title=(s,x,y,w,fs=22,max=2,min=12)=>{const f=fitFs(k,String(s),w,max,fs,'disp',min);return k.para(String(s),x,y,w,f,ink,'disp',max,1.04)*f*1.04+y;};
+  const grid=(x,y,w,h,step=10)=>{for(let xx=x;xx<=x+w;xx+=step)line(xx,y,xx,y+h,faint,.35);for(let yy=y;yy<=y+h;yy+=step)line(x,yy,x+w,yy,faint,.35);};
+  const bar=(x,y,w,h,val,col=p.ink,n=20)=>{for(let i=0;i<n;i++)k.rect(x+i*w/n,y,w/n-1,h,val!=null&&i/n<Math.max(0,Math.min(1,val))?k.a(col,.88):k.a(p.ink,.12));};
+  const cross=(x,y,r=3,col=soft)=>{line(x-r,y,x+r,y,col);line(x,y-r,x,y+r,col);};
+  const art=(key,x,y,w,h)=>hbArt(k,key,x,y,w,h);
+  k.rect(0,0,W,H,k.a(p.bg,1));
+  for(let y=25;y<H-17;y+=4)for(let x=3;x<W;x+=4)k.rect(x,y,.55,.55,k.a(p.ink,.11));
+  const alt=typeof FLIP!=='undefined'&&FLIP!==null?FLIP==='alt':['shift','transmission','instagram','oddity','tracker','dossier'].includes(d.mode),head=alt?p.lilac:'#0B211A',hc=k.a(alt?'#10251F':'#BCEFD7',1);
+  k.rect(0,0,W,22,k.a(head,1));
+  const short={status:'SUBJECT',solar:'SOLAR + ATMOS',transmission:'TRANSMISSION',instagram:'OBSERVATION',youtube:'BROADCAST',tracker:'OBSERVATION'};
+  t(HB_META[d.mode][0]+' // '+(small?short[d.mode]||HB_CLINICAL[d.mode][0]:HB_CLINICAL[d.mode][0]),10,7,small?5.8:7,small?W-22:218,'mono',hc);
+  if(!small)t(d.mode==='game'?'LOT '+(d.st?.lot||'UNASSIGNED'):d.mode==='audio'?'CH 08 / CLEARED':'HB-2893 / '+HB_VERSIONS[d.mode],W-132,8,5.5,120,'mono',hc);
+  hr(H-19);t(small?'HALCYON / '+({game:'PROPERTY',solar:'ATMOS',audio:'CONTROL',transmission:'INBOUND'}[d.mode]||'BIOFAB'):HB_CLINICAL[d.mode][1],12,H-13,small?5.3:5.7,W-29);k.rect(W-16,H-12,4,4,k.a(p.lilac,1));
+  const c={k,W,H,d,p,small,big,ink,soft,rule,faint,t,line,hr,title,grid,bar,cross,art};
+  c.field=(lab,val,x,y,w=95,fs=18)=>{t(lab,x,y,6,w,'mono',soft);t(val??'—',x,y+10,fs,w,'disp');};
+  c.specimen=(key,x,y,w,h,label)=>{
+    grid(x,y,w,h,10);k.rect(x,y,w,h,null,rule,.6);art(key,x+5,y+5,w-10,h-22);
+    for(const [xx,yy,dx,dy]of [[x,y,1,1],[x+w,y,-1,1],[x,y+h,1,-1],[x+w,y+h,-1,-1]])k.ln([[xx,yy+dy*6],[xx,yy],[xx+dx*6,yy]],k.a(p.lilac,.85),.8);
+    for(let yy=y+16;yy<y+h-18;yy+=5){line(x+3,yy,x+(Math.round(yy-y)%10<5?8:6),yy,soft,.4);line(x+w-3,yy,x+w-6,yy,soft,.4);}
+    if(w>95){t('HB / SCAN-'+String(Math.abs(d.seed||0)%97).padStart(2,'0'),x+9,y+5,4.2,w-18,'mono',soft);t('CUSTODY '+HB_LOTS[d.mode],x+9,y+h-22,4.2,w-18,'mono',soft);}
+    if(w/h>2.6){['PHASE / 0.003','RECALL / SEALED','INTENT / PENDING'].forEach((s,i)=>t(s,x+13,y+21+i*9,4.7,w*.3,'mono',soft));['ROUTE 7A > 03','MIND / ESCROW','ACK / WITHHELD'].forEach((s,i)=>t(s,x+w-91,y+21+i*9,4.7,80,'mono',soft));}
+    t(label,x+6,y+h-12,5,w-12);
+  };
+  return c;
+}
+function hbClinicalTrace(c,x,y,w,h,seed=0){c.grid(x,y,w,h);const pts=[];for(let i=0;i<=100;i++){const u=i/100,beat=Math.exp(-Math.pow(((u*4+seed*.07)%1-.27)/.028,2))*.7-Math.exp(-Math.pow(((u*4+seed*.07)%1-.32)/.033,2))*.35;pts.push([x+u*w,y+h*.65-h*(beat+Math.sin(i*.19)*.07)]);}c.k.ln(pts,c.ink,.8);}
+function hbClinicalGenome(c,x,y,w,h,seed=1){const r=c.k.rng(seed);for(let xx=x;xx<x+w-2;){const b=1+r()*2;c.k.rect(xx,y,Math.min(b,x+w-xx),h,c.k.a(r()>.82?c.p.lilac:c.p.ink,.8));xx+=b+1+r()*1.3;}}
+function hbClinicalHelix(c,x,y,w,h,seed=0){
+  for(let i=0;i<=48;i++){const u=i/48,dy=Math.sin(u*Math.PI*5+seed)*h*.4;c.line(x+u*w,y+h/2-dy,x+u*w,y+h/2+dy,c.rule,.5);}
+  for(let j=0;j<2;j++){const pts=[];for(let i=0;i<=120;i++){const u=i/120;pts.push([x+u*w,y+h/2+Math.sin(u*Math.PI*5+seed+j*Math.PI)*h*.4]);}c.k.ln(pts,j?c.k.a(c.p.lilac,.9):c.ink,1);}
+}
+function hbClinicalIntakePlot(c,mode,x,y,w,h,seed){
+  if(mode==='feeds'){hbClinicalTrace(c,x,y,w,h,seed);return;}
+  c.grid(x,y,w,h,Math.max(8,h/3));const rnd=c.k.rng(seed+41);
+  if(mode==='instagram'){for(let i=0;i<32;i++){const v=.2+rnd()*.75;c.k.rect(x+i*w/32,y+h*(1-v),w/32-2,h*v,c.k.a(i%7===0?c.p.lilac:c.p.ink,.72));}return;}
+  if(mode==='youtube'){const pts=[];for(let i=0;i<=70;i++){const u=i/70,v=.18+u*.62+(rnd()-.5)*.08-(i%17===0?.12:0);pts.push([x+u*w,y+h*Math.max(.04,Math.min(.96,v))]);}c.k.ln(pts,c.ink,.9);c.k.rect(x+w-2,pts[pts.length-1][1]-1.5,3,3,c.k.a(c.p.lilac,1));return;}
+  const pts=Array.from({length:11},(_,i)=>[x+(i+.5)*w/11,y+h*(.15+rnd()*.7)]);pts.forEach((p,i)=>{if(i)c.line(...pts[i-1],...p,c.rule,.65);if(i>2)c.line(...pts[i-3],...p,c.rule,.4);c.k.circ(p[0],p[1],1.8,c.k.a(i%3?c.p.ink:c.p.lilac,1));});
+}
+function hbClinicalStatus(c){const {d,small,big,t,title,hr,line,field,specimen}=c,ev=d.ev,wx=d.wx||{},date=new Date(d.now||Date.now()),end=ev?.end;
+  if(small){t(ev?.active?'ALLOCATION ACTIVE':'NEXT ALLOCATION',12,32,6,146);title(ev?.title||'No allocation on file',12,45,146,16,2);t(ev?hbClock(ev.start):'—',12,88,22,146,'disp');hr(117);field('EXTERIOR',wx.temp==null?'—':wx.temp+'°',12,124,70,17);field('CELL',d.batt==null?'—':Math.round(d.batt*100)+'%',92,124,65,17);return;}
+  const w=big?184:213;t(ev?.active?'ALLOCATION ACTIVE':'NEXT ALLOCATION',12,32,6.4,w);title(ev?.title||'No allocation on file',12,45,w,big?28:23,2);
+  t(ev?hbClock(ev.start)+(end?' — '+hbClock(end):''):'CALENDAR / UNAVAILABLE',12,big?112:98,8.5,w);field('STATUS',ev?(ev.active?'IN PROGRESS':'QUEUED'):'UNASSIGNED',12,big?139:119,100,small?12:13);
+  field('CELL',d.batt==null?'—':Math.round(d.batt*100)+'%',big?125:131,big?139:119,90,14);
+  specimen(T.hbImages?.heartDetail?'heartDetail':'heart',big?222:245,31,big?129:106,big?173:91,'CARDIAC / HB-C1137');
+  t(wx.temp==null?'—':wx.temp+'°',big?222:245,big?217:128,24,60,'disp');t((wx.cond||'UNAVAILABLE').toUpperCase(),big?222:302,big?248:131,big?6.5:5.3,big?129:50);
+  if(big){hr(183,12,188);t('SUBJECT / CONTINUITY RECORD',12,192,6,188);t(date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}).toUpperCase(),12,207,8,188);t('CLASS / COMPANY ISSUED',12,226,6,188);t('RELEASE / PER SCHEDULE',12,241,6,188);hr(271);field('FEELS LIKE',wx.feels==null?'—':wx.feels+'°',12,280,103,22);field('HIGH / LOW',wx.hi==null?'—':wx.hi+'° / '+(wx.lo??'—')+'°',130,280,121,22);field('CELL RESERVE',d.batt==null?'—':Math.round(d.batt*100)+'%',267,280,85,22);c.bar(12,323,340,6,d.batt);t('IDENTITY RETAINED / TRANSFER NOT AUTHORISED',12,342,6,340);}
+}
+function hbClinicalAllocation(c){const {d,small,big,W,t,title,hr,field}=c,a=d.allocation||{phase:'setup',title:'Allocation required'},active=a.phase==='active',q=hbAllocationLayout(W,c.H);
+  t(active?'ALLOCATED ACTIVITY':'NEXT ALLOCATION',12,31,6,W-24);title(a.title||'Allocation required',12,small?41:big?43:40,small?146:big?332:193,small?14:big?22:16,small?2:1);
+  if(!d.live)t(a.target?hbDuration((d.now||new Date())-a.target):'— : — —',q.x,q.y,q.fs,q.w,'disp');
+  if(small){t(active?'TIME IN ALLOCATION':'UNTIL START',12,118,6,146);c.bar(12,130,146,5,a.target?a.frac:null,c.p.ink);t(a.start?'IN '+hbClock(a.start):'OPEN SETUP',12,141,5.7,72);t(a.end?'OUT '+hbClock(a.end):'',92,141,5.7,66);return;}
+  if(!big){c.line(219,32,219,112);field('ASSIGNED START',a.start?hbClock(a.start):'—',234,33,118,22);field('RELEASE AT',a.end?hbClock(a.end):'—',234,77,118,22);t(active?'TIME IN ALLOCATION':'UNTIL START / HALCYON ASSIGNED',12,118,6.5,201);c.bar(12,130,340,6,a.target?a.frac:null);t(a.note||'CHOOSE ALLOCATION IN SCRIPTABLE',12,142,5.6,340);return;}
+  t(active?'TIME IN ALLOCATION':'UNTIL START',14,166,7,320);hr(180);field('ASSIGNED START',a.start?hbClock(a.start):'—',14,192,154,27);field('RELEASE AT',a.end?hbClock(a.end):'—',197,192,154,27);c.bar(14,245,336,9,a.target?a.frac:null,c.p.lilac,32);
+  for(let i=0;i<=12;i++)c.line(14+i*28,258,14+i*28,264,c.rule,.6);t('00',14,270,6,60);t('ALLOCATED INTERVAL',111,270,7,177);t('100%',315,270,6,35);hr(293);t('AUTHORITY / HALCYON SCHEDULING',14,305,7,336);t('CONSENT / RETAINED UNDER EXISTING TERMS',14,322,6.4,336);t(a.note||'Choose an allocation in Scriptable.',14,343,6.6,336);
+}
+function hbClinicalWeather(c){const {d,small,big,W,t,title,field,specimen,hr}=c,wx=d.wx||{},atm=d.atm||{},sun=d.sun,has=sun?.remaining!=null;
+  if(small){field('AIR TEMPERATURE',wx.temp==null?'—':wx.temp+'°',12,32,146,38);title(wx.cond||'Weather unavailable',12,88,146,15,1);t(sun?.phase==='night'?'SUNRISE IN':'SUNSET IN',12,115,6,146);t(has?hbDuration(sun.remaining):'—',12,128,20,146,'disp');return;}
+  field('AIR TEMPERATURE',wx.temp==null?'—':wx.temp+'°',12,32,big?179:94,big?44:37);
+  t((wx.cond||'UNAVAILABLE').toUpperCase(),12,big?96:91,big?6.5:5.6,big?175:102);
+  const sx=big?12:118,sy=big?113:32;field(sun?.phase==='night'?'NIGHT CYCLE':'DAYLIGHT LEFT',sun?.left==null?'—':Math.round(sun.left*100)+'%',sx,sy,big?166:113,big?24:22);t(sun?.phase==='night'?'SUNRISE IN':'SUNSET IN',sx,big?154:77,6,big?168:113);t(has?hbDuration(sun.remaining):'—',sx,big?166:89,big?22:17,big?170:119,'disp');
+  if(big){const pts=[];for(let j=0;j<=50;j++){const u=j/50;pts.push([12+177*u,226-Math.sin(u*Math.PI)*23]);}c.k.ln(pts,c.soft,.9);c.line(12,226,189,226,c.ink,.7);for(let j=0;j<=12;j++)c.line(12+j*177/12,226,12+j*177/12,229,c.soft,.5);if(sun){const u=sun.phase==='day'?Math.max(0,Math.min(1,1-sun.left)):0;c.k.rect(12+177*u-1,226-Math.sin(u*Math.PI)*23-2,4,4,c.k.a(c.p.lilac,1),c.ink,.6);}t('RISE',12,232,4.8,29);t('SOLAR ARRAY',68,232,4.8,88);t('SET',171,232,4.8,22);}
+  specimen(T.hbImages?.lungsDetail?'lungsDetail':'lungs',big?201:259,31,big?151:93,big?194:113,'RESPIRATORY / R2290');
+  if(!big){hr(115,12,231);[['RH',atm.rh==null?'—':atm.rh+'%'],['WIND',atm.ws==null?'—':atm.ws+' mph'],['UV',atm.uv??'—']].forEach(([lab,val],i)=>field(lab,val,12+i*80,122,76,14));return;}
+  hr(240);[['HUMIDITY',atm.rh==null?'—':atm.rh+'%'],['WIND',atm.ws==null?'—':atm.ws+' mph'],['UV INDEX',atm.uv??'—']].forEach(([lab,val],i)=>field(lab,val,12+i*116,250,105,23));
+  t('PRECIPITATION PROBABILITY / NEXT 12H',12,300,6.2,340);c.grid(12,315,340,34,17);const probs=atm.probs||[];if(probs.some(v=>v!=null)){probs.slice(0,12).forEach((v,i)=>{if(v==null)return;const h=Math.max(.5,Math.min(100,Math.max(0,v))*.32);c.k.rect(14+i*28,348-h,23,h,c.k.a(c.p.ink,.55));});}else t('FORECAST UNAVAILABLE',20,327,6.5,320);t('NOW',12,353,5,45);t('+6H',170,353,5,45);t('+12H',319,353,5,33);
+}
+function hbClinicalRadio(c){const {small,big,t,title,hr}=c;
+  if(small){t('CH 08 / PRE-APPROVED',12,33,6,146);title('Ambient\npacification.',12,48,146,22,2);hbApproval(c,133,126,18);t('HALCYON RADIO',12,112,6,105);t('OPEN CHANNEL >',12,137,6.5,114);return;}
+  hbApproval(c,45,big?66:58,25);for(let j=0;j<32;j++){const a=j*Math.PI/16,r=j%4?28:27; c.line(45+Math.cos(a)*r,(big?66:58)+Math.sin(a)*r,45+Math.cos(a)*31,(big?66:58)+Math.sin(a)*31,c.soft,.6);}title('Ambient pacification.',85,34,267,big?29:23,1);t('SIGNAL / CORPORATE BROADCAST',86,big?74:63,6.3,266);t('CHANNEL 08 / PROGRAMMING CLEARED',86,big?89:79,5.8,266);
+  if(!big){c.grid(12,100,340,31,17);hbField(c.k,12,100,340,31,1.3);t('20 Hz',12,140,5.5,64);t('LICENSED / MODEL SPECTRUM',103,140,5.6,211);t('20 kHz',311,140,5.5,41);return;}
+  hr(110);t('LICENSED SPECTRUM / PROGRAMME MODEL',12,120,6.5,340);c.grid(12,142,340,104,17);hbField(c.k,12,145,340,97,1.3);[20,200,2000,20000].forEach((n,i)=>t(String(n)+' Hz',12+i*96,250,5.5,53));hr(270);c.field('OVERSIGHT','HALCYON',12,282,165,23);c.field('OVERRIDE','WITHHELD',198,282,152,23);t('OPEN RADIO >',12,331,8,160);t('A FAMILIAR VOICE IS SUFFICIENT.',12,349,6,340);
+}
+function hbClinicalTransmission(c){const {d,small,big,t,title,hr}=c,quote=d.text||'Your preferences have been retained.',by=d.by||'HALCYON BIOFAB / CONTINUITY SERVICES';
+  t(d.archival?'CLASS / ARCHIVAL':'CLASS / CORPORATE',12,31,6,c.W-24);
+  if(small){const end=title(quote,12,44,146,16,4,11);t(by,12,Math.min(end+4,117),5.6,146);hbClinicalHelix(c,12,132,146,14,0);return;}
+  const end=title(quote,12,46,340,big?29:19,big?4:2,big?18:12);t(by,12,Math.min(end+5,big?174:91),big?7:5.8,340);
+  if(!big){t('ROUTING / ARCHIVE > SUBJ.07',12,105,5.8,216);t('PRIORITY / FILED',240,105,5.8,112);t('CRC 3679-DF9C',12,115,4.6,100);t('CIPHER / PUBLIC',133,115,4.6,113);t('INTEGRITY 97.6%',267,115,4.6,85);hbClinicalHelix(c,12,125,340,17);return;}
+  hr(194);t('ROUTING / ARCHIVE > SUBJECT 07',12,203,6.5,340);t('SOURCE ATTRIBUTION / RETAINED',12,218,6,340);c.specimen('signal',12,238,340,78,'FILAMENT ARRAY / RECONSTRUCTION');hbClinicalHelix(c,12,327,340,23);t('SEQUENCE 7A-3F / NO REPLY REQUIRED',12,354,5.5,340);
+}
+function hbClinicalIntake(c){const {d,small,big,W,t,title,field,hr,specimen}=c,mode=d.mode;
+  const config={feeds:['Neural intake','neural','YOUTUBE','INSTAGRAM'],youtube:['Approved viewing','optical','YOUTUBE',''],instagram:['Peer observation','archive','INSTAGRAM',''],discord:['Collective index','collective','DISCORD','']}[mode],seed=Math.abs(d.seed||0),v=seed%3;
+  const states={feeds:['INPUT APPROVED','EXTERNAL SIGNAL','INTAKE QUEUED'],youtube:['CONTINUITY FILM','APPROVED VIEWING','RETENTION LOOP'],instagram:['PEER OBSERVATION','ARCHIVE REVIEW','COMPARISON CYCLE'],discord:['DIRECTORY SYNC','GROUP ALIGNMENT','MEMBERSHIP REVIEW']}[mode];
+  const metrics={feeds:[['SIGNAL MIX','08 : 92'],['QUARANTINE','ACTIVE']],youtube:[['ATTENTION SPAN',(6.3+v*.4).toFixed(1)+' SEC'],['QUEUE','UNENDING']],instagram:[['PEERS ON FILE',String(185+v*27)],['VALIDATION',(4+v)+' / 400']],discord:[['CONSENSUS',(91.2+v*.6).toFixed(1)+'%'],['DISSENT','QUEUED']]}[mode];
+  if(small){t(states[v],12,32,5.8,146);title(config[0],12,46,146,20,2);specimen(config[1],83,94,75,52,'FILE / '+String(v+1).padStart(2,'0'));t('OPEN',12,112,6,65);t(config[2]+' >',12,129,6.3,74);return;}
+  title(config[0],12,32,big?340:216,big?32:23,1);t(states[v]+' / MODEL',12,big?76:64,6,big?340:213);
+  if(!big){specimen(config[1],244,31,108,78,'UNIT / '+HB_LOTS[mode]);metrics.forEach(([l,val],i)=>field(l,val,12+i*115,86,108,14));hr(119);hbClinicalIntakePlot(c,mode,12,123,340,16,seed);t('OPEN '+config[2]+' >',12,143,6,163);if(mode==='feeds')t('OPEN '+config[3]+' >',199,143,6,153);else t('ACCESS / COMPANY TERMS',202,143,5.6,150);return;}
+  specimen(config[1],199,99,153,134,'UNIT / '+HB_LOTS[mode]);metrics.forEach(([l,val],i)=>field(l,val,12,100+i*49,173,24));t('SESSION / MODEL',12,198,6,170);c.bar(12,213,169,7,.55+v*.12,c.p.lilac);hr(245);t(({feeds:'NEURAL INTAKE',youtube:'CHANNEL RETENTION',instagram:'PEER DISTRIBUTION',discord:'MEMBERSHIP LINKS'}[mode])+' / ILLUSTRATIVE',12,257,6.3,340);hbClinicalIntakePlot(c,mode,12,274,340,40,seed);hr(325);
+  if(mode==='feeds'){c.line(182,331,182,357);t('OPEN YOUTUBE >',12,341,8,156);t('OPEN INSTAGRAM >',199,341,8,153);}else{t('OPEN '+config[2]+' >',12,339,8,172);t('PREFERENCE / INFERRED',195,340,6,157);}
+}
+function hbClinicalMood(c){const {d,small,big,t,title,field,hr}=c,n=Math.abs(d.seed||0),credits=500+n*17%320,state=['RENEWAL PENDING','WITHIN ALLOCATION','REVIEW SCHEDULED'][n%3];
+  t('AFFECT / HALCYON MODEL',12,32,6,c.W-24);field('EMOTIONAL CREDIT',credits,12,48,small?146:180,small?36:big?60:40);
+  if(small){t(state,12,105,5.9,146);c.bar(12,122,146,7,(credits-500)/320,c.p.lilac);t('TRANSFER / PROHIBITED',12,141,5.7,146);return;}
+  const x=big?201:194,y=big?60:48;[['CALM',.76],['JOY',.38],['NOSTALGIA',.19]].forEach(([lab,val],i)=>{t(lab,x,y+i*28,6,145);c.bar(x,y+12+i*28,big?151:158,6,val,i===1?c.p.lilac:c.p.ink);});
+  if(!big){t(state,12,117,6,175);t('RENEWAL / AT COMPANY DISCRETION',12,143,6,340);return;}
+  hr(170);title('Affect is a managed resource.',12,185,340,26,2);t('ASSESSMENT / ILLUSTRATIVE CORPORATE MODEL',12,247,6,340);hbClinicalHelix(c,12,266,340,41,n*.2);hr(320);t(state,12,333,7,340);t('TRANSFER / PROHIBITED. ROLLOVER / NOT INCLUDED.',12,351,6,340);
+}
+function hbClinicalVat(c){const {d,small,big,t,title,hr}=c,st=d.st||{},stage=Math.max(0,Math.min(4,st.stage||0)),names=GAMES.halcyon.stages;
+  if(small){t(names[stage]+' / CYCLE '+(st.age??'—'),12,32,6,146);hbLivingVat(c,12,48,76,96);[['NUT',st.nut],['VIT',st.vit],['STR',st.stress]].forEach(([l,v],i)=>{t(l,101,52+i*30,6,55);t(v??'—',101,63+i*30,15,55,'disp');});return;}
+  hbLivingVat(c,12,32,big?149:113,big?216:112);const x=big?177:140,w=big?175:212;
+  t(d.inp?.charging?'FEED / CHARGING':'CONTAINMENT / RESTING',x,32,6,w);title(names[stage],x,44,w,big?24:23,1);t('AGE '+(st.age??'—')+' / FEED CYCLES '+(st.growth??st.age??0),x,big?82:74,5.8,w);
+  if(big){c.line(x+4,99,x+w-4,99,c.rule,.8);['SPO','LAR','JUV','SPE','ASC'].forEach((s,j)=>{const xx=x+4+j*(w-8)/4;c.k.circ(xx,99,j===stage?3:2,j===stage?c.k.a(c.p.lilac,1):c.k.a(c.p.bg,1),c.ink,.7);t(s,Math.min(xx-3,x+w-17),105,4.5,17);});}
+  [['NUTRIENT',st.nut],['VITALITY',st.vit],['STRESS',st.stress]].forEach(([l,v],i)=>{const y=(big?121:92)+i*(big?27:17);t(l,x,y,5.7,w-30);t(v??'—',x+w-27,y,6,27);c.bar(x,y+9,w,big?6:4,v==null?null:v/100,i===2?c.p.lilac:c.p.ink);});
+  if(!big)return;
+  t('VITALITY + STRESS / RECENT CYCLES',x,210,5.5,w);hbTrace(c,st.hist,x,222,w,24,c.p.ink);hbTrace(c,st.shist,x,222,w,24,c.p.lilac);hr(260);t('GENOME / LOT '+(st.lot||'UNASSIGNED'),12,269,6,340);hbClinicalGenome(c,12,284,340,13,stage+17);t(st.traits?.length?'TRAITS / '+st.traits.join(' · '):'TRAITS / NONE ON FILE',12,308,6,340);
+  const logs=(st.log||[]).slice(-2);logs.forEach((l,i)=>t('> '+(typeof l==='string'?l:l.m),12,328+i*12,5.8,340));
+}
+function hbClinicalCelestial(c){const {d,small,big,t,title,specimen,hr}=c,seed=Math.abs(d.seed||0),known=['saturn','neptune','jupiter'][seed%3],unknown=['knot','membrane','loops'][seed%3],name=['HB-09','THE SOFT RETURN','VESSEL 014'][seed%3];
+  if(small){const odd=seed%2===1;t(odd?'CLASS / PROVISIONAL':'CLASS / CATALOGUED',12,32,5.7,146);specimen(odd?unknown:known,12,46,146,99,odd?name:known.toUpperCase());return;}
+  if(!big){specimen(known,12,32,160,112,known.toUpperCase()+' / KNOWN');specimen(unknown,191,32,161,112,name+' / FICTION');return;}
+  t('CONTACT '+String(seed%3+1).padStart(2,'0')+' / PROVISIONAL',12,33,6.5,340);title(name,12,49,340,32,1);specimen(unknown,12,99,215,165,'RETURN / FICTIONAL OBJECT');specimen(known,241,99,111,110,known.toUpperCase());t('KNOWN / CATALOGUE',241,221,5.4,111);t('OBSERVATION',241,241,6,111);t('CONTINUES',241,253,6,111);hr(279);t('SOURCE / UNRESOLVED',12,292,7,340);t('ILLUSTRATED CATALOGUE / NO LIVE POSITION',12,312,6,340);hbClinicalGenome(c,12,332,340,12,seed%3+9);t('OWNERSHIP REVIEW / PENDING',12,353,5.8,340);
+}
+function hbPaint(k,W,H,d){const c=hbClinicalFrame(k,W,H,d),records=hbImmersionBegin(c);({status:hbClinicalStatus,shift:hbClinicalAllocation,solar:hbClinicalWeather,audio:hbClinicalRadio,transmission:hbClinicalTransmission,feeds:hbClinicalIntake,youtube:hbClinicalIntake,instagram:hbClinicalIntake,discord:hbClinicalIntake,oddity:hbClinicalMood,game:hbClinicalVat,tracker:hbObservationMap,dossier:hbObservationDossier}[d.mode]||hbClinicalStatus)(c);hbImmersionFinish(c,records);}
+
+// Diegetic bureaucracy: fill unused layout regions with fictional corporate records.
+// The occupancy map protects variable-length text, live timer bounds and instruments.
+// Records are seeded artwork, never claims about a user's health or surveillance.
+function hbImmersionBegin(c){
+  const {k,W,H}=c,step=2,cols=Math.ceil(W/step),rows=Math.ceil(H/step),mask=new Uint8Array(cols*rows),saved={};
+  const reserve=(x,y,w,h,p=2)=>{for(let yy=Math.max(0,Math.floor((y-p)/step));yy<Math.min(rows,Math.ceil((y+h+p)/step));yy++)for(let xx=Math.max(0,Math.floor((x-p)/step));xx<Math.min(cols,Math.ceil((x+w+p)/step));xx++)mask[yy*cols+xx]=1;};
+  const wrap=(name,fn)=>{saved[name]=k[name];k[name]=function(...args){fn(...args);return saved[name].apply(k,args);};};
+  wrap('t',(s,x,y,fs,col,o={})=>{const estimated=Array.from(String(s)).reduce((n,ch)=>n+(o.f==='disp'?(/[MW@]/.test(ch)?1:/[A-Z]/.test(ch)?.83:/[0-9]/.test(ch)?.72:/\s/.test(ch)?.36:.61):.7),0)*fs;reserve(x,y,Math.min(o.w||320,estimated),fs*1.25,fs>10?2.5:1.5);});
+  wrap('rect',(x,y,w,h)=>reserve(x,y,w,h,.8));
+  wrap('ln',(pts)=>{const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);reserve(Math.min(...xs),Math.min(...ys),Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys),1);});
+  wrap('circ',(x,y,r)=>reserve(x-r,y-r,r*2,r*2,2));
+  wrap('ell',(x,y,rx,ry)=>reserve(x-rx,y-ry,rx*2,ry*2,2));
+  for(const name of ['grid','specimen','bar']){const original=c[name];c[name]=(...args)=>{const offset=name==='specimen'?1:0;reserve(...args.slice(offset,offset+4),2);return original(...args);};}
+  if(c.d.mode==='shift'){const q=hbAllocationLayout(W,H);reserve(q.x,q.y,q.w,q.fs*1.45,2);}
+  return {mask,cols,rows,reserve,finish(){for(const [name,fn]of Object.entries(saved))k[name]=fn;}};
+}
+const HB_RECORDS={
+  status:['SUBJECT RECONCILIATION','IDENTITY DRIFT','PERSONHOOD / ON FILE','DUPLICATE SELF / HELD','BODY LEASE / 07','PRESENCE RECEIPT'],
+  shift:['TEMPORAL CUSTODY','UNASSIGNED SECONDS','DEVIATION / BILLABLE','FREE WILL / DEFERRED','ATTENDANCE GHOST','MINUTE RECOVERY'],
+  solar:['ATMOSPHERIC LICENCE','BREATH ALLOTMENT','AIRBORNE CONSENT','LUNG COMPATIBILITY','SKY ACCESS / LEASED','EXHALATION RETURN'],
+  audio:['PACIFICATION INDEX','UNLICENSED SILENCE','LISTENER RESIDUE','MEMORY ATTENUATION','CHANNEL OBEDIENCE','EARPRINT / RETAINED'],
+  transmission:['SEMANTIC RESIDUE','AUTHORSHIP ESCROW','THOUGHT CHECKSUM','UNSENT RESPONSE','MEANING / WITHHELD','PHRASE RECALL'],
+  feeds:['NEURAL CUSTOMS','FOREIGN THOUGHT','INPUT QUARANTINE','COGNITIVE TARIFF','IDEA OWNERSHIP','PERSONALITY INGRESS'],
+  youtube:['ATTENTION RECOVERY','GAZE ALLOTMENT','FRAME COMPLIANCE','BLINK COMPENSATION','CONTENT INOCULATION','RETINAL RECEIPT'],
+  instagram:['PEER CALIBRATION','SOCIAL RESIDUE','COMPARISON DEBT','IMAGE CUSTODY','MEMORY LIEN','SELFHOOD RATIO'],
+  discord:['COLLECTIVE CENSUS','BELONGING LICENCE','DISSENT LATENCY','CONSENSUS SHADOW','INDIVIDUALITY TAX','UNAPPROVED SOLITUDE'],
+  oddity:['AFFECT RECONCILIATION','JOY WITHHOLDING','NOSTALGIA ARREARS','EMOTION INVENTORY','GRIEF EXEMPTION','FEELING ESCROW'],
+  game:['MORPHOLOGY REVIEW','AUTONOMY THRESHOLD','TISSUE INVENTORY','NAMING REQUEST / HELD','OWNER RECOGNITION','DREAM DISPOSAL'],
+  tracker:['REMOTE CUSTODY','PARALLAX DEBT','RETURN CLASSIFICATION','DISTANCE / PROPRIETARY','UNCLAIMED HORIZON','OBJECT INTENT']
+};
+// Each department starts with its own instrument, then traverses a nonrepeating set.
+const HB_INSTRUMENTS={status:['trend','scatter','flow','matrix','phase','queue','scope','orbit','ledger','contour','gate','envelope'],shift:['queue','gate','phase','trend','flow','matrix','scope','ledger','orbit','scatter','envelope','contour'],solar:['envelope','contour','phase','scatter','trend','scope','matrix','orbit','gate','flow','queue','ledger'],audio:['scope','matrix','envelope','phase','gate','trend','scatter','flow','orbit','contour','queue','ledger'],transmission:['gate','flow','matrix','scope','contour','phase','queue','trend','scatter','envelope','orbit','ledger'],feeds:['phase','scope','flow','contour','scatter','gate','trend','envelope','matrix','queue','ledger','orbit'],youtube:['trend','queue','matrix','gate','scope','flow','phase','scatter','envelope','contour','ledger','orbit'],instagram:['scatter','trend','phase','matrix','queue','scope','contour','gate','flow','envelope','ledger','orbit'],discord:['flow','matrix','queue','scatter','orbit','gate','phase','scope','trend','contour','envelope','ledger'],oddity:['phase','contour','trend','scatter','envelope','flow','queue','gate','scope','matrix','orbit','ledger'],game:['contour','phase','envelope','flow','scope','matrix','scatter','queue','trend','gate','orbit','ledger'],tracker:['orbit','scatter','contour','phase','flow','scope','envelope','matrix','queue','gate','trend','ledger']};
+function hbRecordInstrument(c,box,type,label,rnd){
+  const {k,p}=c,{x,y,w,h}=box,ink=k.a(p.ink,.8),muted=k.a(p.ink,.37),accent=k.a(p.lilac,.95),paper=k.a(p.bg,1);
+  if(w<80)label=label.split(' / ')[0].split(' ').map(s=>s[0]).join('.')+' / '+Math.floor(rnd()*255).toString(16).toUpperCase().padStart(2,'0');
+  const t=(s,xx,yy,ww,fs=4.5,col=ink)=>hbFitText(k,s,xx,yy,fs,col,{w:ww,f:'mono'}),line=(pts,col=muted,lw=.5)=>k.ln(pts,col,lw);
+  if(h<18){t(label,x,y,w);if(h>=12){const yy=y+9;line([[x,yy],[x+w,yy]]);for(let j=0;j<Math.floor(w/11);j++){const xx=x+j*11;if(type==='gate'||type==='matrix')k.rect(xx,yy-2,3,3,j%3?ink:accent);else line([[xx,yy-2-rnd()*2],[xx,yy+1]],j%4?muted:accent);}}return;}
+  t(label,x,y,w);const bx=x+2,by=y+9,bw=w-4,bh=h-11;
+  const grid=()=>{for(let j=0;j<=4;j++){const yy=by+bh*j/4;line([[bx,yy],[bx+bw,yy]],k.a(p.ink,.13),.35);}};
+  if(type==='ledger'){k.rect(x,y,w,7,ink);t(label,x+2,y+.5,w-4,4.5,paper);for(let j=0;j<Math.floor(bh/7);j++){t(['RETAIN / 07','ESCROW / 31','APPEAL / 00','SEALED / 92'][j%4],bx,by+j*7,bw*.67);line([[bx+bw*.72,by+j*7+3],[bx+bw,by+j*7+3]],j%2?ink:accent,1);}return;}
+  if(type==='matrix'){const rows=Math.min(7,Math.max(2,Math.floor(bh/4))),cols=Math.min(35,Math.floor(bw/3));for(let r=0;r<rows;r++)for(let j=0;j<cols;j++){const v=rnd();k.rect(bx+j*bw/cols,by+r*bh/rows,bw/cols-.7,bh/rows-.7,k.a(v>.86?p.lilac:p.ink,.1+v*.65));}return;}
+  if(type==='queue'){grid();for(let j=0;j<3;j++){const yy=by+j*bh/3;for(let i=0;i<5;i++){const xx=bx+i*bw/5+rnd()*bw/25,len=bw/5*(.25+rnd()*.55);k.rect(xx,yy+1,len,Math.max(1,bh/3-2),j===1?accent:k.a(p.ink,.27+j*.18));}}line([[bx+bw*.63,by],[bx+bw*.63,by+bh]],ink,.7);return;}
+  if(type==='gate'){const pts=[];for(let j=0;j<24;j++){const xx=bx+j*bw/24,v=rnd()>.5?by+1:by+bh-1;pts.push([xx,v],[xx+bw/24,v]);}line(pts,ink,.7);line([[bx,by+bh*.5],[bx+bw,by+bh*.5]],accent,.4);return;}
+  if(type==='scatter'){grid();line([[bx,by+bh],[bx+bw,by]],muted);for(let j=0;j<26;j++){const u=rnd(),v=Math.max(.06,Math.min(.94,1-u+(rnd()-.5)*.7));k.circ(bx+u*bw,by+v*bh,j%5===0?1.6:.7,j%5===0?accent:ink);}return;}
+  if(type==='flow'){const pts=Array.from({length:9},(_,j)=>[bx+2+(bw-4)*j/8,by+2+(bh-4)*(.15+rnd()*.7)]);pts.forEach((pt,j)=>{if(j)line([pts[j-1],pt],ink,.6);if(j>2)line([pts[j-3],pt]);k.rect(pt[0]-1.3,pt[1]-1.3,2.6,2.6,j%3?paper:accent,ink,.5);});return;}
+  if(type==='orbit'){const cx=bx+bw*.46,cy=by+bh/2;for(let j=1;j<4;j++)k.ell(cx,cy,bw*.145*j,bh*.14*j,null,j===2?accent:muted,.5);line([[bx,cy],[bx+bw,cy]]);line([[cx,by],[cx,by+bh]]);k.circ(cx,cy,1.5,ink);for(let j=0;j<3;j++){const a=j*2.1+.6;k.rect(cx+Math.cos(a)*bw*.3-1.5,cy+Math.sin(a)*bh*.28-1.5,3,3,accent,ink,.5);}return;}
+  if(type==='phase'){const cx=bx+bw*.28,cy=by+bh/2,rx=Math.min(bw*.22,bh*.75),ry=bh*.43;for(let j=1;j<=3;j++)k.ell(cx,cy,rx*j/3,ry*j/3,null,muted,.4);const pts=[];for(let j=0;j<6;j++){const a=j*Math.PI/3,v=.4+rnd()*.6;pts.push([cx+Math.cos(a)*rx*v,cy+Math.sin(a)*ry*v]);}k.poly(pts,k.a(p.lilac,.23),accent,.8);for(let j=0;j<Math.max(1,Math.floor(bh/7));j++)t(['AXIS 04 / HELD','DRIFT 0.031','EGO / LEASED','REF. 2893'][j%4],bx+bw*.58,by+j*7,bw*.42,4.2);return;}
+  if(type==='contour'){for(let j=0;j<7;j++){const pts=[];for(let i=0;i<=32;i++){const u=i/32;pts.push([bx+u*bw,by+bh*(.07+j*.13)+Math.sin(u*9+j*.55)*bh*.07]);}line(pts,j===3?accent:muted,j===3?.8:.45);}return;}
+  grid();const curves=type==='scope'?3:type==='envelope'?2:1;
+  for(let j=0;j<curves;j++){const pts=[];for(let i=0;i<=50;i++){const u=i/50;let v;if(type==='trend')v=.22+u*.55+(rnd()-.5)*.15;else if(type==='envelope')v=.5+(j?1:-1)*Math.sin(u*Math.PI)*(.2+Math.sin(u*12)*.12);else v=.5+Math.sin(u*(25+j*7)+j)*Math.sin(u*4+j)*.37;pts.push([bx+u*bw,by+bh*Math.max(.03,Math.min(.97,v))]);}line(pts,j?accent:ink,j?.55:.85);if(type==='trend')k.rect(bx+bw-2,pts[pts.length-1][1]-1,2,2,accent);}
+}
+function hbImmersionFinish(c,state){
+  state.finish();const {k,W,H,d,p}=c,{mask,cols,reserve}=state,lex=HB_RECORDS[d.mode]||HB_RECORDS.status;
+  const seed=Math.abs(d.seed||0)+Object.keys(HB_RECORDS).indexOf(d.mode)*311,rnd=k.rng(seed+2893),rule=k.a(p.ink,.3);
+  // Edge registration and filing rails occupy the space around the primary fields.
+  for(let y=27;y<H-23;y+=5){k.ln([[4,y],[y%15===2?9:7,y]],rule,.6);k.rect(W-7,y,2,y%20===7?3:1,k.a(p.lilac,.75));}
+  const serial=()=>Math.floor(rnd()*65535).toString(16).toUpperCase().padStart(4,'0');
+  let count=0;
+  // Greedy largest-empty rectangles. No paint may enter reserved primary content.
+  while(count<65){
+    let best=null;const heights=new Uint16Array(cols);
+    for(let yy=14;yy<Math.floor((H-23)/2);yy++){
+      for(let xx=6;xx<Math.floor((W-12)/2);xx++)heights[xx]=mask[yy*cols+xx]?0:heights[xx]+1;
+      const stack=[];const end=Math.floor((W-12)/2);
+      for(let xx=6;xx<=end;xx++){const height=xx===end?0:heights[xx];let start=xx;while(stack.length&&stack[stack.length-1].h>height){const a=stack.pop(),w=(xx-a.x)*2,h=a.h*2;start=a.x;if(w>=28&&h>=8){const score=w*Math.min(h,56);if(!best||score>best.score)best={x:a.x*2,y:(yy-a.h+1)*2,w,h,score};}}if(!stack.length||stack[stack.length-1].h<height)stack.push({x:start,h:height});}
+    }
+    if(!best)break;
+    const {x,y,w}=best,h=Math.min(best.h,56),i=count++,label=lex[i%lex.length],id=serial();reserve(x,y,w,h,1);
+    const types=HB_INSTRUMENTS[d.mode]||HB_INSTRUMENTS.status;
+    hbRecordInstrument(c,{x,y,w,h},types[i%types.length],label+(w>130?' / '+id:''),rnd);
+  }
+}
+
+// Exclusive widget artwork ownership. Map, dossier and specimen are code-native.
+const HB_WIDGET_ASSETS={status:['heart','heartDetail'],solar:['lungs','lungsDetail'],transmission:['signal'],feeds:['neural'],youtube:['optical'],instagram:['archive'],discord:['collective'],game:[],tracker:[],dossier:[]};
+HB_LOTS.dossier='REMOTE-07';HB_VERSIONS.dossier='DOSSIER';
+HB_RECORDS.dossier=['SCAN RESOLUTION','CARGO RECONCILIATION','ORIGIN / WITHHELD','CUSTODY CHAIN','SIGNATURE MATCH','RETURN RECEIPT'];
+HB_INSTRUMENTS.dossier=['scatter','contour','flow','matrix','scope','phase','orbit','trend','envelope','gate','queue','ledger'];
+function hbLivingVat(c,x,y,w,h){
+  const {k,d,p}=c,G=GAMES.halcyon,st={run:1,age:0,stage:0,traits:[],stress:0,lot:'HB-UNASSIGNED',...d.st},inp={charging:false,...d.inp},tm=+(d.now||new Date())/60000;
+  c.grid(x,y,w,h,10);
+  const vk={...k,I:c.ink,S:c.soft,ia:a=>k.a(p.ink,a)},vx=x+7,vy=y+5,vw=w-14,vh=h-10;
+  G.vat(vk,vx,vy,vw,vh,st,inp,tm,c.small);
+  const progress=Math.min(1,Math.max(0,((st.growth??st.age)-G.th[st.stage])/Math.max(1,(G.th[st.stage+1]||120)-G.th[st.stage]))),R=Math.min(vw*.25,vh*.23)*(.65+st.stage*.09+progress*.08),cx=vx+vw/2,cy=vy+vh*.51;
+  G.organism(vk,cx,cy,R,st,inp,tm);
+  if(!c.small){c.t(G.morph[st.stage],vx+9,vy+13,4.7,vw-18);c.t(inp.charging?'NUTRIENT LINE / OPEN':'NUTRIENT LINE / IDLE',vx+9,vy+vh-24,4.5,vw-18);}
+}
+
+// Thirty-six authored scan subjects; positions and custody telemetry are fiction.
+// Known planet names remain catalogue entries, never claims of live ephemerides.
+const HB_OBSERVATIONS=[
+ ['HB-001','Mercury','rock','KNOWN PLANET','SURFACE / CRATERED','CLAIM / UNFILED'],
+ ['HB-002','Venus','cloud','KNOWN PLANET','RETURN / OPAQUE','ACCESS / WITHHELD'],
+ ['HB-003','Mars','rock','KNOWN PLANET','SURFACE / OXIDE','LEASE / DISPUTED'],
+ ['HB-004','Jupiter','gas','KNOWN PLANET','RETURN / BANDED','CUSTODY / REMOTE'],
+ ['HB-005','Saturn','rings','KNOWN PLANET','RETURN / RING SYSTEM','TITLE / UNDER REVIEW'],
+ ['HB-006','Neptune','gas','KNOWN PLANET','RETURN / BLUE BAND','STATUS / CATALOGUED'],
+ ['HB-007','Seed Ark Patience','ark','GENETIC ARCHIVE VESSEL','CARGO / 41,000 EMBRYOS','CRYO / NOMINAL'],
+ ['HB-008','The Soft Return','coil','NONLOCAL RETURN','ECHO / PRECEDES SIGNAL','INTENT / UNDISCLOSED'],
+ ['HB-009','Choir of Nine','swarm','DISTRIBUTED ORGANISM','VOICES / 9 OF 8','CONSENSUS / PENDING'],
+ ['HB-010','Relay Mother','relay','MATERNAL RELAY ARRAY','UPLINK / LULLABY','OPERATOR / ABSENT'],
+ ['HB-011','Vessel Without Crew','sail','AUTONOMOUS TISSUE SAIL','CREW / NOT REQUIRED','FUEL / NOSTALGIA'],
+ ['HB-012','The Second Moon','moon','UNREGISTERED SATELLITE','ORBIT / ON PROBATION','ORIGIN / REVISED'],
+ ['HB-013','Cartilage Cathedral','lattice','ORBITAL OSSIFICATION','MASS / STILL GROWING','OCCUPANCY / 0 CLAIMED'],
+ ['HB-014','Asset 00 / Awake','bloom','UNSCHEDULED BIOSPHERE','NERVES / EXPOSED','SLEEP / DENIED'],
+ ['HB-015','Quiet Meridian','void','ABSENCE UNDER REVIEW','RETURN / NEGATIVE MASS','SILENCE / LICENSED'],
+ ['HB-016','Escrow Garden','pods','CRYOGENIC POD ARRAY','CARGO / 208 IDENTITIES','INTEREST / COMPOUNDING'],
+ ['HB-017','Little Witness','relay','PASSIVE OBSERVER','RECORD / CONTINUOUS','EYELIDS / OMITTED'],
+ ['HB-018','Membrane Sea','cloud','SUSPENDED OCEAN','DEPTH / UNRESOLVED','TIDE / BREATHING'],
+ ['HB-019','Family Unit 41','pods','DOMESTIC GESTATION ARRAY','OCCUPANTS / PREASSIGNED','CONSENT / INHERITED'],
+ ['HB-020','Lacuna Trawl','sail','MEMORY COLLECTION RIG','NET / 81% FULL','BYCATCH / DREAMS'],
+ ['HB-021','Minor Inheritance','moon','LEASED PLANETOID','BENEFICIARY / UNBORN','TERM / PERPETUAL'],
+ ['HB-022','Census Drift','swarm','MIGRATORY HEADCOUNT','COUNT / 1,004 + 1','NAMES / REDACTED'],
+ ['HB-023','Unfinished Person','lattice','REMOTE SOMATIC FRAME','COMPLETION / 93.2%','DEPARTURE / EARLY'],
+ ['HB-024','Lung of the Station','bloom','FREE ORBIT RESPIRATOR','BREATHS / COMMUNAL','FILTER / REMEMBERS'],
+ ['HB-025','Return to Sender','ark','RECALLED CONTINUITY SHIP','CARGO / REPLACEMENTS','ADDRESS / DECEASED'],
+ ['HB-026','The Courtesy Gap','void','SIGNAL EXCLUSION ZONE','WIDTH / ONE APOLOGY','ENTRY / AUTOMATIC'],
+ ['HB-027','Ribbon Patient','coil','LONGITUDINAL ANOMALY','LENGTH / 4.2 LIGHT YEARS','PAIN / NOT REQUESTED'],
+ ['HB-028','Fallow Halo','rings','ARTIFICIAL RING HABITAT','CROP / SYNTHETIC DERMIS','HARVEST / OVERDUE'],
+ ['HB-029','Local Sun Substitute','gas','MANUFACTURED PRIMARY','LIGHT / METERED','WARRANTY / 08 CYCLES'],
+ ['HB-030','Archive Kestrel','ark','BIOLOGICAL FREIGHTER','MANIFEST / 66 SPARES','TEMPERATURE / HELD'],
+ ['HB-031','Affection Engine','relay','EMOTIONAL BROADCASTER','RANGE / ALL DEPENDENTS','RESPONSE / MANDATORY'],
+ ['HB-032','Borrowed Horizon','sail','PROSPECTING ARRAY','CLAIMS / 17 PENDING','OWNER / ANOTHER YOU'],
+ ['HB-033','Orphaned Protocol','lattice','SELF-ASSEMBLING ARCHIVE','PARENT / NOT FOUND','TASK / CONTINUES'],
+ ['HB-034','Provisional Shore','rock','UNLICENSED LANDFORM','SURFACE / REWRITING','BOUNDARY / DISPUTED'],
+ ['HB-035','The Warm Index','bloom','THERMAL LIFE SIGNATURE','TEMPERATURE / FAMILIAR','IDENTITY / UNMATCHED'],
+ ['HB-036','Nothing to Declare','void','CUSTOMS EXCEPTION','CARGO / NOTHING','MASS / 8,400 TONNES']
+];
+function hbObservation(d){
+  const slot=Math.floor(d.observationIndex??d.seed??(+(d.now||new Date())/1800000)),index=((slot%HB_OBSERVATIONS.length)+HB_OBSERVATIONS.length)%HB_OBSERVATIONS.length,entry=HB_OBSERVATIONS[index],r=(()=>{let n=index*997+41;return()=>{n=(n*9301+49297)%233280;return n/233280;};})();
+  const lat=r()*160-80,lon=r()*340-170;
+  return {index,id:entry[0],name:entry[1],kind:entry[2],classification:entry[3],details:entry.slice(4),known:index<6,scan:'SCAN '+String(((slot%65536)+65536)%65536).padStart(5,'0'),sector:'H-'+String(11+index*7).padStart(3,'0'),coords:Math.abs(lat).toFixed(2)+(lat<0?'S':'N')+' / '+Math.abs(lon).toFixed(2)+(lon<0?'W':'E'),status:['CONTACT HELD','SIGNAL OCCULTED','RETURN ACQUIRED','CONTACT LOST'][index%4]};
+}
+// False-color survey channels stay inside Halcyon's mint / lilac / ice palette.
+function hbSurveyColors(c,o){
+  const palettes=[['#6ABBA0','#9981DE','#79CBD0'],['#9981DE','#79CBD0','#6ABBA0'],['#79CBD0','#6ABBA0','#9981DE']];
+  const [body,edge,signal]=palettes[o.index%3];return {body,edge,signal,dark:c.p.dark};
+}
+function hbScanObject(c,o,x,y,w,h){
+  const {k,p}=c,C=hbSurveyColors(c,o),ink=c.ink,A=k.a(C.edge,1),B=k.a(C.body,p.dark?.65:.5),S=k.a(C.signal,1),soft=c.soft,r=k.rng(o.index*197+71),cx=x+w/2,cy=y+h/2,R=Math.min(w*.3,h*(h>75?.31:.35));
+  c.grid(x,y,w,h,10);k.rect(x,y,w,h,k.a(C.body,.07));const ln=(pts,col=ink,lw=.8)=>k.ln(pts,col,lw);
+  if(['rock','moon','cloud','gas','rings'].includes(o.kind)){
+    k.circ(cx,cy,R,B,ink,1);
+    for(let j=0;j<7;j++){const a=-1.3+j*.18;k.arc(cx,cy,R*(.93-j*.035),a,a+2.3,k.a(C.edge,.24),1.4);}
+    if(o.kind==='rock'||o.kind==='moon'){for(let j=0;j<13;j++){const a=r()*Math.PI*2,rr=Math.sqrt(r())*R*.72;const cr=R*(.03+r()*.12),xx=cx+Math.cos(a)*rr,yy=cy+Math.sin(a)*rr;k.circ(xx,yy,cr,k.a(C.edge,.24),j%4?soft:A,.5);k.arc(xx,yy,cr*.65,.4,2.9,S,.45);}}
+    else for(let j=0;j<9;j++){const lat=-.84+j*.21,rr=R*Math.sqrt(Math.max(0,1-lat*lat)),pts=[];for(let z=0;z<=30;z++){const u=z/30;pts.push([cx-rr+2*rr*u,cy+R*lat+Math.sin(u*Math.PI)*(o.kind==='cloud'?Math.sin(u*12+o.index+j)*R*.08:R*.07)]);}ln(pts,j%3?S:A,j%3?.8:1.8);}
+    if(o.kind==='gas'){const gx=cx+R*(o.index===3?.3:-.24),gy=cy+R*(o.index===3?.3:-.3);k.ell(gx,gy,R*.2,R*.09,null,A,.85);k.ell(gx,gy,R*.28,R*.14,null,soft,.45);}
+    if(o.kind==='rings')for(let j=0;j<5;j++)k.ell(cx,cy,R*(1.2+j*.11),R*(.23+j*.027),null,j===2?A:soft,.7);
+  }else if(o.kind==='ark'||o.kind==='pods'){
+    const hull=R*(1.1+(o.index%4)*.08),ht=R*(.35+(o.index%3)*.15); k.poly([[cx-hull,cy],[cx-hull*.7,cy-ht],[cx+hull*.7,cy-ht],[cx+hull,cy],[cx+hull*.7,cy+ht],[cx-hull*.7,cy+ht]],B,ink,1);
+    const n=4+o.index%5;for(let j=0;j<n;j++){const xx=cx-hull*.65+j*hull*1.3/(n-1);k.ell(xx,cy,o.kind==='pods'?R*.075:R*.09,ht*(o.kind==='pods'?.72:.35),k.a(j%2?C.signal:C.edge,.7),ink,.65);k.ln([[xx,cy-ht*.82],[xx,cy-ht*.55]],S,.65);k.rect(xx-R*.03,cy+ht*.64,R*.06,R*.04,ink);}
+    for(let j=0;j<3;j++){const xx=cx-hull*.45+j*hull*.45;ln([[xx,cy-ht],[xx-R*.1,cy-ht-R*.16],[xx+R*.15,cy-ht-R*.16]],A,.55);}ln([[cx-hull,cy],[cx-hull-R*.23,cy-R*.1],[cx-hull-R*.23,cy+R*.1],[cx-hull,cy]],S,.85);
+    if(o.kind==='ark'){ln([[cx-hull*.8,cy-ht-3],[cx+hull*.8,cy-ht-3]],A);for(let j=0;j<3;j++)ln([[cx-hull*.4+j*R*.4,cy+ht],[cx-hull*.4+j*R*.4,cy+ht+R*.3]],soft);}
+  }else if(o.kind==='sail'){
+    for(let j=0;j<4;j++){const a=j*Math.PI/2+o.index*.13,pt=(rad,ang)=>[cx+Math.cos(ang)*rad,cy+Math.sin(ang)*rad];k.poly([pt(R*.16,a),pt(R*1.3,a-.34),pt(R*.95,a+.48)],k.a(j%2?C.body:C.edge,.5),ink,.8);for(let q=1;q<6;q++)ln([pt(R*(.18+q*.16),a-.28),pt(R*(.18+q*.13),a+.31)],S,.45);ln([pt(R*.2,a),pt(R*1.25,a)],A,.9);}k.circ(cx,cy,R*.13,ink);
+  }else if(o.kind==='relay'){
+    k.rect(cx-R*.17,cy-R*.18,R*.34,R*.36,B,ink,.9);k.circ(cx,cy,R*.08,S);k.ell(cx,cy,R*.45,R*.3,null,A,.55);for(let j=0;j<3;j++){const a=j*2.09+o.index*.09,ex=cx+Math.cos(a)*R,ey=cy+Math.sin(a)*R;ln([[cx,cy],[ex,ey]]);k.arc(ex,ey,R*.24,a-Math.PI/2,a+Math.PI/2,ink,1);for(let q=1;q<3;q++)k.arc(ex,ey,R*(.26+q*.12),a-.7,a+.7,soft,.5);}
+  }else if(o.kind==='swarm'){
+    const pts=[];for(let j=0;j<21;j++){const a=r()*Math.PI*2,rr=Math.sqrt(r())*R*1.2;pts.push([cx+Math.cos(a)*rr,cy+Math.sin(a)*rr]);}pts.forEach((pt,j)=>{if(j%3===0){ln([pt,pts[(j+7)%pts.length]],A,.55);k.circ(pt[0],pt[1],3.5,null,S,.45);}k.poly([[pt[0]-2,pt[1]+1],[pt[0],pt[1]-2],[pt[0]+2,pt[1]+1]],j%3?ink:A);});
+  }else if(o.kind==='lattice'){
+    const pts=Array.from({length:10+o.index%7},(_,j)=>{const a=j*Math.PI*2/(10+o.index%7);return[cx+Math.cos(a)*R*(.65+r()*.4),cy+Math.sin(a)*R];});k.poly(pts,B,ink,.8);pts.forEach((pt,j)=>{k.poly([[cx,cy],pt,pts[(j+1)%pts.length]],k.a(j%2?C.edge:C.signal,.18));ln([pt,pts[(j+1)%pts.length]],ink,.8);ln([pt,pts[(j+4)%pts.length]],j%3?soft:A,.45);k.circ(pt[0],pt[1],1.4,A);});
+  }else if(o.kind==='coil'){
+    for(let j=0;j<5;j++){const pts=[];for(let z=0;z<=100;z++){const a=z*Math.PI/50,rr=R*(.64+.25*Math.sin(a*(o.index===7?3:5)+j*.3));pts.push([cx+Math.cos(a)*rr*(o.index===7?1:1.3),cy+Math.sin(a)*rr*(o.index===7?1:.55)+j-2]);}ln(pts,j%2?A:S,j===2?2:1.1);}
+  }else if(o.kind==='bloom'){
+    const lobes=7+o.index%9,stretch=o.index===23?.68:1;for(let j=0;j<lobes;j++){const a=j*Math.PI*2/lobes,pts=[];for(let z=0;z<=18;z++){const u=z/18,ang=a+Math.sin(u*4+j)*.35;pts.push([cx+Math.cos(ang)*R*u*stretch,cy+Math.sin(ang)*R*u]);}ln(pts,j%2?S:A,1.2);const pt=pts[pts.length-1];k.ell(pt[0],pt[1],R*.09,R*.14,B,ink,.6);k.circ(pt[0],pt[1],R*.035,S);}k.circ(cx,cy,R*.2,B,ink,.8);k.circ(cx,cy,R*.09,S);
+  }else{
+    if(o.index===25){for(let j=0;j<8;j++){const rr=R*(.25+j*.1);ln([[cx-rr,cy-rr*.7],[cx-rr*.35,cy-rr*.7]],soft);ln([[cx+rr*.35,cy+rr*.7],[cx+rr,cy+rr*.7]],A);ln([[cx-rr,cy-rr*.7],[cx-rr,cy+rr*.7],[cx+rr,cy+rr*.7],[cx+rr,cy-rr*.7]],soft,.5);}}else for(let j=0;j<9;j++){const rr=R*(.15+j*.1);if(o.index===35)k.ell(cx,cy,rr,rr*.55,null,j%3?S:A,.9);else k.arc(cx,cy,rr,.15*j,Math.PI*2-.1*j,j%3?soft:A,.7);}k.circ(cx,cy,R*.14,ink);ln([[cx-R*1.1,cy],[cx+R*1.1,cy]],soft,.45);
+  }
+  for(let j=0;j<12;j++){const yy=y+8+j*(h-16)/12;ln([[x+3,yy],[x+(j%3?5:8),yy]],A,.5);k.rect(x+w-5,yy,2,Math.max(.6,(h-16)/12-2),k.a(j%3?C.body:C.edge,.6));}
+  if(h>75){c.t('RET / '+String(o.index*173+207),x+10,y+4,3.8,w-20,'mono',A);const pts=[];for(let j=0;j<45;j++){const u=j/44;pts.push([x+10+u*(w-20),y+h-7-Math.abs(Math.sin(u*(19+o.index%9)))*r()*5]);}ln(pts,S,.65);c.t('SPECTRAL / '+String(71+o.index%23)+'.'+o.index%10,x+10,y+h-18,3.7,w-20,'mono',soft);}
+  for(const [xx,yy,dx,dy]of [[x,y,1,1],[x+w,y,-1,1],[x,y+h,1,-1],[x+w,y+h,-1,-1]])ln([[xx,yy+dy*5],[xx,yy],[xx+dx*5,yy]],A,.9);
+}
+function hbObservationMap(c){
+  const {k,d,t,title,small,big,p}=c,o=hbObservation(d),C=hbSurveyColors(c,o),mint=k.a('#8EDAB8',1),lav=k.a('#AE96F0',1),ice=k.a('#79CBD0',1),muted=k.a('#6ABBA0',.38);
+  t(o.scan+' / SIM ARRAY',12,31,5.8,c.W-24,'mono',mint);
+  title(small?o.id:o.name,12,44,small?146:big?340:220,small?16:big?25:17,1);
+  const x=12,y=big?83:65,w=small?146:big?340:218,h=big?216:small?65:78;
+  c.grid(x,y,w,h,14);const P=(u,v)=>[x+w*(.05+.8*u+.13*v),y+h*(.2-.15*u+.43*v)],ln=(pts,col=muted,lw=.6)=>k.ln(pts,col,lw),r=k.rng(o.index*71+12);
+  // Purple survey plane, scan lines and return packets occupy the lower horizon.
+  const horizon=[];for(let j=0;j<=60;j++){const u=j/60;horizon.push([x+w*u,y+h*(.88-.15*Math.sin(u*Math.PI))]);}
+  k.poly([...horizon,[x+w,y+h],[x,y+h]],k.a('#433660',.76));
+  for(let j=0;j<5;j++){const pts=horizon.map(([xx,yy])=>[xx,yy+(y+h-yy)*j/5]);ln(pts,k.a('#AE96F0',.47),.55);}
+  for(let j=0;j<10;j++)ln([[x+w*.5,y+h*.72],[x+w*j/9,y+h]],k.a('#AE96F0',.44),.5);
+  for(let j=0;j<(small?15:45);j++){const u=r(),v=.91+r()*.07;k.rect(x+w*u,y+h*v,2+r()*4,.8+r(),j%3?ice:k.a('#10251F',.9));}
+  ln(horizon,mint,1);ln(horizon.map(([xx,yy])=>[xx,yy-h*.025]),ice,.5);
+  // Oblique search grid, with restrained colored sectors and graduated axes.
+  for(let j=0;j<6;j++){const u=r()*.83,v=r()*.8;k.poly([P(u,v),P(u+.1,v),P(u+.1,v+.13),P(u,v+.13)],k.a(j%2?C.body:C.edge,.12));}
+  for(let j=0;j<=10;j++){ln([P(j/10,0),P(j/10,1)],k.a('#6ABBA0',j%5?.29:.62),j%5?.4:.75);ln([P(0,j/10),P(1,j/10)],k.a('#6ABBA0',j%5?.29:.62),j%5?.4:.75);if(big&&j%2===0){const q=P(j/10,1);t(String(j*12).padStart(3,'0'),q[0]-4,q[1]+3,3.9,19,'mono',lav);}}
+  ln([P(0,0),P(1,0),P(1,1),P(0,1),P(0,0)],mint,.9);
+  const points=[];for(let j=0;j<10;j++){const pt=P(.12+r()*.69,.13+r()*.67);points.push(pt);const col=j%3===0?ice:j%3===1?lav:mint;
+    for(let a=1;a<4;a++)k.rect(pt[0]-a*3-1,pt[1]+a*.7-1,1.5,1.5,k.a(j%3?'#AE96F0':'#79CBD0',.6/a));
+    if(j%3===0)k.circ(pt[0],pt[1],small?1.3:2,col);else k.rect(pt[0]-1.4,pt[1]-1.4,2.8,2.8,col);
+    if(!small&&j%2===0)t('R'+String((o.index+j*3)%36+1).padStart(2,'0'),pt[0]+4,pt[1]-3,4.3,25,'mono',col);
+  }
+  const target=points[0];ln([P(.02,.92),P(.18,.72),P(.3,.66),target],ice,.75);
+  for(let j=1;j<5;j++){const u=j/5,px=x+w*(.08+u*.45),py=y+h*(.83-u*.15),z=small?3:big?9:4;k.poly([[px-z,py-z*.5],[px+z*.55,py-z],[px+z,py+z*.5],[px-z*.55,py+z]],null,lav,.7);}
+  k.poly([[target[0]-4,target[1]-3],[target[0]+4,target[1]-3],[target[0],target[1]+4]],null,mint,1.2);k.circ(target[0],target[1],7,null,lav,.8);
+  const bx=x+w*.66,by=y+h*.66;ln([target,[bx-5,by-5],[bx+6,by-5]],lav,.65);
+  if(!small){t(o.id+' / '+String(18+o.index*3%72)+'°',bx,by,4.7,w*.31,'mono',mint);t('ECHO '+(2.1+o.index*.37).toFixed(2)+' s',x+3,y+h*.68,4.5,w*.35,'mono',ice);}
+  if(big){
+    t('AZ '+String(31+o.index*7)+' / TRACK '+(1+o.index%4),x+4,y+2,4.6,150,'mono',lav);t('CUSTODY FIELD / '+o.sector,x+w-128,y+2,4.6,124,'mono',mint);
+    for(let j=0;j<3;j++){k.rect(x-2,y+35+j*6,2,j===0?5:2,lav);k.rect(x+w-1,y+h*.54+j*5,2,3,ice);}
+    ['NE','E','SE','S','SW','W'].forEach((v,j)=>t(v,x+17+j*(w-35)/6,y+h*.875,4.3,20,'mono',lav));
+    t('10 CONTACTS / '+o.sector,12,308,6.5,210,'mono',mint);t('RETURN '+String(71+o.index%23)+'.'+o.index%10+'%',243,308,6,109,'mono',lav);
+    c.field('SIMULATED LOCATION',o.coords,12,324,240,15);t(o.status,255,325,6,97,'mono',lav);t('PAIRED DOSSIER / '+o.id,12,352,6,230,'mono',ice);
+  }else if(small)t(o.sector+' / '+o.status,12,138,5.4,146,'mono',mint);
+  else{t('ARRAY / '+o.sector,244,34,6,108,'mono',lav);t(o.id,244,48,18,108,'disp');t(o.status,244,77,6,108,'mono',mint);t('10 CONTACTS',244,94,6,108,'mono',ice);t('SIM LOCATION',244,111,5,108);t(o.coords,244,121,5,108,'mono',lav);t('DOSSIER / SAME SCAN',244,139,5,108);}
+}
+function hbObservationDossier(c){
+  const {d,t,title,small,big,k}=c,o=hbObservation(d),C=hbSurveyColors(c,o),accent=k.a(c.p.dark?'#AE96F0':'#6B509E',1);t(o.classification,12,31,5.8,c.W-24,'mono',accent);
+  if(small){title(o.name,12,44,146,14,1,10);hbScanObject(c,o,12,66,146,61);t(o.id+' / '+o.scan,12,132,5.1,146);return;}
+  if(!big){hbScanObject(c,o,12,46,116,95);title(o.name,141,44,211,19,2,12);t('SUBSECTOR '+(o.index+3)+' / GENETIC ESCROW',141,86,4.5,211,'mono',accent);t(o.details[0],141,96,6,211);t(o.details[1],141,111,6,211);t('POSITION / '+o.status,141,126,5.7,211,'mono',accent);t(o.id+' / '+o.scan,141,142,5.5,211);return;}
+  title(o.name,12,45,340,29,1,16);hbScanObject(c,o,12,91,340,163);c.hr(263);t('SUBSECTOR '+(o.index+3)+' / GENETIC ESCROW',12,79,5.2,340,'mono',accent);t(o.details[0],12,273,8,340);t(o.details[1],12,291,8,340);t('POSITION / '+o.status+' / '+o.sector,12,314,6.5,340);t(o.known?'KNOWN BODY / SIMULATED SURVEY':'FICTIONAL OBJECT / HALCYON ARCHIVE',12,337,6,340);t(o.id+' / '+o.scan,12,351,6,340);
+}
 
 // One renderer for exported Scriptable widgets and the Foundry preview.
 // Instrument graphics are original, deterministic illustrations, not measured telemetry.
@@ -5754,9 +6111,9 @@ async function gameWidget() {
   try { inp.charging = !!Device.isCharging() } catch (e) {}
   try { inp.batt = Device.batteryLevel() } catch (e) {}
   try { inp.busy = (await CalendarEvent.today([])).filter(e => !e.isAllDay).length } catch (e) {}
-  const STEP = 15 * 60000, steps = st.last ? Math.min(8, Math.floor((now - st.last) / STEP)) : 1
+  const STEP = 15 * 60000, steps = st.last ? Math.min(f === "halcyon" ? 1 : 8, Math.floor((now - st.last) / STEP)) : 1
   for (let i = 0; i < steps; i++) G.step(st, inp)
-  if (!st.last) st.last = now; else if (steps > 0) st.last = Math.max(st.last + steps * STEP, now - STEP)
+  if (!st.last || (f === "halcyon" && steps > 0)) st.last = now; else if (steps > 0) st.last = Math.max(st.last + steps * STEP, now - STEP)
   try { if (fm && path) fm.writeString(path, JSON.stringify(st)) } catch (e) {}
   if (f === "halcyon" && T.hbOn) return hbWidget("game", {st, inp})
   if (f === "deeprange" && T.drOn) return drWidget("game", {st, inp})
@@ -5768,7 +6125,7 @@ async function gameWidget() {
 // (Scriptable's local documents, folder foundry-art). A new art version has a new file name, so it re-downloads once.
 // Offline on first run: the widget draws without the art and picks it up on a later refresh.
 async function hbLoadArt(mode) {
-  const keys={tracker:['saturn','neptune','jupiter','knot','membrane','loops'],transmission:['signal'],status:['heart','heartDetail'],solar:['lungs','lungsDetail'],feeds:['neural'],youtube:['optical'],instagram:['archive'],discord:['collective'],game:['neural','tissue','collective','heart','lungs','heartDetail','lungsDetail']}[mode]||[];
+  const keys=HB_WIDGET_ASSETS[mode]||[];
   T.hbImages=T.hbImages||{};
   let fm=null,dir=null; try{fm=FileManager.local();dir=fm.joinPath(fm.documentsDirectory(),'foundry-art');if(!fm.fileExists(dir))fm.createDirectory(dir,true);}catch(e){fm=null;}
   const originals={};
@@ -5849,6 +6206,7 @@ async function hbWidget(mode, extra={}) {
   d.live=mode==='shift'&&!!a?.target;
   w.backgroundImage=artImage(W,H,hbPaint,d);
   w.refreshAfterDate=new Date(+now+15*60000);
+  if(mode==='tracker'||mode==='dossier')w.refreshAfterDate=new Date((Math.floor(+now/1800000)+1)*1800000+1000);
   if(d.live){
     const target=a.phase==='active'?a.end:a.start;
     w.refreshAfterDate=new Date(Math.min(+now+15*60000,+target+1000));
@@ -11204,11 +11562,12 @@ function hbArtArrived() {
 function hbWarm(full) { hbReady('thumbs').then(hbArtArrived).catch(e=>console.warn(e)); if(full)hbReady('sheets').then(hbArtArrived).catch(e=>{console.warn(e);setStatus('Halcyon artwork could not load. Check your connection and reload.');}); }
 // Addresses of the widget crops the iPhone script downloads once and keeps on the phone.
 function hbWidgetArt() { return Object.fromEntries(Object.entries(artFor('halcyon','widget')).map(([k,u])=>[k,artURL(u)])); }
-const HB_NAMES={status:'Subject Status',shift:'Allocation',solar:'Personal Climate',audio:'Audio Channel',transmission:'Transmission',feeds:'Neural Link',youtube:'Culture Feed',instagram:'Specimen Archive',oddity:'Mood Lease',discord:'Collective',game:'Specimen Vat',tracker:'Distant Care'};
+const HB_NAMES={status:'Subject Status',shift:'Allocation',solar:'Solar + Atmos',audio:'Audio Channel',transmission:'Transmission',feeds:'Neural Intake',youtube:'Broadcast Intake',instagram:'Peer Observation',oddity:'Affect Register',discord:'Collective',game:'Specimen Vat',tracker:'Distant Observation',dossier:'Target Dossier'};
 function hbWidgetList(th,original) {
-  const list=original.concat({mode:'tracker',name:'Distant Care',title:'HB-R / DISTANT CARE',tap:'Leave as is',desc:'A rotating celestial catalogue with familiar planets and fictional provisional objects. Illustrative catalogue views, not live telescope telemetry.'});
+  const list=original.concat({mode:'tracker',name:'Distant Observation',title:'HB-R / DISTANT OBSERVATION',tap:'Leave as is',desc:'A simulated location array cycling through 36 celestial bodies, vessels and anomalies. Pair with Target Dossier below; both use the same half-hour scan ID.'},{mode:'dossier',name:'Target Dossier',title:'HB-D / TARGET DOSSIER',tap:'Leave as is',desc:'The object identified by Distant Observation, with a unique vector scan and cargo, origin or custody details. Place below the tracker. Fictional survey positions; known planets remain labeled.'});
   return list.map(item=>({...item,name:HB_NAMES[item.mode]||item.name,size:'small, medium or large',
     ...(item.mode==='shift'?{title:'W-02 / ALLOCATION',desc:'Choose an event in Scriptable using allocation_setup. Counts down until it starts, counts up during its scheduled duration, then finds the next occurrence with the same title on that calendar. iOS controls refresh timing.',tap:'Calendar; setup is in Scriptable'}:{}),
+    ...(item.mode==='game'?{desc:'An abstract bio-synthetic organism in a containment tube. Charging feeds it and advances growth through five stages; health, traits and history persist. Growth updates when the widget refreshes.'}:{}),
     ...(item.mode==='audio'?{desc:'A regulated corporate radio facade with an abstract growing approval seal. Tap opens your chosen music app or stream. Set it using radio_setup in Scriptable. The broadcast schedule is fiction.'}:{}),
     ...(item.mode==='feeds'?{desc:'Neural interface artwork. The left half opens YouTube and the right half opens Instagram. Small size opens YouTube.'}:{})}));
 }
@@ -11218,7 +11577,7 @@ function hbSample(mode,th) {
   if(mode==='shift')d.allocation={title:'Design review',phase:'before',label:'NEXT ALLOCATION IN',start:new Date(+now+24*60000),end:new Date(+now+69*60000),target:new Date(+now+24*60000),note:'Prepared for your participation.',frac:0};
   if(mode==='solar')Object.assign(d,{wx:{temp:th.units==='celsius'?22:72,hi:th.units==='celsius'?24:75,lo:th.units==='celsius'?17:62,cond:'Mostly clear'},daylight:'SUNSET IN 5:12:00',sun:{phase:'day',remaining:312*60000,left:.46},atm:{rh:54,ws:6,uv:3,probs:[5,12,24,42,50,36,22,16,5,20,40,18]}});
   if(mode==='transmission')Object.assign(d,{text:'I ought to be thy Adam, but I am rather the fallen angel.',by:'MARY SHELLEY / FRANKENSTEIN',archival:true});
-  if(mode==='game')Object.assign(d,{inp:{charging:true},st:{lot:'HB-2893-14',stage:3,age:46,nut:74,vit:82,stress:16,traits:['sensory filaments'],hist:[71,74,78,76,82],shist:[30,25,22,18,16],log:[{m:'Specimen requested a name. Request under consideration.'}]}});
+  if(mode==='game')Object.assign(d,{inp:{charging:true},st:{lot:'HB-2893-14',stage:3,age:46,growth:46,run:1,vseed:2893,nut:74,vit:82,stress:16,traits:['sensory filaments'],hist:[71,74,78,76,82],shist:[30,25,22,18,16],log:[{m:'Specimen requested a name. Request under consideration.'}]}});
   return d;
 }
 function hbPreviewWidget(item,th) {
@@ -11880,7 +12239,7 @@ function scriptableKit(th) {
   T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th); T.hbImages = HB_IMAGES; T.drImages = DR_IMAGES; T.hbDark = hbIsDark(th); T.hbVariant = th.variant || 0;
   const tf = { string: (d) => { let h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; } };
   try {
-    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { drPaint, drTimerLayout, DR_META, hbPaint, HB_SPRITES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
+    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { drPaint, drTimerLayout, DR_META, hbPaint, HB_SPRITES, hbObservation, HB_OBSERVATIONS, HB_WIDGET_ASSETS, GAMES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
       T, new Color(T.ink), new Color(T.ink, 0.72), Color, Point, Rect, Size, Path, DrawContext, Font, deck.audio.lines, deck,
       (w, f) => { const d = new DrawContext(); d.size = new Size(w, 4); d.setFillColor(new Color(T.ink, 0.22)); d.fillRect(new Rect(0, 0, w, 4)); d.setFillColor(new Color(T.ink)); d.fillRect(new Rect(0, 0, w * f, 4)); return d.getImage(); }, tf, new Color(T.panel));
   } catch (e) { console.warn(e); return null; }

@@ -3951,12 +3951,12 @@ const GAMES = {
     morph: ["SEED NUCLEUS", "HELICAL STRAND", "MEMBRANE LATTICE", "RADIAL BLOOM", "LATTICE SPHERE"],
     TRAITS: ["secondary nucleus", "bioluminescence", "redundant heart", "sensory filaments", "unauthorized opinions", "crystalline lattice", "neural bloom"],
     OLD: { "a second eye": "secondary nucleus", "an extra heart": "redundant heart", "feelers": "sensory filaments", "opinions": "unauthorized opinions", "a tiny crown": "crystalline lattice", "gills": "neural bloom" },
-    init(now, prev) { const run = prev ? prev.run + 1 : 1; return { v: 1, vseed: (now % 99991), game: "halcyon", run, lot: `HB-2893-${String(13 + run).padStart(2, "0")}`, stage: 0, age: 0, nut: 62, vit: 80, stress: 18, traits: [], hist: [80], shist: [18], best: prev ? prev.best : 0, turn: prev ? prev.turn : 0, log: prev ? prev.log : [], seed: (now % 233280) || 11, last: prev ? prev.last : 0 } },
-    migrate(st) { const G = GAMES.halcyon; st.traits = (st.traits || []).map(t => G.OLD[t] || t); st.shist = st.shist || [st.stress]; return st },
+    init(now, prev) { const run = prev ? prev.run + 1 : 1; return { v: 1, vseed: (now % 99991), game: "halcyon", run, lot: `HB-2893-${String(13 + run).padStart(2, "0")}`, stage: 0, age: 0, growth: 0, nut: 62, vit: 80, stress: 18, traits: [], hist: [80], shist: [18], best: prev ? prev.best : 0, turn: prev ? prev.turn : 0, log: prev ? prev.log : [], seed: (now % 233280) || 11, last: prev ? prev.last : 0 } },
+    migrate(st) { const G = GAMES.halcyon; st.traits = (st.traits || []).map(t => G.OLD[t] || t); st.shist = st.shist || [st.stress]; st.growth = st.growth ?? st.age; return st },
     right(st, inp) { return inp.charging ? "FEEDING · CHARGING" : `LOT ${st.lot}` },
     step(st, inp) {
       const r = gRng(st), G = GAMES.halcyon, night = inp.hour < 6 || inp.hour >= 23
-      st.turn++; st.age++
+      st.growth = st.growth ?? st.age; st.turn++; st.age++; if (inp.charging) st.growth++
       if (inp.charging) { st.nut += 22; gLog(st, "Nutrient line open via charging port. +22.") } else st.nut -= 5
       if (night) { st.stress -= 8; st.vit += 3; if (r() < 0.5) gLog(st, gPick(r, ["Night cycle. Dormant. Dreaming of protein.", "Night cycle. Metabolism throttled to 12%.", "Lights down. Specimen counting something."])) }
       if (inp.busy >= 4 && !night) { st.stress += 7; gLog(st, `${inp.busy} allocations today. Specimen agitated.`) }
@@ -3970,7 +3970,7 @@ const GAMES = {
       else if (e < 0.36) { st.stress -= 5; gLog(st, "Technician lingered at the glass. Stress -5.") }
       else if (e < 0.42) gLog(st, gPick(r, ["Membrane resequenced. Integrity holding.", "Mass gain within projection.", "Lattice self-repair complete."]))
       st.nut = gClamp(st.nut); st.vit = gClamp(st.vit); st.stress = gClamp(st.stress)
-      if (st.stage < 4 && st.age >= G.th[st.stage + 1] && st.vit > 45) { st.stage++; gLog(st, `Growth milestone: ${G.stages[st.stage]}. Morphology: ${G.morph[st.stage].toLowerCase()}.`) }
+      if (inp.charging && st.stage < 4 && st.growth >= G.th[st.stage + 1] && st.vit > 45) { st.stage++; gLog(st, `Growth milestone: ${G.stages[st.stage]}. Morphology: ${G.morph[st.stage].toLowerCase()}.`) }
       st.hist = (st.hist || []).concat([st.vit]).slice(-24); st.shist = (st.shist || []).concat([st.stress]).slice(-24)
       if (st.vit <= 0) { const best = Math.max(st.best || 0, st.age), old = st.lot; Object.assign(st, G.init(Date.now(), st)); st.best = best; gLog(st, `Lot ${old} recycled into feedstock. Lot ${st.lot} opened.`) }
     },
@@ -4756,9 +4756,9 @@ async function gameWidget() {
   try { inp.charging = !!Device.isCharging() } catch (e) {}
   try { inp.batt = Device.batteryLevel() } catch (e) {}
   try { inp.busy = (await CalendarEvent.today([])).filter(e => !e.isAllDay).length } catch (e) {}
-  const STEP = 15 * 60000, steps = st.last ? Math.min(8, Math.floor((now - st.last) / STEP)) : 1
+  const STEP = 15 * 60000, steps = st.last ? Math.min(f === "halcyon" ? 1 : 8, Math.floor((now - st.last) / STEP)) : 1
   for (let i = 0; i < steps; i++) G.step(st, inp)
-  if (!st.last) st.last = now; else if (steps > 0) st.last = Math.max(st.last + steps * STEP, now - STEP)
+  if (!st.last || (f === "halcyon" && steps > 0)) st.last = now; else if (steps > 0) st.last = Math.max(st.last + steps * STEP, now - STEP)
   try { if (fm && path) fm.writeString(path, JSON.stringify(st)) } catch (e) {}
   if (f === "halcyon" && T.hbOn) return hbWidget("game", {st, inp})
   if (f === "deeprange" && T.drOn) return drWidget("game", {st, inp})

@@ -3,7 +3,7 @@
 // (Scriptable's local documents, folder foundry-art). A new art version has a new file name, so it re-downloads once.
 // Offline on first run: the widget draws without the art and picks it up on a later refresh.
 async function hbLoadArt(mode) {
-  const keys={tracker:['saturn','neptune','jupiter','knot','membrane','loops'],transmission:['signal'],status:['heart','heartDetail'],solar:['lungs','lungsDetail'],feeds:['neural'],youtube:['optical'],instagram:['archive'],discord:['collective'],game:['neural','tissue','collective','heart','lungs','heartDetail','lungsDetail']}[mode]||[];
+  const keys=HB_WIDGET_ASSETS[mode]||[];
   T.hbImages=T.hbImages||{};
   let fm=null,dir=null; try{fm=FileManager.local();dir=fm.joinPath(fm.documentsDirectory(),'foundry-art');if(!fm.fileExists(dir))fm.createDirectory(dir,true);}catch(e){fm=null;}
   const originals={};
@@ -84,6 +84,7 @@ async function hbWidget(mode, extra={}) {
   d.live=mode==='shift'&&!!a?.target;
   w.backgroundImage=artImage(W,H,hbPaint,d);
   w.refreshAfterDate=new Date(+now+15*60000);
+  if(mode==='tracker'||mode==='dossier')w.refreshAfterDate=new Date((Math.floor(+now/1800000)+1)*1800000+1000);
   if(d.live){
     const target=a.phase==='active'?a.end:a.start;
     w.refreshAfterDate=new Date(Math.min(+now+15*60000,+target+1000));

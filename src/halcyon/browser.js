@@ -38,11 +38,12 @@ function hbArtArrived() {
 function hbWarm(full) { hbReady('thumbs').then(hbArtArrived).catch(e=>console.warn(e)); if(full)hbReady('sheets').then(hbArtArrived).catch(e=>{console.warn(e);setStatus('Halcyon artwork could not load. Check your connection and reload.');}); }
 // Addresses of the widget crops the iPhone script downloads once and keeps on the phone.
 function hbWidgetArt() { return Object.fromEntries(Object.entries(artFor('halcyon','widget')).map(([k,u])=>[k,artURL(u)])); }
-const HB_NAMES={status:'Subject Status',shift:'Allocation',solar:'Personal Climate',audio:'Audio Channel',transmission:'Transmission',feeds:'Neural Link',youtube:'Culture Feed',instagram:'Specimen Archive',oddity:'Mood Lease',discord:'Collective',game:'Specimen Vat',tracker:'Distant Care'};
+const HB_NAMES={status:'Subject Status',shift:'Allocation',solar:'Solar + Atmos',audio:'Audio Channel',transmission:'Transmission',feeds:'Neural Intake',youtube:'Broadcast Intake',instagram:'Peer Observation',oddity:'Affect Register',discord:'Collective',game:'Specimen Vat',tracker:'Distant Observation',dossier:'Target Dossier'};
 function hbWidgetList(th,original) {
-  const list=original.concat({mode:'tracker',name:'Distant Care',title:'HB-R / DISTANT CARE',tap:'Leave as is',desc:'A rotating celestial catalogue with familiar planets and fictional provisional objects. Illustrative catalogue views, not live telescope telemetry.'});
+  const list=original.concat({mode:'tracker',name:'Distant Observation',title:'HB-R / DISTANT OBSERVATION',tap:'Leave as is',desc:'A simulated location array cycling through 36 celestial bodies, vessels and anomalies. Pair with Target Dossier below; both use the same half-hour scan ID.'},{mode:'dossier',name:'Target Dossier',title:'HB-D / TARGET DOSSIER',tap:'Leave as is',desc:'The object identified by Distant Observation, with a unique vector scan and cargo, origin or custody details. Place below the tracker. Fictional survey positions; known planets remain labeled.'});
   return list.map(item=>({...item,name:HB_NAMES[item.mode]||item.name,size:'small, medium or large',
     ...(item.mode==='shift'?{title:'W-02 / ALLOCATION',desc:'Choose an event in Scriptable using allocation_setup. Counts down until it starts, counts up during its scheduled duration, then finds the next occurrence with the same title on that calendar. iOS controls refresh timing.',tap:'Calendar; setup is in Scriptable'}:{}),
+    ...(item.mode==='game'?{desc:'An abstract bio-synthetic organism in a containment tube. Charging feeds it and advances growth through five stages; health, traits and history persist. Growth updates when the widget refreshes.'}:{}),
     ...(item.mode==='audio'?{desc:'A regulated corporate radio facade with an abstract growing approval seal. Tap opens your chosen music app or stream. Set it using radio_setup in Scriptable. The broadcast schedule is fiction.'}:{}),
     ...(item.mode==='feeds'?{desc:'Neural interface artwork. The left half opens YouTube and the right half opens Instagram. Small size opens YouTube.'}:{})}));
 }
@@ -52,7 +53,7 @@ function hbSample(mode,th) {
   if(mode==='shift')d.allocation={title:'Design review',phase:'before',label:'NEXT ALLOCATION IN',start:new Date(+now+24*60000),end:new Date(+now+69*60000),target:new Date(+now+24*60000),note:'Prepared for your participation.',frac:0};
   if(mode==='solar')Object.assign(d,{wx:{temp:th.units==='celsius'?22:72,hi:th.units==='celsius'?24:75,lo:th.units==='celsius'?17:62,cond:'Mostly clear'},daylight:'SUNSET IN 5:12:00',sun:{phase:'day',remaining:312*60000,left:.46},atm:{rh:54,ws:6,uv:3,probs:[5,12,24,42,50,36,22,16,5,20,40,18]}});
   if(mode==='transmission')Object.assign(d,{text:'I ought to be thy Adam, but I am rather the fallen angel.',by:'MARY SHELLEY / FRANKENSTEIN',archival:true});
-  if(mode==='game')Object.assign(d,{inp:{charging:true},st:{lot:'HB-2893-14',stage:3,age:46,nut:74,vit:82,stress:16,traits:['sensory filaments'],hist:[71,74,78,76,82],shist:[30,25,22,18,16],log:[{m:'Specimen requested a name. Request under consideration.'}]}});
+  if(mode==='game')Object.assign(d,{inp:{charging:true},st:{lot:'HB-2893-14',stage:3,age:46,growth:46,run:1,vseed:2893,nut:74,vit:82,stress:16,traits:['sensory filaments'],hist:[71,74,78,76,82],shist:[30,25,22,18,16],log:[{m:'Specimen requested a name. Request under consideration.'}]}});
   return d;
 }
 function hbPreviewWidget(item,th) {

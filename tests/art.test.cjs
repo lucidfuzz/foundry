@@ -18,7 +18,7 @@ test('The iPhone script downloads art once, reuses the cached copy, and survives
   const ctx={T:{hbArt:{heart:'https://example.test/assets/halcyon/widget/heart.png?v=aaa111', heartDetail:'https://example.test/assets/halcyon/widget/heart-detail.png?v=bbb222'}},
     FileManager:{local:()=>({documentsDirectory:()=>'/docs',joinPath:(a,b)=>a+'/'+b,fileExists:p=>p==='/docs/foundry-art'||p in files,createDirectory(){},write:(p,d)=>{files[p]=d}})},
     Request:class{constructor(u){this.u=u}async load(){if(offline)throw new Error('offline');loads++;return {bytes:this.u}}},
-    Image:{fromData:d=>({from:'net',d}),fromFile:p=>({from:'cache',p})},Data:{},HB_SPRITES:{},HB_SHEET_ASPECT:{}};
+    Image:{fromData:d=>({from:'net',d}),fromFile:p=>({from:'cache',p})},Data:{},HB_SPRITES:{},HB_SHEET_ASPECT:{},HB_WIDGET_ASSETS:{status:['heart','heartDetail']}};
   vm.runInNewContext(fn+';globalThis.hbLoadArt=hbLoadArt',ctx);
   await ctx.hbLoadArt('status');
   assert.equal(loads,2); assert.equal(Object.keys(files).length,2); assert(Object.keys(files).every(p=>/halcyon-(heart|heartDetail)-(aaa111|bbb222)\.png$/.test(p)));

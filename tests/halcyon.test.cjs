@@ -30,5 +30,5 @@ test('Calendar dates, including DST offset changes, are authoritative',()=>{
 test('Embedded application and exported Scriptable template parse',()=>{
   const h=fs.readFileSync(root+'/index.html','utf8'),tpl=h.match(/<script type="text\/plain" id="tpl">([\s\S]*?)<\/script>/)[1],app=h.slice(h.lastIndexOf('<script>')+8,h.lastIndexOf('</script>'));
   new vm.Script(app);const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;new AsyncFunction(tpl.replace('__THEME__','{}'));
-  assert.equal(Object.keys(ctx.api.HB_META).length,12);assert(!h.includes('@@APPLICATION@@'));assert(!tpl.includes('// @halcyon-runtime'));
+  assert.equal(Object.keys(ctx.api.HB_META).length,13);assert(!h.includes('@@APPLICATION@@'));assert(!tpl.includes('// @halcyon-runtime'));
 });

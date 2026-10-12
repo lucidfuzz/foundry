@@ -11,7 +11,8 @@ const HB_META = {
   oddity: ['W-08', 'MOOD LEASE', 'Unused feelings do not roll over.'],
   discord: ['W-09', 'COLLECTIVE', 'Belonging is included.'],
   game: ['W-10', 'SPECIMEN VAT', 'Property status unchanged.'],
-  tracker: ['HB-R', 'DISTANT CARE', 'Return address pending.']
+  tracker: ['HB-R', 'DISTANT OBSERVATION', 'Return address pending.'],
+  dossier: ['HB-D', 'TARGET DOSSIER', 'Custody review pending.']
 };
 // Normalized source rectangles avoid the culture atlas's dividing lines.
 const HB_SHEET_ASPECT = {organs:3,culture:1,signal:1.5,celestial:1.5,'lungs-detail':1122/1402,'heart-detail':1122/1402};
