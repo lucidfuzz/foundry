@@ -1,5 +1,6 @@
 # Builds Foundry for Android (the android/ folder) and publishes the debug APK for testers.
-# Runs on every push to the android branch, and on demand from the Actions tab ("Run workflow").
+# Runs on every push to the android branch. To rebuild without a push, open the latest run and choose "Re-run all jobs".
+# (The "Run workflow" button only appears for workflows on the default branch, and this one lives on android only.)
 name: Android app
 
 on:
@@ -37,9 +38,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
         with:
           cache-provider: basic
+          # Save the cache on this branch too (by default only the default branch writes it), so builds start warm.
+          cache-read-only: false
 
       - name: Build the app
-        run: ./gradlew --no-daemon --stacktrace --warning-mode all assembleDebug
+        run: ./gradlew --no-daemon assembleDebug
 
       - name: Run the unit tests
         run: ./gradlew --no-daemon testDebugUnitTest
@@ -50,8 +53,11 @@ jobs:
           cp app/build/outputs/apk/debug/app-debug.apk out/Foundry-debug.apk
           ls -l out/Foundry-debug.apk
           sha256sum out/Foundry-debug.apk
+          # Shows which key signed it: every build should carry the same shared test key.
+          "$ANDROID_HOME"/build-tools/36.0.0/apksigner verify --print-certs out/Foundry-debug.apk | grep -i "SHA-256" || true
 
       - name: Publish the APK for testers
+        id: publish
         uses: actions/upload-artifact@v7
         with:
           name: Foundry-debug.apk
@@ -60,7 +66,20 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Explain where the APK is
+        run: |
+          {
+            echo "## Foundry for Android: build ${GITHUB_RUN_NUMBER} is ready"
+            echo ""
+            echo "1. Make sure you are signed in to GitHub (downloads need an account)."
+            echo "2. Scroll down to **Artifacts** on this page and click **Foundry-debug.apk** to download it."
+            echo "3. On the phone, open the downloaded file and allow your browser or Files app to install unknown apps when asked."
+            echo ""
+            echo "In Foundry this build shows as version 0.1.${GITHUB_RUN_NUMBER} (Settings > Apps > Foundry)."
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Check the code (lint report, does not fail the build)
+        continue-on-error: true
         run: |
           ./gradlew --no-daemon lintDebug
           python3 - <<'PY'
@@ -74,13 +93,3 @@ jobs:
                   where = '%s:%s' % (loc.get('artifactLocation', {}).get('uri', '?'), loc.get('region', {}).get('startLine', '?'))
                   print('%-8s %-32s %s  %s' % (r.get('level', ''), r.get('ruleId', ''), where, r.get('message', {}).get('text', '')))
           PY
-
-      - name: Explain where the APK is
-        if: success()
-        run: |
-          {
-            echo "## Foundry for Android: debug APK ready"
-            echo ""
-            echo "Scroll down to **Artifacts** on this page and click **Foundry-debug.apk** to download it."
-            echo "On the phone, open the downloaded file and allow your browser or Files app to install unknown apps when asked."
-          } >> "$GITHUB_STEP_SUMMARY"

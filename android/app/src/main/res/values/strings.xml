@@ -30,7 +30,7 @@
     <string name="perm_location_off">Approximate location: tap to allow</string>
     <string name="perm_location_use">Status and Solar show the weather and daylight where you are.</string>
     <string name="home_how">Put a widget on your home screen</string>
-    <string name="home_how_steps">1. Touch and hold an empty spot on your home screen.\n2. Tap Widgets, find Foundry and drag it onto the screen.\n3. Pick your theme, the widget you want and its size, then tap Add widget.\n4. To change it later, touch and hold the widget and choose its settings (or remove it and add it again).\n\nWidgets redraw about every 15 minutes, when you plug in or unplug the charger, and when you open this app.</string>
+    <string name="home_how_steps">1. Touch and hold an empty spot on your home screen.\n2. Tap Widgets, find Foundry and drag it onto the screen.\n3. Pick your theme, the widget you want and its size, then tap Add widget.\n4. Resize it to match the size you picked: touch and hold the widget, then drag its edges. Roughly 2 by 2 squares for small, 4 by 2 for medium and 4 by 4 for large.\n5. To change it later, touch and hold the widget and choose its settings (or remove it and add it again).\n\nWidgets redraw about every 15 minutes and whenever you open this app. They pick up charging by the next redraw (straight away while Foundry is open).</string>
     <string name="home_footer">Foundry runs the same widget scripts as iPhone. Your calendar and location stay on your phone; only your approximate position is sent to the free weather service, Open-Meteo.</string>
     <plurals name="widget_count">
         <item quantity="one">%d widget</item>
@@ -96,6 +96,7 @@
     <string name="config_widget">Widget</string>
     <string name="config_size">Size</string>
     <string name="config_size_fixed">%1$s, the size this widget was designed for.</string>
+    <string name="config_resize_hint">After adding it, touch and hold the widget and drag its edges to fit: about 2 by 2 squares for small, 4 by 2 for medium, 4 by 4 for large.</string>
     <string name="config_preview">Preview</string>
     <string name="config_save">Add widget</string>
     <string name="config_saving">Drawing your widget</string>

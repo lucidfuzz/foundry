@@ -69,8 +69,9 @@ object Refresh {
     }
 
     /**
-     * Wakes the app when a charger is plugged in (apps can't receive the plug-in broadcast from the manifest since
-     * Android 8), so the game widget sees charging promptly. Re-armed after each run.
+     * Wakes the app once the phone reports charging (apps can't receive the plug-in broadcast from the manifest since
+     * Android 8). Android may wait several minutes before reporting it, so this is a backstop for the 15-minute refresh;
+     * while the app's process is running, PowerWatch redraws straight away. Re-armed after each run.
      */
     fun watchCharging(ctx: Context, delayMs: Long, policy: ExistingWorkPolicy) {
         val req = OneTimeWorkRequest.Builder(ChargeWorker::class.java)

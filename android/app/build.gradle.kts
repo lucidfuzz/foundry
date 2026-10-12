@@ -12,8 +12,26 @@ android {
         applicationId = "io.github.lucidfuzz.foundry"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        // Each GitHub build gets its run number, so a tester can see which build is installed (Settings > Apps > Foundry).
+        val run = providers.environmentVariable("GITHUB_RUN_NUMBER").orNull?.toIntOrNull() ?: 1
+        versionCode = run
+        versionName = "0.1.$run"
+    }
+
+    signingConfigs {
+        // One shared test key for every debug build, so a new build installs over the old one and keeps the tester's
+        // themes and widgets. (Without it each GitHub run signs with a fresh random key and Android refuses the update.)
+        // Debug keys are not secret; release builds will use their own key from repository secrets.
+        getByName("debug") {
+            val shared = file("debug.keystore")
+            if (shared.exists()) {
+                storeFile = shared
+                storeType = "pkcs12"
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
+        }
     }
 
     buildTypes {
@@ -46,6 +64,15 @@ kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_17)
     }
+}
+
+// Some unit tests read the website's widget sources (the header and edition tables the app parses), so a change there
+// re-runs them, and a skipped test shows up in the log.
+tasks.withType<Test>().configureEach {
+    inputs.files(
+        rootProject.file("../src/tpl.js"), rootProject.file("../src/halcyon/paint.js"), rootProject.file("../src/deeprange/paint.js"),
+    ).withPathSensitivity(PathSensitivity.RELATIVE)
+    testLogging { events("skipped", "failed") }
 }
 
 dependencies {

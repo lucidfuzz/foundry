@@ -149,8 +149,12 @@ class ScriptInfoTest {
 
     // ---- against the site's real sources, so a change to the export format is caught here ----
 
-    private fun repoFile(path: String): File? =
-        listOf(File("../../$path"), File("../$path"), File(path)).firstOrNull { it.isFile }
+    /** A website source file; on GitHub's build machine (CI=true) a missing one is a failure, not a skip. */
+    private fun repoFile(path: String): File? {
+        val f = listOf(File("../../$path"), File("../$path"), File(path)).firstOrNull { it.isFile }
+        if (f == null && System.getenv("CI") == "true") throw AssertionError("$path not found from ${File(".").absolutePath}")
+        return f
+    }
 
     @Test fun parsesTheRealTemplateHeader() {
         val tpl = repoFile("src/tpl.js")

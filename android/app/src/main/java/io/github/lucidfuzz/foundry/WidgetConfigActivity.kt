@@ -93,6 +93,7 @@ class WidgetConfigActivity : Activity() {
         } else {
             col.addView(Ui.text(this, getString(R.string.config_size_fixed, fam.label), 15f, Ui.SOFT, top = 8))
         }
+        col.addView(Ui.text(this, getString(R.string.config_resize_hint), 13f, Ui.SOFT, top = 8))
 
         val preview = Ui.Preview(this, getString(R.string.config_preview))
         col.addView(preview.view)

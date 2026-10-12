@@ -7,12 +7,16 @@ in a hidden web view with `runtime/foundry-runtime.js` and puts the picture on t
 This work lives on the `android` branch and is never merged into `main`.
 
 ## Getting the app (testers)
-1. On GitHub, open the repository's **Actions** tab and click the latest green **Android app** run on the `android`
-   branch.
+1. Sign in to GitHub (downloads need a free account), open the repository's **Actions** tab and click the latest green
+   **Android app** run on the `android` branch.
 2. Scroll to **Artifacts** and click **Foundry-debug.apk** to download it.
 3. Open the downloaded file on the phone. If Android asks, allow your browser or Files app to install unknown apps.
 4. Open Foundry, import a theme's widget script (from the website's Export step), allow calendar and location if you want
-   real readings, then add a Foundry widget from the home screen's widget list.
+   real readings, then add a Foundry widget from the home screen's widget list and resize it to the size you picked.
+
+Newer builds install over older ones and keep your themes and widgets. The version (Settings > Apps > Foundry) is
+0.1.<build number>. Builds made before the shared test key (the first three, on 12 Oct) must be uninstalled once.
+To rebuild without new code, open the latest run on GitHub and choose **Re-run all jobs**.
 
 ## How it fits together
 | Piece | File |
@@ -32,5 +36,8 @@ This work lives on the `android` branch and is never merged into `main`.
 
 ## Building
 GitHub Actions builds it (`.github/workflows/android.yml`): Java 17, the Gradle wrapper (`./gradlew assembleDebug`),
-unit tests and a lint report. Versions: Android Gradle Plugin 9.4.1 (built-in Kotlin), Gradle 9.8.1, compile and target
-SDK 37, minimum SDK 26 (Android 8), WorkManager 2.12.0.
+unit tests and a lint report (printed in the log; it never fails the build). Debug builds are signed with the shared
+test key `app/debug.keystore` (password `android`), which is not secret.
+
+Versions: Android Gradle Plugin 9.4.1 (built-in Kotlin), Gradle 9.8.1, compile and target SDK 37, minimum SDK 26
+(Android 8), WorkManager 2.12.0.

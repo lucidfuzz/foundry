@@ -116,6 +116,8 @@ Halcyon exports:
   is unavailable" rather than "no events"). `id` is the event's series id (`ORIGINAL_ID`, else `EVENT_ID`) and
   `calendarId` a string, matching iPhone's identifiers. One extra method, `job(id)`, hands the page each render's options
   so large scripts never pass through `evaluateJavascript`.
+- Fonts: the page loads every bundled face before the first render (scripts also draw bold IBM Plex Mono, which
+  `fontsNeeded()` doesn't list).
 - The page is served from `https://appassets.androidplatform.net/assets/runtime/index.html` (answered by the app), so the
   bundled fonts load and `fetch` has a real origin. Open-Meteo and GitHub Pages allow any origin.
 - `writeFile` refuses to save non-image bytes under an image name (`.png`, `.jpg` and the like). A Wi-Fi sign-in or error page is
@@ -123,8 +125,17 @@ Halcyon exports:
 - Taps: `calshow://` (mapped by the runtime to `content://com.android.calendar/time/`) gets the current time appended;
   `instagram.com/app` opens Instagram's home; `foundry://run` (Shift before its allocation is chosen) opens the app's
   allocation setup. Links nothing on the phone can open fall back to the app.
-- Charger: since Android 8 apps can't receive the plug-in broadcast from the manifest, so a WorkManager job that requires
-  charging wakes the app when a charger is connected (re-armed after 20 minutes), plus a live receiver while the app runs.
+- Charger: since Android 8 apps can't receive the plug-in broadcast from the manifest. While Foundry's process is running
+  a live receiver redraws at once; otherwise a WorkManager job that requires charging wakes the app, but Android may wait
+  several minutes before it reports "charging", so in practice the game picks up charging by the next 15-minute refresh.
+  Test 3 should expect that ("by the next refresh, or at once with Foundry open").
+- Airplane mode (test 4): scripts don't fail offline, so widgets keep redrawing with cached art, calendar, battery and the
+  game, and weather shows the script's offline placeholder (as on iPhone). The last picture is reused only when a render
+  fails outright.
+- Sizes: the size picked in the widget picker is the design drawn; the widget's frame on the home screen is resized by
+  the user (about 2x2 small, 4x2 medium, 4x4 large). The picker and the app's how-to say so.
+- Test builds: every debug APK is signed with one shared test key (android/app/debug.keystore), so a new build installs
+  over the old one and keeps the tester's themes and widgets. Each build's version is 0.1.<run number>.
 - Known wording gap: Halcyon's Shift says "Choose an allocation in Scriptable." until one is chosen; on Android the
   setup is in the Foundry app. That text lives in the Halcyon widget code, not the app.
 
