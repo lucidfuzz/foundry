@@ -79,12 +79,17 @@ class Renderer private constructor(private val app: Context) {
     private var current: Job? = null
     private var timeout: Runnable? = null
     private val idleClose = Runnable { closeIfIdle() }
+    private val loadTimeout = Runnable {
+        // The page never became ready: start over with a fresh web view on the next job.
+        if (!ready) { drop(); failAll("The widget renderer did not start") }
+    }
 
     companion object {
         const val PAGE = "https://appassets.androidplatform.net/assets/runtime/index.html"
         private const val ASSET_HOST = "appassets.androidplatform.net"
         private const val JOB_TIMEOUT_MS = 60_000L
         private const val IDLE_CLOSE_MS = 120_000L
+        private const val LOAD_TIMEOUT_MS = 30_000L
 
         @Volatile private var instance: Renderer? = null
         fun get(ctx: Context): Renderer =
@@ -194,19 +199,20 @@ class Renderer private constructor(private val app: Context) {
                 if (v !== web) return
                 v.evaluateJavascript("!!(window.FoundryAndroid && window.FoundryRuntime)") { ok ->
                     if (v !== web) return@evaluateJavascript
-                    ready = ok == "true"
-                    if (ready) pump() else failAll("The Foundry runtime did not load")
+                    main.removeCallbacks(loadTimeout)
+                    if (ok == "true") { ready = true; pump() }
+                    else { drop(); failAll("The Foundry runtime did not load") }
                 }
             }
 
             override fun onRenderProcessGone(v: WebView, detail: RenderProcessGoneDetail): Boolean {
                 // The web view's process crashed or was killed: drop it, fail the job in flight, start fresh on the next one.
                 if (v === web) {
-                    web = null
-                    ready = false
+                    drop()
                     current?.let { finish(it.id, null, "The renderer stopped; it will retry on the next refresh") }
+                } else {
+                    try { v.destroy() } catch (e: Exception) { }
                 }
-                try { v.destroy() } catch (e: Exception) { }
                 return true
             }
         }
@@ -219,6 +225,8 @@ class Renderer private constructor(private val app: Context) {
         web = view
         ready = false
         view.loadUrl(PAGE)
+        main.removeCallbacks(loadTimeout)
+        main.postDelayed(loadTimeout, LOAD_TIMEOUT_MS)
         return view
     }
 
@@ -226,13 +234,22 @@ class Renderer private constructor(private val app: Context) {
         val v = web ?: return
         ready = false
         v.loadUrl(PAGE)
+        main.removeCallbacks(loadTimeout)
+        main.postDelayed(loadTimeout, LOAD_TIMEOUT_MS)
+    }
+
+    /** Throws the web view away; the next job creates a fresh one. */
+    private fun drop() {
+        main.removeCallbacks(loadTimeout)
+        val v = web
+        web = null
+        ready = false
+        v?.let { try { it.destroy() } catch (e: Exception) { } }
     }
 
     private fun closeIfIdle() {
         if (current != null || queue.isNotEmpty()) return
-        web?.let { try { it.destroy() } catch (e: Exception) { } }
-        web = null
-        ready = false
+        drop()
     }
 
     /** Serves the bundled page, runtime and fonts from https://appassets.androidplatform.net/assets/... */

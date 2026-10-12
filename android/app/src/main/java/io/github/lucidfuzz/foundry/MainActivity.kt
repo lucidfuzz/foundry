@@ -120,6 +120,8 @@ class MainActivity : Activity() {
     /** Shared scripts, opened files and widget taps. Returns true if it took care of showing a screen. */
     private fun handle(i: Intent?): Boolean {
         i ?: return false
+        // Reopening Foundry from Recents replays the intent that first opened it; don't import the same script again.
+        if ((i.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) return false
         when (i.action) {
             Intent.ACTION_SEND -> {
                 val text = i.getStringExtra(Intent.EXTRA_TEXT)

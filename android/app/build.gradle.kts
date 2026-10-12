@@ -36,11 +36,9 @@ android {
     }
 
     lint {
-        // Report problems in the build log without failing the build; the APK is what testers need.
+        // Report problems without failing the build; the APK is what testers need. CI prints the findings.
         abortOnError = false
         checkDependencies = false
-        textReport = true
-        textOutput = file("stdout")
     }
 }
 

@@ -39,7 +39,7 @@ jobs:
           cache-provider: basic
 
       - name: Build the app
-        run: ./gradlew --no-daemon --stacktrace assembleDebug
+        run: ./gradlew --no-daemon --stacktrace --warning-mode all assembleDebug
 
       - name: Run the unit tests
         run: ./gradlew --no-daemon testDebugUnitTest
@@ -61,7 +61,19 @@ jobs:
           retention-days: 30
 
       - name: Check the code (lint report, does not fail the build)
-        run: ./gradlew --no-daemon lintDebug
+        run: |
+          ./gradlew --no-daemon lintDebug
+          python3 - <<'PY'
+          import json, glob
+          for path in glob.glob('app/build/reports/lint-results-debug.sarif'):
+              runs = json.load(open(path)).get('runs', [])
+              results = [r for run in runs for r in run.get('results', [])]
+              print('Lint found %d issue(s)' % len(results))
+              for r in results:
+                  loc = (r.get('locations') or [{}])[0].get('physicalLocation', {})
+                  where = '%s:%s' % (loc.get('artifactLocation', {}).get('uri', '?'), loc.get('region', {}).get('startLine', '?'))
+                  print('%-8s %-32s %s  %s' % (r.get('level', ''), r.get('ruleId', ''), where, r.get('message', {}).get('text', '')))
+          PY
 
       - name: Explain where the APK is
         if: success()
