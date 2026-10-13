@@ -32,6 +32,13 @@ class WidgetConfigActivity : Activity() {
         // Only configure Foundry's own widgets (this screen can be opened by other apps).
         val provider = try { AppWidgetManager.getInstance(this).getAppWidgetInfo(widgetId)?.provider } catch (e: Exception) { null }
         if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID || provider?.packageName != packageName) { finish(); return }
+        if (savedInstanceState?.getBoolean("saving") == true) {
+            // Rotated while the widget was being drawn: the choice is saved, so finish the placement.
+            setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
+            Refresh.now(this, intArrayOf(widgetId))
+            finish()
+            return
+        }
         val existing = WidgetStore.get(this, widgetId)
         themeName = savedInstanceState?.getString("theme") ?: existing?.theme
         modeKey = savedInstanceState?.getString("mode") ?: existing?.mode
@@ -48,6 +55,7 @@ class WidgetConfigActivity : Activity() {
         out.putString("theme", themeName)
         out.putString("mode", modeKey)
         out.putString("family", family?.key)
+        out.putBoolean("saving", saving)
     }
 
     override fun onStop() {
@@ -119,6 +127,9 @@ class WidgetConfigActivity : Activity() {
         button.text = getString(R.string.config_saving)
         val cfg = WidgetConfig(theme.info.name, mode.key, fam)
         WidgetStore.put(this, widgetId, cfg)
+        // The choice is saved: the placement stands even if this screen is closed now, and the widget says it's drawing.
+        setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
+        WidgetUpdater.showMessage(this, widgetId, getString(R.string.widget_loading))
         Refresh.ensureScheduled(this)
         val handler = Handler(Looper.getMainLooper())
         var done = false
@@ -131,9 +142,10 @@ class WidgetConfigActivity : Activity() {
         }
         handler.postDelayed({ if (!done) { Refresh.now(this, intArrayOf(widgetId)); close() } }, 12_000L)
         Renderer.get(this).render(WidgetUpdater.request(this, widgetId, cfg, theme)) { r, _ ->
-            if (done) return@render
-            if (r == null || !WidgetUpdater.apply(this, widgetId, cfg, r)) Refresh.now(this, intArrayOf(widgetId))
-            else r.refreshAfter?.let { if (it - System.currentTimeMillis() < 14 * 60_000L) Refresh.at(this, it) }
+            // Even after the 12-second fallback has closed the screen, a late picture is still put on the widget.
+            if (r != null && WidgetUpdater.apply(applicationContext, widgetId, cfg, r)) {
+                r.refreshAfter?.let { if (it - System.currentTimeMillis() < 14 * 60_000L) Refresh.at(applicationContext, it) }
+            } else if (!done) Refresh.now(applicationContext, intArrayOf(widgetId))
             close()
         }
     }

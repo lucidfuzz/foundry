@@ -38,12 +38,13 @@
                 <data android:mimeType="application/javascript" />
                 <data android:mimeType="application/x-javascript" />
             </intent-filter>
-            <!-- "Open with Foundry" for a .js file -->
+            <!-- "Open with Foundry" for the saved script (the site saves <name>-widgets.txt) or a .js file -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="content" />
+                <data android:mimeType="text/plain" />
                 <data android:mimeType="text/javascript" />
                 <data android:mimeType="application/javascript" />
                 <data android:mimeType="application/x-javascript" />

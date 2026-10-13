@@ -75,6 +75,17 @@ object Ui {
     fun heading(ctx: Context, s: CharSequence) = text(ctx, s, 13f, SOFT, bold = true, top = 24).apply {
         letterSpacing = 0.08f
         isAllCaps = true
+        if (android.os.Build.VERSION.SDK_INT >= 28) isAccessibilityHeading = true
+    }
+
+    /** A text link with a full-size touch target. */
+    fun link(ctx: Context, s: CharSequence, description: CharSequence, onClick: () -> Unit) = text(ctx, s, 15f, ACCENT).apply {
+        minHeight = dp(ctx, 48)
+        gravity = Gravity.CENTER_VERTICAL
+        contentDescription = description
+        isClickable = true
+        isFocusable = true
+        setOnClickListener { onClick() }
     }
 
     fun button(ctx: Context, s: CharSequence, primary: Boolean = false, onClick: () -> Unit): Button =
@@ -109,6 +120,7 @@ object Ui {
             }
             addView(text(ctx, first, 16f, TEXT, bold = true))
             if (!second.isNullOrEmpty()) addView(text(ctx, second, 13f, SOFT, top = 2))
+            isSelected = selected
             if (onClick != null) {
                 isClickable = true
                 isFocusable = true
@@ -135,7 +147,8 @@ object Ui {
                         setStroke(dp(ctx, 1), if (i == chosen) ACCENT else LINE)
                     }
                     setPadding(dp(ctx, 14), dp(ctx, 8), dp(ctx, 14), dp(ctx, 8))
-                    minHeight = dp(ctx, 40)
+                    minHeight = dp(ctx, 48)
+                    isSelected = i == chosen
                     isClickable = true
                     isFocusable = true
                     setOnClickListener { onPick(i) }

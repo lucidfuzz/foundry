@@ -11,8 +11,11 @@ This work lives on the `android` branch and is never merged into `main`.
    **Android app** run on the `android` branch.
 2. Scroll to **Artifacts** and click **Foundry-debug.apk** to download it.
 3. Open the downloaded file on the phone. If Android asks, allow your browser or Files app to install unknown apps.
-4. Open Foundry, import a theme's widget script (from the website's Export step), allow calendar and location if you want
-   real readings, then add a Foundry widget from the home screen's widget list and resize it to the size you picked.
+4. Get a theme's widget script from the website's Export step: tap **Save as text file** and choose Foundry when the
+   phone asks where to send it (or tap **Copy script**, then **Paste the copied script** in Foundry). The Android pack
+   is pictures for other apps, not the script.
+5. Allow calendar and location in Foundry if you want real readings, then add a Foundry widget from the home screen's
+   widget list and resize it to the size you picked.
 
 Newer builds install over older ones and keep your themes and widgets. The version (Settings > Apps > Foundry) is
 0.1.<build number>. Builds made before the shared test key (the first three, on 12 Oct) must be uninstalled once.

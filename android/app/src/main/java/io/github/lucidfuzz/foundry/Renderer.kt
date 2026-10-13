@@ -13,7 +13,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import org.json.JSONObject
-import java.util.ArrayDeque
+import java.util.LinkedList
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -71,7 +71,7 @@ class Renderer private constructor(private val app: Context) {
     private class Job(val id: String, val request: RenderRequest, val tag: String?, val done: (RenderResult?, String?) -> Unit)
 
     private val main = Handler(Looper.getMainLooper())
-    private val queue = ArrayDeque<Job>()
+    private val queue = LinkedList<Job>()
     private val options = ConcurrentHashMap<String, String>()
     private val counter = AtomicInteger()
     private var web: WebView? = null
@@ -98,13 +98,18 @@ class Renderer private constructor(private val app: Context) {
             instance ?: synchronized(this) { instance ?: Renderer(ctx.applicationContext).also { instance = it } }
     }
 
-    /** Queues a render; [done] runs on the main thread with the result or an error message. */
-    fun render(request: RenderRequest, tag: String? = null, done: (RenderResult?, String?) -> Unit) {
+    /**
+     * Queues a render; [done] runs on the main thread with the result or an error message. Widget refreshes (no tag) go
+     * ahead of queued previews. Returns the job's id.
+     */
+    fun render(request: RenderRequest, tag: String? = null, done: (RenderResult?, String?) -> Unit): String {
         val job = Job("j" + counter.incrementAndGet(), request, tag, done)
         main.post {
-            queue.add(job)
+            val firstPreview = if (tag == null) queue.indexOfFirst { it.tag != null } else -1
+            if (firstPreview >= 0) queue.add(firstPreview, job) else queue.add(job)
             pump()
         }
+        return job.id
     }
 
     /** Renders from a background thread (widget refresh workers) and waits for the picture. Never call on the main thread. */
@@ -113,8 +118,12 @@ class Renderer private constructor(private val app: Context) {
         val latch = CountDownLatch(1)
         val out = AtomicReference<RenderResult?>()
         val err = AtomicReference<String?>()
-        render(request) { r, e -> out.set(r); err.set(e); latch.countDown() }
-        if (!latch.await(timeoutMs, TimeUnit.MILLISECONDS)) throw RenderException("The widget took too long to draw")
+        val id = render(request) { r, e -> out.set(r); err.set(e); latch.countDown() }
+        if (!latch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
+            // Nobody is waiting for it any more: don't let it hold up later widgets.
+            main.post { queue.removeAll { it.id == id } }
+            throw RenderException("The widget took too long to draw")
+        }
         return out.get() ?: throw RenderException(err.get() ?: "The widget could not be drawn")
     }
 

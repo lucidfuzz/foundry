@@ -84,6 +84,7 @@ object Refresh {
     fun cancelAll(ctx: Context) {
         val wm = WorkManager.getInstance(ctx)
         listOf(PERIODIC, NOW, SOON, CHARGE).forEach { wm.cancelUniqueWork(it) }
+        AppState.prefs(ctx).edit().remove("soonAt").apply()
     }
 
     /** Redraws widgets (worker thread). Schedules an earlier extra refresh when a script asks for one. */

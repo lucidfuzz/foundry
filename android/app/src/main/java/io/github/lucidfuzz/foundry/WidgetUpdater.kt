@@ -61,7 +61,8 @@ object WidgetUpdater {
         if (cfg == null) { showMessage(ctx, id, ctx.getString(R.string.widget_needs_setup)); return null }
         val theme = ThemeStore.get(ctx, cfg.theme)
         if (theme == null) {
-            if (!showCached(ctx, id, cfg)) showMessage(ctx, id, ctx.getString(R.string.widget_theme_missing, cfg.theme), needsSetup = true)
+            // Its theme was removed: keep the last picture (or a message), and a tap opens the widget picker.
+            if (!showCached(ctx, id, cfg, needsSetup = true)) showMessage(ctx, id, ctx.getString(R.string.widget_theme_missing, cfg.theme), needsSetup = true)
             return null
         }
         return try {
@@ -84,11 +85,11 @@ object WidgetUpdater {
     }
 
     /** Shows the last good picture, if there is one. */
-    fun showCached(ctx: Context, id: Int, cfg: WidgetConfig? = WidgetStore.get(ctx, id)): Boolean {
+    fun showCached(ctx: Context, id: Int, cfg: WidgetConfig? = WidgetStore.get(ctx, id), needsSetup: Boolean = false): Boolean {
         val f = WidgetStore.imageFile(ctx, id)
         val bmp = if (f.isFile) BitmapFactory.decodeFile(f.path) else null
         if (bmp == null || cfg == null) return false
-        show(ctx, id, cfg, bmp, WidgetStore.lastUrl(ctx, id), null)
+        show(ctx, id, cfg, bmp, WidgetStore.lastUrl(ctx, id), null, needsSetup)
         return true
     }
 

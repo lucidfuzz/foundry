@@ -35,8 +35,7 @@ class MainActivity : Activity() {
         private const val REQ_OPEN = 10
         private const val REQ_CALENDAR = 11
         private const val REQ_LOCATION = 12
-        private const val MAX_SCRIPT_BYTES = 30 * 1024 * 1024
-        private const val PREVIEWS = "previews"
+        private const val MAX_SCRIPT_BYTES = 8 * 1024 * 1024
         private var lastOpenRefresh = 0L
     }
 
@@ -44,6 +43,8 @@ class MainActivity : Activity() {
     private var previewFamily: Family = Family.MEDIUM
     private var afterCalendar: (() -> Unit)? = null
     private var backCallback: Any? = null
+    private val previews = "previews-" + System.identityHashCode(this) // this screen's preview jobs
+    private var previewsInterrupted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +80,14 @@ class MainActivity : Activity() {
 
     override fun onStop() {
         super.onStop()
-        Renderer.get(this).cancel(PREVIEWS)
+        // Unfinished previews are dropped while the app is out of sight, and drawn again on return.
+        Renderer.get(this).cancel(previews)
+        previewsInterrupted = current != null
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        if (previewsInterrupted) { previewsInterrupted = false; render() }
     }
 
     // ---------- navigation ----------
@@ -87,7 +95,7 @@ class MainActivity : Activity() {
     private var shown: String? = "" // the screen on display, so redrawing it keeps its scroll position
 
     private fun render() {
-        Renderer.get(this).cancel(PREVIEWS)
+        Renderer.get(this).cancel(previews)
         val theme = current?.let { ThemeStore.get(this, it) }
         if (theme == null) current = null
         val same = shown == current
@@ -170,8 +178,9 @@ class MainActivity : Activity() {
         for (t in themes) col.addView(Ui.row(this, t.info.name, describe(t.info)) { open(t.info.name) })
 
         col.addView(Ui.heading(this, getString(R.string.home_add)))
-        col.addView(Ui.button(this, getString(R.string.import_paste), primary = true) { pasteFromClipboard() })
-        col.addView(Ui.button(this, getString(R.string.import_file)) { pickFile() })
+        val bigClipboard = Build.VERSION.SDK_INT >= 30 // older Android can't hold a whole script on the clipboard
+        col.addView(Ui.button(this, getString(R.string.import_paste), primary = bigClipboard) { pasteFromClipboard() })
+        col.addView(Ui.button(this, getString(R.string.import_file), primary = !bigClipboard) { pickFile() })
         col.addView(Ui.button(this, getString(R.string.import_type)) { typeScript() })
         col.addView(Ui.text(this, getString(R.string.import_share_hint), 13f, Ui.SOFT, top = 8))
 
@@ -200,10 +209,7 @@ class MainActivity : Activity() {
     private fun themeScreen(theme: Theme, keepScroll: Boolean) {
         val info = theme.info
         val col = Ui.page(this, keepScroll)
-        col.addView(Ui.text(this, getString(R.string.back_to_themes), 15f, Ui.ACCENT).apply {
-            setPadding(0, Ui.dp(context, 4), 0, Ui.dp(context, 12))
-            setOnClickListener { goBack() }
-        })
+        col.addView(Ui.link(this, getString(R.string.back_to_themes), getString(R.string.back_to_themes_description)) { goBack() })
         col.addView(Ui.title(this, info.name))
         col.addView(Ui.text(this, describe(info), 15f, Ui.SOFT, top = 4))
         col.addView(Ui.text(this, getString(if (info.flexible) R.string.theme_sizes_flexible else R.string.theme_sizes_fixed), 14f, Ui.SOFT, top = 8))
@@ -234,7 +240,7 @@ class MainActivity : Activity() {
             // Draw at the size the preview is shown (small widgets at their real proportion to medium ones).
             val widthPx = (avail * fam.designWidth / 364.0).roundToInt()
             val scale = min(3.0, widthPx / fam.designWidth.toDouble()).coerceAtLeast(1.0)
-            renderer.render(RenderRequest(theme.script, fam, mode.key, scale, info.scriptName), PREVIEWS) { r, err ->
+            renderer.render(RenderRequest(theme.script, fam, mode.key, scale, info.scriptName), previews) { r, err ->
                 if (isFinishing || isDestroyed) return@render
                 val bmp = r?.let { BitmapFactory.decodeByteArray(it.png, 0, it.png.size) }
                 // Corners as on a home screen: about 22 points at the widget's design size.
@@ -261,7 +267,7 @@ class MainActivity : Activity() {
         val events = try {
             HalcyonSettings.allocationChoices(DeviceData.calendar(this, now, now + 90L * 86_400_000L), now)
         } catch (e: Exception) {
-            Toast.makeText(this, R.string.calendar_unavailable, Toast.LENGTH_LONG).show(); return
+            alert(R.string.allocation_title, R.string.calendar_unavailable); return
         }
         if (events.isEmpty()) {
             AlertDialog.Builder(this).setTitle(R.string.allocation_title).setMessage(R.string.allocation_none)
@@ -270,8 +276,15 @@ class MainActivity : Activity() {
         }
         val fmt = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
         val labels = events.map { "${it.title} · ${it.calendar}\n${fmt.format(Date(it.start))}" }.toTypedArray()
+        val head = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val p = Ui.dp(context, 24)
+            setPadding(p, Ui.dp(context, 20), p, Ui.dp(context, 8))
+            addView(Ui.text(context, getString(R.string.allocation_title), 20f, Ui.TEXT, bold = true).apply { if (Build.VERSION.SDK_INT >= 28) isAccessibilityHeading = true })
+            addView(Ui.text(context, getString(R.string.allocation_explain), 14f, Ui.SOFT, top = 6))
+        }
         AlertDialog.Builder(this)
-            .setTitle(R.string.allocation_title)
+            .setCustomTitle(head)
             .setItems(labels) { _, which ->
                 val e = events[which]
                 HalcyonSettings.saveAllocation(this, info, e)
@@ -281,7 +294,6 @@ class MainActivity : Activity() {
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
-        Toast.makeText(this, R.string.allocation_explain, Toast.LENGTH_LONG).show()
     }
 
     /** Recreates the script's radio_setup: one link for the music app or stream that Audio Channel opens. */
@@ -297,38 +309,44 @@ class MainActivity : Activity() {
             setPadding(p, Ui.dp(context, 8), p, 0)
             addView(field, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
         }
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(R.string.radio_title)
             .setMessage(R.string.radio_message)
             .setView(box)
-            .setPositiveButton(R.string.radio_save) { _, _ ->
-                if (HalcyonSettings.saveRadio(this, info, field.text.toString())) { Refresh.now(this); render() }
-                else Toast.makeText(this, R.string.radio_invalid, Toast.LENGTH_LONG).show()
-            }
+            .setPositiveButton(R.string.radio_save, null)
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+        // Checked before closing, so a link that isn't accepted can be corrected instead of retyped.
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            if (HalcyonSettings.saveRadio(this, info, field.text.toString())) { dialog.dismiss(); Refresh.now(this); render() }
+            else field.error = getString(R.string.radio_invalid)
+        }
     }
 
     // ---------- import ----------
 
-    private fun importScript(text: String?) {
+    private fun importScript(text: String?, fromClipboard: Boolean = false) {
         if (text.isNullOrBlank()) {
-            alert(R.string.import_nothing_title, R.string.import_nothing)
+            alert(R.string.import_nothing_title, if (fromClipboard) R.string.import_clipboard_empty else R.string.import_nothing)
             return
         }
         val existing = ScriptInfo.parse(text)?.let { ThemeStore.get(this, it.name) } != null
         val theme = try { ThemeStore.save(this, text) } catch (e: Exception) { null }
-        if (theme == null) { alert(R.string.import_not_foundry_title, R.string.import_not_foundry); return }
+        if (theme == null) {
+            alert(R.string.import_not_foundry_title, if (fromClipboard) R.string.import_clipboard_not_foundry else R.string.import_not_foundry)
+            return
+        }
         Toast.makeText(this, getString(if (existing) R.string.import_updated else R.string.import_done, theme.info.name), Toast.LENGTH_LONG).show()
         Refresh.now(this)
         open(theme.info.name)
     }
 
     private fun pasteFromClipboard() {
-        val cm = getSystemService(ClipboardManager::class.java)
-        val clip = cm?.primaryClip
-        val text = if (clip != null && clip.itemCount > 0) clip.getItemAt(0).coerceToText(this)?.toString() else null
-        if (text.isNullOrBlank()) alert(R.string.import_nothing_title, R.string.import_clipboard_empty) else importScript(text)
+        val text = try {
+            val clip = getSystemService(ClipboardManager::class.java)?.primaryClip
+            if (clip != null && clip.itemCount > 0) clip.getItemAt(0).coerceToText(this)?.toString() else null
+        } catch (e: RuntimeException) { null }
+        importScript(text, fromClipboard = true)
     }
 
     @Suppress("DEPRECATION")
@@ -368,24 +386,33 @@ class MainActivity : Activity() {
     private fun importFrom(uri: Uri) {
         Toast.makeText(this, R.string.import_reading, Toast.LENGTH_SHORT).show()
         Thread {
-            val text = readUri(uri)
-            runOnUiThread { if (!isFinishing && !isDestroyed) importScript(text) }
+            val bytes = readUri(uri)
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                when {
+                    bytes == null -> alert(R.string.import_nothing_title, R.string.import_nothing)
+                    bytes.size > MAX_SCRIPT_BYTES -> alert(R.string.import_not_foundry_title, R.string.import_too_big)
+                    // A zip (the website's Android pack or theme pack), not the widget script.
+                    bytes.size > 3 && bytes[0] == 'P'.code.toByte() && bytes[1] == 'K'.code.toByte() -> alert(R.string.import_not_foundry_title, R.string.import_zip)
+                    else -> importScript(String(bytes, Charsets.UTF_8))
+                }
+            }
         }.start()
     }
 
-    private fun readUri(uri: Uri): String? = try {
+    /** The file's bytes (stopping just past the size limit), or null if it can't be read. */
+    private fun readUri(uri: Uri): ByteArray? = try {
         contentResolver.openInputStream(uri)?.use { input ->
             val out = java.io.ByteArrayOutputStream()
             val buf = ByteArray(64 * 1024)
-            while (true) {
+            while (out.size() <= MAX_SCRIPT_BYTES) {
                 val n = input.read(buf)
                 if (n < 0) break
                 out.write(buf, 0, n)
-                if (out.size() > MAX_SCRIPT_BYTES) return null
             }
-            out.toString("UTF-8")
+            out.toByteArray()
         }
-    } catch (e: Exception) { null }
+    } catch (e: Throwable) { null }
 
     // ---------- permissions (explained in plain language before Android asks) ----------
 

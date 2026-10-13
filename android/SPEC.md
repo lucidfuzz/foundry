@@ -104,6 +104,10 @@ Righteous, Fraunces. The runtime maps every iPhone font name to these (see `FRAM
 ## Phase 1 as built (12 Oct)
 Built on the `android` branch (never merged into `main`). Details settled while building, all checked against the real
 Halcyon exports:
+- Import: the site's Export step offers Copy script and Save as text file (`<name>-widgets.txt`). Foundry takes the
+  script by paste, from the share sheet, through Open with for .txt and .js files, or from its file picker. On Android
+  10 and older the script is too long for the clipboard, so the app leads with the file route there. A zip (the
+  Android or theme pack) gets its own explanation.
 - Name line: the site exports `// Halcyon Biofab — made with Foundry` (em dash); the comma form above is accepted too.
 - Theme names: an Original edition is stored under the company name ("Halcyon Biofab"); Illustrated and Expanded add the
   edition ("Halcyon Biofab Illustrated"), so both editions can be installed side by side.
@@ -136,6 +140,8 @@ Halcyon exports:
   the user (about 2x2 small, 4x2 medium, 4x4 large). The picker and the app's how-to say so.
 - Test builds: every debug APK is signed with one shared test key (android/app/debug.keystore), so a new build installs
   over the old one and keeps the tester's themes and widgets. Each build's version is 0.1.<run number>.
+- Symbols outside the bundled fonts' Latin sets (■ □ ▼ → ∞ and the speaker emoji some widgets draw) use the phone's
+  system font, as they do on the website, whose web fonts lack them too.
 - Known wording gap: Halcyon's Shift says "Choose an allocation in Scriptable." until one is chosen; on Android the
   setup is in the Foundry app. That text lives in the Halcyon widget code, not the app.
 

@@ -14,14 +14,14 @@
     <!-- Home -->
     <string name="home_intro">Live widgets for the themes you make at Foundry. Import a theme’s widget script, then add a Foundry widget to your home screen.</string>
     <string name="home_themes">Your themes</string>
-    <string name="home_no_themes">No themes yet. On lucidfuzz.github.io/foundry, pick a theme, go to the Export step and copy the widget script (or download it), then bring it here.</string>
+    <string name="home_no_themes">No themes yet. On lucidfuzz.github.io/foundry, pick a theme and go to the Export step. Tap Save as text file and choose Foundry when your phone asks where to send it, or tap Copy script and come back here to paste it. (The Android pack is pictures for other apps; Foundry needs the widget script.)</string>
     <string name="home_add">Add a theme</string>
-    <string name="import_paste">Paste the widget script</string>
-    <string name="import_file">Open a script file (.js)</string>
+    <string name="import_paste">Paste the copied script</string>
+    <string name="import_file">Open the saved script file</string>
     <string name="import_type">Type or paste it in a box</string>
     <string name="import_type_hint">Paste the whole widget script here</string>
     <string name="import_button">Import</string>
-    <string name="import_share_hint">You can also share the script file to Foundry from your Files or browser app.</string>
+    <string name="import_share_hint">You can also open the saved script file (its name ends in -widgets.txt) from your Files app and choose Foundry.</string>
     <string name="home_permissions">Permissions</string>
     <string name="perm_calendar_on">Calendar: allowed</string>
     <string name="perm_calendar_off">Calendar: tap to allow</string>
@@ -40,6 +40,7 @@
 
     <!-- Theme screen -->
     <string name="back_to_themes">‹ All themes</string>
+    <string name="back_to_themes_description">Back to all themes</string>
     <string name="theme_sizes_flexible">Every widget comes in small, medium and large.</string>
     <string name="theme_sizes_fixed">Each widget comes in the size it was designed for.</string>
     <string name="setup_heading">Halcyon setup</string>
@@ -58,10 +59,10 @@
 
     <!-- Allocation and radio setup -->
     <string name="allocation_title">Choose your allocation</string>
-    <string name="allocation_explain">Shift follows every event with this exact title on this calendar, including repeats. Your calendar is not changed.</string>
+    <string name="allocation_explain">Shift follows every event with this exact title on this calendar, including repeats. Your calendar is not changed. Events from the next 90 days.</string>
     <string name="allocation_none">No timed events found in the next 90 days. Add an event in your calendar app, then come back.</string>
     <string name="allocation_saved">Shift will follow “%1$s”.</string>
-    <string name="calendar_unavailable">The calendar could not be read. Check that Foundry is allowed to read it.</string>
+    <string name="calendar_unavailable">The calendar could not be read. Check that Foundry is allowed to read it in Settings › Apps › Foundry › Permissions.</string>
     <string name="radio_title">Halcyon Radio destination</string>
     <string name="radio_message">The corporate programming is fictional. Choose the music app or stream that opens when you tap the channel, for example youtubemusic:// or a https:// link.</string>
     <string name="radio_save">Save</string>
@@ -73,7 +74,10 @@
     <string name="import_updated">Updated %1$s. Its widgets will redraw.</string>
     <string name="import_nothing_title">Nothing to import</string>
     <string name="import_nothing">Foundry didn’t receive any text. Share or open the widget script file itself.</string>
-    <string name="import_clipboard_empty">Your clipboard is empty. In Foundry’s Export step, copy the widget script, then come back and tap Paste.</string>
+    <string name="import_clipboard_empty">Your clipboard has no widget script. On Foundry’s Export step tap Copy script, then come back and tap Paste. On some phones the script is too long to copy: tap Save as text file instead and choose Foundry.</string>
+    <string name="import_clipboard_not_foundry">What you pasted isn’t a whole Foundry widget script. On some phones the script is too long to copy: on the Export step tap Save as text file instead and choose Foundry.</string>
+    <string name="import_zip">That file is the Android pack (pictures for other apps). Foundry needs the widget script: on the Export step tap Save as text file.</string>
+    <string name="import_too_big">That file is too big to be a widget script.</string>
     <string name="import_no_picker">This phone has no file picker Foundry can open.</string>
     <string name="import_not_foundry_title">Not a Foundry widget script</string>
     <string name="import_not_foundry">This doesn’t look like a widget script made with Foundry. Its first line should end with “made with Foundry”. Copy the whole script from Foundry’s Export step and try again.</string>
