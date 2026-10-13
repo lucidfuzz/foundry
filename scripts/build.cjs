@@ -8,7 +8,7 @@ const path = require('node:path');
 process.chdir(path.join(__dirname, '..'));
 const read = p => fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
 const check = process.argv.includes('--check');
-const PAINT = ['00_lib.js', '10_directive.js', '20_longroad.js', '30_nightfall.js', '40_grimoire.js', '50_deeprange.js', '60_halcyon.js', '70_singles.js', '80_rabbit.js', '85_lists.js', '90_new4.js', '95_games.js', '96_games2.js', '99_index.js'];
+const PAINT = ['00_lib.js', '10_directive.js', '20_longroad.js', '30_nightfall.js', '40_grimoire.js', '50_deeprange.js', '60_halcyon.js', '70_singles.js', '80_rabbit.js', '85_lists.js', '90_new4.js', '95_games.js', '96_games2.js', '98_directive_civil.js', '99_index.js'];
 const OPEN = '// ---------- THEMED PAINT BLOCK ----------\n', CLOSE = '// ---------- END THEMED PAINT BLOCK ----------';
 const paint = PAINT.map(f => read(`src/paint/${f}`).replace(/\n+$/, '') + '\n').join('');
 let tplSrc = read('src/tpl.js');
@@ -20,9 +20,10 @@ const tpl = tplSrc
   .replace('// @halcyon-paint', () => read('src/halcyon/paint.js') + '\n' + read('src/halcyon/fidelity.js') + '\n' + read('src/halcyon/clinical.js') + '\n' + read('src/halcyon/immersion.js') + '\n' + read('src/halcyon/living.js'))
   .replace('// @halcyon-runtime', () => read('src/halcyon/runtime.js'))
   .replace('// @deeprange-paint', () => read('src/deeprange/paint.js') + '\n' + read('src/deeprange/details.js'))
-  .replace('// @deeprange-runtime', () => read('src/deeprange/runtime.js'));
+  .replace('// @deeprange-runtime', () => read('src/deeprange/runtime.js'))
+  .replace('// @directive-runtime', () => read('src/directive/runtime.js'));
 if (tpl.includes('</script')) throw new Error('The widget script cannot contain a closing script tag');
-const app = [read('src/foundry-data.js'), read('src/art-manifest.js'), read('src/art.js'), read('src/render.js'), read('src/halcyon/browser.js'), read('src/deeprange/browser.js'), read('src/deeprange/wallpapers.js'), read('android/runtime/foundry-runtime.js'), read('src/app.js')].join('\n');
+const app = [read('src/foundry-data.js'), read('src/art-manifest.js'), read('src/art.js'), read('src/render.js'), read('src/halcyon/browser.js'), read('src/deeprange/browser.js'), read('src/deeprange/wallpapers.js'), read('android/runtime/foundry-runtime.js'), read('src/directive/browser.js'), read('src/app.js')].join('\n');
 const html = read('src/page.html').replace('@@WIDGET_SCRIPT@@', () => tpl).replace('@@APPLICATION@@', () => app);
 if (check) { if (read('index.html') !== html) throw new Error('index.html is stale. Run node scripts/build.cjs'); }
 else fs.writeFileSync('index.html', html);

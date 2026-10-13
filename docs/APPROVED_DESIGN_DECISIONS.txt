@@ -1,4 +1,56 @@
 FOUNDRY / APPROVED DESIGN DECISIONS
+[PR DELIVERY / REVISION 5 / 2026-10-13] Jordan requested a pull request and will squash and merge it personally.
+Integrated the approved Civil Defense edition onto current main a13c469b7a8908402891f70daf47ee88620e0234
+on codex/directive-zero-civil-defense. Do not merge, enable auto-merge or push directly to main.
+Read docs/DIRECTIVE_CIVIL_DEFENSE.md for the integration checks and physical-device limits.
+Gate: world notes and cross-theme graphic ownership reviewed; variety sheets and all three sizes reviewed;
+38 behavior/build tests pass; generated build is current at 1.31 MB, with no embedded art or fonts.
+630 widget views, 105 wallpapers and 55 icons match approved revision 5 pixel-for-pixel across five palettes.
+231 Original wallpapers, 121 Original icons and 105 Expanded Deep Range wallpapers match current main.
+The approved visual direction is unchanged. Physical-device review remains pending; release awaits Jordan's merge.
+[USER APPROVAL / REVISION 5 / 2026-10-13] Jordan reviewed Directive-Zero-Review-v5.html and responded
+"very good". Revision 5 is the approved visual direction for Directive Zero / Civil Defense.
+Preserve its differentiated instrument geometry, density, palette, typography, portrait-free credential
+variety and practical behavior. This supersedes the pending visual-review statuses below.
+At approval it was local and unpublished. The subsequent PR-only authorization is recorded above.
+[USER REFINEMENT / REVISION 5 / 2026-10-13] Jordan likes revision 4's direction but requests more variety,
+supplying fourteen NERV/MAGI reference images. Preserve the established density, institutional tone and palette.
+The request is for differentiated compositions and instrument geometry, not another universal noise overlay.
+Reference grammar: defense rings, dense routing networks, alarm tiles, woven synchronization meshes, stepped
+decision fields, faceted timers and security documents. Use original Directive Zero designs, no franchise
+marks, names, characters, copied layouts or real Japanese/Chinese/Korean text in the product.
+Revision 5 differentiates the timer interlock, warning bulletin, recon fan/message routing, command network,
+evaluation meshes, twelve operator credential diagrams and shelter section. Ten evaluation profiles are
+geometrically distinct. Existing real-data adapters, native timer and persistent game remain authoritative.
+The fourteen references are preserved in outputs/directive-reference-images/revision5, outside production.
+Revision 5 was delivered for local review and subsequently visually approved above. Revisions 3 and 4 are positively received
+directions being refined; only revisions 1 and 2 were rejected.
+[USER REFINEMENT / REVISION 4 / 2026-10-13] Jordan described revision 3 as "much better" and requested
+less clean negative space and restoration of the Original's noise. NERV headquarters and the MAGI system
+from Evangelion are explicit visual references for layered institutional displays. Preserve revision 3's
+compositions and dominant instruments; this is a density refinement, not another aesthetic reset.
+Revision 4 adds department-specific register fields, interference, ghosted routing geometry, security-line
+credential patterns and auxiliary diagnostics. Main utility readings remain readable and authoritative.
+The operator permits remain portrait-free. No franchise assets or copied three-computer layout.
+Clock/app/dock reservations remain intentional. Review the actual small/medium/large render, including
+Whiteout, before handoff. This latest execution is pending visual review and is not deployed.
+Revision 3 is an endorsed direction requiring refinement, unlike rejected revisions 1 and 2.
+[USER CORRECTION / REVISION 3 / 2026-10-13] Jordan rejected revision 2 emphatically: insufficient detail
+and departure from the Original. Added borders, tiny labels and simple symbol replacements did not satisfy
+the request. Study the actual Original and Evangelion NERV headquarters displays visually, not by recollection.
+No vector-drawn characters for Directive Zero. Operator cards must remain portrait-free institutional documents.
+Revision 3 rebuilds the compositions with dominant instruments, original-scale typography, colored warning
+fields, dense differentiated diagrams and twelve facility plans. Earlier Civil Defense executions are superseded
+and rejected, not approved baselines. This new execution is still awaiting the user's visual review.
+[USER CORRECTION / 2026-10-13] Directive Zero pass one is too sparse. The Original's inspiration was
+Evangelion's NERV headquarters art: use only its broad atmosphere, control-room density and abstract
+shadow-organization character. Keep Directive Zero's own identity, palette and typography.
+Replace the childish drawn people with operator calling cards: classified identities, original abstract
+seals, clearance codes and compartment records. No cartoon faces. Do not copy NERV logos, names or layouts.
+The revised execution remains in review; this correction is not approval of the previous pass.
+[WORK IN REVIEW / 2026-10-13] Directive Zero Civil Defense: full prefab pass requested.
+Separate edition; Original unchanged. World notes in docs/DIRECTIVE_CIVIL_DEFENSE.md.
+No visual approval or deployment is implied.
 Updated 2026-10-13. Source: the user's corrections and approvals in the Foundry design conversation.
 [WORK IN REVIEW / 2026-10-13] Jordan requested the six denser Deep Range Expanded home frames.
 Rebased onto main f236ee04990594b1c0739f894da724812bdb69c3, including the shared Halcyon widget fixes;
