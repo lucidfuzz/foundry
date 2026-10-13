@@ -96,7 +96,7 @@ object WidgetStore {
     fun saveImage(ctx: Context, id: Int, png: ByteArray, url: String?) {
         val f = imageFile(ctx, id)
         // A temp file of its own, renamed over the old picture in one step: the old one stays until the new one is whole.
-        val tmp = File.createTempFile("$id-", ".tmp", f.parentFile)
+        val tmp = File.createTempFile("widget-$id-", ".tmp", f.parentFile) // the prefix must be 3+ characters
         try {
             tmp.writeBytes(png)
             if (!tmp.renameTo(f)) return

@@ -138,7 +138,8 @@ object LocationCache {
             .toString()
     }
 
-    private fun store(ctx: Context, l: Location) {
+    /** [redraw]: redraw widgets if this is the first fix or a move of over 5 km (not when a refresh pass found it). */
+    private fun store(ctx: Context, l: Location, redraw: Boolean = true) {
         val p = AppState.prefs(ctx)
         if (l.time < p.getLong("locTime", 0L)) return
         val first = !p.contains("lat")
@@ -147,19 +148,22 @@ object LocationCache {
         p.edit().putFloat("lat", l.latitude.toFloat()).putFloat("lon", l.longitude.toFloat())
             .putFloat("acc", if (l.hasAccuracy()) l.accuracy else 3000f).putLong("locTime", l.time).apply()
         // The first fix (often just after permission is granted) or a move to another town: redraw the weather now.
-        if (first || moved[0] > 5_000f) Refresh.now(ctx.applicationContext)
+        if (redraw && (first || moved[0] > 5_000f)) Refresh.now(ctx.applicationContext)
     }
 
-    /** The newest last-known fix from any provider this app may use. Cheap; safe from a background worker. */
+    /**
+     * The newest last-known fix from any provider this app may use. Cheap; safe from a background worker. A refresh pass
+     * passes [redraw] = false: it is about to draw with the new fix anyway.
+     */
     @SuppressLint("MissingPermission") // checked by hasLocation()
-    fun refreshFromLastKnown(ctx: Context) {
+    fun refreshFromLastKnown(ctx: Context, redraw: Boolean = true) {
         if (!DeviceData.hasLocation(ctx)) return
         val lm = ctx.getSystemService(LocationManager::class.java) ?: return
         val best = try {
             lm.getProviders(true).mapNotNull { p -> try { lm.getLastKnownLocation(p) } catch (e: Exception) { null } }
                 .maxByOrNull { it.time }
         } catch (e: Exception) { null }
-        best?.let { store(ctx, it) }
+        best?.let { store(ctx, it, redraw) }
     }
 
     /** Asks for one fresh approximate fix while the app is open. */

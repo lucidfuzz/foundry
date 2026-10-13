@@ -89,7 +89,7 @@ object Refresh {
 
     /** Redraws widgets (worker thread). Schedules an earlier extra refresh when a script asks for one. */
     fun run(ctx: Context, ids: IntArray?, stopped: () -> Boolean) {
-        LocationCache.refreshFromLastKnown(ctx)
+        LocationCache.refreshFromLastKnown(ctx, redraw = false)
         val targets = ids?.takeIf { it.isNotEmpty() } ?: WidgetUpdater.allIds(ctx)
         var soonest = Long.MAX_VALUE
         for (id in targets) {

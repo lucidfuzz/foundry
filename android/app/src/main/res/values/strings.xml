@@ -66,6 +66,7 @@
     <string name="radio_title">Halcyon Radio destination</string>
     <string name="radio_message">The corporate programming is fictional. Choose the music app or stream that opens when you tap the channel, for example youtubemusic:// or a https:// link.</string>
     <string name="radio_save">Save</string>
+    <string name="save_failed">That couldn’t be saved. The phone’s storage may be full.</string>
     <string name="radio_invalid">That isn’t a link Foundry can open. Use a https:// link or an app link such as youtubemusic://</string>
 
     <!-- Import -->

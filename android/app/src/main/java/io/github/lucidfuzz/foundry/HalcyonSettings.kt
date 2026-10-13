@@ -19,11 +19,17 @@ object HalcyonSettings {
         return try { JSONObject(f.readText()) } catch (e: Exception) { JSONObject() }
     }
 
-    fun write(ctx: Context, theme: ThemeInfo, value: JSONObject) {
+    /** Returns false if it couldn't be saved (for example, the phone's storage is full). */
+    fun write(ctx: Context, theme: ThemeInfo, value: JSONObject): Boolean {
         val f = file(ctx, theme)
         val tmp = File(f.parentFile, ".${f.name}.tmp")
-        tmp.writeText(value.toString())
-        if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f) }
+        return try {
+            tmp.writeText(value.toString())
+            tmp.renameTo(f) || (f.delete() && tmp.renameTo(f))
+        } catch (e: Exception) {
+            tmp.delete()
+            false
+        }
     }
 
     /** The events allocation setup offers: timed, not yet over, one per title and calendar, soonest first (max 80). */
@@ -34,10 +40,10 @@ object HalcyonSettings {
             .take(80)
 
     /** Saves the chosen event the way hbChooseAllocation does: { match:'title', identifier, title, calendar }. */
-    fun saveAllocation(ctx: Context, theme: ThemeInfo, e: CalEvent) {
+    fun saveAllocation(ctx: Context, theme: ThemeInfo, e: CalEvent): Boolean {
         val s = read(ctx, theme)
         s.put("allocation", JSONObject().put("match", "title").put("identifier", e.id).put("title", e.title).put("calendar", e.calendarId))
-        write(ctx, theme, s)
+        return write(ctx, theme, s)
     }
 
     fun allocationTitle(ctx: Context, theme: ThemeInfo): String? =
@@ -58,7 +64,6 @@ object HalcyonSettings {
         if (!validRadio(url)) return false
         val s = read(ctx, theme)
         s.put("radio", url.trim())
-        write(ctx, theme, s)
-        return true
+        return write(ctx, theme, s)
     }
 }

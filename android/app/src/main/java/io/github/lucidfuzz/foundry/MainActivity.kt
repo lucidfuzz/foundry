@@ -44,7 +44,9 @@ class MainActivity : Activity() {
     private var afterCalendar: (() -> Unit)? = null
     private var backCallback: Any? = null
     private val previews = "previews-" + System.identityHashCode(this) // this screen's preview jobs
+    private var previewsPending = 0 // previews queued and not yet answered
     private var previewsInterrupted = false
+    private var pendingImport: Uri? = null // a file being read when the screen was recreated
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +54,10 @@ class MainActivity : Activity() {
         Family.of(savedInstanceState?.getString("family"))?.let { previewFamily = it }
         if (savedInstanceState == null && handle(intent)) return
         render()
+        // Rotated (or otherwise recreated) while a script file was being read: read it again.
+        @Suppress("DEPRECATION")
+        val interrupted: Uri? = savedInstanceState?.getParcelable("import")
+        interrupted?.let { importFrom(it) }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -64,6 +70,7 @@ class MainActivity : Activity() {
         super.onSaveInstanceState(out)
         out.putString("theme", current)
         out.putString("family", previewFamily.key)
+        out.putParcelable("import", pendingImport)
     }
 
     override fun onStart() {
@@ -81,8 +88,8 @@ class MainActivity : Activity() {
     override fun onStop() {
         super.onStop()
         // Unfinished previews are dropped while the app is out of sight, and drawn again on return.
+        previewsInterrupted = previewsPending > 0
         Renderer.get(this).cancel(previews)
-        previewsInterrupted = current != null
     }
 
     override fun onRestart() {
@@ -240,7 +247,9 @@ class MainActivity : Activity() {
             // Draw at the size the preview is shown (small widgets at their real proportion to medium ones).
             val widthPx = (avail * fam.designWidth / 364.0).roundToInt()
             val scale = min(3.0, widthPx / fam.designWidth.toDouble()).coerceAtLeast(1.0)
+            previewsPending++
             renderer.render(RenderRequest(theme.script, fam, mode.key, scale, info.scriptName), previews) { r, err ->
+                previewsPending--
                 if (isFinishing || isDestroyed) return@render
                 val bmp = r?.let { BitmapFactory.decodeByteArray(it.png, 0, it.png.size) }
                 // Corners as on a home screen: about 22 points at the widget's design size.
@@ -287,7 +296,7 @@ class MainActivity : Activity() {
             .setCustomTitle(head)
             .setItems(labels) { _, which ->
                 val e = events[which]
-                HalcyonSettings.saveAllocation(this, info, e)
+                if (!HalcyonSettings.saveAllocation(this, info, e)) { alert(R.string.allocation_title, R.string.save_failed); return@setItems }
                 Toast.makeText(this, getString(R.string.allocation_saved, e.title), Toast.LENGTH_LONG).show()
                 Refresh.now(this)
                 render()
@@ -318,8 +327,12 @@ class MainActivity : Activity() {
             .show()
         // Checked before closing, so a link that isn't accepted can be corrected instead of retyped.
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            if (HalcyonSettings.saveRadio(this, info, field.text.toString())) { dialog.dismiss(); Refresh.now(this); render() }
-            else field.error = getString(R.string.radio_invalid)
+            val link = field.text.toString()
+            when {
+                !HalcyonSettings.validRadio(link) -> field.error = getString(R.string.radio_invalid)
+                !HalcyonSettings.saveRadio(this, info, link) -> field.error = getString(R.string.save_failed)
+                else -> { dialog.dismiss(); Refresh.now(this); render() }
+            }
         }
     }
 
@@ -385,10 +398,12 @@ class MainActivity : Activity() {
     /** Reads a shared or opened file off the main thread (it may be downloading from a cloud drive), then imports it. */
     private fun importFrom(uri: Uri) {
         Toast.makeText(this, R.string.import_reading, Toast.LENGTH_SHORT).show()
+        pendingImport = uri
         Thread {
             val bytes = readUri(uri)
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
+                pendingImport = null
                 when {
                     bytes == null -> alert(R.string.import_nothing_title, R.string.import_nothing)
                     bytes.size > MAX_SCRIPT_BYTES -> alert(R.string.import_not_foundry_title, R.string.import_too_big)
