@@ -42,7 +42,7 @@
     <string name="back_to_themes">‹ All themes</string>
     <string name="back_to_themes_description">Back to all themes</string>
     <string name="theme_sizes_flexible">Every widget comes in small, medium and large.</string>
-    <string name="theme_sizes_fixed">Each widget comes in the size it was designed for.</string>
+    <string name="theme_sizes_fixed">Each widget offers the sizes its script was designed for; some fit any size.</string>
     <string name="setup_heading">Halcyon setup</string>
     <string name="setup_allocation">Allocation (Shift widget)</string>
     <string name="setup_allocation_now">Following “%1$s”. Tap to change.</string>
@@ -77,7 +77,7 @@
     <string name="import_nothing">Foundry didn’t receive any text. Share or open the widget script file itself.</string>
     <string name="import_clipboard_empty">Your clipboard has no widget script. On Foundry’s Export step tap Copy script, then come back and tap Paste. On some phones the script is too long to copy: tap Save as text file instead and choose Foundry.</string>
     <string name="import_clipboard_not_foundry">What you pasted isn’t a whole Foundry widget script. On some phones the script is too long to copy: on the Export step tap Save as text file instead and choose Foundry.</string>
-    <string name="import_zip">That file is the Android pack (pictures for other apps). Foundry needs the widget script: on the Export step tap Save as text file.</string>
+    <string name="import_zip">That file is a zip (the theme pack or the Android pack). Foundry needs the widget script on its own: on the Export step tap Save as text file.</string>
     <string name="import_too_big">That file is too big to be a widget script.</string>
     <string name="import_no_picker">This phone has no file picker Foundry can open.</string>
     <string name="import_not_foundry_title">Not a Foundry widget script</string>
@@ -105,4 +105,6 @@
     <string name="config_preview">Preview</string>
     <string name="config_save">Add widget</string>
     <string name="config_saving">Drawing your widget</string>
+    <string name="config_title_change">Change this widget</string>
+    <string name="config_save_change">Save changes</string>
 </resources>

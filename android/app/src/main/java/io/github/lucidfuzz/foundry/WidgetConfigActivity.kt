@@ -22,6 +22,7 @@ class WidgetConfigActivity : Activity() {
     private var modeKey: String? = null
     private var family: Family? = null
     private var saving = false
+    private var changing = false // reconfiguring a widget that's already placed
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +41,7 @@ class WidgetConfigActivity : Activity() {
             return
         }
         val existing = WidgetStore.get(this, widgetId)
+        changing = existing != null
         themeName = savedInstanceState?.getString("theme") ?: existing?.theme
         modeKey = savedInstanceState?.getString("mode") ?: existing?.mode
         family = Family.of(savedInstanceState?.getString("family")) ?: existing?.family
@@ -66,7 +68,7 @@ class WidgetConfigActivity : Activity() {
     private fun build() {
         Renderer.get(this).cancel(TAG)
         val col = Ui.page(this, keepScroll = true)
-        col.addView(Ui.title(this, getString(R.string.config_title)))
+        col.addView(Ui.title(this, getString(if (changing) R.string.config_title_change else R.string.config_title)))
         val themes = ThemeStore.list(this)
         if (themes.isEmpty()) {
             col.addView(Ui.text(this, getString(R.string.config_no_themes), 15f, Ui.SOFT, top = 8))
@@ -114,7 +116,7 @@ class WidgetConfigActivity : Activity() {
             else if (err != "Cancelled") preview.fail(err ?: getString(R.string.preview_failed))
         }
 
-        val add = Ui.button(this, getString(R.string.config_save), primary = true) {}
+        val add = Ui.button(this, getString(if (changing) R.string.config_save_change else R.string.config_save), primary = true) {}
         add.setOnClickListener { save(theme, mode, fam, add) }
         col.addView(add)
     }

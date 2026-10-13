@@ -47,6 +47,7 @@ class MainActivity : Activity() {
     private var previewsPending = 0 // previews queued and not yet answered
     private var previewsInterrupted = false
     private var pendingImport: Uri? = null // a file being read when the screen was recreated
+    private var permissionsSeen = "" // calendar/location access when the app was last on screen
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,12 +74,16 @@ class MainActivity : Activity() {
         out.putParcelable("import", pendingImport)
     }
 
+    private fun permissions() = "${DeviceData.hasCalendar(this)}/${DeviceData.hasLocation(this)}"
+
     override fun onStart() {
         super.onStart()
         LocationCache.requestFresh(this)
-        // Opening the app redraws widgets (at most once a minute, since returning from a dialog also lands here).
+        // Opening the app redraws widgets (at most once a minute, since returning from a dialog also lands here),
+        // and straight away when calendar or location access changed meanwhile (for example in Settings).
         val now = System.currentTimeMillis()
-        if (now - lastOpenRefresh > 60_000L && Refresh.hasWidgets(this)) {
+        val changed = permissionsSeen.isNotEmpty() && permissionsSeen != permissions()
+        if ((changed || now - lastOpenRefresh > 60_000L) && Refresh.hasWidgets(this)) {
             lastOpenRefresh = now
             Refresh.ensureScheduled(this)
             Refresh.now(this)
@@ -90,11 +95,16 @@ class MainActivity : Activity() {
         // Unfinished previews are dropped while the app is out of sight, and drawn again on return.
         previewsInterrupted = previewsPending > 0
         Renderer.get(this).cancel(previews)
+        permissionsSeen = permissions()
     }
 
     override fun onRestart() {
         super.onRestart()
-        if (previewsInterrupted) { previewsInterrupted = false; render() }
+        // Things can change while Foundry is out of sight: a theme imported through the share sheet (which opens in the
+        // sending app's task), a permission allowed in Settings. The home screen is cheap to redraw, so always redraw
+        // it; a theme screen only when its previews were interrupted or access changed.
+        val changed = permissionsSeen != permissions()
+        if (current == null || previewsInterrupted || changed) { previewsInterrupted = false; render() }
     }
 
     // ---------- navigation ----------
