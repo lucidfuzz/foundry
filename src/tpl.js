@@ -762,6 +762,7 @@ async function solarWidget() {
     label(b, C.solar.label, 8, INK_SOFT)
     b.addSpacer(4)
     serifText(b, C.solar.offline, 20)
+    b.addSpacer()
     return w
   }
   const now = new Date()
@@ -4055,8 +4056,10 @@ const GAMES = {
       }
       const x0 = vx + vw + 14, rw = W - x0 - 12
       const cog = Math.min(100, st.stage * 18 + st.traits.length * 6 + (st.age % 7)), bpm = Math.round(48 + st.stress * 0.6 + (inp.charging ? 8 : 0))
-      k.t(inp.charging ? "FEEDING // NUTRIENT LINE OPEN" : st.stress > 60 ? "CONTAINMENT // AGITATED" : "CONTAINMENT // NOMINAL", x0, 4, 7, inp.charging || st.stress > 60 ? k.a(LAV, 1) : S, { w: rw, f: "bold", lines: 1 })
-      k.t(G.stages[st.stage], x0, 13, small ? 13 : big ? 20 : 16, I, { f: "disp", w: rw })
+      const status = small ? (inp.charging ? "FEEDING" : st.stress > 60 ? "AGITATED" : "NOMINAL") :
+        (inp.charging ? "FEEDING // NUTRIENT LINE OPEN" : st.stress > 60 ? "CONTAINMENT // AGITATED" : "CONTAINMENT // NOMINAL")
+      k.t(status, x0, 4, 7, inp.charging || st.stress > 60 ? k.a(LAV, 1) : S, { w: rw, f: "bold", lines: 1 })
+      k.t(G.stages[st.stage], x0, small ? 16 : 13, small ? 13 : big ? 20 : 16, I, { f: "disp", w: rw })
       if (small) {
         ;[["VIT", st.vit], ["NUT", st.nut]].forEach(([l, v], i) => { const y = 36 + i * 17; k.t(`${l} ${Math.round(v)}`, x0, y, 6.8, S, { w: rw, lines: 1 }); gBar(k, x0, y + 9, rw, 4, v / 100, I, k.ia(0.12)) })
         k.t(`AGE ${st.age}`, x0, 74, 6.8, S, { w: rw, lines: 1 }); return

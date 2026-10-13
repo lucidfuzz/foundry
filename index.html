@@ -1182,6 +1182,7 @@ async function solarWidget() {
     label(b, C.solar.label, 8, INK_SOFT)
     b.addSpacer(4)
     serifText(b, C.solar.offline, 20)
+    b.addSpacer()
     return w
   }
   const now = new Date()
@@ -4475,8 +4476,10 @@ const GAMES = {
       }
       const x0 = vx + vw + 14, rw = W - x0 - 12
       const cog = Math.min(100, st.stage * 18 + st.traits.length * 6 + (st.age % 7)), bpm = Math.round(48 + st.stress * 0.6 + (inp.charging ? 8 : 0))
-      k.t(inp.charging ? "FEEDING // NUTRIENT LINE OPEN" : st.stress > 60 ? "CONTAINMENT // AGITATED" : "CONTAINMENT // NOMINAL", x0, 4, 7, inp.charging || st.stress > 60 ? k.a(LAV, 1) : S, { w: rw, f: "bold", lines: 1 })
-      k.t(G.stages[st.stage], x0, 13, small ? 13 : big ? 20 : 16, I, { f: "disp", w: rw })
+      const status = small ? (inp.charging ? "FEEDING" : st.stress > 60 ? "AGITATED" : "NOMINAL") :
+        (inp.charging ? "FEEDING // NUTRIENT LINE OPEN" : st.stress > 60 ? "CONTAINMENT // AGITATED" : "CONTAINMENT // NOMINAL")
+      k.t(status, x0, 4, 7, inp.charging || st.stress > 60 ? k.a(LAV, 1) : S, { w: rw, f: "bold", lines: 1 })
+      k.t(G.stages[st.stage], x0, small ? 16 : 13, small ? 13 : big ? 20 : 16, I, { f: "disp", w: rw })
       if (small) {
         ;[["VIT", st.vit], ["NUT", st.nut]].forEach(([l, v], i) => { const y = 36 + i * 17; k.t(`${l} ${Math.round(v)}`, x0, y, 6.8, S, { w: rw, lines: 1 }); gBar(k, x0, y + 9, rw, 4, v / 100, I, k.ia(0.12)) })
         k.t(`AGE ${st.age}`, x0, 74, 6.8, S, { w: rw, lines: 1 }); return
@@ -5104,7 +5107,7 @@ function hbAllocation(events, selection, now) {
     (selection.match === 'title' ? e.title === selection.title : e.identifier === selection.identifier));
   const sorted = matches.sort((a,b) => +new Date(a.startDate) - +new Date(b.startDate));
   const ev = sorted.find(e => +new Date(e.startDate) <= +now && +new Date(e.endDate) > +now) || sorted.find(e => +new Date(e.startDate) > +now);
-  if (!selection) return {phase:'setup', title:'Your next allocation', note:'Choose an allocation in Scriptable.'};
+  if (!selection) return {phase:'setup', title:'Your next allocation', note:'Choose an allocation in widget setup.'};
   if (!ev) return {phase:'waiting', title:selection.title, note:'No matching occurrence in the next 90 days.'};
   const start = new Date(ev.startDate), end = new Date(ev.endDate), active = start <= now;
   return {phase:active?'active':'before',title:ev.title,start,end,target:active?start:start,
@@ -5243,9 +5246,9 @@ function hbAssigned(c){const {k,W,H,d,p,small,big,t,title,line,hr,bar}=c,a=d.all
   const label=a.label||(a.phase==='setup'?'ALLOCATION REQUIRED':'AWAITING ALLOCATION');
   if(small){hbDial(c,142,138,31,a.frac||0);title(a.title||'Your next allocation',12,32,144,18,2,14);t(label,12,73,5.6,144);if(!d.live)t(a.target?hbDuration((d.now||new Date())-a.target):'— — : — —',q.x,q.y,q.fs,q.w,'disp');t(active?'STARTED':'HALCYON ASSIGNED',12,120,5.2,100);t(a.start?hbClock(a.start):a.phase==='error'?'Check access':'Open setup',12,130,12,102,'disp');return;}
   if(!big){hbDial(c,328,137,48,a.frac||0);title(a.title||'Your next allocation',12,33,149,27,2);line(164,33,164,105);t(label,175,39,6.3,177);if(!d.live)t(a.target?hbDuration((d.now||new Date())-a.target):'— — : — —',q.x,q.y,q.fs,q.w,'disp');t('Prepared for your participation.',12,100,6.6,217);k.circ(282,104,2.5,k.a(p.mint,1));t('HALCYON ASSIGNED',290,101,5.2,64);}
-  else{title('Your allocated time.',14,34,292,33,1);title(a.title||'Your next allocation',14,76,255,21,2);hbApproval(c,327,83,21);hbDial(c,219,207,88,a.frac||0);t(active?'ALLOCATED ACTIVITY':'RESERVED ACTIVITY',148,151,6.4,166);t(label,142,168,6.5,186);if(!d.live)t(a.target?hbDuration((d.now||new Date())-a.target):'— — : — —',q.x,q.y,q.fs,q.w,'disp');t(active?'STARTED':'ASSIGNED START',176,235,6,130);t(a.start?hbClock(a.start):'—',178,249,21,130,'disp');title('A continuing\nallocation.',14,154,93,19,2);t('PREPARED FOR',14,208,5.8,84);t('PARTICIPATION.',14,218,5.8,84);hr(307);t('RELEASE AT',14,316,6,90);t(a.end?hbClock(a.end):'—',14,327,18,94,'disp');t(a.note||'Choose an event in Scriptable.',120,318,7.2,232);}
+  else{title('Your allocated time.',14,34,292,33,1);title(a.title||'Your next allocation',14,76,255,21,2);hbApproval(c,327,83,21);hbDial(c,219,207,88,a.frac||0);t(active?'ALLOCATED ACTIVITY':'RESERVED ACTIVITY',148,151,6.4,166);t(label,142,168,6.5,186);if(!d.live)t(a.target?hbDuration((d.now||new Date())-a.target):'— — : — —',q.x,q.y,q.fs,q.w,'disp');t(active?'STARTED':'ASSIGNED START',176,235,6,130);t(a.start?hbClock(a.start):'—',178,249,21,130,'disp');title('A continuing\nallocation.',14,154,93,19,2);t('PREPARED FOR',14,208,5.8,84);t('PARTICIPATION.',14,218,5.8,84);hr(307);t('RELEASE AT',14,316,6,90);t(a.end?hbClock(a.end):'—',14,327,18,94,'disp');t(a.note||'Choose an allocation in widget setup.',120,318,7.2,232);}
   const by=big?345:125;bar(12,by,W-24,10,a.frac||0,p.lilac,24);
-  if(!big){t(a.start?hbClock(a.start):'AWAITING SCHEDULE',12,140,6.2,150);t(a.end?'RELEASE '+hbClock(a.end):(a.note||'Choose event in Scriptable'),204,140,5.9,148);}
+  if(!big){t(a.start?hbClock(a.start):'AWAITING SCHEDULE',12,140,6.2,150);t(a.end?'RELEASE '+hbClock(a.end):(a.note||'Choose an allocation in widget setup.'),204,140,5.9,148);}
 }
 function hbClimateOther(c){const {k,W,H,d,p,small,t,title,hr,line,art,grid}=c,wx=d.wx||{},atm=d.atm||{},sun=d.sun||{},key=T.hbImages?.lungsDetail?'lungsDetail':'lungs';
   if(small){t(`${wx.temp??'—'}°`,12,30,39,91,'disp');title(wx.cond||'Weather unavailable',12,77,90,13,2,11);art(key,95,30,66,97);hr(120);t(`HI ${wx.hi??'—'}°  LO ${wx.lo??'—'}°`,12,128,8,145);return;}
@@ -5394,9 +5397,9 @@ function hbClinicalAllocation(c){const {d,small,big,W,t,title,hr,field}=c,a=d.al
   t(active?'ALLOCATED ACTIVITY':'NEXT ALLOCATION',12,31,6,W-24);title(a.title||'Allocation required',12,small?41:big?43:40,small?146:big?332:193,small?14:big?22:16,small?2:1);
   if(!d.live)t(a.target?hbDuration((d.now||new Date())-a.target):'— : — —',q.x,q.y,q.fs,q.w,'disp');
   if(small){t(active?'TIME IN ALLOCATION':'UNTIL START',12,118,6,146);c.bar(12,130,146,5,a.target?a.frac:null,c.p.ink);t(a.start?'IN '+hbClock(a.start):'OPEN SETUP',12,141,5.7,72);t(a.end?'OUT '+hbClock(a.end):'',92,141,5.7,66);return;}
-  if(!big){c.line(219,32,219,112);field('ASSIGNED START',a.start?hbClock(a.start):'—',234,33,118,22);field('RELEASE AT',a.end?hbClock(a.end):'—',234,77,118,22);t(active?'TIME IN ALLOCATION':'UNTIL START / HALCYON ASSIGNED',12,118,6.5,201);c.bar(12,130,340,6,a.target?a.frac:null);t(a.note||'CHOOSE ALLOCATION IN SCRIPTABLE',12,142,5.6,340);return;}
+  if(!big){c.line(219,32,219,112);field('ASSIGNED START',a.start?hbClock(a.start):'—',234,33,118,22);field('RELEASE AT',a.end?hbClock(a.end):'—',234,77,118,22);t(active?'TIME IN ALLOCATION':'UNTIL START / HALCYON ASSIGNED',12,118,6.5,201);c.bar(12,130,340,6,a.target?a.frac:null);t(a.note||'CHOOSE ALLOCATION IN WIDGET SETUP',12,142,5.6,340);return;}
   t(active?'TIME IN ALLOCATION':'UNTIL START',14,166,7,320);hr(180);field('ASSIGNED START',a.start?hbClock(a.start):'—',14,192,154,27);field('RELEASE AT',a.end?hbClock(a.end):'—',197,192,154,27);c.bar(14,245,336,9,a.target?a.frac:null,c.p.lilac,32);
-  for(let i=0;i<=12;i++)c.line(14+i*28,258,14+i*28,264,c.rule,.6);t('00',14,270,6,60);t('ALLOCATED INTERVAL',111,270,7,177);t('100%',315,270,6,35);hr(293);t('AUTHORITY / HALCYON SCHEDULING',14,305,7,336);t('CONSENT / RETAINED UNDER EXISTING TERMS',14,322,6.4,336);t(a.note||'Choose an allocation in Scriptable.',14,343,6.6,336);
+  for(let i=0;i<=12;i++)c.line(14+i*28,258,14+i*28,264,c.rule,.6);t('00',14,270,6,60);t('ALLOCATED INTERVAL',111,270,7,177);t('100%',315,270,6,35);hr(293);t('AUTHORITY / HALCYON SCHEDULING',14,305,7,336);t('CONSENT / RETAINED UNDER EXISTING TERMS',14,322,6.4,336);t(a.note||'Choose an allocation in widget setup.',14,343,6.6,336);
 }
 function hbClinicalWeather(c){const {d,small,big,W,t,title,field,specimen,hr}=c,wx=d.wx||{},atm=d.atm||{},sun=d.sun,has=sun?.remaining!=null;
   if(small){field('AIR TEMPERATURE',wx.temp==null?'—':wx.temp+'°',12,32,146,38);title(wx.cond||'Weather unavailable',12,88,146,15,1);t(sun?.phase==='night'?'SUNRISE IN':'SUNSET IN',12,115,6,146);t(has?hbDuration(sun.remaining):'—',12,128,20,146,'disp');return;}
@@ -11594,7 +11597,7 @@ const HB_NAMES={status:'Subject Status',shift:'Allocation',solar:'Solar + Atmos'
 function hbWidgetList(th,original) {
   const list=original.concat({mode:'tracker',name:'Distant Observation',title:'HB-R / DISTANT OBSERVATION',tap:'Leave as is',desc:'A simulated location array cycling through 36 celestial bodies, vessels and anomalies. Pair with Target Dossier below; both use the same half-hour scan ID.'},{mode:'dossier',name:'Target Dossier',title:'HB-D / TARGET DOSSIER',tap:'Leave as is',desc:'The object identified by Distant Observation, with a unique vector scan and cargo, origin or custody details. Place below the tracker. Fictional survey positions; known planets remain labeled.'});
   return list.map(item=>({...item,name:HB_NAMES[item.mode]||item.name,size:'small, medium or large',
-    ...(item.mode==='shift'?{title:'W-02 / ALLOCATION',desc:'Choose an event in Scriptable using allocation_setup. Counts down until it starts, counts up during its scheduled duration, then finds the next occurrence with the same title on that calendar. iOS controls refresh timing.',tap:'Calendar; setup is in Scriptable'}:{}),
+    ...(item.mode==='shift'?{title:'W-02 / ALLOCATION',desc:'On iPhone, run allocation_setup in Scriptable; on Android, choose an allocation in the Foundry app. Counts down until it starts, counts up during its scheduled duration, then finds the next occurrence with the same title on that calendar. Refresh timing depends on your phone.',tap:'Calendar; choose an allocation in widget setup'}:{}),
     ...(item.mode==='game'?{desc:'An abstract bio-synthetic organism in a containment tube. Charging feeds it and advances growth through five stages; health, traits and history persist. Growth updates when the widget refreshes.'}:{}),
     ...(item.mode==='audio'?{desc:'A regulated corporate radio facade with an abstract growing approval seal. Tap opens your chosen music app or stream. Set it using radio_setup in Scriptable. The broadcast schedule is fiction.'}:{}),
     ...(item.mode==='feeds'?{desc:'Neural interface artwork. The left half opens YouTube and the right half opens Instagram. Small size opens YouTube.'}:{})}));

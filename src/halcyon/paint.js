@@ -49,7 +49,7 @@ function hbAllocation(events, selection, now) {
     (selection.match === 'title' ? e.title === selection.title : e.identifier === selection.identifier));
   const sorted = matches.sort((a,b) => +new Date(a.startDate) - +new Date(b.startDate));
   const ev = sorted.find(e => +new Date(e.startDate) <= +now && +new Date(e.endDate) > +now) || sorted.find(e => +new Date(e.startDate) > +now);
-  if (!selection) return {phase:'setup', title:'Your next allocation', note:'Choose an allocation in Scriptable.'};
+  if (!selection) return {phase:'setup', title:'Your next allocation', note:'Choose an allocation in widget setup.'};
   if (!ev) return {phase:'waiting', title:selection.title, note:'No matching occurrence in the next 90 days.'};
   const start = new Date(ev.startDate), end = new Date(ev.endDate), active = start <= now;
   return {phase:active?'active':'before',title:ev.title,start,end,target:active?start:start,
