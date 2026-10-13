@@ -11834,14 +11834,218 @@ function drOriginalLayoutLock(ctx,th,H,idx){
 }
 function drWallpaper(ctx,th,H,mode,idx=0){
   if(mode==='lock'){drOriginalLayoutLock(ctx,th,H,idx);return;}
-  const a=drWallTools(ctx,th),{I,B,line,text,rect}=a;
+  drDenseHome(ctx,th,H,idx);
+}
+
+// Six station desks, composed separately. All readings are fictional wallpaper records.
+// Home-only helpers deliberately leave the approved lock and widget renderers untouched.
+const DR_HOME_DESKS=[
+  ['PROXIMITY ACQUISITION','DR-09 / DEAD LETTER','RANGE CONTROL','THE TRANSPONDER STILL ANSWERS'],
+  ['SURFACE DISCONTINUITY','K-17 / SEAM','DEEP FIELD SURVEY','THE FAULT LINE HAS CHANGED AGAIN'],
+  ['RELAY ARBITRATION','RELAY 07 / ROUTE DESK','RELAY OPERATIONS','ONE CHANNEL HAS NO OPERATOR'],
+  ['RECOVERY RIGHTS','F-05 / REMAINDER','SEARCH & SALVAGE','NOTHING OUT HERE IS ABANDONED'],
+  ['MULTIPLE RETURN','N-22 / CHOIR','SIGNAL ANALYSIS','ONE PING / SEVERAL ANSWERS'],
+  ['OUTBOUND TRANSIT','SV-06 / QUIET SAIL','FLIGHT DYNAMICS','COASTING BEYOND ASSIGNED RANGE']
+];
+function drHomeTools(ctx,th){
+  const a=drWallTools(ctx,th),{I,R,B,G,line,ell,rect}=a,detail=K(th).details;
+  const text=(s,x,y,size=6,col=I,w=350,bold=false)=>{
+    let value=String(s);if(!th.upper)value=value.toLowerCase().replace(/\b[a-z]/g,c=>c.toUpperCase());
+    const font=bold?th.fonts.display:th.fonts.mono,weight=bold?800:400;
+    ctx.font=`${weight} ${size}px "${font}"`;const measured=ctx.measureText(value).width;
+    if(measured>w){size*=w/measured;ctx.font=`${weight} ${size}px "${font}"`;}
+    ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillStyle=col;ctx.fillText(value,x,y);
+  };
+  const fine=(...v)=>{if(detail)text(...v);};
+  const panel=(x,y,w,h,label)=>{a.grid(x,y,w,h,16);a.bracket(x,y,w,h);if(label)text(label,x+5,y+10,5.1,hexA(I,.64),w-10);};
+  const rule=(x,y,w,col=I)=>line([[x,y],[x+w,y]],hexA(col,.35),.55);
+  const rail=(x,y,h,col=I)=>{line([[x,y],[x,y+h]],hexA(col,.45),.5);for(let n=0;n<=20;n++)line([[x,y+h*n/20],[x+(n%5?3:7),y+h*n/20]],hexA(col,.65),.5);};
+  const tag=(s,x,y,w,col=R)=>{rect(x,y-8,w,11,hexA(col,.17));text(s,x+4,y,5.2,col,w-8);};
+  const bars=(x,y,w,h,n,seed=1)=>{for(let j=0;j<n;j++){const v=.13+.8*Math.abs(Math.sin(j*1.78+seed)*Math.cos(j*.37));rect(x+j*w/n,y+h*(1-v),w/n-2,h*v,j%7===0?R:j%3===0?I:B);}};
+  const distance=km=>th.units==='celsius'?`${km.toFixed(1)} KM`:`${(km*.621371).toFixed(1)} MI`;
+  const art=(box,fn,bounds=null)=>{
+    const [x,y,w,h]=box,k=K(th),cx=x+w/2,cy=y+h/2;
+    let s=Math.max(.8,Math.min(1.2,k.scale)),dy=Math.max(-h*.12,Math.min(h*.12,k.shift*.45));
+    if(bounds){
+      const [left,top,bw,bh]=bounds,right=left+bw,bottom=top+bh;
+      // Keep the entire subject inside its instrument window at both control extremes.
+      s=Math.min(s,(cx-x-4)/Math.max(1,cx-left),(x+w-4-cx)/Math.max(1,right-cx),(cy-y-4)/Math.max(1,cy-top),(y+h-4-cy)/Math.max(1,bottom-cy));
+      dy=Math.max(y+4-(cy+(top-cy)*s),Math.min(y+h-4-(cy+(bottom-cy)*s),dy));
+    }
+    ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+    ctx.translate(x+w/2,y+h/2+dy);ctx.scale(s,s);ctx.translate(-x-w/2,-y-h/2);
+    ctx.shadowColor=hexA(I,.35);ctx.shadowBlur=2.2*k.glow;fn();ctx.restore();
+  };
+  let kit;
+  const contact=(id,x,y,w,h)=>{
+    kit=kit||scriptableKit(th);if(!kit)return;
+    const c=kit.DR_CONTACTS.find(c=>c.name.startsWith(id));if(!c)return;
+    // Render the catalogue's vector paths directly into this canvas, at export resolution.
+    const k={a:hexA,ln:line,rect,ell:(xx,yy,ww,hh,col,lw=.7)=>ell(xx+ww/2,yy+hh/2,ww/2,hh/2,col,lw)};
+    kit.drContactSilhouette(k,c,x,y,w,h);
+  };
+  return {...a,text,fine,panel,rule,rail,tag,bars,distance,art,contact,detail};
+}
+function drHomeAcquisition(ctx,th,a){
+  const {I,R,B,G,line,ell,rect,text,fine,panel,rail,rule,tag,art,contact,distance}=a;
+  panel(22,78,272,246,'RANGE GATE / DR-09');rail(305,92,208);
+  for(let i=0;i<6;i++){const x=46+i*17,y=292-i*27;line([[x-13,y+12],[x+48,y+12],[x+48,y-12],[x-13,y-12],[x-13,y+12]],hexA(R,.25+i*.11),.8);}
+  line([[39,306],[112,247],[146,184],[211,140]],I,1.1);
+  art([48,104,229,162],()=>contact('DR-09',69,125,190,111),[84,137,177,87]);
+  a.bracket(137,131,83,73);line([[220,152],[265,126],[282,126]],R,.7);
+  fine('HULL / OPEN FRAME',160,116,5.4,I,116);fine('ACK',265,122,5,R,23);
+  fine('FIRST SEEN / 07.441',34,104,5,I,120);fine('CUSTODIAN / NONE',34,114,4.7,R,120);
+  if(a.detail){
+    text('TRANSPONDER LOG',184,251,5.4,R,100);
+    ['Q-071 / SENT','Q-072 / RETURN','Q-073 / NO NAME'].forEach((s,i)=>text(s,184,264+i*12,5,I,102));
+    for(let i=0;i<17;i++)rect(184+i*5.7,302,3,2+(i*13%7),hexA(i%4?B:I,.75));
+  }
+  for(let i=0;i<5;i++){text(String(500-i*100).padStart(3,'0'),320,98+i*43,6,I,36);rect(305,97+i*43,4,3,i===3?G:R);}
+  text('CLOSURE',305,313,5.5,R,59);tag('NO CREW RECORD',36,312,117);
+  fine('AZ 077.4',30,346,6,I,90);fine('EL -02.1',144,346,6,I,90);fine('SIM / '+distance(47.2),256,346,6,I,110);
+  rule(22,354,346);
+  text('UNCLAIMED RETURN',22,379,21,I,344,true);
+  text('REPLY AGE',24,405,5.8,R,85);text('047',24,438,31,I,95,true);fine('ARCHIVE CYCLES',24,452,5,I,95);
+  panel(135,396,233,69,'ANGULAR RESIDUAL / RECONSTRUCTION');
+  for(let i=0;i<48;i++){const x=145+i*4.5,y=435+Math.sin(i*.3)*9+Math.cos(i*1.1)*4;rect(x,y,1.5,1.5,i%9===0?R:I);if(i%8===0)line([[x,451],[x,y]],hexA(B,.8),.7);}
+  fine('01 ACQUIRE   02 QUERY   03 RETAIN',24,483,6,I,339);
+  fine('STATUS / NO REGISTERED OWNER',24,497,5.5,R,339);
+}
+function drHomeSurface(ctx,th,a){
+  const {I,R,B,G,line,ell,rect,text,fine,panel,rail,rule,tag,art,distance}=a;
+  panel(22,78,346,263,'FAULT ATLAS / SECTION 04');
+  text('SEAM',34,125,26,I,110,true);tag('FICTIONAL WORLD',34,142,110,B);
+  for(let j=0;j<5;j++){
+    fine('S-'+String(j+1).padStart(2,'0'),33,177+j*29,5.5,R,33);
+    for(let n=0;n<13;n++)rect(65+n*4.2,171+j*29,2.6,3+Math.sin(n+j)*2,hexA(j%2?I:B,.6));
+    fine(['DISPLACED','NO BASELINE','REPEAT CUT','SHEAR LINE','RESCAN'][j],34,188+j*29,4.7,I,93);
+  }
+  art([143,98,212,227],()=>{
+    const x=249,y=214,r=75;ell(x,y,r,r,I,1.1);
+    ctx.save();ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.clip();
+    rect(x-r,y-r,r*2,r*2,hexA(B,.22));
+    for(let i=1;i<7;i++)ell(x,y,r*i/7,r,hexA(B,.9),.65);
+    for(let j=-4;j<=4;j++){const dy=j*15;ell(x,y+dy,Math.sqrt(r*r-dy*dy),5,hexA(I,.5),.6);}
+    const fault=[[-10,-77],[-25,-52],[-11,-27],[-22,-8],[5,15],[-10,34],[10,57],[3,78]];
+    line(fault.map(([u,v])=>[x+u,y+v]),R,2);line(fault.map(([u,v])=>[x+u+6,y+v-2]),hexA(G,.7),.6);
+    ctx.restore();
+    for(let i=0;i<36;i++){const t=i*Math.PI/18;line([[x+Math.cos(t)*83,y+Math.sin(t)*83],[x+Math.cos(t)*(i%3?86:90),y+Math.sin(t)*(i%3?86:90)]],hexA(I,.6),.6);}
+    line([[x-13,y+5],[153,309],[325,309]],R,.7);
+  },[151,122,192,190]);
+  fine('MERIDIAN / DISPUTED',199,328,5.2,R,154);rule(22,357,346);
+  text('SURFACE HAS MOVED',22,380,20,I,346,true);
+  for(let j=0;j<3;j++){
+    const y=399+j*28;fine(['PASS 01','PASS 02','DELTA'][j],25,y+10,5.5,j===2?R:I,57);
+    const pts=[];for(let i=0;i<=66;i++){const x=89+i*4,yy=y+8+Math.sin(i*.18+j*.3)*5+(i>28&&i<40?(j-1)*4:0)+Math.sin(i*.79)*2;pts.push([x,yy]);}
+    line(pts,j===2?R:I,.75);line([[89,y+19],[355,y+19]],hexA(B,.5),.5);
+  }
+  tag('REFERENCE / '+distance(12.8),24,497,166,B);fine('NO STABLE ORIGIN',218,497,6,R,148);
+}
+function drHomeRouting(ctx,th,a){
+  const {I,R,B,G,line,ell,rect,text,fine,panel,rule,tag,art}=a;
+  panel(22,78,346,228,'RETURN PATH / ROUTING AUTHORITY 07');
+  const nodes=[[57,129],[178,111],[325,133],[151,200],[278,223],[65,259],[213,272]],edges=[[0,1],[0,3],[1,2],[1,3],[2,4],[3,4],[3,5],[3,6],[4,6],[5,6]];
+  art([30,96,331,201],()=>{
+    edges.forEach(([p,q],i)=>{const A=nodes[p],C=nodes[q];line([A,C],i===6?R:hexA(B,.9),i===6?1.4:1);for(let j=1;j<4;j++)rect(A[0]+(C[0]-A[0])*j/4-1,A[1]+(C[1]-A[1])*j/4-1,2,2,i===6?R:I);});
+    nodes.forEach(([x,y],i)=>{ell(x,y,i===3?14:7,i===3?14:7,i===5?R:I,1);rect(x-2,y-2,4,4,i===5?R:G);});
+  },[49,103,283,183]);
+  nodes.forEach(([x,y],i)=>{fine(i===3?'RELAY 07':'R-'+['02','04','08','07','19','11','06'][i],x-18,y+24,5.5,i===5?R:I,71);});
+  fine('HOP 01 / ACK',75,107,4.7,I,87);fine('HOP 02 / ACK',211,103,4.7,I,91);
+  fine('PRIORITY / A17',207,165,5,R,133);fine('TIMEOUT / RETAIN',207,176,5,I,133);
+  fine('RETRY 03',60,216,4.7,R,59);fine('UNROUTED / 02',276,292,4.7,I,87);
+  text('ROUTE WITHOUT REPLY',22,333,20,I,346,true);
+  panel(22,350,157,148,'ADJACENCY / 7 X 7');
+  for(let r=0;r<7;r++)for(let c=0;c<7;c++){
+    const linked=edges.some(([p,q])=>(p===r&&q===c)||(p===c&&q===r));rect(46+c*16,379+r*15,11,10,r===c?hexA(I,.75):linked?(r===5||c===5?R:B):hexA(I,.07));
+  }
+  for(let j=0;j<7;j++)fine(String(j+1),33,387+j*15,5,I,10);
+  text('PACKET CUSTODY',197,362,7,R,170);
+  const rows=[['A17','07 > 04','HELD'],['A18','07 > 11','RETRY'],['A19','04 > 08','ACK'],['A20','08 > 19','ACK'],['A21','11 > 06','LOST'],['A22','06 > 07','QUEUE']];
+  rows.forEach(([id,route,status],i)=>{const y=383+i*20;rule(197,y+6,169);fine(id,197,y,5.6,I,26);fine(route,228,y,5.6,I,70);text(status,307,y,5.6,status==='LOST'||status==='RETRY'?R:G,60);});
+  tag('NO OPERATOR / R-11',197,510,171);
+}
+function drHomeRecovery(ctx,th,a){
+  const {I,R,B,G,line,ell,rect,text,fine,panel,rule,tag,bars,art,contact,distance}=a;
+  panel(22,78,346,267,'F-05 / DISRUPTED BODY');
+  art([35,102,317,223],()=>{
+    for(let j=0;j<10;j++)line([[55+j*28,113],[40+j*32,317]],hexA(B,.4),.6);
+    for(let i=0;i<23;i++){
+      const t=i*2.399,r=21+i%7*11,x=180+Math.cos(t)*r*1.1,y=211+Math.sin(t)*r*.78,size=3+i%4*2,pts=[];
+      for(let j=0;j<=5;j++){const u=j*Math.PI*2/5+i;pts.push([x+Math.cos(u)*size,y+Math.sin(u)*size]);}line(pts,i%5?I:R,.8);
+      if(a.detail&&i%3===0)line([[x-size*.5,y],[x+size*.4,y-size*.2],[x,y+size*.6]],hexA(B,.8),.6);
+      if(i%4===0)fine('F'+String(i+1).padStart(2,'0'),x+size+3,y-4,4.4,I,30);
+    }
+    const route=[[59,301],[111,260],[139,186],[233,235],[284,155]];line(route,G,1.2);
+    route.forEach(([x,y])=>ell(x,y,3,3,G,.8));contact('SR-12',264,120,61,39);
+    ell(183,211,110,80,hexA(R,.6),.7,0,.3,2.6);
+  },[51,116,278,192]);
+  tag('CLAIM DISPUTED',34,332,113);fine('SR-12 / WAYFARER',242,332,5.7,G,116);
+  fine('REGISTER / 23 PIECES',35,102,5,I,137);fine('ENVELOPE / OPEN',241,102,5,R,116);
+  text('RECOVER WHAT REMAINS',22,374,19,I,346,true);
+  text('FRAGMENT',24,394,5.5,R,85);text('CLASS',120,394,5.5,R,92);text('CUSTODY',238,394,5.5,R,120);
+  const rows=[['F-03','SHELL PLATE','UNASSIGNED'],['F-08','SEALED CORE','CONTESTED'],['F-17','FRAME SECTION','SR-12 / HOLD']];
+  rows.forEach((r,i)=>{const y=412+i*21;rule(24,y+7,343);r.forEach((s,j)=>text(s,[24,120,238][j],y,6,j===2?G:I,[82,107,128][j]));});
+  bars(25,471,170,31,30,3);fine('MASS DISTRIBUTION / SIM',25,513,5,I,176);
+  text('CORRIDOR',221,480,5.5,R,140);text(distance(3.4),221,499,19,I,145,true);fine('OWNER RESPONSE PENDING',221,513,5,R,145);
+}
+function drHomeEcho(ctx,th,a){
+  const {I,R,B,G,line,ell,rect,text,fine,panel,rule,tag,art}=a;
+  panel(22,78,346,192,'N-22 / CHOIR / SPECTRAL MEMORY');
+  art([28,95,332,163],()=>{
+    for(let y=0;y<30;y++)for(let x=0;x<63;x++){
+      const ridge=Math.abs(x-(29+Math.sin(y*.21)*9)),side=Math.abs(x-(48-Math.cos(y*.16)*7));
+      const hot=ridge<2.4||side<1.2,noise=.1+.13*((x*37+y*13)%11)/10;
+      rect(33+x*5.1,105+y*4.7,4.1,3.7,hexA(hot?I:B,hot?.6+(x%3)*.15:noise*2.6));
+    }
+  });
+  fine('LOW',27,284,5,I,55);fine('FREQUENCY / RECONSTRUCTED',107,284,5.5,I,200);fine('HIGH',341,284,5,I,27);
+  text('SOURCE COUNT: UNRESOLVED',22,312,18,I,346,true);
+  panel(22,329,157,132,'PHASE / RETURN CLUSTER');
+  for(let j=0;j<4;j++){const pts=[];for(let i=0;i<=160;i++){const t=i*Math.PI/80;pts.push([100+Math.sin(t*3+j*.11)*58,399+Math.sin(t*2+j*.29)*38]);}line(pts,j===0?I:hexA(j%2?R:B,.7),.7);}
+  text('ARRIVAL SEPARATION',197,340,6,R,172);
+  for(let j=0;j<6;j++){const y=358+j*18;fine('R'+(j+1),197,y+4,5,I,22);line([[223,y],[365,y]],hexA(B,.65),.5);const x=230+j*17;line([[x-5,y],[x,y-8],[x+2,y+6],[x+5,y],[x+12,y]],j===4?R:I,.8);fine('+'+(j*13+4),337,y-3,4.6,I,30);}
+  rule(22,477,346);tag('PROVENANCE UNCONFIRMED',23,498,193);
+  fine('DO NOT REPLY',260,498,6,G,108);fine('ARCHIVE / ONE TRANSMISSION / MULTIPLE ARRIVALS',24,513,5.5,I,343);
+}
+function drHomeTransit(ctx,th,a){
+  const {I,R,B,G,line,ell,rect,text,fine,panel,rule,tag,art,contact,distance}=a;
+  panel(22,78,346,291,'SV-06 / PASSIVE SAIL / VECTOR RECONSTRUCTION');
+  for(let j=0;j<7;j++){
+    const x=69+j*40,y=319-j*26;line([[x-15,y-37],[x+12,y-37],[x+12,y+37],[x-15,y+37]],hexA(R,.22+j*.09),.7);
+    fine('G'+String(j+1).padStart(2,'0'),x-11,y+48,4.7,I,28);
+  }
+  art([47,113,290,193],()=>contact('SV-06',49,112,287,181),[75,142,239,133]);
+  line([[42,339],[120,303],[219,268],[341,206]],G,.8);
+  tag('NO RETURN WINDOW',36,105,134);fine('SAIL EDGE',245,133,5.4,R,110);
+  fine('PROPULSION / NONE',230,314,5,R,123);fine('NAV AUTH / EXPIRED',230,326,5,I,123);
+  fine('OPERATOR LOG',37,128,5,I,105);fine('06 / DEPARTED',37,140,4.8,R,105);fine('07 / STILL COASTING',37,151,4.8,I,112);
+  fine('ATTITUDE / INFERRED',37,357,5.3,I,159);fine('SIM / '+distance(182.6),237,357,5.3,I,116);
+  text('STILL OUTBOUND',22,401,23,I,346,true);
+  panel(22,419,122,91,'APERTURE / 07');
+  ell(83,467,29,29,I,.9);ell(83,467,16,29,hexA(B,.8),.7);
+  for(let j=-3;j<=3;j++)line([[57,467+j*7],[109,467+j*7]],hexA(I,.26),.5);
+  line([[55,489],[108,444]],R,1.5);fine('OCCULTATION MASK',28,506,4.6,I,110);
+  text('GATE CLEARANCE',164,431,6,R,204);
+  for(let j=0;j<18;j++){const x=167+j*10.7,h=15+Math.sin(j*.26)*18;line([[x,478],[x,478-h]],j>13?G:B,3);fine(j%3===0?String(j):'',x-2,490,4,I,19);}
+  fine('RANGE LIMIT',165,507,5.5,I,101);text('EXCEEDED',280,507,7,R,87);
+}
+function drDenseHome(ctx,th,H,idx){
+  const n=((Math.trunc(idx||0)%6)+6)%6,k=K(th),a=drHomeTools(ctx,th),{I,R,B,rect,line,text,fine}=a;
   rect(0,0,390,H,th.colors.ground);
-  const scenes=[drWallSweep,drWallSurvey,drWallRelay,drWallDebris],titles=['CONTACT SWEEP','PLANETARY SURVEY','RELAY CHAIN','SALVAGE CORRIDOR'];
-  const n=((idx%4)+4)%4,top=H*.58,bottom=H*.88;
-  ctx.save();ctx.globalAlpha=.62;scenes[n](ctx,th,top,bottom,true);ctx.restore();
-  if(idx>=4){line([[22,top-26],[368,top-26]],hexA(B,.6),.7);for(let i=0;i<38;i++)rect(22+i*9,top-21,4,2+(i*17%13),hexA(I,.22));}
-  text('DEEP RANGE / '+titles[n],22,bottom+22,5.5,hexA(I,.65));
-  for(let y=0;y<H;y+=3)rect(0,y,390,.35,hexA(I,.02));
+  // Only the icon and dock bands are intentionally quiet. No captions cross them.
+  const top=Math.max(170,H*.215),bottom=Math.min(H-108,H*.865),sy=Math.max(.4,(bottom-top)/540);
+  ctx.save();ctx.translate(0,top);ctx.scale(1,sy);
+  const [title,subject,desk,footer]=DR_HOME_DESKS[n],header=n===2||n===4?B:R;
+  const headerInk=n===2||n===4?I:th.colors.ground;
+  rect(18,0,354,15,header);text('H-0'+(n+1)+' // '+desk,25,10.5,6,headerInk,308);
+  for(let j=0;j<4;j++)rect(351+j*4,3,1.7,9-j%2*3,headerInk);
+  text(title,22,44,22,I,346,true);text(subject,23,61,7,R,245);fine('RELAY 07',302,61,6,I,66);
+  [drHomeAcquisition,drHomeSurface,drHomeRouting,drHomeRecovery,drHomeEcho,drHomeTransit][n](ctx,th,a);
+  line([[22,520],[368,520]],hexA(I,.42),.6);fine(footer,23,532,5.1,I,276);text('SIM / 0'+(n+1),317,532,5.2,R,52);
+  // Unequal edge registration marks and local calibration rails, not a repeating waveform.
+  if(k.details){for(const y of [27,78,96,345,472])rect(9,y,4,y===78?18:7,R);for(const y of [120,300,503])rect(378,y,3,14,R);}
+  if(k.texture>0)for(let y=17;y<517;y+=3)rect(19,y,352,.35,hexA(I,.035*k.texture));
+  ctx.restore();
 }
 
 // Foundry Android runtime.

@@ -59,12 +59,18 @@ test('All 21 radar contacts cycle and wrap across sizes without decoding raster 
   assert.equal((await run('status','large')).c.imageLoads||0,0,'Status follows the vector-only theme rule');
 });
 
-test('All wallpapers are vector-only and the four lock scenes have distinct geometry',()=>{
-  const scope={DISPLAY_FONTS:[['Archivo',800]]};vm.createContext(scope);vm.runInContext(fs.readFileSync(root+'/src/render.js','utf8')+'\n'+fs.readFileSync(root+'/src/deeprange/wallpapers.js','utf8')+';globalThis.paint=drWallpaper;',scope);
-  const theme={colors:{ground:'#050608',ink:'#FFE14A',accent:'#FF3B30',glow:'#2340FF'},fonts:{mono:'Share Tech Mono',display:'Archivo'}},signatures=[];
+test('Wallpapers stay vector-only: four original lock scenes and six distinct Expanded homes',()=>{
+  const scope={DISPLAY_FONTS:[['Archivo',800]],T:theme};vm.createContext(scope);
+  // Supply the actual shared catalogue geometry; the browser bridge is not loaded in this Canvas test.
+  vm.runInContext(fs.readFileSync(root+'/src/deeprange/paint.js','utf8')+'\nfunction scriptableKit(){return {DR_CONTACTS,drContactSilhouette};}\n'+fs.readFileSync(root+'/src/render.js','utf8')+'\n'+fs.readFileSync(root+'/src/deeprange/wallpapers.js','utf8')+';globalThis.paint=drWallpaper;',scope);
+  const wallTheme={colors:{ground:'#050608',ink:'#FFE14A',accent:'#FF3B30',glow:'#2340FF'},fonts:{mono:'Share Tech Mono',display:'Archivo'},upper:true},signatures=[],homeSignatures=[];
   for(const mode of ['lock','home'])for(let i=0;i<(mode==='lock'?4:6);i++){
     const calls=[],ctx=new Proxy({canvas:{width:1170,height:2532},measureText:()=>({width:5}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,key)=>key==='drawImage'?()=>{throw Error('Raster image in wallpaper');}:key in o?o[key]:(...args)=>{for(const n of args)if(typeof n==='number')assert(Number.isFinite(n));calls.push([key,...args]);},set:(o,k,v)=>{o[k]=v;return true;}});
-    scope.paint(ctx,theme,844,mode,i);assert(calls.length>150);
+    scope.paint(ctx,wallTheme,844,mode,i);assert(calls.length>150);
+    if(mode==='home'){
+      homeSignatures.push(JSON.stringify(calls.filter(c=>['moveTo','lineTo','ellipse','fillRect'].includes(c[0]))));
+      assert(calls.some(c=>c[0]==='fillText'&&c[1]==='SIM / 0'+(i+1)),'Fictional records labeled');
+    }
     if(mode==='lock'){
       signatures.push(JSON.stringify(calls.filter(c=>['moveTo','lineTo','ellipse'].includes(c[0]))));
       assert(calls.some(c=>c[0]==='moveTo'&&c[1]===40&&c[2]===358),'Original inclined grid anchor');
@@ -73,4 +79,5 @@ test('All wallpapers are vector-only and the four lock scenes have distinct geom
     }
   }
   assert.equal(new Set(signatures).size,4);
+  assert.equal(new Set(homeSignatures).size,6);
 });
