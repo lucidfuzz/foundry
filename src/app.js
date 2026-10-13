@@ -16,6 +16,7 @@ const $ = (id) => document.getElementById(id);
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const state = { th: clone(PRESETS.halcyon), lock: 0, view: 'lock', device: 3 };
 if (typeof location !== 'undefined' && location.hash === '#deep-range') { state.th = clone(PRESETS.deeprange); state.th.edition = 'expanded'; state.th.phrases = clone(EDITIONS.deeprange[1].phrases); }
+if (typeof location !== 'undefined' && location.hash === '#directive-zero') { state.th = clone(PRESETS.directive); state.th.edition = 'civil-defense'; state.th.phrases = clone(EDITIONS.directive[1].phrases); }
 let checks = {};
 try { const saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.th && PRESETS[saved.th.id]) Object.assign(state, saved); } catch (e) {}
 try { checks = JSON.parse(localStorage.getItem(CHECKS) || '{}') || {}; } catch (e) { checks = {}; }
@@ -377,7 +378,7 @@ function originalWidgetList(th) {
     { mode: 'oddity', size: 'small or medium', title: 'W-08 // ' + o[0].toUpperCase(), name: o[0], tap: 'Leave as is', desc: o[1] + ' Purely for fun, and it changes about every 30 minutes.' }
   ];
 }
-function widgetList(th) { const list = originalWidgetList(th); return hbOn(th) ? hbWidgetList(th, list) : drOn(th) ? drWidgetList(th, list) : list; }
+function widgetList(th) { const list = originalWidgetList(th); return dzOn(th) ? list.map(i=>({...i,size:"small, medium or large",...(i.mode==="instagram"?{name:"Operator Calling Cards",desc:"Twelve fictional operator credentials: abstract seals, clearance and compartment records. Tap opens Instagram."}:{})})) : hbOn(th) ? hbWidgetList(th, list) : drOn(th) ? drWidgetList(th, list) : list; }
 function pv(tag, css, text) { const e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
 function pvCanvas(w, h, draw) { const c = document.createElement('canvas'); const d = pvD(); c.width = w * d; c.height = h * d; c.style.cssText = `width:${w}px;height:${h}px;display:block`; const x = c.getContext('2d'); x.scale(d, d); draw(x); return c; }
 
@@ -443,7 +444,7 @@ function scriptableKit(th) {
   T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th); T.hbImages = HB_IMAGES; T.drImages = DR_IMAGES; T.hbDark = hbIsDark(th); T.hbVariant = th.variant || 0;
   const tf = { string: (d) => { let h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; } };
   try {
-    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { drPaint, drTimerLayout, DR_META, DR_CONTACTS, drContactSilhouette, hbPaint, HB_SPRITES, hbObservation, HB_OBSERVATIONS, HB_WIDGET_ASSETS, GAMES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
+    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { dzPaint, dzPoster, DZ_META, DZ_PEOPLE, DZ_EVAL, dzScene, dzTimerLayout, drPaint, drTimerLayout, DR_META, DR_CONTACTS, drContactSilhouette, hbPaint, HB_SPRITES, hbObservation, HB_OBSERVATIONS, HB_WIDGET_ASSETS, GAMES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
       T, new Color(T.ink), new Color(T.ink, 0.72), Color, Point, Rect, Size, Path, DrawContext, Font, deck.audio.lines, deck,
       (w, f) => { const d = new DrawContext(); d.size = new Size(w, 4); d.setFillColor(new Color(T.ink, 0.22)); d.fillRect(new Rect(0, 0, w, 4)); d.setFillColor(new Color(T.ink)); d.fillRect(new Rect(0, 0, w * f, 4)); return d.getImage(); }, tf, new Color(T.panel));
   } catch (e) { console.warn(e); return null; }
@@ -480,6 +481,7 @@ function themedBody(item, th, wc, W, H) {
 }
 function previewWidget(item, th) {
   if (hbOn(th)) return hbPreviewWidget(item, th);
+  if (dzOn(th)) return dzPreviewWidget(item, th);
   if (drOn(th)) return drPreviewWidget(item, th);
   const wc = widgetColors(th), mono = `"${th.fonts.mono}", ui-monospace, monospace`, disp = `"${th.fonts.display}", Georgia, serif`;
   const W = item.mode === 'shift' ? 170 : 364, H = item.mode === 'solar' || item.big ? 382 : 170;
@@ -715,7 +717,7 @@ function makeInspectable(el, label, open) { el.setAttribute('role', 'button'); e
 function scriptTheme() {
   const th = state.th, wc = widgetColors(th);
   return {
-    hbOn: hbOn(th), hbArt: hbOn(th) ? hbWidgetArt() : undefined, drOn: drOn(th), drSprites: drOn(th) ? drExportSprites() : undefined, hbDark: hbIsDark(th), hbVariant: th.variant || 0,
+    dzOn: dzOn(th), hbOn: hbOn(th), hbArt: hbOn(th) ? hbWidgetArt() : undefined, drOn: drOn(th), drSprites: drOn(th) ? drExportSprites() : undefined, hbDark: hbIsDark(th), hbVariant: th.variant || 0,
     company: th.company, unit: th.unit, ink: wc.ink, panel: wc.panel, headBg: wc.headBg, headText: wc.headText, altBg: wc.altBg, altText: wc.altText, accent: wc.accent,
     scriptFont: SCRIPT_FONTS[th.fonts.display] || th.widget.scriptFont, texture: th.texture, units: th.units, txGraphic: th.widget.txGraphic,
     archive: th.widget.archive, archiveList: th.widget.archiveList || null, C: th.widget.C || {}, codes: { youtube: th.codes.youtube, instagram: th.codes.instagram, discord: th.codes.discord, music: th.codes.music }, oddity: th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', radar: 'hostile', rabbit: 'heist', neon: 'market', market: 'bet', vapor: 'mall', botanical: 'species' }[th.motif] || 'mood'), frame: frameFor(th), L: th.widget.L, classes: th.widget.classes, slogans: th.slogans.length ? th.slogans : [['Stand By', 'HEADQUARTERS']]
@@ -899,7 +901,7 @@ async function androidHome(W, H) {
 }
 const canvasBlob = (c, type, q) => new Promise(r => c.toBlob(r, type || 'image/png', q));
 function androidSizesFor(item, th) {
-  if (hbOn(th) || drOn(th)) return ['small', 'medium'];
+  if (hbOn(th) || drOn(th) || dzOn(th)) return ['small', 'medium'];
   const s = String(item.size || ''); if (/any/i.test(s)) return ['small', 'medium'];
   const out = ['small', 'medium'].filter(f => s.includes(f)); return out.length ? out : ['medium'];
 }

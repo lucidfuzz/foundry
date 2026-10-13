@@ -148,6 +148,8 @@ Contact sheet: `contact_sheets/01_Halcyon_Biofab.jpg` · full-res assets: `01_Ha
 
 ## 02. Directive Zero
 
+Civil Defense edition proposed 13 October 2026: see `DIRECTIVE_CIVIL_DEFENSE.md`. Revisions 3 and 4 received positive direction feedback. Revision 5 adds distinct instrument families, twelve abstract credential diagrams and ten woven evaluation profiles using the user's fourteen reference images. Original remains the default. Jordan approved revision 5's visual direction with "very good". It is integrated on the PR branch; Jordan will squash and merge personally. Deployment remains pending.
+
 *A defense-agency terminal. Heavy compressed serif, amber alerts, hex arrays and a ring analyzer.*  
 In-world company: **Directive Zero** · unit **D-00**
 
