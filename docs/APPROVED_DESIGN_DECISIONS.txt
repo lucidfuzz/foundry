@@ -1,5 +1,5 @@
 FOUNDRY / APPROVED DESIGN DECISIONS
-Updated 2026-10-12. Source: the user's corrections and approvals in the Foundry design conversation.
+Updated 2026-10-13. Source: the user's corrections and approvals in the Foundry design conversation.
 Amended 2026-10-12 by Claude: GPT/Codex's text below is kept as written. Claude's additions are in the sections marked
 [ADDED], with each line labeled APPROVED (Jordan stated or approved it in the Claude sessions), PROPOSED (Claude's suggestion,
 not yet approved) or CONFLICT (two records disagree; Jordan decides).
@@ -204,6 +204,10 @@ from Claude; Jordan can adjust them. Everything else here is binding for all new
   as built"): the allocation setting the app writes is {match:'title', identifier, title, calendar id}, exactly as
   hbChooseAllocation writes it; the script name passed to widgets is the company's first word ("Halcyon"), as in the site's
   Android pack.
+- CORRECTION (Jordan, 13 Oct): shared Halcyon widgets must work on iPhone and Android. Shift setup copy must name neither
+  Scriptable nor the Foundry app inside the widget; explain each platform's setup path in the site instructions. In Original,
+  Solar's offline header stays at the top and Game's small status and stage labels do not overlap. The glyph fallback for
+  ■ □ ▼ → ∞ is acceptable for now; fix it only if straightforward. Apply these fixes before the Deep Range frame pass.
 - APPROVED (Jordan, 12 Oct): every theme and edition gets more lock-screen headlines, up to 15 in total (11 new each), so
   Android lock screens can cycle through 15 and iPhone users get more choice. GPT writes them; Claude adds them to the site.
   See HEADLINE POOLS below.

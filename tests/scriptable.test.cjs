@@ -5,15 +5,49 @@ class Point{constructor(x,y){this.x=x;this.y=y;}}class Rect{constructor(x,y,widt
 class Font{constructor(name,size){Object.assign(this,{name,size});}static mediumMonospacedSystemFont(s){return new Font('mono',s);}static boldMonospacedSystemFont(s){return new Font('bold',s);}static heavySystemFont(s){return new Font('heavy',s);}static boldSystemFont(s){return new Font('sans',s);}}
 class Path{addLines(){}move(){}addLine(){}addQuadCurve(){}closeSubpath(){}}
 class DrawContext{constructor(){this.texts=[];this.fills=[];}setFillColor(c){this.fill=c;}setStrokeColor(){}setLineWidth(){}fillRect(rect){this.fills.push({rect,color:this.fill});}strokeRect(){}fillEllipse(){}strokeEllipse(){}addPath(){}fillPath(){}strokePath(){}setFont(){}setTextColor(){}setTextAlignedCenter(){}setTextAlignedLeft(){}setTextAlignedRight(){}drawTextInRect(text,rect){this.texts.push({text,rect});}drawImageInRect(){}getImage(){return {size:this.size,texts:this.texts,fills:this.fills};}}
-class Stack{constructor(){this.children=[];this.spacers=[];}setPadding(){}addSpacer(n){this.spacers.push(n);}layoutHorizontally(){}layoutVertically(){}addStack(){const s=new Stack();this.children.push(s);return s;}addDate(date){const d={date,applyTimerStyle(){},centerAlignText(){},rightAlignText(){}};this.children.push(d);return d;}}
+class Stack{constructor(){this.children=[];this.spacers=[];}setPadding(){}addSpacer(n){this.spacers.push(n);}layoutHorizontally(){}layoutVertically(){}centerAlignContent(){}addStack(){const s=new Stack();this.children.push(s);return s;}addText(text){const t={text};this.children.push(t);return t;}addImage(image){const i={image};this.children.push(i);return i;}addDate(date){const d={date,applyTimerStyle(){},centerAlignText(){},rightAlignText(){}};this.children.push(d);return d;}}
 class DateFormatter{string(d){return new Date(d).toISOString();}}
 async function run(mode,family,files=new Map(),calendarFailure=false,options={}){
   const fm={documentsDirectory:()=>'/data',joinPath:(a,b)=>a+'/'+b,fileExists:p=>files.has(p),readString:p=>files.has(p)?files.get(p):null,writeString:(p,s)=>files.set(p,s)};
   const now=Date.now(),event={title:'Review',startDate:new Date(now-900000),endDate:new Date(now+900000),calendar:{identifier:'work'},identifier:'review'};
   const c={console,Date,Math,Point,Rect,Size,Color,Font,Path,DrawContext,DateFormatter,ListWidget:Stack,Data:{fromBase64String:s=>s},Image:{fromData:()=>({})},FileManager:{local:()=>fm},Location:{setAccuracyToThreeKilometers(){},current:async()=>{throw Error('Location denied');}},Device:{batteryLevel:()=>.68,isCharging:()=>options.charging??true},CalendarEvent:{between:async()=>{if(calendarFailure)throw Error('Calendar denied');return [event];},today:async()=>[event],tomorrow:async()=>[]},config:{runsInWidget:!options.app,widgetFamily:family},args:{widgetParameter:mode},URLScheme:{forRunningScript:()=> 'scriptable://run'},Script:{name:()=> 'Test',setWidget:w=>{c.result=w;},complete:()=>{c.complete=true;}}};
   if(options.app){const app=options.app;c.Alert=class{constructor(){this.actions=[];}addAction(t){this.actions.push(t);}addCancelAction(){}addTextField(){}textFieldValue(){return 'https://example.com/fm';}async presentAlert(){return 0;}async presentSheet(){const i=this.actions.indexOf(app);return i>=0?i:0;}};c.ListWidget=class extends Stack{presentSmall(){}presentMedium(){}presentLarge(){}};}
-  vm.createContext(c);await vm.runInContext('(async()=>{'+tpl.replace('__THEME__',JSON.stringify(theme))+'})()',c);return {c,files};
+  vm.createContext(c);await vm.runInContext('(async()=>{'+tpl.replace('__THEME__',JSON.stringify({...theme,hbOn:!options.original}))+'})()',c);return {c,files};
 }
+test('Original Solar keeps its offline header and body at the top in all sizes',async()=>{
+  for(const family of ['small','medium','large']){
+    const {c}=await run('solar',family,new Map(),false,{original:true}),[header,body]=c.result.children;
+    assert.match(header.children[0].text,/W-03 \/\/ SOLAR/);
+    assert.equal(body.children[0].text,'SOLAR FEED');
+    assert.equal(body.children[1].text,'Signal Lost');
+    assert(body.spacers.includes(undefined),`${family}: offline body must fill remaining height below the text`);
+  }
+});
+test('Original small Game keeps the status and stage on separate lines',async()=>{
+  const {c,files}=await run('game','small',new Map(),false,{original:true});
+  const path='/data/foundry-game-halcyon.json';
+  const check=image=>{
+    const text=image.children[1].backgroundImage.texts;
+    const status=text.find(x=>['FEEDING','AGITATED','NOMINAL'].includes(x.text));
+    const stage=text.find(x=>['SPORE','LARVA','JUVENILE','SPECIMEN','ASCENDANT'].includes(x.text));
+    assert(status&&stage,`both labels render: ${text.map(x=>x.text).join(' | ')}`);
+    assert(status.rect.y+status.rect.height<=stage.rect.y,`${status.text} overlaps ${stage.text}`);
+  };
+  check(c.result);
+  const st=JSON.parse(files.get(path));st.stage=4;st.stress=85;st.last=Date.now();files.set(path,JSON.stringify(st));
+  check((await run('game','small',files,false,{original:true,charging:false})).c.result);
+  st.stress=20;files.set(path,JSON.stringify(st));
+  check((await run('game','small',files,false,{original:true,charging:false})).c.result);
+  for(const family of ['medium','large'])assert((await run('game',family,files,false,{original:true})).c.result.children[1].backgroundImage);
+});
+test('Shift setup prompt names the shared setup path at all sizes',async()=>{
+  for(const family of ['small','medium','large']){
+    const {c}=await run('shift',family);
+    const labels=c.result.backgroundImage.texts.map(x=>x.text).join(' ');
+    assert.match(labels,family==='small'?/OPEN SETUP/i:/widget setup/i);
+    assert.doesNotMatch(labels,/Scriptable|Foundry app/i);
+  }
+});
 test('All 13 exported Halcyon modes run in all 3 families against Scriptable API doubles',async()=>{
   for(const family of ['small','medium','large'])for(const mode of ['status','shift','transmission','solar','audio','feeds','youtube','instagram','discord','oddity','game','tracker','dossier']){
     const {c}=await run(mode,family);assert(c.complete,mode);assert(c.result.backgroundImage,mode);assert.equal(c.result.backgroundImage.size.width,family==='small'?170:364);assert.equal(c.result.backgroundImage.size.height,family==='large'?382:170);

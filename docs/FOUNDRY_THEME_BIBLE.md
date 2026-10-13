@@ -76,6 +76,7 @@ Camera = **CAM**, Photos = **ARC**, Maps = **NAV**, Calendar = **CHR**, Phone = 
 ### Widgets
 
 - **Titles:** vid "W-06 // VID · CULTURE FEED"; obs "W-07 // OBS · SPECIMENS"; dc "W-09 // SYNC · COLLECTIVE"; status "W-01 // SUBJECT STATUS"; shift "W-02 // SHIFT"; tx "W-05 // TRANSMISSION"
+- **Shared widget correction (13 Oct):** Allocation setup wording inside Shift works on both phones; iPhone setup runs in Scriptable and Android setup runs in the Foundry app. Original Solar keeps its offline header at the top. Original Specimen Vat keeps the small status and stage labels separate.
 - **Solar labels:** label "SOLAR FEED"; offline "Signal Lost"; day "DAYLIGHT REMAINING"; night "NIGHT CYCLE"; setIn "SUNSET IN"; riseIn "SUNRISE IN"
 - **Audio:** source "SIGNAL // YT MUSIC", metric SEDATION, footer "LISTEN AS DIRECTED"; rotating titles: Approved Frequencies Only
 - **Feeds:** YouTube side "Approved Viewing" (meters DOPAMINE, ENDORPHIN, FOCUS; tag AUTOPLAY ENFORCED), Instagram side "Peer Observation" (meters DOPAMINE, SEROTONIN, CORTISOL; tag ); footer "DOPAMINE IS A DELIVERABLE"
