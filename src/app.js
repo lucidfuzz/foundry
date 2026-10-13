@@ -443,7 +443,7 @@ function scriptableKit(th) {
   T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th); T.hbImages = HB_IMAGES; T.drImages = DR_IMAGES; T.hbDark = hbIsDark(th); T.hbVariant = th.variant || 0;
   const tf = { string: (d) => { let h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; } };
   try {
-    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { drPaint, drTimerLayout, DR_META, hbPaint, HB_SPRITES, hbObservation, HB_OBSERVATIONS, HB_WIDGET_ASSETS, GAMES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
+    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { drPaint, drTimerLayout, DR_META, DR_CONTACTS, drContactSilhouette, hbPaint, HB_SPRITES, hbObservation, HB_OBSERVATIONS, HB_WIDGET_ASSETS, GAMES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
       T, new Color(T.ink), new Color(T.ink, 0.72), Color, Point, Rect, Size, Path, DrawContext, Font, deck.audio.lines, deck,
       (w, f) => { const d = new DrawContext(); d.size = new Size(w, 4); d.setFillColor(new Color(T.ink, 0.22)); d.fillRect(new Rect(0, 0, w, 4)); d.setFillColor(new Color(T.ink)); d.fillRect(new Rect(0, 0, w * f, 4)); return d.getImage(); }, tf, new Color(T.panel));
   } catch (e) { console.warn(e); return null; }
@@ -804,6 +804,11 @@ function exportSize() {
   const w = Math.min(2000, Math.max(600, +$('f-w').value || 1179)), h = Math.min(4000, Math.max(1200, +$('f-h').value || 2556));
   return [w, h];
 }
+// Lock screens 5-15: the theme's extra headlines on its own lock layout
+async function renderMoreBlob(k, W, H) {
+  await artFullyLoaded(); const t = clone(state.th); t.phrases = allPhrases(state.th);
+  const c = document.createElement('canvas'); [c.width, c.height] = W ? [W, H] : exportSize(); drawWallpaper(c, t, 'lock', 4 + k); return c;
+}
 async function renderBlob(mode, idx) {
   await artFullyLoaded();
   const [W, H] = exportSize(); const c = document.createElement('canvas'); c.width = W; c.height = H;
@@ -863,11 +868,12 @@ async function exportZip() {
   try {
     const z = new JSZip(), base = slug(state.th.company);
     for (let i = 0; i < 4; i++) z.file(`wallpapers/lock-${i + 1}.png`, await renderBlob('lock', i));
+    for (let k = 0; k < morePhrasesFor(state.th).length; k++) z.file(`wallpapers/more-headlines/lock-${String(k + 5).padStart(2, '0')}.png`, await canvasBlob(await renderMoreBlob(k)));
     z.file('wallpapers/home.png', await renderBlob('home', 0));
     if (homeFrameCount() > 1) for (let i = 0; i < 6; i++) z.file(`wallpapers/home-frames/home-frame-${i + 1}.png`, await renderBlob('home', i));
     for (let i = 0; i < APPS.length; i++) { const [k, n] = APPS[i]; z.file(`icons/${state.th.codes[k]}-${String(i + 1).padStart(2, '0')}_${n}.png`, await iconBlob(k, i)); }
     z.file(`${base}-widgets.js`, buildScript());
-    z.file('INSTALL.txt', `${state.th.company} theme — made with Foundry\n\n${installText()}\n`);
+    z.file('INSTALL.txt', `${state.th.company} theme — made with Foundry\n\n${installText()}\n\nMORE HEADLINES\nwallpapers/more-headlines has ${morePhrasesFor(state.th).length} more lock screens. To rotate all of them: save the lock screens to Photos, then touch and hold your Lock Screen, tap +, choose Photo Shuffle, pick the lock screens, and choose how often they change.\n`);
     const blob = await z.generateAsync({ type: 'blob' });
     await saveFile(`${base}-theme-pack.zip`, blob);
   } catch (e) { setStatus('Could not build the pack. Try the single downloads.'); }
@@ -904,8 +910,8 @@ function androidGuide(W, H) {
 Sized for ${W} x ${H}. Everything here is free; no paid apps needed.
 
 1) LOCK SCREENS THAT CYCLE
-- Samsung Galaxy: touch and hold the lock screen (or Settings > Wallpaper and style) > Wallpapers > Gallery, and select all four
-  lock screens. Your phone shows a different one each time you wake it (Samsung allows up to 15).
+- Samsung Galaxy: touch and hold the lock screen (or Settings > Wallpaper and style) > Wallpapers > Gallery, and select all
+  ${4 + morePhrasesFor(th).length} lock screens. Your phone shows a different one each time you wake it (Samsung allows up to 15).
 - Other Android phones: set your favourite as the lock screen. Some phones' wallpaper settings or free wallpaper apps can rotate a
   folder of pictures too.
 
@@ -939,7 +945,8 @@ async function androidPack() {
   try {
     const z = new JSZip();
     setStatus('Building your Android pack: wallpapers…');
-    for (let i = 0; i < 4; i++) z.file(`lock-screens/lock-${i + 1}.jpg`, await canvasBlob(await androidWall('lock', i, W, H), 'image/jpeg', 0.92));
+    for (let i = 0; i < 4; i++) z.file(`lock-screens/lock-${String(i + 1).padStart(2, '0')}.jpg`, await canvasBlob(await androidWall('lock', i, W, H), 'image/jpeg', 0.92));
+    for (let k = 0; k < morePhrasesFor(th).length; k++) z.file(`lock-screens/lock-${String(k + 5).padStart(2, '0')}.jpg`, await canvasBlob(await renderMoreBlob(k, W, H), 'image/jpeg', 0.92));
     z.file('home.jpg', await canvasBlob(await androidHome(W, H), 'image/jpeg', 0.92));
     for (let i = 0; i < APPS.length; i++) { const [k, n] = APPS[i]; const ic = document.createElement('canvas'); ic.width = 512; ic.height = 512; drawIcon(ic, th, k, i); z.file(`icons/${String(i + 1).padStart(2, '0')}_${n}.png`, await canvasBlob(ic)); }
     const script = buildScript(), name = String(th.company || 'Foundry').split(' ')[0];

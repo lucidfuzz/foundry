@@ -79,11 +79,11 @@ function hbWallpaper(ctx,th,H,mode,idx) {
   const title=(s,x,y,size=38)=>spaced(ctx,s,x,y,size,th.fonts.display,400,-.02,'left',ink);
   const label=idx%4,art=HB_IMAGES[['heart','tissue','lungs','neural'][label]];
   if(mode==='lock'){
-    mono(th.company.toUpperCase(),24,54,10);mono('CONTINUITY SERVICES / '+String(label+1).padStart(2,'0'),24,70,6);
+    mono(th.company.toUpperCase(),24,54,10);mono('CONTINUITY SERVICES / '+String((th.phrases&&th.phrases.length>4?idx%th.phrases.length:label)+1).padStart(2,'0'),24,70,6);
     // The system clock/date occupy the upper third; never bake a fake clock into exports.
     const aw=Math.min(316,300*K(th).scale), ah=Math.min(334,aw*(art?art.height/art.width:1)),y=H*.335;
     if(art)ctx.drawImage(art,(390-aw)/2,y,aw,ah);
-    const headlines=th.phrases?.[label]||[['A little','more life.'],['Room','to feel.'],['Breathe now.','Pay later.'],['A kinder','second chance.']][label];
+    const headlines=th.phrases?.[th.phrases.length>4?idx%th.phrases.length:label]||[['A little','more life.'],['Room','to feel.'],['Breathe now.','Pay later.'],['A kinder','second chance.']][label];
     const by=Math.min(H-171,y+ah+47);const fs=Math.min(43,43*342/Math.max(1,...headlines.map(s=>measureSpaced(ctx,s,43,th.fonts.display,400,-.02))));title(headlines[0],24,by,fs);title(headlines[1],24,by+fs,fs);
     seg(ctx,24,by+62,366,by+62,hexA(ink,.4),.7);mono(['CARDIAC LEASE / AUTO-RENEW ON','EMOTIONAL CULTURE / PLAN DEPENDENT','RESPIRATORY FINANCE / TERMS APPLY','CONTINUITY ASSURANCE / UNIT 002'][label],24,by+79,6);
     mono('Biology for a more manageable tomorrow.',24,by+98,6);mono('Property of Halcyon Biofab.',24,by+110,5.5);
