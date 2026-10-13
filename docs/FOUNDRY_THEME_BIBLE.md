@@ -590,6 +590,10 @@ Contact sheet: `contact_sheets/05_Planar_Grimoire.jpg` · full-res assets: `05_P
 
 ## 06. Deep Range
 
+Expanded home edition work in review (13 October 2026): see `DEEP_RANGE_HOMES.md` for the six
+RELAY 07 station desks, existing catalogue subjects, composition ownership and verification.
+This addition does not change the Original edition described below and is not yet user-approved.
+
 *A long-range tracking display. Black glass, red contact frames, a yellow trajectory and a blue planet below.*  
 In-world company: **Deep Range** · unit **RELAY 07**
 

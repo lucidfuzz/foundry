@@ -1,5 +1,12 @@
 FOUNDRY / APPROVED DESIGN DECISIONS
 Updated 2026-10-13. Source: the user's corrections and approvals in the Foundry design conversation.
+[WORK IN REVIEW / 2026-10-13] Jordan requested the six denser Deep Range Expanded home frames.
+Rebased onto main f236ee04990594b1c0739f894da724812bdb69c3, including the shared Halcyon widget fixes;
+not yet approved or deployed.
+The six desks are proximity acquisition, surface survey, relay routing, recovery rights, echo analysis and sail transit.
+Scope and validation are in docs/DEEP_RANGE_HOMES.md. Original homes, all locks, icons and widget behavior are preserved.
+HEADLINE POOLS remains DONE. The Android app branch remains separate and is never merged into main.
+
 Amended 2026-10-12 by Claude: GPT/Codex's text below is kept as written. Claude's additions are in the sections marked
 [ADDED], with each line labeled APPROVED (Jordan stated or approved it in the Claude sessions), PROPOSED (Claude's suggestion,
 not yet approved) or CONFLICT (two records disagree; Jordan decides).
