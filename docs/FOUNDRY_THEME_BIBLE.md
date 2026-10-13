@@ -39,6 +39,8 @@ In-world company: **Halcyon Biofab** · unit **HB-2893**
 
 Halcyon Biofab is a technocratic biotech corporation that grows, licenses and owns 'organisms', and the person holding the phone is one of them (unit HB-2893). Everything is clinical, perfectly ordered and quietly sinister, with dark humor delivered in the calm voice of corporate wellness: your sentience is leased, your consent is on file, aging voids the warranty. Abstract sci-fi, never cute.
 
+World note (approved 12 Oct): grief applications go through Form HB-9 (Subject Wellness).
+
 ### Look
 
 Mint paper with a fine grid, deep ink linework and lavender accents. Hairline rules, registration crosshairs, lot numbers, specimen labels, QR-like blocks and dense legal fine print. The wireframe globe is the emblem.

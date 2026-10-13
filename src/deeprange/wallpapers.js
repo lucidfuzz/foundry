@@ -130,7 +130,26 @@ function drLockContactScene(ctx,th,{top,baseY,q},idx){
     const p=map(.06,.95);line([p,[54,baseY+12]],hexA(I,.6),.85);text('RECOVERY RIGHTS / OPEN',92,baseY-67,5.5);text('NO REGISTERED OWNER',92,baseY-56,4.6,R);
   }
 }
+// Slots 5-15: each new headline names a catalogue contact, drawn with the Contact Catalogue's own silhouette (in headline order)
+const DR_LOCK_MORE=['DR-09','SR-12','RX-03','SV-06','K-17','D-02','V-11','SATURN','NEPTUNE','N-04','N-22'];
+function drCatalogueLock(ctx,th,H,k){
+  const kit=scriptableKit(th),list=(kit&&kit.DR_CONTACTS)||[],c=list.find(x=>x.name.startsWith(DR_LOCK_MORE[k%DR_LOCK_MORE.length]))||list[0]||{name:'UNKNOWN',type:'FICTIONAL',note:'NO RETURN'};
+  const ph=allPhrases(th)[4+k]||['',''],id=c.name.split(' / ')[0];
+  const text={...th.text,topL:'CATALOGUE // '+id,coords:c.type,fine:c.note,foot:'DEEP RANGE // RELAY 07'};
+  const variant={...th,text,phrases:[ph],seed:(th.seed||0)+4+k};
+  const W=ctx.canvas?.width||390,pxH=ctx.canvas?.height||H;
+  drawOrbital(ctx,variant,H,'lock',0,W,pxH,W/390,(cx,t,g)=>drLockCatalogueScene(cx,t,g,c,kit));
+}
+function drLockCatalogueScene(ctx,th,{top,baseY,q},c,kit){
+  const a=drWallTools(ctx,th),{I,R,line,text,bracket}=a;
+  const map=(u,v)=>[(1-v)*((1-u)*q[0][0]+u*q[1][0])+v*((1-u)*q[3][0]+u*q[2][0]),(1-v)*((1-u)*q[0][1]+u*q[1][1])+v*((1-u)*q[3][1]+u*q[2][1])];
+  for(let i=1;i<8;i++){const [x,y]=map(i/8,1);line([[x,y],[x+1,y+4]],hexA(I,.55),.5);text(String(i*12).padStart(3,'0'),x-4,y+11,4.3,hexA(I,.5));}
+  const [x,y]=map(.52,.48),w=150,h=112;
+  if(kit&&kit.drContactSilhouette){const img=kit.artImage(w,h,(k)=>kit.drContactSilhouette(k,c,0,0,w,h),{});ctx.drawImage(img,x-w/2,y-h/2,w,h);}
+  bracket(x-w/2-6,y-h/2-6,w+12,h+12);text(c.name,x-w/2-4,y+h/2+16,5.4,c.type&&c.type.startsWith('KNOWN')?I:R);
+}
 function drOriginalLayoutLock(ctx,th,H,idx){
+  if(idx>=4){drCatalogueLock(ctx,th,H,idx-4);return;}
   const n=((idx%4)+4)%4;
   const heads=['CONTACT LOST','WORLD UNRESOLVED','CARRIER RETURN','SALVAGE WINDOW'];
   const text={...th.text,topL:['TRACKING 12 CONTACTS','SURVEYING 08 WORLDS','LISTENING ON 06 RELAYS','TRACKING 19 FRAGMENTS'][n],coords:['RANGE 0.4 AU // RELAY 07','SECTOR K-17 // SURFACE SCAN','CHANNEL 93.4 // RETURN PATH','SECTOR F-05 // RECOVERY 12'][n],fine:['RX-03 / SIGNAL DEGRADING','K-17 / ORIGIN UNCONFIRMED','RELAY 07 / KEEP LISTENING','SR-12 / NOTHING ABANDONED'][n],foot:'DEEP RANGE // RELAY 07'};

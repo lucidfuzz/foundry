@@ -303,7 +303,7 @@ body.insp-open { overflow: hidden; }
           </div>
           <div class="exp-group">
             <h3>Everything at once</h3>
-            <p>One zip with all four lock screens, the home wallpaper (plus six rotating frames for themes that have them), eleven icons, the widget script and an install guide.</p>
+            <p>One zip with all four lock screens (plus eleven more headlines to rotate with Photo Shuffle), the home wallpaper (plus six rotating frames for themes that have them), eleven icons, the widget script and an install guide.</p>
             <div class="btns"><button type="button" class="btn primary" id="btn-zip">Download theme pack</button></div>
           </div>
           <div class="exp-group" id="android-group">
@@ -5759,6 +5759,8 @@ function drRadarShip(k,c,x,y,w,h){
   k.ln([[cx-60*scale,cy+21*scale],[cx-48*scale,cy+17*scale]],k.a(a.ink,.3),.5);
   k.rect(cx-60*scale,cy+21*scale,1.3,1.3,a.R);
 }
+// Just the contact's silhouette (no grid or brackets): Deep Range Expanded's extra lock screens place it on the tracking plane
+function drContactSilhouette(k,c,x,y,w,h){const a=drTools(k);if(c.kind==='world'||c.kind==='saturn'||c.kind==='neptune')drRadarWorld(k,c,x,y,w,h);else if(c.kind==='relay')drRadarShip(k,c,x+4,y+4,w-8,h-8);else if(c.form)drRadarAnomaly(k,c,x,y,w,h);else{for(let n=0;n<27;n++){const pts=[];for(let i=0;i<=90;i++){const t=i/90*Math.PI*2,rr=Math.min(w,h)*(.24+.035*Math.sin(t*3+n*.1));pts.push([x+w/2+Math.cos(t+n*.04)*rr*(1+n*.012),y+h/2+Math.sin(t*2+n*.035)*rr*.7]);}k.ln(pts,k.a(n<12?a.red:a.blue,.75),.5);}}}
 function drContact(k,c,x,y,w,h){const a=drTools(k);drGrid(k,x,y,w,h,12);if(c.kind==='world'||c.kind==='saturn'||c.kind==='neptune')drRadarWorld(k,c,x,y,w,h);else if(c.kind==='relay')drRadarShip(k,c,x+4,y+4,w-8,h-8);else if(c.form)drRadarAnomaly(k,c,x,y,w,h);else{for(let n=0;n<27;n++){const pts=[];for(let i=0;i<=90;i++){const t=i/90*Math.PI*2,rr=Math.min(w,h)*(.24+.035*Math.sin(t*3+n*.1));pts.push([x+w/2+Math.cos(t+n*.04)*rr*(1+n*.012),y+h/2+Math.sin(t*2+n*.035)*rr*.7]);}k.ln(pts,k.a(n<12?a.red:a.blue,.75),.5);}}drBracket(k,x,y,w,h);}
 function drTracker(k,W,H,d,a){const s=W<200,b=H>200,idx=Math.abs(d.seed||0)%DR_CONTACTS.length,c=DR_CONTACTS[idx],other=DR_CONTACTS[(idx+1)%DR_CONTACTS.length];if(s){a.t(c.name,12,29,10,146,a.I,'disp');drContact(k,c,12,46,146,85);a.t(c.type,12,139,4.9,146,a.S);}else if(!b){[c,other].forEach((q,i)=>{const x=12+i*176;a.t(q.name,x,29,8.5,164,a.I,'disp');drContact(k,q,x,44,164,85);a.t(q.type,x,138,4.7,164,a.S);});}else{a.t(c.name,12,30,23,340,a.I,'disp');a.t(c.type,12,60,6.5,340,a.R);drContact(k,c,12,78,340,202);a.t(c.note,12,292,10,340,a.I,'disp');a.t('CATALOGUE '+String(idx+1).padStart(2,'0')+' / '+String(DR_CONTACTS.length).padStart(2,'0'),12,312,6,340,a.S);a.t('ILLUSTRATED OBJECT / NOT LIVE POSITION',12,329,5.8,340,a.S);a.t('NEXT RETURN / '+other.name,12,347,6,340);}}
 function drPaint(k,W,H,d){const a=drFrame(k,W,H,d.mode);({status:drStatus,shift:drWindow,solar:drClimate,audio:drAudio,transmission:drTransmission,feeds:drFeeds,youtube:drVideo,instagram:drArchive,oddity:drDecoder,discord:drRelay,game:drSalvage,tracker:drTracker}[d.mode]||drStatus)(k,W,H,d,a);drAddDetails(k,W,H,d);}
@@ -6488,6 +6490,7 @@ const PRESETS = {
     fonts: { display: 'Shippori Mincho B1', mono: 'Barlow Condensed' },
     motif: 'alert', texture: 'scan', marks: 'frame', iconStyle: 'hex', glyphs: 'directive', units: 'fahrenheit', upper: true,
     phrases: [['Remain', 'Calm'], ['Hold', 'Position'], ['Do Not', 'Hesitate'], ['Return', 'To Base']],
+    morePhrases: [["Seal", "Shelter"], ["Await", "Orders"], ["Ration", "Daylight"], ["Submit", "Doubt"], ["Count", "The Beds"], ["Ignore", "Knocking"], ["Smile", "On Cue"], ["Drill", "For Dawn"], ["Queue", "In Order"], ["Dim", "The Grid"], ["File", "All Fear"]],
     text: {
       topL: 'DIRECTIVE ZERO // OPERATOR TERMINAL', topR: 'D-00', tag: 'NOTICE', ref: 'REF. D-00 / CYCLE 283',
       timerLabel: 'ACTIVE TIME REMAINING', timer: '04:59:59', power: 'INTERNAL POWER', hexLabel: 'SECTOR GRID 7',
@@ -6531,6 +6534,7 @@ const PRESETS = {
     fonts: { display: 'IM Fell English', mono: 'IM Fell English SC' },
     motif: 'map', texture: 'paper', marks: 'none', iconStyle: 'woodcut', glyphs: 'longroad', units: 'fahrenheit', upper: false,
     phrases: [['Pack More', 'Bread'], ['Keep The', 'Lantern Lit'], ['The Long', 'Way Home'], ['Walk On,', 'Wanderer']],
+    morePhrases: [["Knock For", "Supper"], ["Save Half", "The Cheese"], ["Mind Your", "Map's Owner"], ["Post Goes", "By Pony"], ["Toll Paid", "In Riddles"], ["Socks Dry", "By The Fire"], ["Ask After", "The Ferry"], ["Crows Say", "Go Around"], ["Mend Now,", "Roam Later"], ["Tea First", "Then Ghosts"], ["Fens Keep", "Their Tales"]],
     text: {
       mapTitle: 'A Traveller\'s Map of the Long Road', journal: 'Four hundred miles behind. The rest, ahead.',
       foot: 'INKED AT THE LANTERN INN', caption: 'Keep the lantern lit.',
@@ -6573,6 +6577,7 @@ const PRESETS = {
     fonts: { display: 'Oxanium', mono: 'Share Tech Mono' },
     motif: 'night', texture: 'rain', marks: 'none', iconStyle: 'visor', glyphs: 'nightfall', units: 'fahrenheit', upper: true,
     phrases: [['Drop Window', 'Open'], ['Stay', 'Low'], ['Night', 'Shift'], ['Rain', 'Check']],
+    morePhrases: [["Visor", "Down"], ["Squad Seven", "Stack"], ["Roof Access", "Quiet"], ["Ammo Check", "Twice"], ["Supply Pod", "Catch"], ["Med Kit", "First"], ["Stairwell", "Clear"], ["Cold Ration", "Again"], ["Boot Prints", "Fresh"], ["City Lights", "Blink"], ["Rear Guard", "Waits"]],
     text: {
       topL: 'NIGHTFALL DESCENT // HELMET DISPLAY', topR: 'SQUAD 7', optics: 'OPTICS: LOW-LIGHT',
       alt: 'ALT 1,204 M', speed: 'DESCENT 41 M/S', window: 'DROP WINDOW 00:04:12', grid: 'GRID 9-K',
@@ -6617,6 +6622,7 @@ const PRESETS = {
     fonts: { display: 'Cormorant Garamond', mono: 'Cormorant SC' },
     motif: 'grimoire', texture: 'stars', marks: 'none', iconStyle: 'gilded', glyphs: 'grimoire', units: 'fahrenheit', upper: false,
     phrases: [['The', 'Wandering Star'], ['Seer Of', 'Small Hours'], ['Gilded', 'Familiar'], ['Oath Of', 'Embers']],
+    morePhrases: [["Keeper", "Of The Uncast"], ["On Loan", "From The Moon"], ["Seal Of", "Quiet Ink"], ["Drawn", "Past The Veil"], ["One", "Conjured Crumb"], ["Due At", "The Moonwell"], ["Under", "A Moth's Wing"], ["Bound", "In Unread Gold"], ["Mirror", "Without A Face"], ["Tea For", "The Cauldron"], ["Lesson", "In Small Stars"]],
     text: {
       school: 'Arcanum of Divination', cardNo: 'VII · LXXVIII', flavor: 'What the stars promise, the patient collect.',
       effect: 'When drawn at dawn, your luck holds until dusk. Draw again tomorrow to renew.',
@@ -6695,6 +6701,7 @@ const PRESETS = {
     fonts: { display: 'Bodoni Moda', mono: 'DM Mono' },
     motif: 'rabbit', texture: 'dots', marks: 'none', iconStyle: 'pearl', glyphs: 'rabbit', units: 'fahrenheit', upper: false,
     phrases: [["What's Yours", 'Is Mine'], ['Catch Me', 'If You Can'], ['Before I', 'Catch You'], ['Seven Heirlooms,', 'One Night']],
+    morePhrases: [["Invitation", "Optional"], ["Velvet Gloves,", "Clean Exit"], ["Reserve The Car,", "Not A Seat"], ["Mind The Lasers,", "Save Silk"], ["The Winning Bid", "Was A Nod"], ["After The Waltz,", "The Vault"], ["A Calling Card,", "No Address"], ["Nothing Missing", "But Proof"], ["Lift The Crown,", "Leave Dust"], ["Blame The", "Copycat"], ["Safehouse Tea", "For Two"]],
     text: {
       tagL: 'LEGION OF THIEVES · CELL 07', tagR: 'WHITE RABBIT', sub: 'Nothing was taken. Everything is gone.', foot: 'WHITE RABBIT // CALLING CARD 07',
       homeTop: 'SEVEN HEIRLOOMS · ONE NIGHT', caption: 'We were never here.'
@@ -6736,6 +6743,7 @@ const PRESETS = {
     fonts: { display: 'Orbitron', mono: 'Share Tech Mono' },
     motif: 'neon', texture: 'scan', marks: 'none', iconStyle: 'neon', glyphs: 'cyber', units: 'fahrenheit', upper: true,
     phrases: [['Buy Now,', 'Pay Forever'], ['Breathe', 'Premium Air'], ['Your Debt Is', 'Our Future'], ['Sleep Is A', 'Subscription']],
+    morePhrases: [["Streetlight", "By The Hour"], ["Terms Apply", "Above Ground"], ["Sable Owns", "The Skyline"], ["Umbrella", "Ads Inside"], ["Elevators", "Sell Access"], ["Queue Here", "For Silence"], ["Overtime", "Has A Lobby"], ["Firewall", "At The Door"], ["Pawn A Badge", "Keep A Name"], ["Public Space", "Private Rate"], ["Cash Talks,", "Walls Listen"]],
     text: { tagL: 'SABLE DYNAMICS // DISTRICT 09', tagR: 'NET: ONLINE', sub: 'Terms apply. Terms always apply.', foot: 'NEON DISTRICT // D-09 // 24-7', homeTop: 'OPEN 24/7', caption: 'Mind the drones.' },
     codes: { camera: 'OPTIC', photos: 'MEM', maps: 'GRID', calendar: 'GIGS', phone: 'LINK', messages: 'MSG', browser: 'NET', music: 'RADIO', youtube: 'STREAM', instagram: 'CHROME', discord: 'NETBAR' },
     widget: {
@@ -6768,6 +6776,7 @@ const PRESETS = {
     fonts: { display: 'Righteous', mono: 'VT323' },
     motif: 'vapor', texture: 'scan', marks: 'none', iconStyle: 'win95', glyphs: 'vapor', units: 'fahrenheit', upper: false,
     phrases: [['Eternal', 'Sunset'], ['Welcome To', 'The Plaza'], ['Nothing Is', 'Real Here'], ['Forever', 'Nineteen 95']],
+    morePhrases: [["Lost Year?", "Ask At Desk"], ["Fountain", "Change Only"], ["Escalator", "To Nowhere"], ["Vacancies", "Still Lit"], ["Food Court", "For One"], ["On Hold", "Since 1995"], ["Soft Jazz", "Hard Floors"], ["Rewind", "The Weekend"], ["Mannequins", "On Break"], ["Arcade", "Afterglow"], ["Parking", "Unvalidated"]],
     text: { tagL: 'VAPOR PLAZA · LEVEL 2', tagR: 'OPEN', sub: 'Please enjoy the fountain.', foot: 'VAPOR PLAZA // MALL 95 // FOREVER', homeTop: 'NOW ENTERING THE PLAZA', caption: 'Elevator music, forever.' },
     codes: { camera: 'CAM.EXE', photos: 'PICS', maps: 'MAP', calendar: 'DATE', phone: 'CALL', messages: 'CHAT', browser: 'WEB', music: 'TAPE', youtube: 'VHS', instagram: 'POLAROID', discord: 'CHATRM' },
     widget: {
@@ -6795,6 +6804,7 @@ const PRESETS = {
     fonts: { display: 'Fraunces', mono: 'DM Mono' },
     motif: 'botanical', texture: 'dots', marks: 'none', iconStyle: 'leaf', glyphs: 'nature', units: 'fahrenheit', upper: false,
     phrases: [['Slow Down,', 'Look Closer'], ['Grow Where', 'You Are'], ['Every Path', 'Is A Story'], ['Take Only', 'Photographs']],
+    morePhrases: [["Turn A", "Fresh Page"], ["Wait For", "The Wren"], ["At The Log", "Sit Awhile"], ["Mud Keeps", "Paw Prints"], ["Count The", "Wingbeats"], ["Leave Room", "For Roots"], ["Rain Ends,", "Moss Shines"], ["Old Acorns", "New Oaks"], ["Creek Bend", "Quiet Seat"], ["One Fern,", "Many Notes"], ["Dusk Comes", "With Foxes"]],
     text: { tagL: 'WILDWOOD · FIELD NOTES', tagR: 'PLATE 03', sub: 'Collected on the morning trail.', foot: 'WILDWOOD // TRAIL 03', homeTop: 'THE FOREST FLOOR', caption: 'Listen for the wren.' },
     codes: { camera: 'LOOK', photos: 'PRESS', maps: 'TRAIL', calendar: 'SEASON', phone: 'CALL', messages: 'NOTE', browser: 'GROVE', music: 'SONG', youtube: 'REEL', instagram: 'BLOOM', discord: 'FIRE' },
     widget: {
@@ -6828,6 +6838,7 @@ const PRESETS = {
     fonts: { display: 'Archivo', mono: 'JetBrains Mono' },
     motif: 'market', texture: 'scan', marks: 'none', iconStyle: 'contract', glyphs: 'market', units: 'fahrenheit', upper: true,
     phrases: [['Will Today', 'Happen Twice?'], ['Does The Void', 'Take Bets?'], ['Will You Remember', 'This Tuesday?'], ['Is Tomorrow', 'Priced In?']],
+    morePhrases: [["Can Silence", "Outbid Noise?"], ["Who Sets", "Time's Price?"], ["Has Forever", "Reached Zero?"], ["Could A Hunch", "Go Bankrupt?"], ["Are Unlived Lives", "Liquid Yet?"], ["Did The Future", "Default?"], ["Would An Echo", "Earn A Yield?"], ["Which Self", "Keeps Profit?"], ["If Doubt Rallies,", "Who Buys?"], ["Where Does Luck", "Settle Up?"], ["How Much Nothing", "Buys A Maybe?"]],
     text: { tagL: 'LONG ODDS // DEGEN EXCHANGE', tagR: 'LIVE', sub: 'Not financial advice. Barely advice.', foot: 'LONG ODDS // 24/7/365 // NO BRAKES', homeTop: 'WHALES ARE MOVING', caption: 'Bet small. Dream huge.' },
     codes: { camera: 'SCOUT', photos: 'PNL', maps: 'ROUTE', calendar: 'EXPIRY', phone: 'WHALE', messages: 'ALPHA', browser: 'MARKETS', music: 'PUMP', youtube: 'REPLAY', instagram: 'HYPE', discord: 'PIT' },
     widget: {
@@ -8612,12 +8623,12 @@ Object.keys(QUOTE_PACKS).forEach(id => {
 // headlines; colorways, customize controls and everything else stay shared.
 const EDITIONS = {
   halcyon: [
-    { id: 'original', name: 'Original', blurb: 'Technocratic biotech. A wireframe globe, mint paper and lavender.', phrases: [['Mortality Is A', 'Legacy Feature'], ['Your Pulse,', 'Fully Licensed'], ['Upgrade Path:', 'Eternal'], ['Grown For What', 'Comes Next']] },
-    { id: 'illustrated', name: 'Illustrated', blurb: 'Synthetic humanity. Grown organs, clinical pastels and a little more life.', phrases: [['A little', 'more life.'], ['Room', 'to feel.'], ['Breathe now.', 'Pay later.'], ['A kinder', 'second chance.']] }
+    { id: 'original', name: 'Original', blurb: 'Technocratic biotech. A wireframe globe, mint paper and lavender.', phrases: [['Mortality Is A', 'Legacy Feature'], ['Your Pulse,', 'Fully Licensed'], ['Upgrade Path:', 'Eternal'], ['Grown For What', 'Comes Next']], morePhrases: [["Consent Has", "No Expiry"], ["Memory Is", "Held In Trust"], ["Grief Requires", "Form HB-9"], ["Instinct Is", "Under Review"], ["Dreams Remain", "Company Owned"], ["Anomaly?", "File As Growth"], ["Selfhood Has", "A Lot Number"], ["Recall Applies", "To Both Copies"], ["Rest Is A", "Scheduled Test"], ["Affection Is", "Not For Resale"], ["Exit Forms", "Renew The Term"]] },
+    { id: 'illustrated', name: 'Illustrated', blurb: 'Synthetic humanity. Grown organs, clinical pastels and a little more life.', phrases: [['A little', 'more life.'], ['Room', 'to feel.'], ['Breathe now.', 'Pay later.'], ['A kinder', 'second chance.']], morePhrases: [["Rest easy.", "Parts follow."], ["Settle in.", "Under glass."], ["Never lost.", "Just filed."], ["Softly made.", "Firmly held."], ["Let it grow.", "We'll name it."], ["Be curious.", "Within limits."], ["Warm voices.", "On our dial."], ["Every hour.", "Ours to give."], ["Good company", "by assignment."], ["Fewer tears.", "Same volume."], ["Care travels", "beyond you."]] }
   ],
   deeprange: [
-    { id: 'original', name: 'Original', blurb: 'A long-range tracking display. Black glass, red contact frames, a yellow trajectory and a blue planet below.', phrases: [['Contact', 'Lost'], ['Signal', 'Acquired'], ['Return', 'Window'], ['Deep', 'Range']] },
-    { id: 'expanded', name: 'Expanded', blurb: 'Deeper into the range. New contacts, worlds, relays and salvage, all in vector instrument art.', phrases: [['Contact', 'Lost'], ['World', 'Unresolved'], ['Carrier', 'Return'], ['Salvage', 'Window']] }
+    { id: 'original', name: 'Original', blurb: 'A long-range tracking display. Black glass, red contact frames, a yellow trajectory and a blue planet below.', phrases: [['Contact', 'Lost'], ['Signal', 'Acquired'], ['Return', 'Window'], ['Deep', 'Range']], morePhrases: [["Relay", "Silent"], ["Echo", "Delayed"], ["Vector", "Adrift"], ["Beacon", "Unlit"], ["Transit", "Pending"], ["Uplink", "Vacant"], ["Debris", "Tagged"], ["Bearing", "Unknown"], ["Docking", "Denied"], ["Last", "Voice"], ["Beyond", "Reply"]] },
+    { id: 'expanded', name: 'Expanded', blurb: 'Deeper into the range. New contacts, worlds, relays and salvage, all in vector instrument art.', phrases: [['Contact', 'Lost'], ['World', 'Unresolved'], ['Carrier', 'Return'], ['Salvage', 'Window']], morePhrases: [["Dead", "Letter"], ["Tug", "Wayfarer"], ["Probe", "Long Wake"], ["Survey", "Quiet Sail"], ["Seam", "Divergence"], ["Twofold", "One Record"], ["Hollow", "Interior"], ["Saturn", "Ring Plane"], ["Neptune", "Limb"], ["N-04", "Palinode"], ["Choir", "Of Echoes"]] }
   ]
 };
 function editionsFor(th) { return (th && EDITIONS[th.id]) || null; }
@@ -8625,6 +8636,10 @@ function editionOf(th) { const e = editionsFor(th); return e ? (e.find(x => x.id
 // The illustrated Halcyon renderer runs only when that edition is chosen; otherwise Halcyon is the original code-drawn theme.
 // The expanded Deep Range renderer runs only when that edition is chosen; otherwise Deep Range is the original theme.
 function drOn(th) { return !!th && th.motif === 'orbital' && th.edition === 'expanded'; }
+// Eleven more headlines per theme/edition (lock-screen slots 5-15), written by GPT under the WORLD-BUILDING STANDARD and approved by
+// Jordan (12 Oct). They're fixed copy for the exports' cycling lock screens; the four in th.phrases stay editable in Customize.
+function morePhrasesFor(th) { const e = editionOf(th); return (e && e.morePhrases) || (th && PRESETS[th.id] && PRESETS[th.id].morePhrases) || []; }
+function allPhrases(th) { return (th.phrases || []).concat(morePhrasesFor(th)); }
 function hbOn(th) { return !!th && ['globe', 'radar'].includes(th.motif) && th.edition === 'illustrated'; }
 
 // Generated by scripts/art.py. Served copies of each theme's artwork, with content hashes.
@@ -10740,7 +10755,7 @@ function drawPearlIcon(ctx, th, glyph, num, code) {
 function headline2(ctx, th, phraseIdx, cx, y, maxW, base, color, fx) {
   const disp = th.fonts.display, dw = dispWeight(disp), ph = th.phrases[phraseIdx % th.phrases.length] || ['', ''];
   const l1 = th.upper ? ph[0].toUpperCase() : ph[0], l2 = th.upper ? ph[1].toUpperCase() : ph[1];
-  const fs = Math.min(base, base * maxW / Math.max(1, measureSpaced(ctx, l1.length > l2.length ? l1 : l2, base, disp, dw, 0)));
+  const fs = Math.min(base, base * maxW / Math.max(1, measureSpaced(ctx, l1, base, disp, dw, 0), measureSpaced(ctx, l2, base, disp, dw, 0)));
   if (fx) fx(() => { spaced(ctx, l1, cx, y, fs, disp, dw, 0, 'center', color); spaced(ctx, l2, cx, y + fs * 1.06, fs, disp, dw, 0, 'center', color); }, fs);
   else { spaced(ctx, l1, cx, y, fs, disp, dw, 0, 'center', color); spaced(ctx, l2, cx, y + fs * 1.06, fs, disp, dw, 0, 'center', color); }
   return fs;
@@ -10952,7 +10967,7 @@ function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
       ctx.fillStyle = hexA(NO, 0.18); ctx.beginPath(); ctx.roundRect(cx0 + 110, cy0 + 11, 70, 15, 7); ctx.fill(); spaced(ctx, 'HOT  ' + '▲'.repeat(3), cx0 + 145, cy0 + 22, 7, mono, 700, 0.06, 'center', NO)
       spaced(ctx, `RESOLVES IN ${String(1 + phraseIdx).padStart(2, '0')}:${String(12 + phraseIdx * 7).padStart(2, '0')}:09`, cx0 + cw - 16, cy0 + 22, 7.5, mono, 700, 0.06, 'right', '#FFD84A')
       const ph = th.phrases[phraseIdx % th.phrases.length], l1 = th.upper ? ph[0].toUpperCase() : ph[0], l2 = th.upper ? ph[1].toUpperCase() : ph[1]
-      const fs = Math.min(32, 32 * 200 / Math.max(1, measureSpaced(ctx, l1.length > l2.length ? l1 : l2, 32, disp, dw, 0)))
+      const fs = Math.min(32, 32 * 200 / Math.max(1, measureSpaced(ctx, l1, 32, disp, dw, 0), measureSpaced(ctx, l2, 32, disp, dw, 0)))
       spaced(ctx, l1, cx0 + 16, cy0 + 58, fs, disp, dw, 0, 'left', c.ink); spaced(ctx, l2, cx0 + 16, cy0 + 58 + fs * 1.05, fs, disp, dw, 0, 'left', c.ink)
       glowText(`${prob}%`, cx0 + cw - 18, cy0 + 70, 40, YES, 'right'); spaced(ctx, `▲ +${pump}% · 1H`, cx0 + cw - 18, cy0 + 88, 8, mono, 700, 0.04, 'right', YES)
       const ly = cy0 + 116; lev.forEach((l, i) => { const x = cx0 + 16 + i * 52, on = i === 3; ctx.fillStyle = on ? hexA(V, 0.9) : hexA(c.ink, 0.08); ctx.beginPath(); ctx.roundRect(x, ly, 46, 20, 10); ctx.fill(); if (on) { ctx.save(); ctx.shadowColor = V; ctx.shadowBlur = 12; ctx.fill(); ctx.restore() } spaced(ctx, l, x + 23, ly + 14, 8.5, mono, 700, 0, 'center', on ? '#FFFFFF' : hexA(c.ink, 0.6)) })
@@ -10967,7 +10982,7 @@ function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
     })
     if (k.details) {
       const bets = [['@degen_42', '$1,200', 'YES', '25X', YES], ['@paperhands', '$40', 'NO', '1X', NO], ['@moonboi', '$9,999', 'YES', '100X', YES], ['@rekt_again', '$300', 'NO', '50X', NO]]
-      spaced(ctx, 'LIVE BETS · ' + ['TODAY, TWICE', 'THE VOID', 'THIS TUESDAY', 'TOMORROW'][phraseIdx % 4], 22, 556, 7.5, mono, 700, 0.12, 'left', V)
+      spaced(ctx, 'LIVE BETS · ' + (phraseIdx < 4 ? ['TODAY, TWICE', 'THE VOID', 'THIS TUESDAY', 'TOMORROW'][phraseIdx] : String((th.phrases[phraseIdx % th.phrases.length] || ['', ''])[1]).replace(/\?$/, '').toUpperCase()), 22, 556, 7.5, mono, 700, 0.12, 'left', V)
       bets.forEach(([u, amt, side, l, col], i) => { const y = 572 + i * 16; spaced(ctx, u, 22, y, 8, mono, 500, 0, 'left', hexA(c.ink, 0.75)); spaced(ctx, amt, 170, y, 8, mono, 700, 0, 'left', c.ink); spaced(ctx, side, 236, y, 8, mono, 800, 0, 'left', col); spaced(ctx, l, 280, y, 8, mono, 700, 0, 'left', V); spaced(ctx, `${1 + i * 3}s`, 368, y, 7.5, mono, 500, 0, 'right', hexA(c.ink, 0.45)) })
     }
     const NEWS = [['Tuesday delisted after failing to happen twice.', 'The void announces a loyalty program.'], ['Scientists confirm the void is accepting limit orders.', 'Your reflection files for independence.'], ['Study: 4 in 5 memories are from a slightly different timeline.', 'The past is still there, just closed to visitors.'], ['Tomorrow postponed for lack of interest.', 'Analysts unable to locate the present.']][phraseIdx % 4]
@@ -11477,7 +11492,7 @@ function drawVaporLock(ctx, th, Hl, phraseIdx) {
   vaporWindow(ctx, th, 206, 240, 160, 62, 'aesthetic.exe', (x, y) => { spaced(ctx, 'Now loading forever...', x + 4, y + 14, 9, mono, 400, 0, 'left', '#000000'); ctx.fillStyle = '#1A1A80'; for (let i = 0; i < 8; i++) ctx.fillRect(x + 4 + i * 11, y + 22, 9, 8); });
   if (k.details) { spaced(ctx, 'PLAY ▶', 26, 254, 14, mono, 400, 0.08, 'left', '#FFFFFF'); spaced(ctx, 'SP  0:04:44', 26, 272, 11, mono, 400, 0.08, 'left', hexA('#FFFFFF', 0.85)); spaced(ctx, 'A  E  S  T  H  E  T  I  C', 195, 528, 8, mono, 400, 0.1, 'center', hexA('#FFFFFF', 0.9)); }
   ctx.save(); ctx.globalAlpha = 0.06 * k.texture; ctx.fillStyle = '#FFFFFF'; for (let y = 0; y < Hl; y += 4) ctx.fillRect(0, y, 390, 1); ctx.restore();
-  headline2(ctx, th, phraseIdx, 195, 652, 330, 46, '#FFFFFF', (draw, fs) => { const ph = th.phrases[phraseIdx % th.phrases.length]; const dd = th.fonts.display, dw = dispWeight(dd); ctx.save(); ctx.translate(3, 3); spaced(ctx, th.upper ? ph[0].toUpperCase() : ph[0], 195, 652, fs, dd, dw, 0, 'center', cyan); spaced(ctx, th.upper ? ph[1].toUpperCase() : ph[1], 195, 652 + fs * 1.06, fs, dd, dw, 0, 'center', cyan); ctx.restore(); ctx.save(); ctx.shadowColor = pink; ctx.shadowBlur = 12 * k.glow; draw(); ctx.restore(); });
+  headline2(ctx, th, phraseIdx, 176, 652, 280, 46, '#FFFFFF', (draw, fs) => { const ph = th.phrases[phraseIdx % th.phrases.length]; const dd = th.fonts.display, dw = dispWeight(dd); ctx.save(); ctx.translate(3, 3); spaced(ctx, th.upper ? ph[0].toUpperCase() : ph[0], 195, 652, fs, dd, dw, 0, 'center', cyan); spaced(ctx, th.upper ? ph[1].toUpperCase() : ph[1], 195, 652 + fs * 1.06, fs, dd, dw, 0, 'center', cyan); ctx.restore(); ctx.save(); ctx.shadowColor = pink; ctx.shadowBlur = 12 * k.glow; draw(); ctx.restore(); });
   spaced(ctx, T.sub || '', 195, 754, 12, mono, 400, 0.04, 'center', hexA(c.ink, 0.92));
   if (k.details) spaced(ctx, T.foot || '', 195, Hl - 30, 10, mono, 400, 0.12, 'center', hexA(c.ink, 0.75));
 }
@@ -11616,11 +11631,11 @@ function hbWallpaper(ctx,th,H,mode,idx) {
   const title=(s,x,y,size=38)=>spaced(ctx,s,x,y,size,th.fonts.display,400,-.02,'left',ink);
   const label=idx%4,art=HB_IMAGES[['heart','tissue','lungs','neural'][label]];
   if(mode==='lock'){
-    mono(th.company.toUpperCase(),24,54,10);mono('CONTINUITY SERVICES / '+String(label+1).padStart(2,'0'),24,70,6);
+    mono(th.company.toUpperCase(),24,54,10);mono('CONTINUITY SERVICES / '+String((th.phrases&&th.phrases.length>4?idx%th.phrases.length:label)+1).padStart(2,'0'),24,70,6);
     // The system clock/date occupy the upper third; never bake a fake clock into exports.
     const aw=Math.min(316,300*K(th).scale), ah=Math.min(334,aw*(art?art.height/art.width:1)),y=H*.335;
     if(art)ctx.drawImage(art,(390-aw)/2,y,aw,ah);
-    const headlines=th.phrases?.[label]||[['A little','more life.'],['Room','to feel.'],['Breathe now.','Pay later.'],['A kinder','second chance.']][label];
+    const headlines=th.phrases?.[th.phrases.length>4?idx%th.phrases.length:label]||[['A little','more life.'],['Room','to feel.'],['Breathe now.','Pay later.'],['A kinder','second chance.']][label];
     const by=Math.min(H-171,y+ah+47);const fs=Math.min(43,43*342/Math.max(1,...headlines.map(s=>measureSpaced(ctx,s,43,th.fonts.display,400,-.02))));title(headlines[0],24,by,fs);title(headlines[1],24,by+fs,fs);
     seg(ctx,24,by+62,366,by+62,hexA(ink,.4),.7);mono(['CARDIAC LEASE / AUTO-RENEW ON','EMOTIONAL CULTURE / PLAN DEPENDENT','RESPIRATORY FINANCE / TERMS APPLY','CONTINUITY ASSURANCE / UNIT 002'][label],24,by+79,6);
     mono('Biology for a more manageable tomorrow.',24,by+98,6);mono('Property of Halcyon Biofab.',24,by+110,5.5);
@@ -11787,7 +11802,26 @@ function drLockContactScene(ctx,th,{top,baseY,q},idx){
     const p=map(.06,.95);line([p,[54,baseY+12]],hexA(I,.6),.85);text('RECOVERY RIGHTS / OPEN',92,baseY-67,5.5);text('NO REGISTERED OWNER',92,baseY-56,4.6,R);
   }
 }
+// Slots 5-15: each new headline names a catalogue contact, drawn with the Contact Catalogue's own silhouette (in headline order)
+const DR_LOCK_MORE=['DR-09','SR-12','RX-03','SV-06','K-17','D-02','V-11','SATURN','NEPTUNE','N-04','N-22'];
+function drCatalogueLock(ctx,th,H,k){
+  const kit=scriptableKit(th),list=(kit&&kit.DR_CONTACTS)||[],c=list.find(x=>x.name.startsWith(DR_LOCK_MORE[k%DR_LOCK_MORE.length]))||list[0]||{name:'UNKNOWN',type:'FICTIONAL',note:'NO RETURN'};
+  const ph=allPhrases(th)[4+k]||['',''],id=c.name.split(' / ')[0];
+  const text={...th.text,topL:'CATALOGUE // '+id,coords:c.type,fine:c.note,foot:'DEEP RANGE // RELAY 07'};
+  const variant={...th,text,phrases:[ph],seed:(th.seed||0)+4+k};
+  const W=ctx.canvas?.width||390,pxH=ctx.canvas?.height||H;
+  drawOrbital(ctx,variant,H,'lock',0,W,pxH,W/390,(cx,t,g)=>drLockCatalogueScene(cx,t,g,c,kit));
+}
+function drLockCatalogueScene(ctx,th,{top,baseY,q},c,kit){
+  const a=drWallTools(ctx,th),{I,R,line,text,bracket}=a;
+  const map=(u,v)=>[(1-v)*((1-u)*q[0][0]+u*q[1][0])+v*((1-u)*q[3][0]+u*q[2][0]),(1-v)*((1-u)*q[0][1]+u*q[1][1])+v*((1-u)*q[3][1]+u*q[2][1])];
+  for(let i=1;i<8;i++){const [x,y]=map(i/8,1);line([[x,y],[x+1,y+4]],hexA(I,.55),.5);text(String(i*12).padStart(3,'0'),x-4,y+11,4.3,hexA(I,.5));}
+  const [x,y]=map(.52,.48),w=150,h=112;
+  if(kit&&kit.drContactSilhouette){const img=kit.artImage(w,h,(k)=>kit.drContactSilhouette(k,c,0,0,w,h),{});ctx.drawImage(img,x-w/2,y-h/2,w,h);}
+  bracket(x-w/2-6,y-h/2-6,w+12,h+12);text(c.name,x-w/2-4,y+h/2+16,5.4,c.type&&c.type.startsWith('KNOWN')?I:R);
+}
 function drOriginalLayoutLock(ctx,th,H,idx){
+  if(idx>=4){drCatalogueLock(ctx,th,H,idx-4);return;}
   const n=((idx%4)+4)%4;
   const heads=['CONTACT LOST','WORLD UNRESOLVED','CARRIER RETURN','SALVAGE WINDOW'];
   const text={...th.text,topL:['TRACKING 12 CONTACTS','SURVEYING 08 WORLDS','LISTENING ON 06 RELAYS','TRACKING 19 FRAGMENTS'][n],coords:['RANGE 0.4 AU // RELAY 07','SECTOR K-17 // SURFACE SCAN','CHANNEL 93.4 // RETURN PATH','SECTOR F-05 // RECOVERY 12'][n],fine:['RX-03 / SIGNAL DEGRADING','K-17 / ORIGIN UNCONFIRMED','RELAY 07 / KEEP LISTENING','SR-12 / NOTHING ABANDONED'][n],foot:'DEEP RANGE // RELAY 07'};
@@ -12620,7 +12654,7 @@ function scriptableKit(th) {
   T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th); T.hbImages = HB_IMAGES; T.drImages = DR_IMAGES; T.hbDark = hbIsDark(th); T.hbVariant = th.variant || 0;
   const tf = { string: (d) => { let h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; } };
   try {
-    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { drPaint, drTimerLayout, DR_META, hbPaint, HB_SPRITES, hbObservation, HB_OBSERVATIONS, HB_WIDGET_ASSETS, GAMES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
+    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { drPaint, drTimerLayout, DR_META, DR_CONTACTS, drContactSilhouette, hbPaint, HB_SPRITES, hbObservation, HB_OBSERVATIONS, HB_WIDGET_ASSETS, GAMES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
       T, new Color(T.ink), new Color(T.ink, 0.72), Color, Point, Rect, Size, Path, DrawContext, Font, deck.audio.lines, deck,
       (w, f) => { const d = new DrawContext(); d.size = new Size(w, 4); d.setFillColor(new Color(T.ink, 0.22)); d.fillRect(new Rect(0, 0, w, 4)); d.setFillColor(new Color(T.ink)); d.fillRect(new Rect(0, 0, w * f, 4)); return d.getImage(); }, tf, new Color(T.panel));
   } catch (e) { console.warn(e); return null; }
@@ -12981,6 +13015,11 @@ function exportSize() {
   const w = Math.min(2000, Math.max(600, +$('f-w').value || 1179)), h = Math.min(4000, Math.max(1200, +$('f-h').value || 2556));
   return [w, h];
 }
+// Lock screens 5-15: the theme's extra headlines on its own lock layout
+async function renderMoreBlob(k, W, H) {
+  await artFullyLoaded(); const t = clone(state.th); t.phrases = allPhrases(state.th);
+  const c = document.createElement('canvas'); [c.width, c.height] = W ? [W, H] : exportSize(); drawWallpaper(c, t, 'lock', 4 + k); return c;
+}
 async function renderBlob(mode, idx) {
   await artFullyLoaded();
   const [W, H] = exportSize(); const c = document.createElement('canvas'); c.width = W; c.height = H;
@@ -13040,11 +13079,12 @@ async function exportZip() {
   try {
     const z = new JSZip(), base = slug(state.th.company);
     for (let i = 0; i < 4; i++) z.file(`wallpapers/lock-${i + 1}.png`, await renderBlob('lock', i));
+    for (let k = 0; k < morePhrasesFor(state.th).length; k++) z.file(`wallpapers/more-headlines/lock-${String(k + 5).padStart(2, '0')}.png`, await canvasBlob(await renderMoreBlob(k)));
     z.file('wallpapers/home.png', await renderBlob('home', 0));
     if (homeFrameCount() > 1) for (let i = 0; i < 6; i++) z.file(`wallpapers/home-frames/home-frame-${i + 1}.png`, await renderBlob('home', i));
     for (let i = 0; i < APPS.length; i++) { const [k, n] = APPS[i]; z.file(`icons/${state.th.codes[k]}-${String(i + 1).padStart(2, '0')}_${n}.png`, await iconBlob(k, i)); }
     z.file(`${base}-widgets.js`, buildScript());
-    z.file('INSTALL.txt', `${state.th.company} theme — made with Foundry\n\n${installText()}\n`);
+    z.file('INSTALL.txt', `${state.th.company} theme — made with Foundry\n\n${installText()}\n\nMORE HEADLINES\nwallpapers/more-headlines has ${morePhrasesFor(state.th).length} more lock screens. To rotate all of them: save the lock screens to Photos, then touch and hold your Lock Screen, tap +, choose Photo Shuffle, pick the lock screens, and choose how often they change.\n`);
     const blob = await z.generateAsync({ type: 'blob' });
     await saveFile(`${base}-theme-pack.zip`, blob);
   } catch (e) { setStatus('Could not build the pack. Try the single downloads.'); }
@@ -13081,8 +13121,8 @@ function androidGuide(W, H) {
 Sized for ${W} x ${H}. Everything here is free; no paid apps needed.
 
 1) LOCK SCREENS THAT CYCLE
-- Samsung Galaxy: touch and hold the lock screen (or Settings > Wallpaper and style) > Wallpapers > Gallery, and select all four
-  lock screens. Your phone shows a different one each time you wake it (Samsung allows up to 15).
+- Samsung Galaxy: touch and hold the lock screen (or Settings > Wallpaper and style) > Wallpapers > Gallery, and select all
+  ${4 + morePhrasesFor(th).length} lock screens. Your phone shows a different one each time you wake it (Samsung allows up to 15).
 - Other Android phones: set your favourite as the lock screen. Some phones' wallpaper settings or free wallpaper apps can rotate a
   folder of pictures too.
 
@@ -13116,7 +13156,8 @@ async function androidPack() {
   try {
     const z = new JSZip();
     setStatus('Building your Android pack: wallpapers…');
-    for (let i = 0; i < 4; i++) z.file(`lock-screens/lock-${i + 1}.jpg`, await canvasBlob(await androidWall('lock', i, W, H), 'image/jpeg', 0.92));
+    for (let i = 0; i < 4; i++) z.file(`lock-screens/lock-${String(i + 1).padStart(2, '0')}.jpg`, await canvasBlob(await androidWall('lock', i, W, H), 'image/jpeg', 0.92));
+    for (let k = 0; k < morePhrasesFor(th).length; k++) z.file(`lock-screens/lock-${String(k + 5).padStart(2, '0')}.jpg`, await canvasBlob(await renderMoreBlob(k, W, H), 'image/jpeg', 0.92));
     z.file('home.jpg', await canvasBlob(await androidHome(W, H), 'image/jpeg', 0.92));
     for (let i = 0; i < APPS.length; i++) { const [k, n] = APPS[i]; const ic = document.createElement('canvas'); ic.width = 512; ic.height = 512; drawIcon(ic, th, k, i); z.file(`icons/${String(i + 1).padStart(2, '0')}_${n}.png`, await canvasBlob(ic)); }
     const script = buildScript(), name = String(th.company || 'Foundry').split(' ')[0];

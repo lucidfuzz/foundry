@@ -2053,7 +2053,7 @@ function drawPearlIcon(ctx, th, glyph, num, code) {
 function headline2(ctx, th, phraseIdx, cx, y, maxW, base, color, fx) {
   const disp = th.fonts.display, dw = dispWeight(disp), ph = th.phrases[phraseIdx % th.phrases.length] || ['', ''];
   const l1 = th.upper ? ph[0].toUpperCase() : ph[0], l2 = th.upper ? ph[1].toUpperCase() : ph[1];
-  const fs = Math.min(base, base * maxW / Math.max(1, measureSpaced(ctx, l1.length > l2.length ? l1 : l2, base, disp, dw, 0)));
+  const fs = Math.min(base, base * maxW / Math.max(1, measureSpaced(ctx, l1, base, disp, dw, 0), measureSpaced(ctx, l2, base, disp, dw, 0)));
   if (fx) fx(() => { spaced(ctx, l1, cx, y, fs, disp, dw, 0, 'center', color); spaced(ctx, l2, cx, y + fs * 1.06, fs, disp, dw, 0, 'center', color); }, fs);
   else { spaced(ctx, l1, cx, y, fs, disp, dw, 0, 'center', color); spaced(ctx, l2, cx, y + fs * 1.06, fs, disp, dw, 0, 'center', color); }
   return fs;
@@ -2265,7 +2265,7 @@ function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
       ctx.fillStyle = hexA(NO, 0.18); ctx.beginPath(); ctx.roundRect(cx0 + 110, cy0 + 11, 70, 15, 7); ctx.fill(); spaced(ctx, 'HOT  ' + '▲'.repeat(3), cx0 + 145, cy0 + 22, 7, mono, 700, 0.06, 'center', NO)
       spaced(ctx, `RESOLVES IN ${String(1 + phraseIdx).padStart(2, '0')}:${String(12 + phraseIdx * 7).padStart(2, '0')}:09`, cx0 + cw - 16, cy0 + 22, 7.5, mono, 700, 0.06, 'right', '#FFD84A')
       const ph = th.phrases[phraseIdx % th.phrases.length], l1 = th.upper ? ph[0].toUpperCase() : ph[0], l2 = th.upper ? ph[1].toUpperCase() : ph[1]
-      const fs = Math.min(32, 32 * 200 / Math.max(1, measureSpaced(ctx, l1.length > l2.length ? l1 : l2, 32, disp, dw, 0)))
+      const fs = Math.min(32, 32 * 200 / Math.max(1, measureSpaced(ctx, l1, 32, disp, dw, 0), measureSpaced(ctx, l2, 32, disp, dw, 0)))
       spaced(ctx, l1, cx0 + 16, cy0 + 58, fs, disp, dw, 0, 'left', c.ink); spaced(ctx, l2, cx0 + 16, cy0 + 58 + fs * 1.05, fs, disp, dw, 0, 'left', c.ink)
       glowText(`${prob}%`, cx0 + cw - 18, cy0 + 70, 40, YES, 'right'); spaced(ctx, `▲ +${pump}% · 1H`, cx0 + cw - 18, cy0 + 88, 8, mono, 700, 0.04, 'right', YES)
       const ly = cy0 + 116; lev.forEach((l, i) => { const x = cx0 + 16 + i * 52, on = i === 3; ctx.fillStyle = on ? hexA(V, 0.9) : hexA(c.ink, 0.08); ctx.beginPath(); ctx.roundRect(x, ly, 46, 20, 10); ctx.fill(); if (on) { ctx.save(); ctx.shadowColor = V; ctx.shadowBlur = 12; ctx.fill(); ctx.restore() } spaced(ctx, l, x + 23, ly + 14, 8.5, mono, 700, 0, 'center', on ? '#FFFFFF' : hexA(c.ink, 0.6)) })
@@ -2280,7 +2280,7 @@ function drawMarket(ctx, th, Hl, mode, phraseIdx, W, H, s) {
     })
     if (k.details) {
       const bets = [['@degen_42', '$1,200', 'YES', '25X', YES], ['@paperhands', '$40', 'NO', '1X', NO], ['@moonboi', '$9,999', 'YES', '100X', YES], ['@rekt_again', '$300', 'NO', '50X', NO]]
-      spaced(ctx, 'LIVE BETS · ' + ['TODAY, TWICE', 'THE VOID', 'THIS TUESDAY', 'TOMORROW'][phraseIdx % 4], 22, 556, 7.5, mono, 700, 0.12, 'left', V)
+      spaced(ctx, 'LIVE BETS · ' + (phraseIdx < 4 ? ['TODAY, TWICE', 'THE VOID', 'THIS TUESDAY', 'TOMORROW'][phraseIdx] : String((th.phrases[phraseIdx % th.phrases.length] || ['', ''])[1]).replace(/\?$/, '').toUpperCase()), 22, 556, 7.5, mono, 700, 0.12, 'left', V)
       bets.forEach(([u, amt, side, l, col], i) => { const y = 572 + i * 16; spaced(ctx, u, 22, y, 8, mono, 500, 0, 'left', hexA(c.ink, 0.75)); spaced(ctx, amt, 170, y, 8, mono, 700, 0, 'left', c.ink); spaced(ctx, side, 236, y, 8, mono, 800, 0, 'left', col); spaced(ctx, l, 280, y, 8, mono, 700, 0, 'left', V); spaced(ctx, `${1 + i * 3}s`, 368, y, 7.5, mono, 500, 0, 'right', hexA(c.ink, 0.45)) })
     }
     const NEWS = [['Tuesday delisted after failing to happen twice.', 'The void announces a loyalty program.'], ['Scientists confirm the void is accepting limit orders.', 'Your reflection files for independence.'], ['Study: 4 in 5 memories are from a slightly different timeline.', 'The past is still there, just closed to visitors.'], ['Tomorrow postponed for lack of interest.', 'Analysts unable to locate the present.']][phraseIdx % 4]
@@ -2790,7 +2790,7 @@ function drawVaporLock(ctx, th, Hl, phraseIdx) {
   vaporWindow(ctx, th, 206, 240, 160, 62, 'aesthetic.exe', (x, y) => { spaced(ctx, 'Now loading forever...', x + 4, y + 14, 9, mono, 400, 0, 'left', '#000000'); ctx.fillStyle = '#1A1A80'; for (let i = 0; i < 8; i++) ctx.fillRect(x + 4 + i * 11, y + 22, 9, 8); });
   if (k.details) { spaced(ctx, 'PLAY ▶', 26, 254, 14, mono, 400, 0.08, 'left', '#FFFFFF'); spaced(ctx, 'SP  0:04:44', 26, 272, 11, mono, 400, 0.08, 'left', hexA('#FFFFFF', 0.85)); spaced(ctx, 'A  E  S  T  H  E  T  I  C', 195, 528, 8, mono, 400, 0.1, 'center', hexA('#FFFFFF', 0.9)); }
   ctx.save(); ctx.globalAlpha = 0.06 * k.texture; ctx.fillStyle = '#FFFFFF'; for (let y = 0; y < Hl; y += 4) ctx.fillRect(0, y, 390, 1); ctx.restore();
-  headline2(ctx, th, phraseIdx, 195, 652, 330, 46, '#FFFFFF', (draw, fs) => { const ph = th.phrases[phraseIdx % th.phrases.length]; const dd = th.fonts.display, dw = dispWeight(dd); ctx.save(); ctx.translate(3, 3); spaced(ctx, th.upper ? ph[0].toUpperCase() : ph[0], 195, 652, fs, dd, dw, 0, 'center', cyan); spaced(ctx, th.upper ? ph[1].toUpperCase() : ph[1], 195, 652 + fs * 1.06, fs, dd, dw, 0, 'center', cyan); ctx.restore(); ctx.save(); ctx.shadowColor = pink; ctx.shadowBlur = 12 * k.glow; draw(); ctx.restore(); });
+  headline2(ctx, th, phraseIdx, 176, 652, 280, 46, '#FFFFFF', (draw, fs) => { const ph = th.phrases[phraseIdx % th.phrases.length]; const dd = th.fonts.display, dw = dispWeight(dd); ctx.save(); ctx.translate(3, 3); spaced(ctx, th.upper ? ph[0].toUpperCase() : ph[0], 195, 652, fs, dd, dw, 0, 'center', cyan); spaced(ctx, th.upper ? ph[1].toUpperCase() : ph[1], 195, 652 + fs * 1.06, fs, dd, dw, 0, 'center', cyan); ctx.restore(); ctx.save(); ctx.shadowColor = pink; ctx.shadowBlur = 12 * k.glow; draw(); ctx.restore(); });
   spaced(ctx, T.sub || '', 195, 754, 12, mono, 400, 0.04, 'center', hexA(c.ink, 0.92));
   if (k.details) spaced(ctx, T.foot || '', 195, Hl - 30, 10, mono, 400, 0.12, 'center', hexA(c.ink, 0.75));
 }

@@ -193,6 +193,7 @@ const PRESETS = {
     fonts: { display: 'Shippori Mincho B1', mono: 'Barlow Condensed' },
     motif: 'alert', texture: 'scan', marks: 'frame', iconStyle: 'hex', glyphs: 'directive', units: 'fahrenheit', upper: true,
     phrases: [['Remain', 'Calm'], ['Hold', 'Position'], ['Do Not', 'Hesitate'], ['Return', 'To Base']],
+    morePhrases: [["Seal", "Shelter"], ["Await", "Orders"], ["Ration", "Daylight"], ["Submit", "Doubt"], ["Count", "The Beds"], ["Ignore", "Knocking"], ["Smile", "On Cue"], ["Drill", "For Dawn"], ["Queue", "In Order"], ["Dim", "The Grid"], ["File", "All Fear"]],
     text: {
       topL: 'DIRECTIVE ZERO // OPERATOR TERMINAL', topR: 'D-00', tag: 'NOTICE', ref: 'REF. D-00 / CYCLE 283',
       timerLabel: 'ACTIVE TIME REMAINING', timer: '04:59:59', power: 'INTERNAL POWER', hexLabel: 'SECTOR GRID 7',
@@ -236,6 +237,7 @@ const PRESETS = {
     fonts: { display: 'IM Fell English', mono: 'IM Fell English SC' },
     motif: 'map', texture: 'paper', marks: 'none', iconStyle: 'woodcut', glyphs: 'longroad', units: 'fahrenheit', upper: false,
     phrases: [['Pack More', 'Bread'], ['Keep The', 'Lantern Lit'], ['The Long', 'Way Home'], ['Walk On,', 'Wanderer']],
+    morePhrases: [["Knock For", "Supper"], ["Save Half", "The Cheese"], ["Mind Your", "Map's Owner"], ["Post Goes", "By Pony"], ["Toll Paid", "In Riddles"], ["Socks Dry", "By The Fire"], ["Ask After", "The Ferry"], ["Crows Say", "Go Around"], ["Mend Now,", "Roam Later"], ["Tea First", "Then Ghosts"], ["Fens Keep", "Their Tales"]],
     text: {
       mapTitle: 'A Traveller\'s Map of the Long Road', journal: 'Four hundred miles behind. The rest, ahead.',
       foot: 'INKED AT THE LANTERN INN', caption: 'Keep the lantern lit.',
@@ -278,6 +280,7 @@ const PRESETS = {
     fonts: { display: 'Oxanium', mono: 'Share Tech Mono' },
     motif: 'night', texture: 'rain', marks: 'none', iconStyle: 'visor', glyphs: 'nightfall', units: 'fahrenheit', upper: true,
     phrases: [['Drop Window', 'Open'], ['Stay', 'Low'], ['Night', 'Shift'], ['Rain', 'Check']],
+    morePhrases: [["Visor", "Down"], ["Squad Seven", "Stack"], ["Roof Access", "Quiet"], ["Ammo Check", "Twice"], ["Supply Pod", "Catch"], ["Med Kit", "First"], ["Stairwell", "Clear"], ["Cold Ration", "Again"], ["Boot Prints", "Fresh"], ["City Lights", "Blink"], ["Rear Guard", "Waits"]],
     text: {
       topL: 'NIGHTFALL DESCENT // HELMET DISPLAY', topR: 'SQUAD 7', optics: 'OPTICS: LOW-LIGHT',
       alt: 'ALT 1,204 M', speed: 'DESCENT 41 M/S', window: 'DROP WINDOW 00:04:12', grid: 'GRID 9-K',
@@ -322,6 +325,7 @@ const PRESETS = {
     fonts: { display: 'Cormorant Garamond', mono: 'Cormorant SC' },
     motif: 'grimoire', texture: 'stars', marks: 'none', iconStyle: 'gilded', glyphs: 'grimoire', units: 'fahrenheit', upper: false,
     phrases: [['The', 'Wandering Star'], ['Seer Of', 'Small Hours'], ['Gilded', 'Familiar'], ['Oath Of', 'Embers']],
+    morePhrases: [["Keeper", "Of The Uncast"], ["On Loan", "From The Moon"], ["Seal Of", "Quiet Ink"], ["Drawn", "Past The Veil"], ["One", "Conjured Crumb"], ["Due At", "The Moonwell"], ["Under", "A Moth's Wing"], ["Bound", "In Unread Gold"], ["Mirror", "Without A Face"], ["Tea For", "The Cauldron"], ["Lesson", "In Small Stars"]],
     text: {
       school: 'Arcanum of Divination', cardNo: 'VII · LXXVIII', flavor: 'What the stars promise, the patient collect.',
       effect: 'When drawn at dawn, your luck holds until dusk. Draw again tomorrow to renew.',
@@ -400,6 +404,7 @@ const PRESETS = {
     fonts: { display: 'Bodoni Moda', mono: 'DM Mono' },
     motif: 'rabbit', texture: 'dots', marks: 'none', iconStyle: 'pearl', glyphs: 'rabbit', units: 'fahrenheit', upper: false,
     phrases: [["What's Yours", 'Is Mine'], ['Catch Me', 'If You Can'], ['Before I', 'Catch You'], ['Seven Heirlooms,', 'One Night']],
+    morePhrases: [["Invitation", "Optional"], ["Velvet Gloves,", "Clean Exit"], ["Reserve The Car,", "Not A Seat"], ["Mind The Lasers,", "Save Silk"], ["The Winning Bid", "Was A Nod"], ["After The Waltz,", "The Vault"], ["A Calling Card,", "No Address"], ["Nothing Missing", "But Proof"], ["Lift The Crown,", "Leave Dust"], ["Blame The", "Copycat"], ["Safehouse Tea", "For Two"]],
     text: {
       tagL: 'LEGION OF THIEVES · CELL 07', tagR: 'WHITE RABBIT', sub: 'Nothing was taken. Everything is gone.', foot: 'WHITE RABBIT // CALLING CARD 07',
       homeTop: 'SEVEN HEIRLOOMS · ONE NIGHT', caption: 'We were never here.'
@@ -441,6 +446,7 @@ const PRESETS = {
     fonts: { display: 'Orbitron', mono: 'Share Tech Mono' },
     motif: 'neon', texture: 'scan', marks: 'none', iconStyle: 'neon', glyphs: 'cyber', units: 'fahrenheit', upper: true,
     phrases: [['Buy Now,', 'Pay Forever'], ['Breathe', 'Premium Air'], ['Your Debt Is', 'Our Future'], ['Sleep Is A', 'Subscription']],
+    morePhrases: [["Streetlight", "By The Hour"], ["Terms Apply", "Above Ground"], ["Sable Owns", "The Skyline"], ["Umbrella", "Ads Inside"], ["Elevators", "Sell Access"], ["Queue Here", "For Silence"], ["Overtime", "Has A Lobby"], ["Firewall", "At The Door"], ["Pawn A Badge", "Keep A Name"], ["Public Space", "Private Rate"], ["Cash Talks,", "Walls Listen"]],
     text: { tagL: 'SABLE DYNAMICS // DISTRICT 09', tagR: 'NET: ONLINE', sub: 'Terms apply. Terms always apply.', foot: 'NEON DISTRICT // D-09 // 24-7', homeTop: 'OPEN 24/7', caption: 'Mind the drones.' },
     codes: { camera: 'OPTIC', photos: 'MEM', maps: 'GRID', calendar: 'GIGS', phone: 'LINK', messages: 'MSG', browser: 'NET', music: 'RADIO', youtube: 'STREAM', instagram: 'CHROME', discord: 'NETBAR' },
     widget: {
@@ -473,6 +479,7 @@ const PRESETS = {
     fonts: { display: 'Righteous', mono: 'VT323' },
     motif: 'vapor', texture: 'scan', marks: 'none', iconStyle: 'win95', glyphs: 'vapor', units: 'fahrenheit', upper: false,
     phrases: [['Eternal', 'Sunset'], ['Welcome To', 'The Plaza'], ['Nothing Is', 'Real Here'], ['Forever', 'Nineteen 95']],
+    morePhrases: [["Lost Year?", "Ask At Desk"], ["Fountain", "Change Only"], ["Escalator", "To Nowhere"], ["Vacancies", "Still Lit"], ["Food Court", "For One"], ["On Hold", "Since 1995"], ["Soft Jazz", "Hard Floors"], ["Rewind", "The Weekend"], ["Mannequins", "On Break"], ["Arcade", "Afterglow"], ["Parking", "Unvalidated"]],
     text: { tagL: 'VAPOR PLAZA · LEVEL 2', tagR: 'OPEN', sub: 'Please enjoy the fountain.', foot: 'VAPOR PLAZA // MALL 95 // FOREVER', homeTop: 'NOW ENTERING THE PLAZA', caption: 'Elevator music, forever.' },
     codes: { camera: 'CAM.EXE', photos: 'PICS', maps: 'MAP', calendar: 'DATE', phone: 'CALL', messages: 'CHAT', browser: 'WEB', music: 'TAPE', youtube: 'VHS', instagram: 'POLAROID', discord: 'CHATRM' },
     widget: {
@@ -500,6 +507,7 @@ const PRESETS = {
     fonts: { display: 'Fraunces', mono: 'DM Mono' },
     motif: 'botanical', texture: 'dots', marks: 'none', iconStyle: 'leaf', glyphs: 'nature', units: 'fahrenheit', upper: false,
     phrases: [['Slow Down,', 'Look Closer'], ['Grow Where', 'You Are'], ['Every Path', 'Is A Story'], ['Take Only', 'Photographs']],
+    morePhrases: [["Turn A", "Fresh Page"], ["Wait For", "The Wren"], ["At The Log", "Sit Awhile"], ["Mud Keeps", "Paw Prints"], ["Count The", "Wingbeats"], ["Leave Room", "For Roots"], ["Rain Ends,", "Moss Shines"], ["Old Acorns", "New Oaks"], ["Creek Bend", "Quiet Seat"], ["One Fern,", "Many Notes"], ["Dusk Comes", "With Foxes"]],
     text: { tagL: 'WILDWOOD · FIELD NOTES', tagR: 'PLATE 03', sub: 'Collected on the morning trail.', foot: 'WILDWOOD // TRAIL 03', homeTop: 'THE FOREST FLOOR', caption: 'Listen for the wren.' },
     codes: { camera: 'LOOK', photos: 'PRESS', maps: 'TRAIL', calendar: 'SEASON', phone: 'CALL', messages: 'NOTE', browser: 'GROVE', music: 'SONG', youtube: 'REEL', instagram: 'BLOOM', discord: 'FIRE' },
     widget: {
@@ -533,6 +541,7 @@ const PRESETS = {
     fonts: { display: 'Archivo', mono: 'JetBrains Mono' },
     motif: 'market', texture: 'scan', marks: 'none', iconStyle: 'contract', glyphs: 'market', units: 'fahrenheit', upper: true,
     phrases: [['Will Today', 'Happen Twice?'], ['Does The Void', 'Take Bets?'], ['Will You Remember', 'This Tuesday?'], ['Is Tomorrow', 'Priced In?']],
+    morePhrases: [["Can Silence", "Outbid Noise?"], ["Who Sets", "Time's Price?"], ["Has Forever", "Reached Zero?"], ["Could A Hunch", "Go Bankrupt?"], ["Are Unlived Lives", "Liquid Yet?"], ["Did The Future", "Default?"], ["Would An Echo", "Earn A Yield?"], ["Which Self", "Keeps Profit?"], ["If Doubt Rallies,", "Who Buys?"], ["Where Does Luck", "Settle Up?"], ["How Much Nothing", "Buys A Maybe?"]],
     text: { tagL: 'LONG ODDS // DEGEN EXCHANGE', tagR: 'LIVE', sub: 'Not financial advice. Barely advice.', foot: 'LONG ODDS // 24/7/365 // NO BRAKES', homeTop: 'WHALES ARE MOVING', caption: 'Bet small. Dream huge.' },
     codes: { camera: 'SCOUT', photos: 'PNL', maps: 'ROUTE', calendar: 'EXPIRY', phone: 'WHALE', messages: 'ALPHA', browser: 'MARKETS', music: 'PUMP', youtube: 'REPLAY', instagram: 'HYPE', discord: 'PIT' },
     widget: {
@@ -2317,12 +2326,12 @@ Object.keys(QUOTE_PACKS).forEach(id => {
 // headlines; colorways, customize controls and everything else stay shared.
 const EDITIONS = {
   halcyon: [
-    { id: 'original', name: 'Original', blurb: 'Technocratic biotech. A wireframe globe, mint paper and lavender.', phrases: [['Mortality Is A', 'Legacy Feature'], ['Your Pulse,', 'Fully Licensed'], ['Upgrade Path:', 'Eternal'], ['Grown For What', 'Comes Next']] },
-    { id: 'illustrated', name: 'Illustrated', blurb: 'Synthetic humanity. Grown organs, clinical pastels and a little more life.', phrases: [['A little', 'more life.'], ['Room', 'to feel.'], ['Breathe now.', 'Pay later.'], ['A kinder', 'second chance.']] }
+    { id: 'original', name: 'Original', blurb: 'Technocratic biotech. A wireframe globe, mint paper and lavender.', phrases: [['Mortality Is A', 'Legacy Feature'], ['Your Pulse,', 'Fully Licensed'], ['Upgrade Path:', 'Eternal'], ['Grown For What', 'Comes Next']], morePhrases: [["Consent Has", "No Expiry"], ["Memory Is", "Held In Trust"], ["Grief Requires", "Form HB-9"], ["Instinct Is", "Under Review"], ["Dreams Remain", "Company Owned"], ["Anomaly?", "File As Growth"], ["Selfhood Has", "A Lot Number"], ["Recall Applies", "To Both Copies"], ["Rest Is A", "Scheduled Test"], ["Affection Is", "Not For Resale"], ["Exit Forms", "Renew The Term"]] },
+    { id: 'illustrated', name: 'Illustrated', blurb: 'Synthetic humanity. Grown organs, clinical pastels and a little more life.', phrases: [['A little', 'more life.'], ['Room', 'to feel.'], ['Breathe now.', 'Pay later.'], ['A kinder', 'second chance.']], morePhrases: [["Rest easy.", "Parts follow."], ["Settle in.", "Under glass."], ["Never lost.", "Just filed."], ["Softly made.", "Firmly held."], ["Let it grow.", "We'll name it."], ["Be curious.", "Within limits."], ["Warm voices.", "On our dial."], ["Every hour.", "Ours to give."], ["Good company", "by assignment."], ["Fewer tears.", "Same volume."], ["Care travels", "beyond you."]] }
   ],
   deeprange: [
-    { id: 'original', name: 'Original', blurb: 'A long-range tracking display. Black glass, red contact frames, a yellow trajectory and a blue planet below.', phrases: [['Contact', 'Lost'], ['Signal', 'Acquired'], ['Return', 'Window'], ['Deep', 'Range']] },
-    { id: 'expanded', name: 'Expanded', blurb: 'Deeper into the range. New contacts, worlds, relays and salvage, all in vector instrument art.', phrases: [['Contact', 'Lost'], ['World', 'Unresolved'], ['Carrier', 'Return'], ['Salvage', 'Window']] }
+    { id: 'original', name: 'Original', blurb: 'A long-range tracking display. Black glass, red contact frames, a yellow trajectory and a blue planet below.', phrases: [['Contact', 'Lost'], ['Signal', 'Acquired'], ['Return', 'Window'], ['Deep', 'Range']], morePhrases: [["Relay", "Silent"], ["Echo", "Delayed"], ["Vector", "Adrift"], ["Beacon", "Unlit"], ["Transit", "Pending"], ["Uplink", "Vacant"], ["Debris", "Tagged"], ["Bearing", "Unknown"], ["Docking", "Denied"], ["Last", "Voice"], ["Beyond", "Reply"]] },
+    { id: 'expanded', name: 'Expanded', blurb: 'Deeper into the range. New contacts, worlds, relays and salvage, all in vector instrument art.', phrases: [['Contact', 'Lost'], ['World', 'Unresolved'], ['Carrier', 'Return'], ['Salvage', 'Window']], morePhrases: [["Dead", "Letter"], ["Tug", "Wayfarer"], ["Probe", "Long Wake"], ["Survey", "Quiet Sail"], ["Seam", "Divergence"], ["Twofold", "One Record"], ["Hollow", "Interior"], ["Saturn", "Ring Plane"], ["Neptune", "Limb"], ["N-04", "Palinode"], ["Choir", "Of Echoes"]] }
   ]
 };
 function editionsFor(th) { return (th && EDITIONS[th.id]) || null; }
@@ -2330,4 +2339,8 @@ function editionOf(th) { const e = editionsFor(th); return e ? (e.find(x => x.id
 // The illustrated Halcyon renderer runs only when that edition is chosen; otherwise Halcyon is the original code-drawn theme.
 // The expanded Deep Range renderer runs only when that edition is chosen; otherwise Deep Range is the original theme.
 function drOn(th) { return !!th && th.motif === 'orbital' && th.edition === 'expanded'; }
+// Eleven more headlines per theme/edition (lock-screen slots 5-15), written by GPT under the WORLD-BUILDING STANDARD and approved by
+// Jordan (12 Oct). They're fixed copy for the exports' cycling lock screens; the four in th.phrases stay editable in Customize.
+function morePhrasesFor(th) { const e = editionOf(th); return (e && e.morePhrases) || (th && PRESETS[th.id] && PRESETS[th.id].morePhrases) || []; }
+function allPhrases(th) { return (th.phrases || []).concat(morePhrasesFor(th)); }
 function hbOn(th) { return !!th && ['globe', 'radar'].includes(th.motif) && th.edition === 'illustrated'; }

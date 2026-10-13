@@ -203,6 +203,17 @@ from Claude; Jordan can adjust them. Everything else here is binding for all new
   See HEADLINE POOLS below.
 
 [ADDED] HEADLINE POOLS: REQUEST FOR GPT (APPROVED, Jordan 12 Oct)
+STATUS: DONE. GPT delivered 143 headlines (11 per theme/edition); Jordan approved all of them (12 Oct) and Claude integrated them.
+- Every theme and edition now has 15 lock-screen headlines: the 4 editable in Customize plus 11 fixed ones (morePhrases in
+  src/foundry-data.js). Both export packs include all 15 lock screens (iPhone: Photo Shuffle; Samsung: up to 15 rotate).
+- APPROVED world note: Halcyon's grief applications go through Form HB-9 (Subject Wellness). Recorded in the theme bible.
+- Integration fixes: headline sizing now measures the wider line instead of counting letters (fixed "Would An Echo" crowding
+  Long Odds' percentage); Vapor's lock headline stays clear of the marble column; Long Odds' LIVE BETS label comes from each new
+  question's own words; Halcyon Illustrated numbers and shows all 15.
+- Deep Range Expanded slots 5-15 draw each headline's catalogue contact with the Contact Catalogue's own silhouette (DR-09,
+  SR-12, RX-03, SV-06, K-17, D-02, V-11, Saturn, Neptune, N-04, N-22) inside the approved lock layout.
+- Checks: all 143 rendered on their real lock screens; every theme's 15 are distinct; tests/headlines.test.cjs guards counts,
+  line limits and duplicates.
 Write 11 new lock-screen headlines for each theme and edition below, so each has 15 in total.
 - Shape: two lines, exactly like the current four, with the same capitalization style (most themes use Title Case; Halcyon
   Illustrated uses sentence case, e.g. "A little / more life.").
