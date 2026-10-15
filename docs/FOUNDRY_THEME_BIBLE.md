@@ -808,7 +808,28 @@ The legion cases and lifts all seven heirlooms, leaving a calling card each time
 - No Alice in Wonderland imagery at all: no rabbit hole, pocket watch or playing cards.
 - Sleek heist vibes only; no assets or logos from any game.
 
+### Afterimage — local first-pass proposal, 14 October 2026
+
+The same world at closer range: engraved vault hardware, encoded music cylinders, private correspondence,
+architectural casing studies, disputed provenance and six separate work desks. The legion is impeccably
+mannered, expensive and deniable. Entry Specialists issue route slips, the Archive revises ownership,
+Cleanup certifies absences and Calling Cards authenticates deliberately left evidence. Twelve recurring
+heirlooms and twelve venues keep stable identities; ten job dossiers rotate on refresh. The seven original
+Long Con heirloom names, aliases and charging behavior persist. Gallery plates, dead-drop envelopes,
+casing film and admission papers belong to different widgets. No generic radar, organisms or portraits.
+Illustrated revision: Jordan rejected the realistic material renders and supplied five further references, emphasizing the drawn rabbit, hearts and sparkles. Afterimage now uses a fluid ivory leaping signature with a sharp magenta eye, fine plum outlines, flat lilac planes, outlined hearts and elongated four-point glints. Nineteen original generated illustrations replace the material art: the signature, six equipment/stationery subjects and twelve distinct heirlooms. The Original angular mark is unchanged. Each widget keeps its own principal subject; the world, code-drawn records and practical behavior remain. V2 realism is rejected, not an approved baseline. Jordan positively received revision 3 and specifically praised the rabbit. Revision 4 adds fine pixel serigraphy around all nineteen preserved illustrations: punched slips, optical score, jewel-cut proofs and cell postage, distinct to each widget. It is an additive local refinement awaiting review.
+
+See [White Rabbit Afterimage](WHITE_RABBIT_AFTERIMAGE.md) for complete world notes, review evidence and limits.
+The illustrated direction has been positively received. Jordan subsequently requested targeted A/B variations for The Job, Cover Watch, Getaway, Disputed Heirloom 01 and The Warren, with more elegant abstract lock/home screens. Revision 5 presents ten original illustrated alternatives and three paired screen directions as local selection studies; no default is chosen. Preserve the praised rabbit, hearts, glints and pixel printing. Reduce the dominance of tactical grids, lasers and vault hardware on screens. See [Elegance studies](WHITE_RABBIT_ELEGANCE_STUDIES.md). Original remains the default.
+
 Contact sheet: `contact_sheets/07_White_Rabbit.jpg` · full-res assets: `07_White_Rabbit/`
+
+**Current approved Afterimage choices:** The Job B / Private arrangement; Cover Watch A / Afterglow;
+Getaway B / Quiet flight; Disputed Heirloom 01 B / Unfastened; The Warren A / Postscript. Jordan approved
+all three abstract lock/home pairs: Silk Memory, Pearl Drift and Love, Unsigned. Revision 6 integrates
+these and fills widget space with different print disciplines, preserving the praised rabbit and v4
+pixel lightness. The new density is pending review; the selected art/screens are approved. Original
+remains untouched/default. See the current decision record and Afterimage notes for validation/status.
 
 ---
 

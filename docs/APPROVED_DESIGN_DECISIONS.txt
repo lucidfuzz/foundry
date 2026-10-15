@@ -1,4 +1,188 @@
 FOUNDRY / APPROVED DESIGN DECISIONS
+[WHITE RABBIT / PR AUTHORIZED, OWNER WILL SQUASH AND MERGE / 2026-10-15]
+After approving revision 7, Jordan asked whether to hand off to Claude or squash and merge first.
+The agreed order is PR, Jordan's squash-and-merge, then Claude reviews the merged implementation
+and this decision record. Jordan's "ok" authorizes the commit, branch push and PR only. Do not
+merge, enable auto-merge or push directly to main. The Android branch remains separate.
+Integration checkout: work/foundry-white-rabbit-pr, branch codex/white-rabbit-afterimage, based on
+current GitHub main 739f2c67bb3905fc936485c39afb39d20a1f2016. The approved design checkout is preserved.
+Afterimage is an added edition; Original stays the default. The approved painter and all 76 Rabbit
+art files are unchanged. Integration fixes the exported script's missing palette ground color;
+the regression exercises the actual export in all 11 modes, 3 sizes and 5 palettes.
+52 tests and build check pass. Integration matches revision 7 in 630 widget views, 90 wallpapers
+and 55 icons. Main's 231 Original wallpapers/121 icons and 315 prior-edition wallpapers/165 icons
+are unchanged. All 110 image files match the approved checkout; 34 existing image files match main.
+Fresh visual review includes all 33 primary widgets, 33 cached-art views and approved screen pairs.
+Evidence: outputs/white-rabbit-pr-validation; repository summary: docs/WHITE_RABBIT_VALIDATION.json.
+Interactive-browser and physical-phone checks remain pending. Publication is not part of this PR
+preparation. Include this decisions file and docs/WHITE_RABBIT_AFTERIMAGE.md in the later handoff.
+This later authorization supersedes the local-only delivery status in the historical sections below.
+
+[WHITE RABBIT / REVISION 7 VISUALLY APPROVED / 2026-10-15]
+Jordan reviewed White-Rabbit-Review-v7.html and said "these are perfect".
+Revision 7 is the approved White Rabbit Afterimage visual baseline across all three widget sizes,
+including the fuller medium/small backgrounds. Preserve its density, distinct print disciplines,
+selected illustrations, flowing rabbit, hearts/glints, pixel lightness, typography and palette.
+The previously approved abstract lock/home screens remain approved. This supersedes the pending
+visual-review statements below for revisions 6 and 7. Do not redesign or simplify this baseline.
+Current source: work/foundry-white-rabbit. Review: outputs/White-Rabbit-Review-v7.html.
+Approval is visual; integration, interactive-browser and physical-device testing remain pending.
+Implementation is local and uncommitted. No commit, PR, push, merge or deployment is authorized by
+this approval. Include this current decisions file in future handoffs.
+
+[WHITE RABBIT / LARGE-WIDGET DETAIL THROUGH MEDIUM AND SMALL / 2026-10-15]
+Jordan: "Can you carry the same level of background detail from the large ones into the medium and
+small ones?" Revision 6 large widgets are the reference for this additive refinement. Do not reduce
+background richness simply because a widget is medium or small; compose it for the available space.
+Revision 7 extends each department's own print field: admission emboss, folded exit papers, crescent
+exposure engraving, optical scores, signature overprint, film and valuation proofs, darkroom contact
+edges, jewel-cut tracing, postal cancellations, folded invitations and seven-column collection stock.
+The native/browser painter clears decorative lines around the functional content. Calendar, weather,
+live timers, links, stable pools and saved charging-game behavior retain their existing adapters.
+The five selected illustrations, praised rabbit and all approved abstract screens are unchanged.
+No new raster assets were needed or generated. Large compositions remain pixel-identical to v6.
+Current source: work/foundry-white-rabbit. Review: outputs/White-Rabbit-Review-v7.html (and canonical).
+Evidence/source copies: outputs/white-rabbit-compact-print. Preview: White-Rabbit-Compact-Detail-Pass.png.
+V6 review/renders remain preserved; v6 source and all art hashes: outputs/white-rabbit-v6-checkpoint.
+Validation: 51 tests/build pass. 33 primary widgets, 102 catalogue views, 310 colorway views, six screen
+control extremes, 22 native cached-art views and 14 functional stress views rendered. All 110 compact
+palette views changed; 225 large primary/catalogue views remain identical. All 90 Afterimage screen
+views and 55 icons match v6; 30 approved screen views also match v5 at full export resolution. All 112
+art files remain hash-identical, including Halcyon. Original 231 wallpapers/121 icons and prior-edition
+63 wallpapers/33 icons are unchanged. 436 review links and review/export syntax checked. Visual review
+covered both compact sizes, all rotating pools, all five palettes, native crops and stress states.
+This remains local and uncommitted. The compact-detail refinement awaits Jordan's review. Interactive
+browser and physical-phone testing remain pending. No PR, push, merge or deployment requested.
+Include this current decisions file in future handoffs.
+
+[WHITE RABBIT / SELECTED ART AND SCREENS APPROVED / FULLER WIDGET PRINT / 2026-10-14]
+Jordan: "I like this direction a lot." Selections: The Job B (Private arrangement), Cover Watch A
+(Afterglow), Getaway Quiet flight (B), Disputed Heirloom 01 B (Unfastened), The Warren A (Postscript).
+Jordan called the lock/home screens "perfect": Silk Memory, Pearl Drift and Love, Unsigned are approved.
+Preserve all three paired compositions and the praised rabbit. These approvals supersede the unselected
+status in revision 5. The latest request is to fill negative space in the widgets, retaining the elegance,
+illustrated character, palette, hearts/glints and pixel detail of the previous passes.
+Selected source PNGs now replace only their five designated subjects in local Afterimage. Full prompts
+and selection provenance are in WHITE_RABBIT_IMAGE_PROMPTS.json. The Gala Necklace keeps its identity;
+its material line now reads PEARL / OPEN COLLAR to match Unfastened. Eleven other heirlooms are unchanged.
+Revision 6 adds distinct printing to all eleven widgets: blind-emboss seals, scored flight folds,
+shutter etching, optical grooves, signature overprint, film perforations, darkroom registration,
+jewel-cut facets, cell-post cancellations, admission folds and seven-slot inventory impressions.
+These are ornamental/fictional print marks, not fabricated readings. Protect real text and live timers.
+The three approved home compositions are now available in the picker and exports. First three locks
+retain the approved compositions; remaining headline variants use the same three print families.
+Current source: work/foundry-white-rabbit. Review: outputs/White-Rabbit-Review-v6.html.
+Evidence: outputs/white-rabbit-final-print. V5 selection review and V4 comparison remain preserved.
+Validation: 51 tests/build; 33 primary widget views, 102 catalogue views, 310 colorway views and six
+control extremes. Eleven native cached-art views inspected. All thirty approved screen views across
+five palettes are pixel-identical to v5. Original 231 wallpapers/121 icons and prior-edition 63
+wallpapers/33 icons remain identical. Only five sources and their fifteen derivatives changed;
+92 other art files, including every Halcyon asset, are hash-identical. 354 review links checked.
+Asset workflow: use scripts/art.py --theme rabbit so unrelated themes and manifest entries stay intact.
+The source/layout work is local and uncommitted. The selected art/screens are approved; the new widget
+density awaits review. Browser interaction and physical-phone testing remain pending. No PR, push,
+merge or deployment has been requested. Include this current record in future handoffs.
+
+[WHITE RABBIT / TARGETED VARIATIONS AND ELEGANT ABSTRACT SCREENS / 2026-10-14]
+Jordan requested reworks and variations for The Job, Cover Watch, Getaway, Disputed Heirloom 01 and
+The Warren. Screens should be more playful and abstract: the current treatment feels too harsh and
+too much like spy equipment where elegance should sit. Carry forward earlier illustrated/pixel changes.
+This is a targeted refinement, not a rejection of the praised flowing rabbit or the established palette.
+Preserve that rabbit, fine plum ink, pearl/lilac, magenta, hearts, glints, pixel printing, type and utility.
+The new request authorizes alternate subjects for the five named pieces. It does not select replacements.
+Ten original generated illustrations are presented as A/B choices in the existing shared widget painter
+at all three sizes. The Gala Necklace retains its stable identity; the other eleven heirlooms are intact.
+Three new paired screen directions: Silk Memory, Pearl Drift and Love, Unsigned. Use layered abstract
+printing and graceful contours in place of dominant lasers, vault dials, tactical grids and black dossiers.
+Review: outputs/White-Rabbit-Review-v5.html. Art, complete prompts, hashes, renders and source copies:
+outputs/white-rabbit-elegance-studies. Reusable screen painter: work/white-rabbit-elegance/screen-renderer.js.
+Current production/design defaults remain v4; these are local sidecar selection studies. V4 is preserved.
+Validation: 45 current/A/B widget views, 150 palette widget views, 30 screens. All ten source copies
+retain their generated pixels and transparency; every existing rabbit asset/derivative matches v3 hashes.
+The 51 existing tests and build check pass. Review links and scripts checked. Clock, icon-row and dock
+regions reserved. Browser interaction and physical-phone review remain pending. No choice is approved,
+and no commit, push, PR or deployment has been requested. See WHITE_RABBIT_ELEGANCE_STUDIES.md.
+
+[WHITE RABBIT / ILLUSTRATED DIRECTION RECEIVED POSITIVELY / PIXEL DETAIL / 2026-10-14]
+Jordan: "very nice. For some added detail lean into the pixelated art angle, it will add to the lightness.
+Some more detail on the widgets as well. Great job on the rabbit design". Revision 3 is a positive visual
+baseline, especially the flowing rabbit; do not regenerate it or return to realistic v2 hardware.
+Add fine pixel serigraphy, stepped hearts/glints, dithered print, punched slips and subject-specific marks
+around the preserved nineteen illustrations. Each of the eleven widgets needs its own detail treatment.
+Keep pearl/lilac, magenta, Bodoni Moda/DM Mono, smooth illustrations, readable utility and world continuity.
+Pixels supplement the artwork; they are not invented weather, calendar, battery or gameplay measurements.
+Current local refinement: work/foundry-white-rabbit. Review: outputs/White-Rabbit-Review-v4.html.
+The v3 review/renders remain at their existing paths; source snapshot: outputs/white-rabbit-illustrated-v3-archive.
+No publication, commit or PR is requested.
+Revision 4 validation: 51 tests and reproducible build pass. Rendered 33 primary size views, 102 rotating
+views, 325 colorway/screen/icon views, six screen extremes and sixteen native-art derivative views.
+All nineteen source illustrations and every served art derivative are byte-identical to revision 3.
+Original 231 wallpapers/121 icons and prior-edition 63 wallpapers/33 icons still match the starting main.
+Compared to illustrated v3, 95 wallpapers and all 55 colorway icons are identical; only the two home desks
+using gallery/casing artwork inherit pixel printing (ten colorway views). Clock/icon/dock regions preserved.
+956 review links and exported script syntax verified. Browser interaction and physical-phone testing
+remain pending. Source/render comparison and verification are in outputs/white-rabbit-pixel-detail.
+This remains local and uncommitted; revision 4 awaits Jordan's visual review.
+
+[WHITE RABBIT / REALISM REJECTED / ILLUSTRATED REVISION / 2026-10-14]
+Jordan: "those are way too realistic. Use these reference images. Note how the rabbit is drawn, the
+hearts and sparkles." Five new references are preserved in outputs/white-rabbit-reference-images/revision3.
+Replace realistic product renders with fluid illustrations: thin ink contours, flat pearl/lilac planes,
+magenta eyes, elongated rabbit gestures, outlined hearts and long four-point sparkles. Hearts are explicitly
+requested as graphic motifs. Prior assistant restrictions excluding them and prescribing realistic luxury
+hardware are superseded. The first-pass principles remain a positive foundation; v2 realism is rejected.
+Preserve the world, readable practical data, layout identity, graphic ownership, named object variety and
+all three sizes. Original remains unchanged. See WHITE_RABBIT_AFTERIMAGE.md for the current visual rules.
+Historical v2 assets, renders, source and prompts: outputs/white-rabbit-material-v2-archive. Local work only.
+Revision 3 is implemented with 19 individually generated transparent illustrations and target-specific
+contract stamps. Review: outputs/White-Rabbit-Review-v3.html; preview: outputs/White-Rabbit-Illustrated-Pass.png.
+51 tests/build pass. 33 primary size views, 102 rotating views, 325 palette/screen/icon views, six control
+extremes and sixteen views using native art derivatives were rendered. Original 231 wallpapers/121 icons
+and prior-edition 63 wallpapers/33 icons remain pixel-identical. Halcyon files and manifest are unchanged.
+Artwork: web 2.88 MB, native crops 2.79 MB; no embedded art. Review links and export syntax checked.
+Correction and built-in generation prompts are recorded; visual approval, browser interaction and phone QA
+remain pending. This is a local uncommitted proposal, not a published update.
+
+[WHITE RABBIT / MATERIAL-ART REFINEMENT / 2026-10-14]
+Jordan likes the retained original design principles and requests stronger use of image generation, as with
+Halcyon: "lethal, elegant, and slightly playful". The first pass remains the foundation; this is not a reset.
+Nineteen individually generated original objects now supply physical material detail: seven equipment assets
+and twelve distinct canonical heirlooms. Pearl synthetic ceramic, black lacquer, cold lilac glass, titanium
+and restrained magenta signatures; sharp silhouettes and dry criminal manners, not cute animal characters.
+The mask is empty equipment. No franchise marks, copied characters, or imported lore. Every widget owns
+its principal image family; the game and casing views retain schematic miniatures of their canonical objects.
+Source remains work/foundry-white-rabbit. Review: outputs/White-Rabbit-Review-v2.html (canonical review also
+updated). Preview: outputs/White-Rabbit-Material-Pass.png. Previous first-pass renders are preserved under
+outputs/white-rabbit-first-pass-archive. Full prompts/provenance are in docs/WHITE_RABBIT_IMAGE_PROMPTS.json.
+Artwork is separate hosted files via scripts/art.py --theme rabbit. It is not embedded in the page or exported
+script. Native widgets download only the shown objects, cache by content hash and keep the engraved fallback
+when artwork is unavailable. Generated imagery contains no live data; utility labels and readings remain code.
+51 tests/build pass. All 33 size views, 102 rotating views, 325 palette/screen/icon views and six control extremes
+rendered locally. Original 231 wallpapers/121 icons and prior-edition 63 wallpapers/33 icons still match base.
+Halcyon assets and manifest entries remain byte-identical to base. Browser interaction and physical-phone QA
+remain pending. This material-art execution awaits Jordan's visual review. Local, uncommitted, unpublished.
+
+[WHITE RABBIT / USER REQUEST / LOCAL FIRST PASS / 2026-10-14]
+Jordan requested a first pass "just generally enhancing what exists", supplying white-rabbit-theme-pack.zip,
+four White Rabbit material/character reference images and Marathon lore as creative context. The original export
+is the visual anchor. Preserve pearl/lilac, black calling cards, magenta lasers, angular guild mark, Bodoni Moda,
+DM Mono, CELL 07, the Warren and the Long Con. Do not import franchise marks/characters/canon or Alice imagery.
+Implementation: work/foundry-white-rabbit on codex/white-rabbit-first-pass, based on freshly fetched main
+739f2c67bb3905fc936485c39afb39d20a1f2016 (Directive Zero PR #7 is now merged). Other checkouts were preserved.
+Proposed opt-in edition: Afterimage. Original stays default. Eleven widgets at all three sizes; twelve stable
+heirlooms, twelve casing locations, ten contract records; fifteen headline/card locks, six home desks, eleven
+icons and the five existing colorways. The original seven game heirloom names and persistent save are retained.
+Read docs/WHITE_RABBIT_AFTERIMAGE.md for world notes, graphic ownership and limits. Review is
+outputs/White-Rabbit-Review.html; rendered evidence in outputs/white-rabbit-afterimage/. The supplied originals
+and references are preserved outside production. This is a LOCAL PROPOSAL, not an approved direction or release.
+Validation: 47 tests and build check pass. 33 primary widget views, 102 rotating-pool views and 325 palette
+views were rendered. 231 Original wallpapers/121 icons and 63 existing-edition wallpapers/33 icons compare
+pixel-identically to the starting main. Calendar and daylight use native timers; missing feeds stay unavailable;
+weather retains visibility/dew and unit handling; charging cools the existing game save. Local visual review
+covered widget sizes, record pools, screen sheets, palettes and control extremes. Phone and interactive-browser
+testing remain pending. No commit, push, PR or publication was requested or performed for this pass.
+
+
 [PR DELIVERY / REVISION 5 / 2026-10-13] Jordan requested a pull request and will squash and merge it personally.
 Integrated the approved Civil Defense edition onto current main a13c469b7a8908402891f70daf47ee88620e0234
 on codex/directive-zero-civil-defense. Do not merge, enable auto-merge or push directly to main.

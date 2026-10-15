@@ -2325,6 +2325,10 @@ Object.keys(QUOTE_PACKS).forEach(id => {
 // New editions are added here alongside the original, never in place of it. Choosing an edition swaps its blurb and
 // headlines; colorways, customize controls and everything else stay shared.
 const EDITIONS = {
+  rabbit: [
+    {id:'original',name:'Original',blurb:PRESETS.rabbit.blurb,phrases:PRESETS.rabbit.phrases,morePhrases:PRESETS.rabbit.morePhrases},
+    {id:'afterimage',name:'Afterimage',blurb:'The same impeccable thieves, seen closer. Engraved vaults, disputed heirlooms and a perfect alibi.',phrases:PRESETS.rabbit.phrases,morePhrases:PRESETS.rabbit.morePhrases}
+  ],
   directive: [
     {id:'original',name:'Original',blurb:PRESETS.directive.blurb,phrases:PRESETS.directive.phrases,morePhrases:PRESETS.directive.morePhrases},
     {id:'civil-defense',name:'Civil Defense',blurb:'Shelter 9, in detail. Civilian files, sealed facilities and an emergency already filed in triplicate.',phrases:[['Remain','Inside'],['Report','For Duty'],['Return','All Forms'],['Shelter','Assigned']],morePhrases:[['Keep','Receipt'],['Trust','The Seal'],['Ration','Silence'],['Attend','The Drill'],['Submit','To Review'],['No One','Unlisted'],['Quiet','By Order'],['Filter','All Hope'],['Await','The Tone'],['Count','Your Bunk'],['Renew','Your Calm']]}

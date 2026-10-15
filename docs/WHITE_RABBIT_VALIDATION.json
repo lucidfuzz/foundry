@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-15",
+  "base": "739f2c67bb3905fc936485c39afb39d20a1f2016",
+  "approvedRevision": 7,
+  "approvedWidgetViews": 630,
+  "approvedWallpapers": 90,
+  "approvedIcons": 55,
+  "originalWallpapers": 231,
+  "originalIcons": 121,
+  "priorEditionWallpapers": 315,
+  "priorEditionIcons": 165,
+  "approvedArtFiles": 110,
+  "unchangedMainArtFiles": 34,
+  "tests": 52,
+  "buildCheck": true,
+  "browserInteractionTested": false,
+  "phoneTested": false,
+  "nativeCachedArtViews": 33,
+  "approvedSourceFiles": [
+    "src/paint/97_rabbit_afterimage.js",
+    "src/rabbit/browser.js",
+    "src/rabbit/runtime.js",
+    "src/art-manifest.js"
+  ]
+}
