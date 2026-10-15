@@ -65,7 +65,7 @@ function hbPreviewWidget(item,th) {
 function hbSizeControls() {
   let host=document.getElementById('hb-size-controls');
   if(!host){host=pv('div','display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 18px');host.id='hb-size-controls';document.getElementById('wg-list').before(host);}
-  host.hidden=!(hbOn(state.th)||drOn(state.th)||dzOn(state.th));host.style.display=host.hidden?'none':'flex';if(host.hidden)return;
+  host.hidden=!(hbOn(state.th)||drOn(state.th)||dzOn(state.th)||wrOn(state.th));host.style.display=host.hidden?'none':'flex';if(host.hidden)return;
   host.replaceChildren();host.append(pv('span','font-size:12px','Sample data · widget size'));
   for(const [value,label] of [['','Suggested'],['small','Small'],['medium','Medium'],['large','Large']]){
     const b=pv('button','',label);b.type='button';b.className='btn';b.setAttribute('aria-pressed',String((state.hbSize||'')===value));b.onclick=()=>{state.hbSize=value;buildWidgetList();};host.append(b);

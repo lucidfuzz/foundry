@@ -8,19 +8,20 @@ Originals in assets/<theme>/*.png are never modified. For each theme this writes
 and src/art-manifest.js, listing every file with a content hash so browsers and phones refresh changed art.
 Needs Python 3 with Pillow.
 """
-import hashlib, json, os, re
+import argparse, hashlib, json, os, re
 from fractions import Fraction
 from PIL import Image
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # theme -> (source file holding its sprite table, name of the table)
-THEMES = {'halcyon': ('src/halcyon/paint.js', 'HB_SPRITES')}
+THEMES = {'halcyon': ('src/halcyon/paint.js', 'HB_SPRITES'), 'rabbit': ('src/paint/97_rabbit_afterimage.js', 'WR_SPRITES')}
 WIDGET_MAX, THUMB_MAX = 480, 360
 # Long edge in pixels for each widget crop: 3x (iPhone screen density) the largest size that crop is drawn at in any
 # widget, measured across all 12 widgets in all 3 sizes, rounded up. Never larger than the original art allows.
 # Each widget only downloads the few crops it draws, so the phone's widget memory stays comfortable.
 WIDGET_PX = {'signal': 912, 'optical': 672, 'archive': 688, 'collective': 672, 'lungsDetail': 608, 'heartDetail': 544,
              'neural': 512, 'heart': 544, 'lungs': 608, 'saturn': 432, 'neptune': 432, 'jupiter': 432, 'knot': 432,
-             'membrane': 432, 'loops': 432, 'tissue': 192}
+             'membrane': 432, 'loops': 432, 'tissue': 192, 'mask': 750, 'vault': 390, 'edge': 387, 'audio': 399, 'warren': 474, 'cover': 594, 'invite': 513,
+             **{'lot%02d' % i: 540 for i in range(1, 13)}}
 
 def sprites(src, name):
     body = re.search(r'const %s\s*=\s*\{(.*?)\n\};' % name, open(os.path.join(ROOT, src)).read(), re.S).group(1)
@@ -30,8 +31,17 @@ def sprites(src, name):
 def tag(path): return hashlib.sha256(open(path, 'rb').read()).hexdigest()[:10]
 def rel(path): return os.path.relpath(path, ROOT).replace(os.sep, '/')
 
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--theme', choices=THEMES, help='Build only this theme and preserve the other manifest entries.')
+args = parser.parse_args()
 manifest = {}
+if args.theme:
+    manifest_file = os.path.join(ROOT, 'src', 'art-manifest.js')
+    if os.path.exists(manifest_file):
+        with open(manifest_file) as f:
+            manifest = json.loads(f.read().split('const ART_MANIFEST = ', 1)[1].strip().removesuffix(';'))
 for theme, (src, table) in THEMES.items():
+    if args.theme and theme != args.theme: continue
     base = os.path.join(ROOT, 'assets', theme)
     for d in ('web', 'thumb', 'widget'): os.makedirs(os.path.join(base, d), exist_ok=True)
     entry = {'sheets': {}, 'thumbs': {}, 'widget': {}}
