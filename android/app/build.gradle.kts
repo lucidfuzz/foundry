@@ -16,6 +16,8 @@ android {
         val run = providers.environmentVariable("GITHUB_RUN_NUMBER").orNull?.toIntOrNull() ?: 1
         versionCode = run
         versionName = "0.1.$run"
+        // Instrumented tests (src/androidTest) are run on an emulator by the workflow's emulator-tests job only.
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -78,6 +80,10 @@ tasks.withType<Test>().configureEach {
 dependencies {
     implementation("androidx.work:work-runtime:2.12.0")
     testImplementation("junit:junit:4.13.2")
+    // Emulator acceptance tests (test APK only; nothing here goes into the app).
+    androidTestImplementation("androidx.test:runner:1.7.0")
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
 }
 
 // The widget runtime is shared with the website and lives in android/runtime/. Copy it into the app's assets at build time

@@ -142,6 +142,6 @@ Halcyon exports:
   over the old one and keeps the tester's themes and widgets. Each build's version is 0.1.<run number>.
 - Symbols outside the bundled fonts' Latin sets (■ □ ▼ → ∞ and the speaker emoji some widgets draw) use the phone's
   system font, as they do on the website, whose web fonts lack them too.
-- Known wording gap: Halcyon's Shift says "Choose an allocation in Scriptable." until one is chosen; on Android the
-  setup is in the Foundry app. That text lives in the Halcyon widget code, not the app.
+- Shift's setup text was fixed on main (PR #5): it says 'Choose an allocation in widget setup.', which fits both
+  iPhone and Android.
 
