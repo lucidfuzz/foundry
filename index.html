@@ -87,6 +87,7 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.45; }
 .btn { all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border: 2px solid var(--text); border-radius: 12px; font-weight: 700; font-size: 15px; background: var(--surface); }
 .btn.primary { background: var(--accent); color: var(--accent-ink); box-shadow: 3px 3px 0 var(--text); }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+.btn[hidden] { display: none; }
 .btns { display: flex; flex-wrap: wrap; gap: 10px; }
 .btns[hidden] { display: none; }
 .status { font-size: 14px; color: var(--muted); min-height: 1.4em; }
