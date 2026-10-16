@@ -1,11 +1,13 @@
-# Builds Foundry for Android (the android/ folder) and publishes the debug APK for testers.
-# Runs on every push to the android branch. To rebuild without a push, open the latest run and choose "Re-run all jobs".
+# Builds Foundry for Android (the android/ folder) and publishes the debug APK for testers, then runs acceptance tests 2-6
+# on an emulator (emulator-tests) and uploads the evidence as the "emulator-results" artifact (REPORT.md + screenshots).
+# Runs on every push to the android branch and to android-* branches. To rebuild without a push, open the latest run and
+# choose "Re-run all jobs".
 # (The "Run workflow" button only appears for workflows on the default branch, and this one lives on android only.)
 name: Android app
 
 on:
   push:
-    branches: [android]
+    branches: [android, 'android-*']
   workflow_dispatch:
 
 permissions:
@@ -93,3 +95,93 @@ jobs:
                   where = '%s:%s' % (loc.get('artifactLocation', {}).get('uri', '?'), loc.get('region', {}).get('startLine', '?'))
                   print('%-8s %-32s %s  %s' % (r.get('level', ''), r.get('ruleId', ''), where, r.get('message', {}).get('text', '')))
           PY
+
+  emulator-tests:
+    name: Emulator acceptance tests 2-6
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v7
+
+      - name: Get the website from main
+        # The widget scripts under test are the site's real exports, made from main's index.html.
+        run: |
+          git fetch --no-tags --depth=1 origin main
+          mkdir -p emu
+          git show FETCH_HEAD:index.html > emu/main-index.html
+          echo "MAIN_SHA=$(git rev-parse FETCH_HEAD)" >> "$GITHUB_ENV"
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: Export Halcyon Illustrated and Original as the site does
+        run: node android/scripts/make_emulator_fixtures.cjs emu/main-index.html emu/fixtures "$MAIN_SHA"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+          cache-read-only: true
+
+      - name: Build the test APK
+        working-directory: android
+        run: ./gradlew --no-daemon assembleDebugAndroidTest
+
+      - name: Get the build job's APK
+        uses: actions/download-artifact@v8
+        with:
+          name: Foundry-debug.apk
+          path: emu/apk
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run the tests on an emulator
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        env:
+          APK: emu/apk/Foundry-debug.apk
+          TEST_APK: android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+          FIXTURES: emu/fixtures
+          OUT: emulator-results
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 4096M
+          disk-size: 6G
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: bash android/scripts/emulator_tests.sh
+
+      - name: Upload the evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: emulator-results
+          path: emulator-results/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ -f emulator-results/REPORT.md ]; then
+            sed -n '1,/^## What was tested/p' emulator-results/REPORT.md | head -n -1 >> "$GITHUB_STEP_SUMMARY"
+            echo "Full report, screenshots and logs: the **emulator-results** artifact below." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No REPORT.md was produced; see the job log." >> "$GITHUB_STEP_SUMMARY"
+          fi
