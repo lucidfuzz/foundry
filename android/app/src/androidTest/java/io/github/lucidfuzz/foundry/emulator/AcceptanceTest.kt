@@ -393,6 +393,13 @@ class AcceptanceTest {
         listOf(e.start, e.end).any { target -> Math.abs((target - o.renderedAt) / 1000 - secs) <= 120 }
     }
 
+    /** The worker a WorkManager job runs ("Trace tag: ChargeWorker" in dumpsys), or "?". */
+    private fun workerOf(block: String) = Regex("""Trace tag:\s*(\S+)""").find(block)?.groupValues?.get(1) ?: "?"
+
+    /** Foundry's charging job: the ChargeWorker, which JobScheduler holds until the phone charges. */
+    private fun isChargeJob(block: String) = workerOf(block) == "ChargeWorker" || block.contains("charging=true") ||
+        Regex("""Required constraints:[^\n]*\bCHARGING\b""").containsMatchIn(block)
+
     /** WorkManager's JobScheduler jobs in a `dumpsys jobscheduler` listing, as (job id, its block of text). */
     private fun workJobs(dump: String): List<Pair<String, String>> {
         val heads = Regex("""(?m)^\s*JOB #?[^/\s]+/(-?\d+):""").findAll(dump).toList()
@@ -537,12 +544,13 @@ class AcceptanceTest {
                 !o.optBoolean("redrew") -> false
                 texts == null -> null
                 else -> {
+                    // Small draws its count inside one string ("SPORE / CYCLE 2"); medium and large draw separate lines.
                     val counts = if (f == Family.SMALL) listOf("CYCLE $age") else listOf("AGE $age", "FEED CYCLES $growth")
                     val charging = listOf("NUTRIENT LINE / OPEN", "FEED / CHARGING", "FEEDING / CHARGING")
-                    counts.all { it in texts } || charging.any { it in texts }
+                    counts.all { c -> texts.any { Regex("""(^|\W)${Regex.escape(c)}$""").containsMatchIn(it.trim()) } } || charging.any { it in texts }
                 }
             }
-            val shown = texts?.filter { t -> t.startsWith("CYCLE") || t.startsWith("AGE") || t.startsWith("FEED") || t.contains("NUTRIENT LINE") }
+            val shown = texts?.filter { t -> t.contains("CYCLE") || t.startsWith("AGE") || t.startsWith("FEED") || t.contains("NUTRIENT LINE") }
             ev.check(k, "game ${f.key} draws the new state after $phase", ok,
                 when {
                     !o.optBoolean("redrew") -> "it didn't redraw"
@@ -590,17 +598,17 @@ class AcceptanceTest {
         if (jobs.isEmpty()) ev.test(k).put("jobDump", Shell.run("dumpsys jobscheduler | grep -n -i -E 'JOB|$pkg' | head -n 60"))
         // The listing also keeps jobs that already ran (the charging job is replaced each time it runs), so the newest
         // charging job goes first, and a job JobScheduler no longer knows is skipped.
-        fun rank(j: Pair<String, String>) = when { j.second.contains("CHARGING") -> 0; j.second.contains("PERIODIC", ignoreCase = true) -> 1; else -> 2 }
+        fun rank(j: Pair<String, String>) = when { isChargeJob(j.second) -> 0; j.second.contains("RefreshWorker") -> 1; else -> 2 }
         val candidates = jobs.sortedWith(compareBy<Pair<String, String>> { rank(it) }.thenByDescending { it.first.toLongOrNull() ?: 0L })
         ev.test(k).put("jobs", JSONArray(jobs.map { it.second.lines().take(12).joinToString("\n") }))
-        ev.note(k, "WorkManager jobs for $pkg: " + jobs.joinToString { "#${it.first}${if (it.second.contains("CHARGING")) " (requires charging)" else ""}" } +
+        ev.note(k, "WorkManager jobs for $pkg: " + jobs.joinToString { "#${it.first} (${workerOf(it.second)}${if (isChargeJob(it.second)) ", requires charging" else ""})" } +
             ". Forcing the newest charging job with 'cmd jobscheduler run -f' instead of waiting for Android.")
         val t1 = System.currentTimeMillis()
         var job: Pair<String, String>? = null
         val attempts = ArrayList<String>()
         // WorkManager files its jobs under a JobScheduler namespace on newer Android, which 'run' must be given (-n).
         for (c in candidates) {
-            val listed = Regex("""(?i)namespace[=:]\s*"?([A-Za-z0-9_.]+)""").find(c.second)?.groupValues?.get(1)
+            val listed = Regex("""JOB #?([A-Za-z][A-Za-z0-9_.]*):u\d+""").find(c.second)?.groupValues?.get(1)
             val namespaces = listOf(listed, "androidx.work.systemjobscheduler", null).distinct()
             for (ns in namespaces) {
                 val cmd = "cmd jobscheduler run -f " + (if (ns != null) "-n $ns " else "") + "$pkg ${c.first}"
@@ -610,7 +618,7 @@ class AcceptanceTest {
             }
             if (job != null) break
         }
-        val chargeJob = job?.takeIf { it.second.contains("CHARGING") }
+        val chargeJob = job?.takeIf { isChargeJob(it.second) }
         val runOut = if (attempts.isEmpty()) "no job found" else attempts.joinToString("; ")
         val advanced2 = waitFor(180_000) { readGame().optInt("turn") > before2.optInt("turn") }
         val tTurn2 = System.currentTimeMillis() - t1
