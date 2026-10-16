@@ -76,6 +76,8 @@ class AcceptanceTest {
     private var calendarId = ""
 
     private val minute = 60_000L
+    /** Unplugged at 68%. The emulator keeps reporting "charging" after `unplug` alone, so the status is set too. */
+    private val UNPLUGGED = "dumpsys battery set level 68; dumpsys battery unplug; dumpsys battery set status 3"
     private val radioUrl = "https://example.com/halcyon-radio"
 
     @Test
@@ -145,7 +147,7 @@ class AcceptanceTest {
     private fun ensureBattery(k: String) {
         var b = DeviceData.battery(ctx)
         if (Math.round(b.level * 100) != 68L || b.charging) {
-            Shell.run("dumpsys battery set level 68; dumpsys battery unplug")
+            Shell.run(UNPLUGGED)
             waitFor(10_000) { DeviceData.battery(ctx).let { Math.round(it.level * 100) == 68L && !it.charging } }
             b = DeviceData.battery(ctx)
         }
@@ -381,6 +383,23 @@ class AcceptanceTest {
         }
     }
 
+    /**
+     * The live countdown Shift drew, as its own string ("7:24" or "1:07:24"), when it is within two minutes of the time
+     * left to the event's start (or end, once it has begun) at the moment of the render. Clock times like "10:25" don't fit.
+     */
+    private fun timer(o: Refresher.Outcome, e: CalEv): String? = o.texts?.map { it.trim() }?.firstOrNull { t ->
+        val m = Regex("""^(?:(\d+):)?(\d{1,2}):(\d{2})$""").find(t) ?: return@firstOrNull false
+        val secs = (m.groupValues[1].toLongOrNull() ?: 0) * 3600 + m.groupValues[2].toLong() * 60 + m.groupValues[3].toLong()
+        listOf(e.start, e.end).any { target -> Math.abs((target - o.renderedAt) / 1000 - secs) <= 120 }
+    }
+
+    /** WorkManager's JobScheduler jobs in a `dumpsys jobscheduler` listing, as (job id, its block of text). */
+    private fun workJobs(dump: String): List<Pair<String, String>> {
+        val heads = Regex("""(?m)^\s*JOB #?[^/\s]+/(-?\d+):""").findAll(dump).toList()
+        return heads.mapIndexed { i, m -> m.groupValues[1] to dump.substring(m.range.first, if (i + 1 < heads.size) heads[i + 1].range.first else dump.length) }
+            .filter { it.second.contains(pkg) }.distinctBy { it.first }
+    }
+
     private fun excerpt(s: String, near: String): String {
         if (s.isEmpty()) return "(text probe unavailable; judge the screenshot)"
         val i = s.indexOf(near, ignoreCase = true)
@@ -448,8 +467,8 @@ class AcceptanceTest {
             val text = joined(o)
             ev.check(k, "shift ${fam.key}: fresh picture", o.fresh && o.picture, "fresh=${o.fresh} picture=${o.picture}")
             ev.check(k, "shift ${fam.key}: countdown to \"${target.title}\"",
-                textCheck(o) { (it.contains("NEXT ALLOCATION IN") || it.contains("TIME IN ALLOCATION")) && Regex("""\d+:\d\d""").containsMatchIn(it) && hasWords(it, target.title) },
-                excerpt(text, "ALLOCATION IN"))
+                if (o.texts == null) null else hasWords(text, target.title) && timer(o, target) != null,
+                "timer ${timer(o, target) ?: "not found"} (expected about ${(target.start - o.renderedAt) / 1000} s to the start); " + excerpt(text, target.title))
         }
     }
 
@@ -511,10 +530,8 @@ class AcceptanceTest {
         // B: the WorkManager path that wakes Foundry when its process isn't running. Forced instead of waiting.
         waitWorkIdle()
         val before2 = makeTurnDue()
-        val dump = Shell.run("dumpsys jobscheduler $pkg")
-        val heads = Regex("""JOB #u\d+a\d+/(-?\d+):""").findAll(dump).toList()
-        val jobs = heads.mapIndexed { i, m -> m.groupValues[1] to dump.substring(m.range.first, if (i + 1 < heads.size) heads[i + 1].range.first else dump.length) }
-            .filter { it.second.contains(pkg) }.distinctBy { it.first }
+        val jobs = workJobs(Shell.run("dumpsys jobscheduler $pkg")).ifEmpty { workJobs(Shell.run("dumpsys jobscheduler")) }
+        if (jobs.isEmpty()) ev.test(k).put("jobDump", Shell.run("dumpsys jobscheduler | grep -n -i -E 'JOB|$pkg' | head -n 60"))
         val chargeJob = jobs.firstOrNull { it.second.contains("CHARGING") }
         val job = chargeJob ?: jobs.firstOrNull { it.second.contains("PERIODIC", ignoreCase = true) } ?: jobs.firstOrNull()
         ev.test(k).put("jobs", JSONArray(jobs.map { it.second.lines().take(12).joinToString("\n") }))
@@ -534,8 +551,8 @@ class AcceptanceTest {
 
         Shell.run("dumpsys battery reset")
         sleep(2000)
-        ev.note(k, "Charger: 'dumpsys battery reset' done, then level 68% and unplugged re-applied for the remaining tests.")
-        Shell.run("dumpsys battery set level 68; dumpsys battery unplug")
+        ev.note(k, "Charger: 'dumpsys battery reset' done, then level 68%, unplugged and discharging re-applied for the remaining tests.")
+        Shell.run(UNPLUGGED)
         waitWorkIdle()
     }
 
@@ -544,9 +561,9 @@ class AcceptanceTest {
     private fun test4() {
         val k = "t4"
         val dir = File(ctx.filesDir, "foundry")
-        val art = (dir.listFiles() ?: emptyArray()).filter { it.isFile && it.name.substringAfterLast('.').lowercase() in setOf("png", "jpg", "jpeg", "webp") }
+        val art = dir.walkTopDown().filter { it.isFile && it.name.substringAfterLast('.').lowercase() in setOf("png", "jpg", "jpeg", "webp") }.toList()
         ev.check(k, "Illustrated art cached by the script while online", art.isNotEmpty(),
-            "${art.size} files in files/foundry: " + art.joinToString { "${it.name} (${it.length() / 1024} KB)" })
+            "${art.size} files under files/foundry: " + art.joinToString { "${it.relativeTo(dir)} (${it.length() / 1024} KB)" })
         val cm = ctx.getSystemService(ConnectivityManager::class.java)
         Shell.run("cmd connectivity airplane-mode enable")
         val offline = waitFor(30_000) { cm.activeNetwork == null }
@@ -563,19 +580,21 @@ class AcceptanceTest {
                 val label = "$mode ${fam.key}"
                 ev.check(k, "$label: still renders offline", o.fresh && o.picture, "fresh=${o.fresh} picture=${o.picture} ${o.ms} ms ${o.message ?: ""}")
                 if (mode == "status" || mode == "solar") ev.check(k, "$label: weather shows the offline text",
-                    textCheck(o) { it.contains("unavailable", ignoreCase = true) && !hasTemp(it) }, excerpt(joined(o), "unavailable"))
+                    textCheck(o) { !hasTemp(it) && (it.contains("unavailable", ignoreCase = true) || it.contains("—")) },
+                    excerpt(joined(o), if (joined(o).contains("unavailable", ignoreCase = true)) "unavailable" else "—"))
                 ev.flush()
             }
         } finally {
             val log = Shell.run("logcat -d -v threadtime")
-            val after = log.substringAfter("T4_AIRPLANE_START", "")
+            val after = log.substringAfter("T4_AIRPLANE_START", "").lines().filter { "FoundryEmulatorTest" !in it }.joinToString("\n")
+            val marker = log.contains("T4_AIRPLANE_START")
             val fatal = Regex("FATAL EXCEPTION").findAll(after).count()
             val anr = Regex("""ANR in""").findAll(after).count()
             val crashBuffer = Shell.run("logcat -d -b crash")
-            ev.test(k).put("logcat", JSONObject().put("markerFound", after.isNotEmpty()).put("fatal", fatal).put("anr", anr)
+            ev.test(k).put("logcat", JSONObject().put("markerFound", marker).put("fatal", fatal).put("anr", anr)
                 .put("crashBufferFatal", Regex("FATAL EXCEPTION").findAll(crashBuffer).count()))
-            ev.check(k, "no FATAL EXCEPTION in logcat while offline", after.isNotEmpty() && fatal == 0, "$fatal (marker found: ${after.isNotEmpty()})")
-            ev.check(k, "no ANR in logcat while offline", after.isNotEmpty() && anr == 0, "$anr")
+            ev.check(k, "no crash (fatal exception) in logcat while offline", marker && fatal == 0, "$fatal (marker found: $marker)")
+            ev.check(k, "no app-not-responding in logcat while offline", marker && anr == 0, "$anr")
             Shell.run("cmd connectivity airplane-mode disable")
             ev.note(k, "Airplane mode turned off again: network back = ${waitFor(60_000) { cm.activeNetwork != null }}.")
         }

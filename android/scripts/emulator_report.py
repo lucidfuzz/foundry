@@ -198,6 +198,8 @@ for k in ['t2', 't3', 't4', 't5', 't6']:
                 if log:
                     w('  - latest log: "%s"' % '"; "'.join(x.get('m', '') for x in log[-3:]))
         w('')
+    if k == 't3' and t.get('jobDump'):
+        w('<details><summary>dumpsys jobscheduler (no WorkManager job matched)</summary>\n\n```\n%s\n```\n</details>\n' % t['jobDump'][:6000])
     if k == 't4':
         lc = t.get('logcat', {})
         w('Logcat while offline: **%s** FATAL EXCEPTION, **%s** ANR (crash buffer: %s FATAL).'
@@ -244,12 +246,18 @@ for k in ['t2', 't3', 't4', 't5', 't6']:
     error(t)
 
 # ------------------------------------------------------------------ whole run
-logcat = read(os.path.join(out_dir, 'logcat.txt'))
+# The test's own log lines (tag FoundryEmulatorTest) name these words in its check titles; leave them out.
+logcat = '\n'.join(l for l in read(os.path.join(out_dir, 'logcat.txt')).splitlines() if 'FoundryEmulatorTest' not in l)
 events = read(os.path.join(out_dir, 'logcat-events.txt'))
+anrs = [l for l in events.splitlines() if 'am_anr' in l]
 w('## Whole run')
 w('')
 w('- Logcat for the whole run: %d FATAL EXCEPTION, %d "ANR in", %d am_anr events.'
-  % (logcat.count('FATAL EXCEPTION'), logcat.count('ANR in'), events.count('am_anr')))
+  % (logcat.count('FATAL EXCEPTION'), logcat.count('ANR in'), len(anrs)))
+for l in anrs[:5]:
+    w('  - `%s`' % l.strip()[:300])
+for l in [l for l in logcat.splitlines() if 'ANR in' in l][:5]:
+    w('  - `%s`' % l.strip()[:300])
 fatal = [m.start() for m in re.finditer('FATAL EXCEPTION', logcat)]
 for p in fatal[:3]:
     w('')

@@ -288,7 +288,8 @@ class TextProbe(private val ctx: Context) {
 
 /** Refreshes one widget through the app's real refresh path (WidgetUpdater.refresh, as RefreshWorker does) and records it. */
 class Refresher(private val ctx: Context, private val bench: WidgetBench, private val probe: TextProbe, private val warm: () -> Unit) {
-    class Outcome(val fresh: Boolean, val picture: Boolean, val texts: List<String>?, val ms: Long, val message: String?)
+    /** [renderedAt]: when the refresh finished, for checking the countdown a render drew. */
+    class Outcome(val fresh: Boolean, val picture: Boolean, val texts: List<String>?, val ms: Long, val message: String?, val renderedAt: Long)
 
     fun refresh(id: Int): Outcome {
         val beforeImage = bench.imageTime(id)
@@ -303,8 +304,9 @@ class Refresher(private val ctx: Context, private val bench: WidgetBench, privat
             WidgetUpdater.refresh(ctx, id)
             if (probing) texts = probe.read()
         }
-        val ms = System.currentTimeMillis() - t0
+        val renderedAt = System.currentTimeMillis()
+        val ms = renderedAt - t0
         val picture = bench.waitForPicture(id, t0, 15_000)
-        return Outcome(bench.imageTime(id) > beforeImage, picture, texts, ms, if (picture) null else bench.message(id))
+        return Outcome(bench.imageTime(id) > beforeImage, picture, texts, ms, if (picture) null else bench.message(id), renderedAt)
     }
 }

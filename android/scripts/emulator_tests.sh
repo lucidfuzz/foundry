@@ -44,6 +44,8 @@ run adb shell cmd location set-location-enabled true
 run adb emu geo fix -74.0060 40.7128
 run adb shell dumpsys battery set level 68
 run adb shell dumpsys battery unplug
+# unplug alone leaves the emulator reporting "charging"; a real unplugged phone reports discharging (3).
+run adb shell dumpsys battery set status 3
 run adb shell dumpsys battery
 # Keep the emulator's GPS fix fresh for the whole run (geo fix only reaches apps while the GPS is on).
 ( while true; do adb emu geo fix -74.0060 40.7128 >/dev/null 2>&1; sleep 10; done ) &
