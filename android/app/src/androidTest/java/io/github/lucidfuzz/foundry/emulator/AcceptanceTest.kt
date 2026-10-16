@@ -496,14 +496,70 @@ class AcceptanceTest {
             wm.getWorkInfosForUniqueWork("foundry-refresh").get().none { it.state == WorkInfo.State.ENQUEUED || it.state == WorkInfo.State.BLOCKED }
     }
 
+    private fun gameImageTimes(): Map<Family, Long> = Family.entries.associateWith { bench.imageTime(widgets.getValue("game_${it.key}")) }
+
+    /**
+     * After the plug-in or the forced job ([since]): every game size must get a NEW picture within 60 s, meaning Foundry
+     * saved a fresh render for that widget (its picture file changed) and the host received it. Each size is captured
+     * and checked on its own; one that never redraws fails. Returns what each size drew (from the text probe).
+     */
+    private fun checkGameSizes(k: String, phase: String, shot: String, caption: String, since: Long, beforeImages: Map<Family, Long>): JSONObject {
+        val deadline = since + 60_000
+        val redrew = Family.entries.associateWith { f ->
+            val id = widgets.getValue("game_${f.key}")
+            waitFor(maxOf(0L, deadline - System.currentTimeMillis())) {
+                bench.imageTime(id) > beforeImages.getValue(f) && bench.imageTime(id) >= since && bench.lastUpdate(id) >= since && bench.showsPicture(id)
+            }
+        }
+        val segments = probe.segments()
+        val out = JSONObject()
+        for (f in Family.entries) {
+            val id = widgets.getValue("game_${f.key}")
+            val at = bench.imageTime(id)
+            ev.image(k, ev.savePng("t3_game_${f.key}_$shot.png", bench.capture(id)), "Game (${f.key}) $caption")
+            ev.check(k, "game ${f.key} redrew after $phase", redrew.getValue(f),
+                if (redrew.getValue(f)) "new picture ${(at - since) / 1000.0} s after the $phase"
+                else "no new picture within 60 s (picture file ${if (at > beforeImages.getValue(f)) "changed" else "unchanged"}, last host update ${bench.lastUpdate(id) - since} ms from the $phase)")
+            val texts = segments?.get("game ${f.key}")
+            out.put(f.key, JSONObject().put("redrew", redrew.getValue(f)).put("texts", if (texts == null) JSONObject.NULL else JSONArray(texts.map { it.trim() }.filter { it.isNotEmpty() })))
+        }
+        return out
+    }
+
+    /** Each size's own drawn text must show the state after the turn: its new cycle / feed count, or the open nutrient line. */
+    private fun gameStateChecks(k: String, phase: String, sizes: JSONObject, before: JSONObject, after: JSONObject) {
+        val age = after.optInt("age")
+        val growth = after.optInt("growth")
+        for (f in Family.entries) {
+            val o = sizes.getJSONObject(f.key)
+            val texts = o.optJSONArray("texts")?.let { a -> (0 until a.length()).map { a.optString(it) } }
+            val ok: Boolean? = when {
+                !o.optBoolean("redrew") -> false
+                texts == null -> null
+                else -> {
+                    val counts = if (f == Family.SMALL) listOf("CYCLE $age") else listOf("AGE $age", "FEED CYCLES $growth")
+                    val charging = listOf("NUTRIENT LINE / OPEN", "FEED / CHARGING", "FEEDING / CHARGING")
+                    counts.all { it in texts } || charging.any { it in texts }
+                }
+            }
+            val shown = texts?.filter { t -> t.startsWith("CYCLE") || t.startsWith("AGE") || t.startsWith("FEED") || t.contains("NUTRIENT LINE") }
+            ev.check(k, "game ${f.key} draws the new state after $phase", ok,
+                when {
+                    !o.optBoolean("redrew") -> "it didn't redraw"
+                    texts == null -> "text probe didn't capture this render; judge the screenshot"
+                    else -> "after the turn: age $age, feed cycles $growth (was ${before.opt("age")}, ${before.opt("growth")}); drew: ${shown?.joinToString(" / ")}"
+                })
+        }
+    }
+
     private fun test3() {
         val k = "t3"
-        val gid = widgets.getValue("game_medium")
         ev.check(k, "game save exists", gameSave.isFile, gameSave.path)
         ensureBattery(k)
         waitWorkIdle()
         val before = makeTurnDue()
-        ev.image(k, ev.savePng("t3_game_medium_before.png", bench.capture(gid)), "Game (medium) before plugging in")
+        for (f in Family.entries) ev.image(k, ev.savePng("t3_game_${f.key}_before.png", bench.capture(widgets.getValue("game_${f.key}"))), "Game (${f.key}) before plugging in")
+        val imagesA = gameImageTimes()
         ev.note(k, "Before: ${gameSummary(before)}. The save's last-turn time was moved back 16 minutes so the next turn is due " +
             "(the game takes at most one turn per 15 minutes).")
 
@@ -514,22 +570,22 @@ class AcceptanceTest {
         Shell.run("dumpsys battery set ac 1")
         val advanced = waitFor(180_000) { readGame().optInt("turn") > before.optInt("turn") }
         val tTurn = System.currentTimeMillis() - t0
-        val shown = bench.waitForPicture(gid, t0, 60_000)
+        val sizesA = checkGameSizes(k, "plug-in", "after_charger", "after dumpsys battery set ac 1", t0, imagesA)
         val afterA = readGame()
-        val texts = probe.read()
-        for (f in Family.entries) ev.image(k, ev.savePng("t3_game_${f.key}_after_charger.png", bench.capture(widgets.getValue("game_${f.key}"))), "Game (${f.key}) after dumpsys battery set ac 1")
-        ev.test(k).put("liveReceiver", JSONObject().put("before", before).put("after", afterA).put("secondsToTurn", tTurn / 1000.0))
-        ev.check(k, "with Foundry open: the game widget redrew and took its turn after plug-in", advanced && shown,
-            "turn ${before.opt("turn")} -> ${afterA.opt("turn")} ${tTurn / 1000.0} s after plug-in; widget updated=$shown")
+        ev.test(k).put("liveReceiver", JSONObject().put("before", before).put("after", afterA).put("secondsToTurn", tTurn / 1000.0).put("sizes", sizesA))
+        ev.check(k, "with Foundry open: the game took its turn after plug-in", advanced,
+            "turn ${before.opt("turn")} -> ${afterA.opt("turn")} ${tTurn / 1000.0} s after plug-in")
         ev.check(k, "specimen advanced while charging (growth +1, nutrient line fed)",
             afterA.optInt("growth") == before.optInt("growth") + 1 && afterA.toString().contains("Nutrient line open via charging port"),
             "after: ${gameSummary(afterA)}")
-        ev.check(k, "game drawn as charging (NUTRIENT LINE / OPEN)", if (texts == null) null else texts.any { it.contains("NUTRIENT LINE / OPEN") },
-            if (texts == null) "text probe unavailable" else texts.filter { it.contains("NUTRIENT") }.distinct().joinToString())
+        gameStateChecks(k, "plug-in", sizesA, before, afterA)
 
         // B: the WorkManager path that wakes Foundry when its process isn't running. Forced instead of waiting.
         waitWorkIdle()
         val before2 = makeTurnDue()
+        val imagesB = gameImageTimes()
+        probe.ensure { warm() }
+        probe.clear()
         val jobs = workJobs(Shell.run("dumpsys jobscheduler $pkg")).ifEmpty { workJobs(Shell.run("dumpsys jobscheduler")) }
         if (jobs.isEmpty()) ev.test(k).put("jobDump", Shell.run("dumpsys jobscheduler | grep -n -i -E 'JOB|$pkg' | head -n 60"))
         // The listing also keeps jobs that already ran (the charging job is replaced each time it runs), so the newest
@@ -558,13 +614,13 @@ class AcceptanceTest {
         val runOut = if (attempts.isEmpty()) "no job found" else attempts.joinToString("; ")
         val advanced2 = waitFor(180_000) { readGame().optInt("turn") > before2.optInt("turn") }
         val tTurn2 = System.currentTimeMillis() - t1
-        val shown2 = bench.waitForPicture(gid, t1, 60_000)
+        val sizesB = checkGameSizes(k, "forced job", "after_job", "after the forced WorkManager ${if (chargeJob != null) "charging" else "refresh"} job", t1, imagesB)
         val afterB = readGame()
-        ev.image(k, ev.savePng("t3_game_medium_after_job.png", bench.capture(gid)), "Game (medium) after the forced WorkManager charging job")
-        ev.test(k).put("forcedJob", JSONObject().put("job", job?.first ?: JSONObject.NULL).put("output", runOut).put("before", before2).put("after", afterB))
-        ev.check(k, "by the next refresh: the forced ${if (chargeJob != null) "charging" else "refresh"} job redrew the game and it took its turn",
-            advanced2 && shown2, "job #${job?.first}: '$runOut'; turn ${before2.opt("turn")} -> ${afterB.opt("turn")} after ${tTurn2 / 1000.0} s; widget updated=$shown2")
+        ev.test(k).put("forcedJob", JSONObject().put("job", job?.first ?: JSONObject.NULL).put("output", runOut).put("before", before2).put("after", afterB).put("sizes", sizesB))
+        ev.check(k, "by the next refresh: the forced ${if (chargeJob != null) "charging" else "refresh"} job ran and the game took its turn",
+            advanced2, "job #${job?.first}: '$runOut'; turn ${before2.opt("turn")} -> ${afterB.opt("turn")} after ${tTurn2 / 1000.0} s")
         ev.check(k, "specimen advanced again (growth +1)", afterB.optInt("growth") == before2.optInt("growth") + 1, gameSummary(afterB))
+        gameStateChecks(k, "forced job", sizesB, before2, afterB)
 
         Shell.run("dumpsys battery reset")
         sleep(2000)

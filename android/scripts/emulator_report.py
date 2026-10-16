@@ -186,7 +186,10 @@ for k in ['t2', 't3', 't4', 't5', 't6']:
         w('Per SPEC: at once with Foundry open, otherwise by the next refresh. Both were exercised: (A) the plug-in with '
           'Foundry\'s process running, and (B) the WorkManager job, forced with `adb shell cmd jobscheduler run -f` instead of '
           'waiting up to 15 minutes. Halcyon\'s game takes at most one turn per 15 minutes, so before each step the save\'s '
-          'last-turn time was moved back 16 minutes so the next turn was due.')
+          'last-turn time was moved back 16 minutes so the next turn was due. After each step all three game widgets '
+          '(small, medium, large) must get a new picture within 60 s, and each one\'s own drawn text must show the state '
+          'after the turn (its new cycle / feed count, or NUTRIENT LINE / OPEN). Screenshots `t3_game_<size>_before.png`, '
+          '`t3_game_<size>_after_charger.png`, `t3_game_<size>_after_job.png`.')
         w('')
         for label, d in (('A, Foundry open', a), ('B, forced job #%s' % b.get('job'), b)):
             if d:
@@ -194,6 +197,10 @@ for k in ['t2', 't3', 't4', 't5', 't6']:
                 w('- %s: turn %s -> %s, growth %s -> %s, nutrients %s -> %s%s' % (
                     label, bf.get('turn'), af.get('turn'), bf.get('growth'), af.get('growth'), bf.get('nut'), af.get('nut'),
                     ', %.1f s after plug-in' % d['secondsToTurn'] if 'secondsToTurn' in d else ''))
+                sizes = d.get('sizes') or {}
+                if sizes:
+                    w('  - redrew: ' + ', '.join('%s %s' % (z, 'yes' if (sizes.get(z) or {}).get('redrew') else '**NO**')
+                                                for z in ('small', 'medium', 'large')))
                 log = af.get('log') or []
                 if log:
                     w('  - latest log: "%s"' % '"; "'.join(x.get('m', '') for x in log[-3:]))

@@ -259,7 +259,29 @@ class TextProbe(private val ctx: Context) {
     fun clear() { eval("window.__fx = window.__fx ? [] : window.__fx; 1") }
 
     /** Strings drawn since [clear], or null if the page was replaced meanwhile (the patch is then gone). */
-    fun read(): List<String>? {
+    fun read(): List<String>? = readRaw()?.filter { !it.startsWith(MARK) }
+
+    /**
+     * What each render since [clear] drew, keyed "<mode> <size>" (e.g. "game large"); the latest render of each wins.
+     * Null if the page was replaced meanwhile.
+     */
+    fun segments(): Map<String, List<String>>? {
+        val raw = readRaw() ?: return null
+        val out = HashMap<String, List<String>>()
+        var key: String? = null
+        var cur = ArrayList<String>()
+        for (t in raw) {
+            if (t.startsWith(MARK)) {
+                key?.let { out[it] = cur }
+                key = t.removePrefix(MARK + "JOB ").trim()
+                cur = ArrayList()
+            } else cur.add(t)
+        }
+        key?.let { out[it] = cur }
+        return out
+    }
+
+    private fun readRaw(): List<String>? {
         val raw = eval("JSON.stringify(window.__fx || null)") ?: return null
         val s = try { JSONTokener(raw).nextValue() as? String } catch (e: Exception) { null } ?: return null
         if (s == "null") return null
@@ -268,10 +290,19 @@ class TextProbe(private val ctx: Context) {
     }
 
     companion object {
+        private const val MARK = "\u0001"
         private val PATCH = """
             (function () {
               if (window.__fxOn) return 'had';
               window.__fxOn = true; window.__fx = [];
+              // Mark where each render job starts (its mode and size), so one widget's text can be told from another's.
+              if (window.FoundryAndroid && window.FoundryNative) {
+                var render = window.FoundryAndroid.render;
+                window.FoundryAndroid.render = function (id) {
+                  try { var o = JSON.parse(FoundryNative.job(id)); window.__fx.push('\u0001JOB ' + o.param + ' ' + o.family); } catch (e) {}
+                  return render.apply(this, arguments);
+                };
+              }
               [window.CanvasRenderingContext2D, window.OffscreenCanvasRenderingContext2D].forEach(function (C) {
                 if (!C) return;
                 var f = C.prototype.fillText;
