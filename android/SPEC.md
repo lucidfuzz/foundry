@@ -145,3 +145,8 @@ Halcyon exports:
 - Shift's setup text was fixed on main (PR #5): it says 'Choose an allocation in widget setup.', which fits both
   iPhone and Android.
 
+- Emulator acceptance run (16 Oct): tests 2-5 pass on an Android 16 (API 36) emulator in GitHub Actions, job "Emulator
+  acceptance tests 2-6" (https://github.com/lucidfuzz/foundry/actions/runs/38973575484). Test 3 checks all three game
+  widget sizes after the charger and after the forced background job. Test 6 (the Original edition's sizes and looks)
+  was confirmed by Claude's visual comparison of the emulator renders with the site previews. Tests 2-6 still need the
+  Galaxy A53 for Samsung-specific behavior (the One UI launcher, widget resizing, battery saver).
