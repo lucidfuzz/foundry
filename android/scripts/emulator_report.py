@@ -198,6 +198,8 @@ for k in ['t2', 't3', 't4', 't5', 't6']:
                 if log:
                     w('  - latest log: "%s"' % '"; "'.join(x.get('m', '') for x in log[-3:]))
         w('')
+    if k == 't3' and t.get('jobs') and any(c.get('ok') is False and 'forced' in c.get('name', '') for c in t.get('checks', [])):
+        w('<details><summary>WorkManager jobs in dumpsys jobscheduler</summary>\n\n```\n%s\n```\n</details>\n' % '\n\n'.join(t['jobs'])[:6000])
     if k == 't3' and t.get('jobDump'):
         w('<details><summary>dumpsys jobscheduler (no WorkManager job matched)</summary>\n\n```\n%s\n```\n</details>\n' % t['jobDump'][:6000])
     if k == 't4':

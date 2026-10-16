@@ -542,10 +542,17 @@ class AcceptanceTest {
         val t1 = System.currentTimeMillis()
         var job: Pair<String, String>? = null
         val attempts = ArrayList<String>()
+        // WorkManager files its jobs under a JobScheduler namespace on newer Android, which 'run' must be given (-n).
         for (c in candidates) {
-            val out = Shell.run("cmd jobscheduler run -f $pkg ${c.first}")
-            attempts.add("#${c.first}: ${out.ifBlank { "(started)" }}")
-            if (!out.contains("Could not find", ignoreCase = true)) { job = c; break }
+            val listed = Regex("""(?i)namespace[=:]\s*"?([A-Za-z0-9_.]+)""").find(c.second)?.groupValues?.get(1)
+            val namespaces = listOf(listed, "androidx.work.systemjobscheduler", null).distinct()
+            for (ns in namespaces) {
+                val cmd = "cmd jobscheduler run -f " + (if (ns != null) "-n $ns " else "") + "$pkg ${c.first}"
+                val out = Shell.run(cmd)
+                attempts.add("'$cmd': ${out.ifBlank { "(started)" }}")
+                if (!out.contains("Could not find", ignoreCase = true) && !out.contains("Error", ignoreCase = true)) { job = c; break }
+            }
+            if (job != null) break
         }
         val chargeJob = job?.takeIf { it.second.contains("CHARGING") }
         val runOut = if (attempts.isEmpty()) "no job found" else attempts.joinToString("; ")
