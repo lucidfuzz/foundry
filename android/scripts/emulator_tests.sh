@@ -88,5 +88,7 @@ adb logcat -d -b crash >"$OUT/logcat-crash.txt" 2>&1 || true
 adb logcat -d -b events >"$OUT/logcat-events.txt" 2>&1 || true
 
 python3 android/scripts/emulator_report.py "$OUT" "$FIXTURES/fixtures.json" | tee -a "$LOG"
+# The report in the job log too, so it can be read without downloading the artifact.
+echo "::group::REPORT.md"; cat "$OUT/REPORT.md" 2>/dev/null; echo "::endgroup::"
 [ -f "$OUT/results.json" ] || { say "No results.json came back from the device"; exit 1; }
 exit 0
