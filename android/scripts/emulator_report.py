@@ -202,8 +202,11 @@ for k in ['t2', 't3', 't4', 't5', 't6']:
         w('<details><summary>dumpsys jobscheduler (no WorkManager job matched)</summary>\n\n```\n%s\n```\n</details>\n' % t['jobDump'][:6000])
     if k == 't4':
         lc = t.get('logcat', {})
-        w('Logcat while offline: **%s** FATAL EXCEPTION, **%s** ANR (crash buffer: %s FATAL).'
-          % (lc.get('fatal', '?'), lc.get('anr', '?'), lc.get('crashBufferFatal', '?')))
+        w('Logcat while offline, Foundry: **%s** FATAL EXCEPTION, **%s** ANR. All apps: %s FATAL EXCEPTION, %s ANR%s '
+          '(crash buffer: %s FATAL).' % (lc.get('fatal', '?'), lc.get('anr', '?'), lc.get('fatalAllApps', '?'),
+                                         len(lc.get('anrAllApps', [])),
+                                         (' (' + '; '.join(lc.get('anrAllApps', []))[:300] + ')') if lc.get('anrAllApps') else '',
+                                         lc.get('crashBufferFatal', '?')))
         w('')
     if k == 't5':
         sf = t.get('settingsFile', {})
@@ -252,14 +255,18 @@ events = read(os.path.join(out_dir, 'logcat-events.txt'))
 anrs = [l for l in events.splitlines() if 'am_anr' in l]
 w('## Whole run')
 w('')
-w('- Logcat for the whole run: %d FATAL EXCEPTION, %d "ANR in", %d am_anr events.'
-  % (logcat.count('FATAL EXCEPTION'), logcat.count('ANR in'), len(anrs)))
+pkg = 'io.github.lucidfuzz.foundry.debug'
+fatal_at = [m.start() for m in re.finditer('FATAL EXCEPTION', logcat)]
+fatal_foundry = [p for p in fatal_at if ('Process: ' + pkg) in logcat[p:p + 600]]
+w('- Logcat for the whole run, Foundry (`%s`): **%d** crash (FATAL EXCEPTION), **%d** ANR.'
+  % (pkg, len(fatal_foundry), sum(1 for l in anrs if pkg in l)))
+w('- All apps on the emulator: %d FATAL EXCEPTION, %d am_anr event(s); any listed below that name another package '
+  'are the emulator\'s own apps, not Foundry.' % (len(fatal_at), len(anrs)))
 for l in anrs[:5]:
     w('  - `%s`' % l.strip()[:300])
 for l in [l for l in logcat.splitlines() if 'ANR in' in l][:5]:
     w('  - `%s`' % l.strip()[:300])
-fatal = [m.start() for m in re.finditer('FATAL EXCEPTION', logcat)]
-for p in fatal[:3]:
+for p in fatal_at[:3]:
     w('')
     w('```')
     w(logcat[p:p + 2500])

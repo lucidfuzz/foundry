@@ -532,13 +532,23 @@ class AcceptanceTest {
         val before2 = makeTurnDue()
         val jobs = workJobs(Shell.run("dumpsys jobscheduler $pkg")).ifEmpty { workJobs(Shell.run("dumpsys jobscheduler")) }
         if (jobs.isEmpty()) ev.test(k).put("jobDump", Shell.run("dumpsys jobscheduler | grep -n -i -E 'JOB|$pkg' | head -n 60"))
-        val chargeJob = jobs.firstOrNull { it.second.contains("CHARGING") }
-        val job = chargeJob ?: jobs.firstOrNull { it.second.contains("PERIODIC", ignoreCase = true) } ?: jobs.firstOrNull()
+        // The listing also keeps jobs that already ran (the charging job is replaced each time it runs), so the newest
+        // charging job goes first, and a job JobScheduler no longer knows is skipped.
+        fun rank(j: Pair<String, String>) = when { j.second.contains("CHARGING") -> 0; j.second.contains("PERIODIC", ignoreCase = true) -> 1; else -> 2 }
+        val candidates = jobs.sortedWith(compareBy<Pair<String, String>> { rank(it) }.thenByDescending { it.first.toLongOrNull() ?: 0L })
         ev.test(k).put("jobs", JSONArray(jobs.map { it.second.lines().take(12).joinToString("\n") }))
         ev.note(k, "WorkManager jobs for $pkg: " + jobs.joinToString { "#${it.first}${if (it.second.contains("CHARGING")) " (requires charging)" else ""}" } +
-            ". Forcing ${job?.let { "#${it.first}" } ?: "none"} with 'cmd jobscheduler run -f' instead of waiting for Android.")
+            ". Forcing the newest charging job with 'cmd jobscheduler run -f' instead of waiting for Android.")
         val t1 = System.currentTimeMillis()
-        val runOut = job?.let { Shell.run("cmd jobscheduler run -f $pkg ${it.first}") } ?: "no job found"
+        var job: Pair<String, String>? = null
+        val attempts = ArrayList<String>()
+        for (c in candidates) {
+            val out = Shell.run("cmd jobscheduler run -f $pkg ${c.first}")
+            attempts.add("#${c.first}: ${out.ifBlank { "(started)" }}")
+            if (!out.contains("Could not find", ignoreCase = true)) { job = c; break }
+        }
+        val chargeJob = job?.takeIf { it.second.contains("CHARGING") }
+        val runOut = if (attempts.isEmpty()) "no job found" else attempts.joinToString("; ")
         val advanced2 = waitFor(180_000) { readGame().optInt("turn") > before2.optInt("turn") }
         val tTurn2 = System.currentTimeMillis() - t1
         val shown2 = bench.waitForPicture(gid, t1, 60_000)
@@ -588,13 +598,16 @@ class AcceptanceTest {
             val log = Shell.run("logcat -d -v threadtime")
             val after = log.substringAfter("T4_AIRPLANE_START", "").lines().filter { "FoundryEmulatorTest" !in it }.joinToString("\n")
             val marker = log.contains("T4_AIRPLANE_START")
-            val fatal = Regex("FATAL EXCEPTION").findAll(after).count()
-            val anr = Regex("""ANR in""").findAll(after).count()
+            // Foundry's own crashes and ANRs; other apps' (the emulator's system apps) are counted separately.
+            val fatalAll = Regex("FATAL EXCEPTION").findAll(after).toList()
+            val fatal = fatalAll.count { m -> after.substring(m.range.first, minOf(after.length, m.range.first + 600)).contains("Process: $pkg") }
+            val anrAll = after.lines().filter { it.contains("ANR in") }
+            val anr = anrAll.count { it.contains("ANR in $pkg") }
             val crashBuffer = Shell.run("logcat -d -b crash")
-            ev.test(k).put("logcat", JSONObject().put("markerFound", marker).put("fatal", fatal).put("anr", anr)
+            ev.test(k).put("logcat", JSONObject().put("markerFound", marker).put("fatal", fatal).put("anr", anr).put("fatalAllApps", fatalAll.size).put("anrAllApps", JSONArray(anrAll))
                 .put("crashBufferFatal", Regex("FATAL EXCEPTION").findAll(crashBuffer).count()))
-            ev.check(k, "no crash (fatal exception) in logcat while offline", marker && fatal == 0, "$fatal (marker found: $marker)")
-            ev.check(k, "no app-not-responding in logcat while offline", marker && anr == 0, "$anr")
+            ev.check(k, "no Foundry crash (fatal exception) in logcat while offline", marker && fatal == 0, "$fatal (all apps: ${fatalAll.size}; marker found: $marker)")
+            ev.check(k, "no Foundry app-not-responding in logcat while offline", marker && anr == 0, "$anr (all apps: ${anrAll.size}${if (anrAll.isNotEmpty()) ": " + anrAll.joinToString { it.substringAfter("ANR in ").take(80) } else ""})")
             Shell.run("cmd connectivity airplane-mode disable")
             ev.note(k, "Airplane mode turned off again: network back = ${waitFor(60_000) { cm.activeNetwork != null }}.")
         }
