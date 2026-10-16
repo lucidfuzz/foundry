@@ -771,7 +771,6 @@ Camera = **CASE**, Photos = **LOOT**, Maps = **ROUTE**, Calendar = **JOB**, Phon
   - "Doors Are Polite Suggestions" (ENTRY SPECIALISTS)
   - "Steal Hearts, Then Jewels" (THE LEGION)
   - "The Alarm Is Fashionably Late" (GETAWAY)
-  - "Masks Off Only For Tea" (SOCIAL COMMITTEE)
   - "Every Vault Has A Mood" (ENTRY SPECIALISTS)
   - "Copycats Pay Royalties" (THE LEGION)
   - "Hop Quietly, Land Softly" (FIELD OPERATIONS)
@@ -784,9 +783,29 @@ Camera = **CASE**, Photos = **LOOT**, Maps = **ROUTE**, Calendar = **JOB**, Phon
   - "Ears Down In The Gallery" (FIELD OPERATIONS)
   - "Rivals Are Just Slower Rabbits" (THE LEGION)
   - "If It Glitters, It's Been Cased" (SURVEILLANCE)
-  - "Never Rob A Tea Party" (SOCIAL COMMITTEE)
   - "Lasers Are Just Strict Ribbons" (ENTRY SPECIALISTS)
   - "Be The Rumor" (RECRUITMENT)
+  - "There Was Never Just One Rabbit" (THE LEGION)
+  - "Copycat Or Cell? Yes." (THE LEGION)
+  - "Seen Everywhere. Caught Nowhere." (SURVEILLANCE)
+  - "Chase Us. It's Flattering." (GETAWAY)
+  - "Security Was Very Impressive" (ENTRY SPECIALISTS)
+  - "Two Initials. Zero Witnesses." (CALLING CARDS)
+  - "Pearl Finish, Steel Nerve" (FIELD OPERATIONS)
+  - "Heirlooms Prefer Better Company" (THE ARCHIVE)
+  - "The Getaway Is The Encore" (GETAWAY)
+
+- **Archive quotes** (shown about one card in four, labelled ARCHIVE / ATTRIBUTED in both editions): Maurice Leblanc, verbatim from George Morehead's 1910 translation, attributed "MAURICE LEBLANC · GENTLEMAN-BURGLAR · 1907":
+
+  - "Arsène Lupin, gentleman-burglar, will return when the furniture is genuine."
+  - "What a pity that I am not an honest man!"
+  - "I shall not be present at my trial."
+  - "When I wish to escape I shall not require any assistance."
+  - "It is I, always I, only I."
+  - "My actions will serve to identify me."
+  - "Ah! there are duties to society that one cannot avoid. To-morrow, I shall rest."
+  - "Bah! a person must have some diversion to occupy his leisure hours, especially when he is in prison."
+  - Plus Oscar Wilde: "I can resist everything except temptation." (LADY WINDERMERE'S FAN · 1892)
 
 ### Oddity: Heist Board
 
@@ -806,6 +825,8 @@ The legion cases and lifts all seven heirlooms, leaving a calling card each time
 ### Hard rules for this theme
 
 - No Alice in Wonderland imagery at all: no rabbit hole, pocket watch or playing cards.
+- No Alice in Wonderland text either (Jordan, 16 Oct): no Lewis Carroll quotes, no tea parties.
+- Legion lines: short, dry, smug understatement aimed at pursuers; no "ears" gimmicks, no lore exposition, no stock phrases.
 - Sleek heist vibes only; no assets or logos from any game.
 
 ### Afterimage — local first-pass proposal, 14 October 2026
