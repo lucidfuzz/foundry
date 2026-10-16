@@ -1,4 +1,64 @@
 FOUNDRY / APPROVED DESIGN DECISIONS
+[WHITE RABBIT / BROWSER PASS, HOME-FRAME PICKER FIX, OPEN ITEMS / CLAUDE / 2026-10-16]
+Added by Claude. Labels: APPROVED (Jordan stated it), FIXED, OPEN, PENDING. GPT/Codex text below is kept as written.
+- This PR commits GPT's handoff-only status entry below and the matching header in WHITE_RABBIT_AFTERIMAGE.md, verbatim.
+  Their lines saying the entry is "not an additional commit on main" are superseded: it is committed by this PR.
+- Browser pass: headless Chromium on a local copy of main 2ec23530c92d62aac25cbd497ee81afa6155a1cd (index.html sha256
+  starting 6fc63c0d). 52 tests and build check passed first. Google Fonts (Bodoni Moda, DM Mono) and JSZip were served
+  locally because the sandbox blocks those hosts; github.io is blocked, so live-site checks stay with Jordan.
+- PASSED: Original is the default when White Rabbit is picked; #white-rabbit opens Afterimage. Both editions x five
+  palettes render on lock, home, widgets and icons (11 icons), with no page errors. All 11 Afterimage widgets render in
+  the phone view (browser shows 1 small, 9 medium, 1 large; per-widget size coverage rests on the approved preview sheets
+  and the 165-combination export test). Every artwork request returned 200; the exported script's 19 art URLs all exist
+  on main; 76 Rabbit image files present.
+- PASSED, exports: "Home frames (3, zip)" gives three distinct 1179x2556 PNGs that match the approved Silk Memory, Pearl
+  Drift and Love, Unsigned home screens. Theme pack: 19 wallpapers (4 locks, home, 11 more headlines, 3 home frames) at
+  1179x2556, 11 icons at 1024x1024, widgets script, INSTALL.txt (54.8 MB). Copy script, Save as text file and the pack's
+  script are identical and parse as a Scriptable (async) body. Android pack: 124 files, including 15 lock screens and
+  96 widget pictures (8 widgets x small 340x340 / medium 728x340 x 6 frames) and 11 icons at 512x512.
+- PASSED, artwork blocked: Afterimage reports the engraved fallback; the theme pack refuses to build rather than ship
+  without art; Original exports are unaffected.
+- FIXED (Jordan approved, 16 Oct): the Afterimage home-frame picker showed six buttons for three frames; buttons 4-6
+  displayed frame 1. Cause: .btn sets display:inline-flex, which overrode the hidden attribute app.js already sets on
+  frames beyond homeFrameCount(). Fix: one CSS rule, .btn[hidden] { display: none; }, in src/page.html (same pattern as
+  .btns[hidden] and .insp-save[hidden]), plus the regenerated index.html. Verified: Afterimage shows 3 buttons; White
+  Rabbit Original, Halcyon and single-frame themes still hide the picker; Deep Range Original and Expanded still show six
+  distinct frames. No art, painter or export change. 52 tests and build check pass.
+- OPEN (Jordan: log, don't fix): exportZip's catch replaces the specific "White Rabbit artwork could not load" status
+  with "Could not build the pack. Try the single downloads.", which hides the reason; the single downloads need the same
+  artwork. Same pattern applies to Halcyon.
+- OPEN (Jordan: log, don't fix): when the hosted art URL (lucidfuzz.github.io/foundry/assets/rabbit/widget/) can't be
+  reached, the Android pack still reports "Android pack ready." and appears to use the offline fallback in its widget
+  pictures. Low risk on the live site, where the page and art share an origin.
+- APPROVED (Jordan, 16 Oct): replace the "LEWIS CARROLL · ALICE IN WONDERLAND · 1865" attributed lines in White Rabbit's
+  archive with attributed Arsène Lupin lines (Maurice Leblanc). Separate PR after this one. Located in
+  src/foundry-data.js: lines 428-432 (five lines) and about 1545-1557 (four lines). That PR confirms which editions each
+  block feeds and keeps the attribution format.
+- PENDING: Jordan confirms the live deploy (Actions > "pages build and deployment" green) and runs the iPhone Scriptable
+  checklist (calendar countdown transitions, weather permission and missing data, cached art offline, app links, Long Con
+  charging). Results get recorded here.
+
+[WHITE RABBIT / SQUASH-MERGED, CLAUDE HANDOFF / 2026-10-15]
+Jordan confirmed that he squashed and merged PR #8. GitHub reports the PR merged at
+2026-10-15T04:22:05Z. Current main is 2ec23530c92d62aac25cbd497ee81afa6155a1cd.
+PR: https://github.com/lucidfuzz/foundry/pull/8
+Its full Git tree matches validated PR commit d16b35a0bde1c50befb0065bd234f59a32701332 exactly
+(tree 4ce5e229f3fa856c98ab989c6c4e05a6df3c7da7). Integration is complete. Do not reintegrate an
+older ZIP, replace shared source from a design checkout, or reopen settled visual choices.
+Revision 7 remains the approved Afterimage baseline at all three widget sizes. Selected art,
+flowing rabbit, hearts/glints, pixel lightness, varied ornamental density and the three abstract
+screen pairs are locked. Original stays the default. The Android branch never merges into main.
+The validated tree passed 52 tests and build check; 630 widget views, 90 wallpapers and 55 icons
+matched approved revision 7. Existing editions and all artwork comparisons passed. Merge verification
+confirms the same tree; these are the integration test results, not a new physical-device test.
+Interactive-browser checks, real-phone behavior and live-site deployment verification remain pending.
+Claude should start from current main, read this record and WHITE_RABBIT_AFTERIMAGE.md, review the
+remaining checks, and return additions to the decision record without silently simplifying the art.
+This dated status entry was added to the handoff after the merge. It is a local documentation update,
+not an additional commit on main. The rest of the record was read directly from the merged commit.
+This section supersedes all earlier local-only, PR-open or waiting-to-merge delivery statements.
+Older design history and approvals remain preserved below. This handoff authorizes no new publishing.
+
 [WHITE RABBIT / PR AUTHORIZED, OWNER WILL SQUASH AND MERGE / 2026-10-15]
 After approving revision 7, Jordan asked whether to hand off to Claude or squash and merge first.
 The agreed order is PR, Jordan's squash-and-merge, then Claude reviews the merged implementation

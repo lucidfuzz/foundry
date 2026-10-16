@@ -1,5 +1,28 @@
 # White Rabbit — Afterimage, illustrated and print refinements
 
+## Browser pass and picker fix — 16 October 2026 (Claude)
+
+Interactive-browser checks passed on main `2ec2353` in headless Chromium: edition and palette switching, all
+eleven widgets, artwork loading, the three home-frame exports, theme pack, script copy/download and Android pack.
+One defect fixed: the home-frame picker showed six buttons for Afterimage's three frames (frames 4-6 repeated
+frame 1). One CSS rule now honors the existing hidden attribute. No art, painter or export change; the approved
+revision 7 design is untouched. Details and two logged open items are in `APPROVED_DESIGN_DECISIONS.txt`.
+Live-deploy confirmation and the iPhone Scriptable pass remain pending.
+
+## Merged status — 15 October 2026
+
+Jordan squash-merged PR #8 into main as `2ec23530c92d62aac25cbd497ee81afa6155a1cd`.
+The merged tree is identical to validated PR commit `d16b35a0bde1c50befb0065bd234f59a32701332`.
+White Rabbit Afterimage revision 7 is integrated and remains the approved visual baseline.
+Start from current main; do not reapply older source bundles. Original stays the default.
+
+The previous integration results apply to this identical tree: 52 tests and build check pass;
+630 widget views, 90 wallpapers and 55 icons match revision 7. Interactive-browser and physical-phone
+checks, plus confirmation of the live deployment, remain pending. No new deployment claim is made.
+This handoff-only status note supersedes the earlier pending-merge delivery status below and has
+not been pushed as another repository change. Include the accompanying updated decisions file
+in subsequent handoffs. The Android app remains on its separate branch.
+
 ## PR integration — 15 October 2026
 
 Revision 7 is approved. Jordan authorized preparing a PR and will squash and merge personally;
