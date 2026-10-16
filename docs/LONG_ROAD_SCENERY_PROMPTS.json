@@ -1,0 +1,12 @@
+{
+  "stages": {
+    "prompt": "Use case: stylized-concept. Production sprite atlas: exactly TWELVE rectangular miniature theatre stage illustrations, arranged precisely THREE columns by FOUR rows in a 1536x1024 landscape sheet. Each equal cell is a 2:1 horizontal theatrical tableau and has a thin warm ivory margin. Original hand-coloured fine 18th-century wood engraving, intricate hatch strokes, sepia on cream, muted vermilion curtains, restrained sage and ochre. Not photographs or realistic 3D. Detailed tiny wooden puppet theatre sets with proscenium, rigging, carved scenery and people as minute engraved silhouettes. Twelve scenes row order: 1 crowned court with banquet, 2 ferry crossing with boatman, 3 mischievous goose in royal hall, 4 tollbridge with gate, 5 old woman and huge moon, 6 empty suit of knight armour and windmill, 7 bread stall with baker, 8 forest witch with travelling cart, 9 ghostly chair by fireplace, 10 giant whale puppet emerging from village well, 11 cartographer unfurling a giant map, 12 snowy inn with returning travellers. Each scene visibly different composition, no repeated backgrounds or subjects, fill each stage with fine story detail. No titles, text, modern elements, UI labels. Four clearly separated rows and three clearly separated columns. Flat illustration. Opaque warm cream background.",
+    "tool": "built-in image_gen",
+    "transparent_background": false
+  },
+  "tavern": {
+    "prompt": "Use case: stylized-concept. Production illustration: a richly detailed cutaway wood engraving of a small medieval roadside tavern called The Lantern Inn, showing entire two-storey timber building in wide horizontal 3:2 composition. Roof lifted away to reveal upstairs beds and attic provisions, downstairs long communal table, fireplace with cooking pot, shelf of mugs and bread, spiral stair, pantry barrels, stable to right with pony, a tiny gathering of cloaked travellers. Artistic early printed storybook illustration with extraordinarily fine copperplate hatching and hand-coloured muted vermilion, ochre and sage accents. Sharp fine sepia ink on cream paper, lots of small narrative details, charming and wry, not cute cartoon, not photoreal or 3D. The cross-section has clear readable walls, room relationships and many detailed belongings. No words or labels, no border, no logos, no fantasy franchises. Entire building isolated with small transparent margin. Background transparent.",
+    "tool": "built-in image_gen",
+    "transparent_background": true
+  }
+}

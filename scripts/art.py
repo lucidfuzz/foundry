@@ -13,12 +13,15 @@ from fractions import Fraction
 from PIL import Image
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # theme -> (source file holding its sprite table, name of the table)
-THEMES = {'halcyon': ('src/halcyon/paint.js', 'HB_SPRITES'), 'rabbit': ('src/paint/97_rabbit_afterimage.js', 'WR_SPRITES')}
+THEMES = {'halcyon': ('src/halcyon/paint.js', 'HB_SPRITES'), 'rabbit': ('src/paint/97_rabbit_afterimage.js', 'WR_SPRITES'), 'longroad': ('src/paint/97_longroad_folio.js', 'LRF_SPRITES')}
 WIDGET_MAX, THUMB_MAX = 480, 360
 # Long edge in pixels for each widget crop: 3x (iPhone screen density) the largest size that crop is drawn at in any
 # widget, measured across all 12 widgets in all 3 sizes, rounded up. Never larger than the original art allows.
 # Each widget only downloads the few crops it draws, so the phone's widget memory stays comfortable.
-WIDGET_PX = {'signal': 912, 'optical': 672, 'archive': 688, 'collective': 672, 'lungsDetail': 608, 'heartDetail': 544,
+WIDGET_PX = {**{'mark%02d' % i: 288 for i in range(1,13)}, 'compass':306, **{'journey%02d' % i: 609 for i in range(1,9)}, 'hourglass': 324, 'sundial': 372, 'letters': 288, 'crier': 210, 'minstrel': 420, 'tavern': 978,
+             **{'stage%02d' % i: 1002 for i in range(1,13)},
+             **{'place%02d' % i: 1020 for i in range(1,7)},
+             **{'terrain%02d' % i: 990 for i in range(1,7)},'signal': 912, 'optical': 672, 'archive': 688, 'collective': 672, 'lungsDetail': 608, 'heartDetail': 544,
              'neural': 512, 'heart': 544, 'lungs': 608, 'saturn': 432, 'neptune': 432, 'jupiter': 432, 'knot': 432,
              'membrane': 432, 'loops': 432, 'tissue': 192, 'mask': 750, 'vault': 390, 'edge': 387, 'audio': 399, 'warren': 474, 'cover': 594, 'invite': 513,
              **{'lot%02d' % i: 540 for i in range(1, 13)}}
@@ -45,7 +48,8 @@ for theme, (src, table) in THEMES.items():
     base = os.path.join(ROOT, 'assets', theme)
     for d in ('web', 'thumb', 'widget'): os.makedirs(os.path.join(base, d), exist_ok=True)
     entry = {'sheets': {}, 'thumbs': {}, 'widget': {}}
-    originals = {f[:-4]: Image.open(os.path.join(base, f)).convert('RGBA') for f in sorted(os.listdir(base)) if f.endswith('.png')}
+    active_sheets = {spec[0] for spec in sprites(src, table).values()}
+    originals = {f[:-4]: Image.open(os.path.join(base, f)).convert('RGBA') for f in sorted(os.listdir(base)) if f.endswith('.png') and (theme != 'longroad' or f[:-4] in active_sheets)}
     for name, im in originals.items():
         web = os.path.join(base, 'web', name + '.webp'); im.save(web, 'WEBP', quality=88, method=6)
         th = im.copy(); th.thumbnail((THUMB_MAX, THUMB_MAX), Image.LANCZOS); thumb = os.path.join(base, 'thumb', name + '.webp'); th.save(thumb, "WEBP", quality=74, method=6)

@@ -1,4 +1,390 @@
 FOUNDRY / APPROVED DESIGN DECISIONS
+[THE LONG ROAD / WAYFARER'S FOLIO INTEGRATED BY CLAUDE / 2026-10-16]
+Added by Claude. GPT's revision 8 handoff (three ZIPs, 163 payload files) verified against its SHA256.json. Its patch
+applied cleanly on its stated base, current main 53a565d59d4de99cb77a8ddf7ca7bfd31510ca9e, with all 99 Long Road
+art files copied to assets/longroad/. GPT's loose repo-files copies differ from the patch only by Windows line endings;
+the patch result (Unix line endings, as the repo uses) is what is committed. The decision record change is additive.
+- CHECKED: 64 tests and build check pass. White Rabbit #9 (picker fix) and #10 (Lupin lines) intact. No embedded
+  images or fonts. Every shared-file hook is gated on lrfOn(), the established edition pattern.
+- CHECKED, regression in headless Chromium, current main vs this build: lock and home identical for every theme and
+  edition in all five palettes (70 combinations). With the clock frozen and randomness seeded (main vs main self-test
+  identical), widget gallery and icon sheet identical for every other theme and edition (28 combinations), and Long
+  Road Original identical to main's Long Road. Folio is purely additive.
+- CHECKED, Folio browser pass (real IM Fell English fonts served locally): Original stays the default and loads no
+  Folio art; picking Folio loads all 8 art sheets (all 200). Six home-frame buttons, six distinct frames, "Home frames
+  (6, zip)" exports six distinct 1179x2556 PNGs. All five palettes change the screens. All 11 widgets render at small,
+  medium and large through the size switch. Copy script works (first line "// The Long Road — made with Foundry").
+  No console errors. Renders match GPT's approved previews.
+- OPEN (copy nit, for Jordan/GPT): the Playbill's launcher reads "Open Youtube" while Crier & Gossip reads "Open
+  YouTube". Left as approved; a one-word fix if wanted.
+- OPEN (site speed, recommend next): index.html grows 1.384 MB -> 1.473 MB. 77 KB of the 89 KB is the widget-script
+  template, which every exported script carries whole, so every theme's script grows 741 KB -> 818 KB to carry code it
+  never uses. Recommended before the next edition: export only the painters for the chosen theme and edition, and load
+  each edition's browser code only when it is picked.
+- NOT TESTED HERE: iPhone/Scriptable behavior (calendar transitions, weather permission, offline art cache, app links,
+  Expedition charging), and the live deploy. Same checklist pattern as White Rabbit.
+
+[THE LONG ROAD / REVISION 8 APPROVED, CLAUDE HANDOFF / 2026-10-16]
+Jordan reviewed revision 8 and said "looks good." Revision 8 is now the approved Wayfarer's
+Folio baseline, including revision 7's readable type, the shorter large Crier & Gossip,
+and the line/text/art clearance across all sizes. Older pending-review statements below
+are historical and superseded. Preserve the fantasy ink art, journal miniatures, map and
+story detail, size-specific layouts, and the lighter wording in large 06.
+
+Jordan first requested a PR, then changed the instruction to "send me the handoff instead."
+The active request is a Claude handoff. No Long Road commit, branch push or PR was made.
+No merge, auto-merge, direct-main push or deployment is authorized by this handoff. Jordan
+retains personal squash-and-merge ownership if he later asks for a PR.
+
+Approved design source: work/foundry-long-road, based on 2ec23530c92d62aac25cbd497ee81afa6155a1cd.
+Current main fetched for this handoff: 53a565d59d4de99cb77a8ddf7ca7bfd31510ca9e.
+Local handoff validation copy: work/long-road-handoff-check. The source additions are
+applied on that newer main; its White Rabbit home-frame picker fix (#9), Lupin archive
+and legion-line updates (#10) must be retained. Current main's full decision record is
+preserved beneath the Long Road entries. Shared source files from an older design snapshot
+must never replace newer main wholesale. Android stays on its separate branch.
+
+Approved reference: outputs/Long-Road-Review-v8.html; renders: outputs/long-road-clear-folio.
+Handoff: outputs/Long-Road-Claude-Handoff.txt and the numbered Long-Road-Claude-Handoff ZIPs.
+The package includes source changes, all 99 Long Road artwork files, previews, provenance,
+tests, hashes and validation. Follow its READ_FIRST.txt for extraction and integration.
+Browser interaction, physical-phone testing and deployment remain separate pending checks.
+Include this reconciled decision record in subsequent handoffs.
+
+
+Handoff validation on current main 53a565d59d4de99cb77a8ddf7ca7bfd31510ca9e: 64 tests/build pass, including 165 actual
+export combinations. The integrated source matches approved revision 8 pixel-for-pixel in
+780 widget views, 105 wallpapers and 55 icons; all 99 Long Road image files match exactly.
+The fresh 492-case glyph/art/line/mark audit has zero detected intersections. Current main's
+231 Original wallpapers/121 icons, 405 prior-edition wallpapers/220 icons and 110 earlier
+image files are unchanged. White Rabbit updates #9 and #10 remain intact. These checks are
+local source renders and export harnesses, not browser/device/live-site testing.
+
+[THE LONG ROAD / REVISION 8 CLEAR INK AND SHORTER CRIER / 2026-10-16]
+Jordan corrected revision 7: large widget 06 has too much wording, and a line crosses
+assets in large widget 01. Text must not intersect other elements in any widget.
+Keep revision 6's approved fantasy journal artwork and revision 7's wider-widget legibility.
+
+Large 06 / Crier & Gossip now has two short entries in each column instead of three
+annotated stories, secondary prose and extra captions. The whole widget falls from 110
+to 48 words (56% fewer), without reducing the type size. Its existing crier horn and well
+illustrations take more of the page. Medium and small 06 keep their previous wording.
+
+The crossing in 01 exposed a gap in previous QA: the earlier audit tested text, raster
+art and edges, but did not test decorative lines. Earlier zero-collision reports must not
+be read as proof that line crossings were checked. The correction records one composition,
+then replays it in its original layer order with all strokes clipped around the final text,
+art and live-timer reservations. This covers early routes, rules, stamp outlines and tiny
+filled ornaments as well as late marginalia. Small-widget masks also accommodate wide letters.
+This uses native-compatible path segments, not a browser-only clipping API.
+
+Review: outputs/Long-Road-Review-v8.html. Evidence: outputs/long-road-clear-folio.
+Revision 7 review/renders remain frozen, with full source/art in outputs/long-road-v7-checkpoint.
+Current source: work/foundry-long-road. All 33 layouts receive the ink-clearance correction;
+only large 06 loses wording. No new image generation or raster edits.
+
+64 tests and build check pass, including 165 actual exported mode/size/palette combinations.
+780 widget views, 105 screens and 55 icons rendered. The expanded 492-case audit checks
+glyph bounds, raster alpha bounds, text/art/edge intersections, every emitted stroke and
+small filled ornament; zero detected intersections. It inspected 107,961 emitted paths
+and 8,330 small marks. Primary sizes, Night Ink, catalogue and stress sheets were visually
+reviewed as source renders. Wider text keeps its nominal 12-point minimum and full ink.
+
+All 99 Folio image files, 105 wallpapers and 55 icons are unchanged from revision 7.
+Ink within all 30 reserved timer comparison regions changes as crossing decoration is
+removed; timer placement, dates, values and behavior are preserved by the export tests.
+Original 231 wallpapers/121 icons, earlier-edition 405 wallpapers/220 icons and 110 prior
+image files remain unchanged. Saved game and charging logic are unchanged.
+
+Revision 8 awaits user review. The approved art baseline is revision 6. Browser interaction,
+physical-phone testing and integration remain pending. Nothing committed, pushed, merged
+or published. Include this updated decision record in future handoffs.
+
+[THE LONG ROAD / REVISION 7 READABLE JOURNAL TYPE / 2026-10-16]
+Jordan approved revision 6, then corrected the large and medium widgets: "large and medium
+small text is really hard to read". Preserve the approved fantasy ink art and journal detail.
+This is a focused readability refinement; it does not revoke the approved visual direction.
+
+All eleven medium and large compositions now use a nominal 12-point minimum for labels,
+notes, captions and other small writing, with full-strength palette ink and clearer mixed-case
+labels. Main manuscript headings, meaningful data and illustrations retain their hierarchy.
+Reflow attributions and long names; do not rely on tiny type to fit them. Gallery plate numbers
+have a dedicated top strip. Letter stamps, route notes and lower captions have more room.
+Medium Expedition shows a truthful possession count when its full inventory would not fit;
+the large journal wraps inventory and fits the newest complete log entries in the remaining
+space. The game engine, save, charging/camp behavior and live timers are unchanged.
+
+Review: outputs/Long-Road-Review-v7.html. Evidence: outputs/long-road-readable-folio.
+The review defaults to actual logical widget dimensions, with an optional enlarged view.
+Revision 6 review/renders are frozen; source, artwork and docs are in outputs/long-road-v6-checkpoint.
+The current source remains work/foundry-long-road. No new image generation or raster edits.
+
+64 tests and build check pass, including all 165 actual export combinations. Export assertions
+now enforce the wider widgets' minimum font size and full text opacity. 780 widget views,
+105 screens and 55 icons rendered. The 492-case layout audit reports zero text/art/edge
+collisions; all 4,909 wider-widget text runs use at least 12-point fonts (minimum effective
+canvas width-adjusted equivalent 11.61 points). This is a rendered-font check, not a device test.
+All 255 small-widget comparison views, 99 Folio image files, 105 Folio wallpapers, 55 icons
+and 30 reserved live-timer regions match revision 6. Original 231 wallpapers/121 icons,
+earlier editions' 405 wallpapers/220 icons and all 110 prior image files remain unchanged.
+
+Revision 7 awaits user review. Revision 6 remains the approved art baseline. Browser interaction,
+physical-phone testing and integration remain pending. Nothing committed, pushed, merged or
+published. Include these decisions in future handoffs.
+
+[THE LONG ROAD / REVISION 6 VISUAL APPROVAL / 2026-10-16]
+Jordan responded "i like them" after the journal-detail and fit pass. Revision 6 is now
+the approved Wayfarer's Folio visual baseline. Preserve the fantasy ink illustrations,
+hand-drawn journal miniatures, dense and varied map/story margins across all widget sizes,
+and the corrected spacing and crop bounds. This supersedes the pending visual-review
+status below; earlier records remain historical.
+
+Current source: work/foundry-long-road. Review: outputs/Long-Road-Review-v6.html.
+Integration, browser interaction and physical-device testing remain pending. This visual
+approval does not authorize a commit, PR, push, merge or deployment. Include this updated
+decision record in future handoffs.
+
+[THE LONG ROAD / REVISION 6 JOURNAL DETAIL AND FIT AUDIT / 2026-10-16]
+Jordan called revision 5 "much better" and requested a pass for overlapping or cut-off assets.
+During that pass Jordan added: "the small graphics become vector graphics as opposed to the
+journal theme". Preserve the positively received ink-journal direction. Small landmarks and
+terrain must share the main illustrations' hand-drawn character, rather than becoming clean
+geometric interface symbols. This is a refinement request, not final visual or publishing approval.
+
+Twelve new original journal miniatures replace the geometric landmark/terrain marks: gate,
+bridge, ruined tower, well, windmill, hill door, ferry, standing stones, trees, mountains, hills
+and river. They are generated brown-ink/ivory/red drawings, used in native and preview layouts.
+Shared miniatures are versioned and cached alongside each widget's stable subject. The tiny
+remaining pen contours have irregular organic shapes; no new modern tracking language.
+
+Layout fixes separate small Playbill art, venue and title; put Expedition and Tavern captions
+below the art; give Gallery plate numbers their own margin; space tiny wrapped text; reserve
+an omen value column; fit miniature drawings to their space and separate neighboring subjects.
+All existing widget hero images remain unchanged. Real readings, live timers, app destinations,
+rotation, saved traveller appearance and charging/camping mechanics are preserved.
+
+The audit also found older screen crop defects: clipped ruin/coastal tower tips and a fragment
+of the next scene inside the inn crop. The six existing settlements were reframed into a safer
+portrait atlas, preserving their subjects and drawing language. Two map crop bounds were corrected.
+Only those screen illustrations/crops change; screen composition and clock/app/dock reservations stay.
+Prompt/crop provenance: LONG_ROAD_MARGINALIA_PROMPT.json, LONG_ROAD_MARGINALIA_CROPS.json,
+LONG_ROAD_LANDSCAPE_REFIT.json and LONG_ROAD_LANDSCAPE_CROPS.json. Generated with built-in image_gen.
+
+Review: outputs/Long-Road-Review-v6.html. Evidence: outputs/long-road-journal-folio.
+Revision 5 review/renders remain frozen; its full source/art snapshot is outputs/long-road-v5-checkpoint.
+Current source remains work/foundry-long-road. 64 tests and build check pass, including 165 actual
+native export combinations. 780 widget/catalogue/game views, 105 screens and 55 icons rendered.
+492 layout cases report zero detected text/text, text/art, art/art or widget-edge conflicts.
+75 native crops match their sources; 91 served files decode and match hashes. All 51 pre-existing
+widget hero crops are unchanged. Of 84 prior Folio image files, 73 remain identical and 11 files
+contain the landscape/map corrections; 15 files add the twelve miniatures and their atlas versions.
+30 live timer fields and 55 Folio icons match revision 5. 50 screen views inherit crop corrections;
+55 screen views stay identical. Original 231 wallpapers/121 icons and earlier-edition 405 wallpapers/
+220 icons remain identical, as do all 110 prior-edition image files. 104 review links checked.
+
+Visual review covers primary sizes, representative full rotating-pool sheets, all walk/camp states,
+Night Ink and other palettes, long/missing-data cases and full corrected asset proofs. Geometry
+and crop checks supplement source-rendered visual review; they are not actual browser or phone
+testing. Those remain pending, as does Jordan's review of this revision. No commit, PR, push,
+merge or deployment authorized or performed. Include the current decisions in future handoffs.
+
+[THE LONG ROAD / REVISION 5 JOURNEY MARGINALIA / 2026-10-16]
+Jordan called revision 4 "much closer" and requested a stronger fantasy journey with little
+map details and story elements in the remaining negative space. Revision 4 is a positively
+received foundation, not a rejected design or a final approval. Keep its ink illustrations,
+identity, palettes, typography and useful readings. This is additive widget refinement.
+
+All eleven widgets at all three sizes gain their own remembered geography: fields and a toll
+crossing in the Ledger; a mountain pass around The Road; air and water marks in the almanac;
+hills between musical verses; a ferry route for Postal Riders; local legends in Crier & Gossip;
+touring approaches for the plays; village landmarks around recurring people; converging paths
+to the Lantern Inn; charm-sized places in Old Maud's omens; untravelled country in Expedition.
+Eight small hand-drawn waymarks include a gate, riddle bridge, watchtower, whispering well,
+windmill, door beneath a hill, ferry and standing stones. Returning figures and plays retain
+stable identities. Negative space carries varied terrain, paths and story instead of more
+ledger tables, unrelated noise, generic tracking marks or new realistic hero art.
+
+Larger letter/notice fields now carry a remembered postal route and short fantasy tales.
+These are fictional road lore, separate from real calendar/weather and actual saved game logs.
+Background linework is clipped around measured text bounds, illustration plates and the live
+timer rectangles using native-compatible path operations. Compact compositions have their own
+arrangements. Primary art ownership, link destinations, timers, catalogues, saved appearance,
+charging/night-camp behavior, all screens and icons remain intact. No new raster art.
+
+Review: outputs/Long-Road-Review-v5.html. Canonical review updated. Current source remains
+work/foundry-long-road. Evidence: outputs/long-road-journey-folio. Revision 4 review and renders
+remain frozen; source/art checkpoint: outputs/long-road-v4-checkpoint.
+
+63 tests and build check pass, including actual exports across 165 mode/size/palette combinations.
+780 widget/catalogue/game views across five palettes, 12 functional stress cases and 33 matched-
+data layout comparisons rendered. All 33 primary layouts changed. All 84 Folio image files,
+105 Folio screens and 55 Folio icons are unchanged. Thirty live timer fields compare pixel-
+identically to revision 4. Original 231 wallpaper/121 icon and earlier-edition 405 wallpaper/
+220 icon comparisons remain identical; all 110 prior image files are unchanged.
+
+Visual review covers all primary sizes, all 36 rotating entries at all three sizes, all eight
+walking/camping states at all sizes, Night Ink, other palettes and long/missing-data stress cases.
+This is source-rendered verification, not browser interaction or physical-phone testing; those
+remain pending. New visual approval remains pending. No commit, PR, push, merge or deployment
+was authorized or performed. Include the updated design decisions in future handoffs.
+
+[THE LONG ROAD / REVISION 4 FANTASY INK DIRECTION / 2026-10-16]
+Jordan likes the aesthetic and widgets but asks for less realism, more like Tolkien's map
+drawings, and stronger fantasy-journey character. The earlier asset praise does not lock the
+realistic rendering. This latest correction supersedes preservation of realistic engraving,
+dark section bars and ledger-grid styling from revisions 1-3. Keep the world, wit, palette
+families, useful readings and variety; the visual language is now drawn fantasy cartography.
+
+Seven new transparent ink atlases replace the realistic plates: seven equipment emblems,
+twelve manuscript figures, twelve heraldic omens, twelve storybook plays, eight paired walk/
+camp scenes, six settlements and six map fragments. The 63 public crop identities are stable.
+Each widget owns its hero art. Tolkien's maps are inspiration only; no copied geography,
+characters, names or alphabets. Sources remain original to the Long Road's established world.
+
+All eleven compositions at three sizes use open ink headings, marginal branches, wandering
+roads and story notes. The Ledger has a remembered route; The Road follows a chain of stops;
+the almanac depicts hourly rain chances with rain strokes. The live calendar, solar data,
+battery, timers, links, stable catalogues, saved traveller appearance and camp mechanics stay.
+Night Ink gives the dark omen silhouettes pale paper leaves for contrast. Crop boundaries
+were checked and fitted to actual clear gutters; no neighbouring illustration fragments remain.
+Screens carry the same flat map language while keeping their headline/layout and reserved
+clock, app and dock areas. All 55 Folio colorway icons match revision 3.
+
+Review: outputs/Long-Road-Review-v4.html (canonical review also updated).
+Source: work/foundry-long-road. Evidence: outputs/long-road-ink-folio.
+Revision 3 review and renders remain frozen; complete earlier art and source checkpoint:
+outputs/long-road-v3-checkpoint. Final sources/derivatives are assets/longroad: 7 sources,
+7 served sheets, 7 thumbnails and 63 native crops, 84 images total. Twelve superseded source/
+serving files were removed only after checking their archived copies matched.
+
+Built-in image-generation prompts, refit provenance and final crop coordinates are in
+docs/LONG_ROAD_INK_PROMPTS.json, LONG_ROAD_INK_EQUIPMENT_REFIT.json,
+LONG_ROAD_INK_PLAYBILL_REFIT.json and LONG_ROAD_INK_CROPS.json. Production regeneration remains
+python scripts/art.py --theme longroad. Only active Long Road sheets are included in its
+manifest. The artwork audit decodes and hashes all 77 served files and verifies all 63 native
+crops against their full-resolution sources using the canonical pipeline settings.
+
+63 automated tests and build check pass. 780 widget/pool/game views, 105 screen views and
+55 icons rendered across five palettes; 12 long-text/missing-data stress views and 33 matched-
+data revision comparisons. Visual inspection covered all 33 primary layouts, all 36 catalogue
+subjects at all three sizes, eight traveller states at all three sizes, all six screen pairs,
+Night Ink including all twelve omens, and representative other-palette and stress views.
+Baseline comparisons: 231 Original wallpapers/121 icons, 405 prior-edition wallpapers/220
+icons and 110 prior image files unchanged. This is source-rendered review. Browser interaction
+and actual-phone checks are pending; the local-file browser restriction was not bypassed.
+This is a local design proposal awaiting Jordan's visual review. Nothing committed, pushed,
+published or submitted as a PR. Include this updated design record in future handoffs.
+
+[THE LONG ROAD / REVISION 3 WIDGET REFINEMENT / 2026-10-16]
+Jordan explicitly chose "Continue refining the widgets" when asked whether revision 2 was
+approved for PR preparation. This authorizes further local design work; it is not visual approval
+or publication permission. Revision 2 and its render directory remain preserved.
+
+The eleven widgets now carry more varied page-body printing at all three sizes: day-book
+registration columns and an inset initial; a threaded reckoning page for The Road; almanac
+engraving and named weather tables; more musical notation; postal cancellation, folded corners
+and scrollwork; notice perforations; theatre printing; three stable portrait-proof border
+families; inn floor annotations; omen press marks; and stitched Expedition plates. These belong
+to the existing bookmaking, postal, musical and village world. They add no new institution,
+character or real-world claim. No shared radar, corporate tagging or botanical specimen system.
+The compass, eight traveller plates, all other illustrations, palette roles and typography are
+preserved. No generated or hosted asset changed. Compact widgets receive the same print grammar
+in layouts composed for their size. Long functional text keeps its reserved areas.
+
+Visual cleanup: the Ledger compass clears its caption; new decoration clears timer fields;
+the folded letter corner has reserved heading width; postal route separators use supported
+type glyphs; missing solar data now says NO REPORT rather than inferring a night phase.
+The remaining calendar, weather, battery, links, catalogue rotation and game behavior are unchanged.
+
+Review: outputs/Long-Road-Review-v3.html; canonical review points to revision 3.
+Renders: outputs/long-road-refined-folio. Preserved revision 2: outputs/Long-Road-Review-v2.html,
+outputs/long-road-folio and outputs/long-road-v2-checkpoint. Comparisons render both sources
+with the same data; all 33 primary layouts changed. Current source remains work/foundry-long-road.
+
+63 tests and build check pass (1.45 MB page). 780 palette/catalogue/game views rendered, plus
+12 functional stress views. All 93 Folio image files are byte-identical to revision 2; 105 Folio
+screen renders and 55 icons are pixel-identical. Main baseline comparisons: 231 Original
+wallpapers/121 icons, 405 prior-edition wallpapers/220 icons and 110 prior image files unchanged.
+Visual inspection covered all 33 primary layouts, all 36 catalogue subjects at all three sizes,
+all eight walking/camping scenes at all three sizes, Night Ink large, Sea Chart medium,
+Autumn Ledger small, Spring Atlas medium, and long-text/unavailable-data extremes.
+This is rendered-source review, not browser interaction or physical-device testing. Both remain
+pending; the previously reported local-file browser restriction was not worked around.
+Nothing committed, pushed, published or submitted as a PR. Jordan's visual review remains pending.
+Include this current decisions file in every handoff.
+
+[THE LONG ROAD / REVISION 2 CORRECTION AND REWORK / 2026-10-16]
+Jordan: "assets are great the widgets need a lot more detail. rework the compass asset.
+the expedition widget looks genuinely awful and does not follow our current direction."
+The original eight illustration sheets are positively received. The sparse first-pass widgets,
+primitive Expedition map and geometric traveller are not approved baselines.
+
+Recomposed all eleven widgets at all three sizes. Their distinct page-body detail now uses
+ledger accounts, hour reckoning, almanac cells, music with lyrics, postal records, broadside
+notices, theatre admission strips, engraved portrait proofs, inn room lists and folklore notes.
+Live fields are protected; the calendar, timers, measured weather, app destinations and save
+mechanics are retained. A richly engraved compass belongs to Traveller's Ledger only; The Road
+uses a reckoning table instead of repeating it. New ornament is widget-only.
+
+Expedition has eight generated engraved scene plates: four stable traveller appearances,
+each paired with walking and camping. The saved run determines appearance; the current camp
+state selects its matching scene. Native caching downloads only the scene needed. The panels
+show possessions, companion, miles, bread, gold, health and journal entries as size permits.
+These are journal vignettes, not maps of the saved location. Existing charging/night camp and
+bounded refresh-based game mechanics are unchanged. No primitive traveller figure remains in
+this edition's game; Original retains its original renderer.
+
+Source: work/foundry-long-road (existing isolated branch codex/long-road-folio).
+Fresh review: outputs/Long-Road-Review-v2.html; canonical review also updated.
+Preserved v1: outputs/Long-Road-Review-v1.html and outputs/long-road-v1-checkpoint.
+Evidence: outputs/long-road-folio; docs/LONG_ROAD_VALIDATION.json. New prompts and provenance:
+docs/LONG_ROAD_REVISION2_PROMPTS.json. Total art: ten source sheets and 63 crops.
+63 tests/build pass; 780 widget views include 120 walking/camping state views. All 78 earlier
+Folio image files are byte-identical; all 105 Folio screen views and 55 icons match v1 pixels.
+Main's 231 Original wallpapers/121 icons, 405 prior-edition wallpapers/220 icons and all 110
+prior image files remain unchanged. Review scripts and local links checked. Browser interaction
+and physical-phone testing remain pending; local file inspection was blocked by browser URL
+policy, and no workaround was attempted. This remains a local uncommitted revision awaiting
+Jordan's visual review. No PR, push, merge or deployment was requested.
+Include the current design decisions in every handoff.
+
+[THE LONG ROAD / WAYFARER'S FOLIO FIRST REWORK / 2026-10-16]
+Jordan requested: "same thing with this theme now. full rework using the original as reference".
+Reference: Downloads/the-long-road-theme-pack.zip, preserved in outputs/long-road-original-pack.
+The original remains the reference and default. This is a new opt-in edition, folio / Wayfarer's Folio.
+Start point: GitHub main 2ec23530c92d62aac25cbd497ee81afa6155a1cd, isolated checkout
+work/foundry-long-road, branch codex/long-road-folio. Other checkouts and Android are preserved.
+
+Retain parchment, sepia, vermilion route marks, IM Fell typography, village institutions and the
+original dry travelling humour. This world is an illustrated journal and almanac. It does not
+inherit corporate telemetry, surveillance instruments or another theme's visual language.
+Eight original generated illustration sheets supply 54 independent crops: twelve village people,
+twelve omens, twelve travelling productions, six landscapes, six map regions, four instruments,
+one minstrel still life and one cutaway inn. Generated plates are reference-inspired original
+artwork. Each widget owns its hero subjects; screen maps and landscapes are a separate family.
+All eleven widgets have individually composed small, medium and large layouts with ink rules,
+postmarks, annotations, book stitching, musical staves, route detail and protected real readings.
+Fifteen existing headlines are preserved. Six home scenes are distinct from the map-led locks.
+Clock, app-row and dock spaces remain reserved. All five existing palettes remain available;
+the antique illustration plates keep their own hand-coloured inks within the palette's page.
+
+Calendar dates, live event and solar timers, actual weather/battery and existing app links remain.
+The expedition keeps its existing save, traveller identity, companions, supplies and bounded
+refresh-based game simulation. Charging makes camp; no new claim of continuous tracking is made.
+Fiction rotates at deterministic half-hour boundaries, independently from real data. Offline
+first run has code-drawn fallbacks; successful artwork downloads are cached and versioned.
+
+Review: outputs/Long-Road-Review.html. Source/world notes: docs/LONG_ROAD_FOLIO.md.
+Validation: 62 tests and build check; 660 new widget views, 105 screens and 55 icons rendered.
+Original's 231 wallpapers and 121 icons, earlier editions' 405 wallpapers and 220 icons, and all
+110 existing image files compare unchanged. Native timer bounds, long text, unavailable data,
+catalogue wrap, cache reuse, metric readings, game persistence and destinations are exercised.
+Evidence: outputs/long-road-folio; docs/LONG_ROAD_VALIDATION.json; prompt records in docs/.
+This is a local, uncommitted first-pass proposal. Jordan has not approved it. No PR, push, merge,
+deployment or Claude transmission is authorized by this design request. Browser interaction and phone
+testing remain pending (local file browser inspection was blocked by URL policy); do not describe rendering or Scriptable doubles as physical-device verification.
+Include this current decisions file in every later handoff.
+
 [WHITE RABBIT / ALICE TEXT REMOVED, LUPIN ARCHIVE, NEW LEGION LINES / CLAUDE / 2026-10-16]
 Added by Claude. Labels as above. Applies to both White Rabbit editions (they share one line pool).
 - APPROVED (Jordan, 16 Oct): no Alice in Wonderland text in White Rabbit, extending the existing imagery rule. All 11

@@ -240,6 +240,7 @@ function drawWallpaper(canvas, th, mode, phraseIdx) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, W, H);
   ctx.save(); ctx.scale(s, s);
+  if (lrfOn(th)) { lrfWallpaper(ctx, th, Hl, mode, phraseIdx || 0); ctx.restore(); return; }
   if (wrOn(th)) { wrWallpaper(ctx, th, Hl, mode, phraseIdx || 0); ctx.restore(); return; }
   if (hbOn(th)) { hbWallpaper(ctx, th, Hl, mode, phraseIdx || 0); ctx.restore(); return; }
   if (dzOn(th)) { dzWallpaper(ctx, th, Hl, mode, phraseIdx || 0); ctx.restore(); return; }
@@ -315,6 +316,7 @@ function drawIcon(canvas, th, app, idx) {
   const c = th.colors, mono = th.fonts.mono, num = String(idx + 1).padStart(2, '0'), code = (th.codes[app] || app.slice(0, 3)).toUpperCase();
   const set = (th.glyphs && GLYPHSETS[th.glyphs]) || GLYPHS;
   const glyph = new Path2D(set[app] || GLYPHS[app]);
+  if (lrfOn(th)) { lrfIcon(ctx, th, glyph, code, idx); ctx.restore(); return; }
   if (wrOn(th)) { wrIcon(ctx, th, glyph, code, idx); ctx.restore(); return; }
   if (dzOn(th)) { dzIcon(ctx, th, glyph, code, idx); ctx.restore(); return; }
   if (hbOn(th)) { hbIcon(ctx, th, glyph, code); ctx.restore(); return; }
