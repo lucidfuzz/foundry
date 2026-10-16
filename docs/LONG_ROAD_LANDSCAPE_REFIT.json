@@ -1,0 +1,8 @@
+{
+  "revision": 6,
+  "tool": "built-in image_gen",
+  "source": "exec-1a7734c1-3494-498e-870f-8114f956da59.png",
+  "prompt": "Reformat these SIX existing fantasy ink illustrations onto a NEW TALL PORTRAIT canvas, aspect ratio 2:3. This must NOT keep the reference canvas aspect ratio. Two columns and three rows of SQUARE cells. Shrink each whole landscape to fit inside the central 75% of its square cell, leaving very large COMPLETELY TRANSPARENT gutters. The landscapes themselves remain wide and short inside square cells. Use the six exact subjects and the same warm ivory/brown ink/red drawing: village with watermill; roadside inn and bridge; willow lake with ferry; ruined ivy tower; coastal lookout with flag and sailboat; mountain chapel and pass. All tops and ground edges fully visible, not touching any cell boundary. STRICT no overlapping silhouettes between cells. IMPORTANT: completely remove ALL soft glow, shadow, fog, haze, brown wash or paper background. True transparent alpha outside the crisp pen drawings. Only the six full, isolated, original illustrations. Do not recreate the full reference sheet layout. No text, borders, labels. This is a technical reformat to make reliable sprite crops, not a redesign.",
+  "reason": "Repair clipped tower tips and adjacent-scene fragments by reframing the same six settlements in separated rows. Prior landscape source preserved in revision 5 checkpoint.",
+  "unusedTrial": "exec-1bcb873c-f187-44b2-8e5f-8d0844e27fc0.png"
+}

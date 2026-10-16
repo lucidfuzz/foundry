@@ -1,0 +1,7 @@
+{
+  "revision": 4,
+  "tool": "built-in image_gen",
+  "source": "exec-765020d5-3118-445c-8909-6908f26d1826.png",
+  "prompt": "Reformat the seven existing drawings in this reference atlas into a new strictly aligned 4-column x 2-row sprite sheet, wide 2:1 canvas. Preserve the subjects and flat brown-ink, ivory and muted red drawing style; make the pen lines bolder, simpler and less realistic like Tolkien's map symbols. Transparent background with NO haze. Each cell has 15 percent clear margin on EVERY side, each object completely contained within its cell with NO overlap, no other object's fragments. The order left to right: TOP ROW compass wind rose, hourglass with winding road, sun-and-crescent emblem, folded letter with quill and red seal. BOTTOM ROW herald's horn and bells, lute over open songbook, crooked tall roadside inn, blank transparent cell. All seven are independent drawings with open white/ivory shapes, no photorealistic shading, no shadows, no cell outlines or labels. Ensure the lute's neck and the letter's quill have generous clear space, keep the compass full star entirely visible. Draw each as large as possible INSIDE its 70-percent safe area.",
+  "reason": "Seven independently contained drawings in four columns and two rows, replacing the initial atlas whose row boundaries clipped details."
+}

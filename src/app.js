@@ -17,6 +17,7 @@ const clone = (o) => JSON.parse(JSON.stringify(o));
 const state = { th: clone(PRESETS.halcyon), lock: 0, view: 'lock', device: 3 };
 if (typeof location !== 'undefined' && location.hash === '#deep-range') { state.th = clone(PRESETS.deeprange); state.th.edition = 'expanded'; state.th.phrases = clone(EDITIONS.deeprange[1].phrases); }
 if (typeof location !== 'undefined' && location.hash === '#directive-zero') { state.th = clone(PRESETS.directive); state.th.edition = 'civil-defense'; state.th.phrases = clone(EDITIONS.directive[1].phrases); }
+if (typeof location !== 'undefined' && location.hash === '#long-road') { state.th = clone(PRESETS.longroad); state.th.edition = 'folio'; }
 if (typeof location !== 'undefined' && location.hash === '#white-rabbit') { state.th = clone(PRESETS.rabbit); state.th.edition = 'afterimage'; }
 let checks = {};
 try { const saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.th && PRESETS[saved.th.id]) Object.assign(state, saved); } catch (e) {}
@@ -76,7 +77,7 @@ function applyEdition(id) {
   const e = (editionsFor(state.th) || []).find(x => x.id === id); if (!e) return;
   state.th.edition = id; state.th.phrases = clone(e.phrases); state.th.blurb = e.blurb; state.lock = 0;
   if (hbOn(state.th)) hbWarm(true);
-  if (wrOn(state.th)) wrWarm();
+  if (wrOn(state.th)) wrWarm(); if (lrfOn(state.th)) lrfWarm();
   syncFields(); buildEditions(); buildVariants(); refresh(true);
 }
 
@@ -224,7 +225,7 @@ function refresh(fontsChanged) {
 }
 
 // home frames: only the motifs that draw genuinely different frames get the 1–6 picker, frame exports and the rotation guide
-function homeFrameCount(th) { th=th||state.th; return wrOn(th)?3:['orbital', 'market'].includes(th.motif)?6:1; }
+function homeFrameCount(th) { th=th||state.th; return lrfOn(th)?6:wrOn(th)?3:['orbital', 'market'].includes(th.motif)?6:1; }
 // canvas pixel density for previews; the inspector raises it so zoomed views stay sharp
 function pvD() { return Math.min(9, (window.devicePixelRatio || 2) * (window.__pvRes || 1)); }
 function sizeCanvas(cv) {
@@ -380,7 +381,7 @@ function originalWidgetList(th) {
     { mode: 'oddity', size: 'small or medium', title: 'W-08 // ' + o[0].toUpperCase(), name: o[0], tap: 'Leave as is', desc: o[1] + ' Purely for fun, and it changes about every 30 minutes.' }
   ];
 }
-function widgetList(th) { const list = originalWidgetList(th); if(wrOn(th))return wrWidgetList(th,list); return dzOn(th) ? list.map(i=>({...i,size:"small, medium or large",...(i.mode==="instagram"?{name:"Operator Calling Cards",desc:"Twelve fictional operator credentials: abstract seals, clearance and compartment records. Tap opens Instagram."}:{})})) : hbOn(th) ? hbWidgetList(th, list) : drOn(th) ? drWidgetList(th, list) : list; }
+function widgetList(th) { const list = originalWidgetList(th); if(lrfOn(th))return lrfWidgetList(th,list); if(wrOn(th))return wrWidgetList(th,list); return dzOn(th) ? list.map(i=>({...i,size:"small, medium or large",...(i.mode==="instagram"?{name:"Operator Calling Cards",desc:"Twelve fictional operator credentials: abstract seals, clearance and compartment records. Tap opens Instagram."}:{})})) : hbOn(th) ? hbWidgetList(th, list) : drOn(th) ? drWidgetList(th, list) : list; }
 function pv(tag, css, text) { const e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = text; return e; }
 function pvCanvas(w, h, draw) { const c = document.createElement('canvas'); const d = pvD(); c.width = w * d; c.height = h * d; c.style.cssText = `width:${w}px;height:${h}px;display:block`; const x = c.getContext('2d'); x.scale(d, d); draw(x); return c; }
 
@@ -443,10 +444,10 @@ function scriptableKit(th) {
   const l0 = src.indexOf('const LIVE = {'), l1 = src.indexOf('async function themedStatus');
   const f0 = src.indexOf('// theme frame drawn under the content'), f1 = src.indexOf('function txt(stack, text, size, color, isDisp)');
   const deck = deckFor(th);
-  T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th); T.wrImages = WR_IMAGES; T.hbImages = HB_IMAGES; T.drImages = DR_IMAGES; T.hbDark = hbIsDark(th); T.hbVariant = th.variant || 0;
+  T.scriptFont = th.widget.scriptFont; T.units = th.units; T.frame = frameFor(th); T.lrfImages = LRF_IMAGES; T.wrImages = WR_IMAGES; T.hbImages = HB_IMAGES; T.drImages = DR_IMAGES; T.hbDark = hbIsDark(th); T.hbVariant = th.variant || 0;
   const tf = { string: (d) => { let h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; } };
   try {
-    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { wrPaint, wrPoster, wrTimerLayout, WR_META, WR_LOTS, WR_VENUES, WR_JOBS, dzPaint, dzPoster, DZ_META, DZ_PEOPLE, DZ_EVAL, dzScene, dzTimerLayout, drPaint, drTimerLayout, DR_META, DR_CONTACTS, drContactSilhouette, hbPaint, HB_SPRITES, hbObservation, HB_OBSERVATIONS, HB_WIDGET_ASSETS, GAMES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
+    return new Function('T', 'INK', 'INK_SOFT', 'Color', 'Point', 'Rect', 'Size', 'Path', 'DrawContext', 'Font', 'AUDIO_LINES', 'C', 'bar', 'tf', 'PANEL', src.slice(s0, s1) + '\n' + src.slice(p0, p1) + '\n' + src.slice(l0, l1) + '\n' + src.slice(f0, f1) + '\nreturn { lrfPaint, lrfPoster, lrfTimerLayout, LRF_SPRITES, LRF_META, LRF_PEOPLE, LRF_OMENS, LRF_PLAYS, LRF_PLACES, wrPaint, wrPoster, wrTimerLayout, WR_META, WR_LOTS, WR_VENUES, WR_JOBS, dzPaint, dzPoster, DZ_META, DZ_PEOPLE, DZ_EVAL, dzScene, dzTimerLayout, drPaint, drTimerLayout, DR_META, DR_CONTACTS, drContactSilhouette, hbPaint, HB_SPRITES, hbObservation, HB_OBSERVATIONS, HB_WIDGET_ASSETS, GAMES, hbAllocation, sevenSeg, hexVU, luteImg, staffImg, commRing, runeCircle, ribbon, waterfall, aSeed, THEME_PAINT, LIVE, artImage, dialStrip, drawFrame, headerImage };')(
       T, new Color(T.ink), new Color(T.ink, 0.72), Color, Point, Rect, Size, Path, DrawContext, Font, deck.audio.lines, deck,
       (w, f) => { const d = new DrawContext(); d.size = new Size(w, 4); d.setFillColor(new Color(T.ink, 0.22)); d.fillRect(new Rect(0, 0, w, 4)); d.setFillColor(new Color(T.ink)); d.fillRect(new Rect(0, 0, w * f, 4)); return d.getImage(); }, tf, new Color(T.panel));
   } catch (e) { console.warn(e); return null; }
@@ -482,6 +483,7 @@ function themedBody(item, th, wc, W, H) {
   return null;
 }
 function previewWidget(item, th) {
+  if (lrfOn(th)) return lrfPreviewWidget(item, th);
   if (wrOn(th)) return wrPreviewWidget(item, th);
   if (hbOn(th)) return hbPreviewWidget(item, th);
   if (dzOn(th)) return dzPreviewWidget(item, th);
@@ -720,8 +722,8 @@ function makeInspectable(el, label, open) { el.setAttribute('role', 'button'); e
 function scriptTheme() {
   const th = state.th, wc = widgetColors(th);
   return {
-    wrOn: wrOn(th), wrArt: wrOn(th) ? wrWidgetArt() : undefined, dzOn: dzOn(th), hbOn: hbOn(th), hbArt: hbOn(th) ? hbWidgetArt() : undefined, drOn: drOn(th), drSprites: drOn(th) ? drExportSprites() : undefined, hbDark: hbIsDark(th), hbVariant: th.variant || 0,
-    ...(wrOn(th) ? { ground: th.colors.ground } : {}),
+    lrfOn: lrfOn(th), lrfArt: lrfOn(th) ? lrfWidgetArt() : undefined, wrOn: wrOn(th), wrArt: wrOn(th) ? wrWidgetArt() : undefined, dzOn: dzOn(th), hbOn: hbOn(th), hbArt: hbOn(th) ? hbWidgetArt() : undefined, drOn: drOn(th), drSprites: drOn(th) ? drExportSprites() : undefined, hbDark: hbIsDark(th), hbVariant: th.variant || 0,
+    ...((wrOn(th)||lrfOn(th)) ? { ground: th.colors.ground } : {}),
     company: th.company, unit: th.unit, ink: wc.ink, panel: wc.panel, headBg: wc.headBg, headText: wc.headText, altBg: wc.altBg, altText: wc.altText, accent: wc.accent,
     scriptFont: wrOn(th) && th.fonts.display==='Bodoni Moda' ? 'Didot-Bold' : SCRIPT_FONTS[th.fonts.display] || th.widget.scriptFont, texture: th.texture, units: th.units, txGraphic: th.widget.txGraphic,
     archive: th.widget.archive, archiveList: th.widget.archiveList || null, C: th.widget.C || {}, codes: { youtube: th.codes.youtube, instagram: th.codes.instagram, discord: th.codes.discord, music: th.codes.music }, oddity: th.widget.oddity || ({ globe: 'mood', alert: 'eval', map: 'omens', night: 'hostile', grimoire: 'spell', orbital: 'decoder', radar: 'hostile', rabbit: 'heist', neon: 'market', market: 'bet', vapor: 'mall', botanical: 'species' }[th.motif] || 'mood'), frame: frameFor(th), L: th.widget.L, classes: th.widget.classes, slogans: th.slogans.length ? th.slogans : [['Stand By', 'HEADQUARTERS']]
@@ -822,7 +824,7 @@ async function renderBlob(mode, idx) {
   return new Promise(r => c.toBlob(r, 'image/png'));
 }
 // Exports always wait for full-resolution theme artwork, so a downloaded image never ships without it.
-async function artFullyLoaded() { if(wrOn(state.th)) {try {await wrReady();}catch(e){setStatus('White Rabbit artwork could not load. Please retry before exporting.');throw e;}}  if (hbOn(state.th)) { try { await hbReady('sheets'); } catch (e) { setStatus('Halcyon artwork could not load, so this export is paused. Check your connection and try again.'); throw e; } } }
+async function artFullyLoaded() { if(lrfOn(state.th)) {try {await lrfReady();}catch(e){setStatus('Long Road artwork could not load. Please retry before exporting.');throw e;}} if(wrOn(state.th)) {try {await wrReady();}catch(e){setStatus('White Rabbit artwork could not load. Please retry before exporting.');throw e;}}  if (hbOn(state.th)) { try { await hbReady('sheets'); } catch (e) { setStatus('Halcyon artwork could not load, so this export is paused. Check your connection and try again.'); throw e; } } }
 async function iconBlob(app, i) { await artFullyLoaded(); const c = document.createElement('canvas'); c.width = 1024; c.height = 1024; drawIcon(c, state.th, app, i); return new Promise(r => c.toBlob(r, 'image/png')); }
 function setStatus(msg) { $('exp-status').textContent = msg; }
 function mimeFor(name) { return name.endsWith('.png') ? 'image/png' : name.endsWith('.zip') ? 'application/zip' : 'text/plain'; }
@@ -905,7 +907,7 @@ async function androidHome(W, H) {
 }
 const canvasBlob = (c, type, q) => new Promise(r => c.toBlob(r, type || 'image/png', q));
 function androidSizesFor(item, th) {
-  if (hbOn(th) || drOn(th) || dzOn(th) || wrOn(th)) return ['small', 'medium'];
+  if (hbOn(th) || drOn(th) || dzOn(th) || wrOn(th) || lrfOn(th)) return ['small', 'medium'];
   const s = String(item.size || ''); if (/any/i.test(s)) return ['small', 'medium'];
   const out = ['small', 'medium'].filter(f => s.includes(f)); return out.length ? out : ['medium'];
 }
@@ -1030,4 +1032,4 @@ if (editionsFor(state.th) && !state.th.edition) { const ill = editionsFor(state.
 buildEditions();
 fontsFor(state.th).then(() => refresh());
 hbWarm(hbOn(state.th));
-if (wrOn(state.th)) wrWarm();
+if (wrOn(state.th)) wrWarm(); if (lrfOn(state.th)) lrfWarm();

@@ -2341,6 +2341,10 @@ Object.keys(QUOTE_PACKS).forEach(id => {
 // New editions are added here alongside the original, never in place of it. Choosing an edition swaps its blurb and
 // headlines; colorways, customize controls and everything else stay shared.
 const EDITIONS = {
+  longroad: [
+    {id:'original',name:'Original',blurb:PRESETS.longroad.blurb,phrases:PRESETS.longroad.phrases,morePhrases:PRESETS.longroad.morePhrases},
+    {id:'folio',name:"Wayfarer's Folio",blurb:'An illustrated road, carried in your pocket. Woodcut portraits, posted letters, old omens and a place by the fire.',phrases:PRESETS.longroad.phrases,morePhrases:PRESETS.longroad.morePhrases}
+  ],
   rabbit: [
     {id:'original',name:'Original',blurb:PRESETS.rabbit.blurb,phrases:PRESETS.rabbit.phrases,morePhrases:PRESETS.rabbit.morePhrases},
     {id:'afterimage',name:'Afterimage',blurb:'The same impeccable thieves, seen closer. Engraved vaults, disputed heirlooms and a perfect alibi.',phrases:PRESETS.rabbit.phrases,morePhrases:PRESETS.rabbit.morePhrases}

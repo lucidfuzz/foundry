@@ -1,0 +1,7 @@
+{
+  "revision": 4,
+  "tool": "built-in image_gen",
+  "prompt": "This is an atlas extraction-layout repair. Preserve all twelve existing flat fantasy ink drawings, subjects, colours and visual character. Re-layout them into precisely 3 columns and 4 rows on a PORTRAIT 2:3 canvas, ideally 1024 x1536. Each object must fit completely inside its own cell with a clear transparent moat of at least 40 pixels on all four sides. Scale each vignette DOWN to achieve that. No drawing, tiny decoration, ground, pennant, smoke, or background remnant may touch or enter a neighbour's cell. Keep the same order. Row1 castle with borrowed crown; sleeping ferryman under moon; goose on throne. Row2 toll bridge; shepherdess and moon; empty knight armour. Row3 bread cart; wandering witch; ghost by chair. Row4 whale in well; scroll map and footsteps; travellers going home through snow. Transparent background. Do not fill empty gutters with anything. No labels or added frames. Deliberately generous gutters are essential for automated cropping.",
+  "source": "exec-1683a877-093c-4ab0-b987-ba28de3f9221.png",
+  "reason": "Reformatted to portrait with larger gutters; actual clear gutters determine crop boxes."
+}

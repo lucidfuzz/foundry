@@ -1,0 +1,821 @@
+{
+  "compass": {
+    "sheet": "equipment-ink",
+    "rect": [
+      24,
+      17,
+      403,
+      420
+    ],
+    "sourceSize": [
+      1774,
+      887
+    ]
+  },
+  "journey01": {
+    "sheet": "expedition",
+    "rect": [
+      10,
+      7,
+      486,
+      365
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "journey02": {
+    "sheet": "expedition",
+    "rect": [
+      521,
+      16,
+      491,
+      347
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "journey03": {
+    "sheet": "expedition",
+    "rect": [
+      13,
+      394,
+      488,
+      351
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "journey04": {
+    "sheet": "expedition",
+    "rect": [
+      531,
+      376,
+      475,
+      353
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "journey05": {
+    "sheet": "expedition",
+    "rect": [
+      15,
+      764,
+      490,
+      370
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "journey06": {
+    "sheet": "expedition",
+    "rect": [
+      527,
+      733,
+      484,
+      375
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "journey07": {
+    "sheet": "expedition",
+    "rect": [
+      18,
+      1134,
+      485,
+      382
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "journey08": {
+    "sheet": "expedition",
+    "rect": [
+      534,
+      1116,
+      469,
+      396
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "person01": {
+    "sheet": "people",
+    "rect": [
+      26,
+      60,
+      276,
+      374
+    ],
+    "sourceSize": [
+      1234,
+      1274
+    ]
+  },
+  "person02": {
+    "sheet": "people",
+    "rect": [
+      352,
+      51,
+      230,
+      387
+    ],
+    "sourceSize": [
+      1234,
+      1274
+    ]
+  },
+  "person03": {
+    "sheet": "people",
+    "rect": [
+      628,
+      60,
+      267,
+      379
+    ],
+    "sourceSize": [
+      1234,
+      1274
+    ]
+  },
+  "person04": {
+    "sheet": "people",
+    "rect": [
+      937,
+      43,
+      265,
+      390
+    ],
+    "sourceSize": [
+      1234,
+      1274
+    ]
+  },
+  "person05": {
+    "sheet": "people",
+    "rect": [
+      41,
+      464,
+      286,
+      381
+    ],
+    "sourceSize": [
+      1234,
+      1274
+    ]
+  },
+  "person06": {
+    "sheet": "people",
+    "rect": [
+      353,
+      473,
+      246,
+      369
+    ],
+    "sourceSize": [
+      1234,
+      1274
+    ]
+  },
+  "person07": {
+    "sheet": "people",
+    "rect": [
+      644,
+      482,
+      270,
+      359
+    ],
+    "sourceSize": [
+      1234,
+      1274
+    ]
+  },
+  "person08": {
+    "sheet": "people",
+    "rect": [
+      948,
+      467,
+      259,
+      377
+    ],
+    "sourceSize": [
+      1234,
+      1274
+    ]
+  },
+  "person09": {
+    "sheet": "people",
+    "rect": [
+      37,
+      867,
+      245,
+      366
+    ],
+    "sourceSize": [
+      1234,
+      1274
+    ]
+  },
+  "person10": {
+    "sheet": "people",
+    "rect": [
+      345,
+      866,
+      242,
+      362
+    ],
+    "sourceSize": [
+      1234,
+      1274
+    ]
+  },
+  "person11": {
+    "sheet": "people",
+    "rect": [
+      616,
+      880,
+      304,
+      343
+    ],
+    "sourceSize": [
+      1234,
+      1274
+    ]
+  },
+  "person12": {
+    "sheet": "people",
+    "rect": [
+      945,
+      861,
+      264,
+      377
+    ],
+    "sourceSize": [
+      1234,
+      1274
+    ]
+  },
+  "omen01": {
+    "sheet": "omens",
+    "rect": [
+      41,
+      39,
+      305,
+      309
+    ],
+    "sourceSize": [
+      1448,
+      1086
+    ]
+  },
+  "omen02": {
+    "sheet": "omens",
+    "rect": [
+      391,
+      14,
+      303,
+      335
+    ],
+    "sourceSize": [
+      1448,
+      1086
+    ]
+  },
+  "omen03": {
+    "sheet": "omens",
+    "rect": [
+      729,
+      40,
+      332,
+      310
+    ],
+    "sourceSize": [
+      1448,
+      1086
+    ]
+  },
+  "omen04": {
+    "sheet": "omens",
+    "rect": [
+      1097,
+      42,
+      325,
+      308
+    ],
+    "sourceSize": [
+      1448,
+      1086
+    ]
+  },
+  "omen05": {
+    "sheet": "omens",
+    "rect": [
+      22,
+      409,
+      339,
+      289
+    ],
+    "sourceSize": [
+      1448,
+      1086
+    ]
+  },
+  "omen06": {
+    "sheet": "omens",
+    "rect": [
+      400,
+      395,
+      305,
+      292
+    ],
+    "sourceSize": [
+      1448,
+      1086
+    ]
+  },
+  "omen07": {
+    "sheet": "omens",
+    "rect": [
+      756,
+      378,
+      306,
+      313
+    ],
+    "sourceSize": [
+      1448,
+      1086
+    ]
+  },
+  "omen08": {
+    "sheet": "omens",
+    "rect": [
+      1091,
+      383,
+      336,
+      308
+    ],
+    "sourceSize": [
+      1448,
+      1086
+    ]
+  },
+  "omen09": {
+    "sheet": "omens",
+    "rect": [
+      38,
+      750,
+      302,
+      298
+    ],
+    "sourceSize": [
+      1448,
+      1086
+    ]
+  },
+  "omen10": {
+    "sheet": "omens",
+    "rect": [
+      378,
+      724,
+      326,
+      309
+    ],
+    "sourceSize": [
+      1448,
+      1086
+    ]
+  },
+  "omen11": {
+    "sheet": "omens",
+    "rect": [
+      736,
+      724,
+      316,
+      321
+    ],
+    "sourceSize": [
+      1448,
+      1086
+    ]
+  },
+  "omen12": {
+    "sheet": "omens",
+    "rect": [
+      1100,
+      800,
+      316,
+      243
+    ],
+    "sourceSize": [
+      1448,
+      1086
+    ]
+  },
+  "place01": {
+    "sheet": "places",
+    "rect": [
+      98,
+      33,
+      629,
+      308
+    ],
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  },
+  "place02": {
+    "sheet": "places",
+    "rect": [
+      792,
+      15,
+      650,
+      326
+    ],
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  },
+  "place03": {
+    "sheet": "places",
+    "rect": [
+      68,
+      371,
+      698,
+      312
+    ],
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  },
+  "place04": {
+    "sheet": "places",
+    "rect": [
+      789,
+      341,
+      657,
+      337
+    ],
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  },
+  "place05": {
+    "sheet": "places",
+    "rect": [
+      64,
+      683,
+      669,
+      329
+    ],
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  },
+  "place06": {
+    "sheet": "places",
+    "rect": [
+      794,
+      690,
+      695,
+      321
+    ],
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  },
+  "hourglass": {
+    "sheet": "equipment-ink",
+    "rect": [
+      472,
+      38,
+      390,
+      383
+    ],
+    "sourceSize": [
+      1774,
+      887
+    ]
+  },
+  "sundial": {
+    "sheet": "equipment-ink",
+    "rect": [
+      903,
+      15,
+      394,
+      429
+    ],
+    "sourceSize": [
+      1774,
+      887
+    ]
+  },
+  "letters": {
+    "sheet": "equipment-ink",
+    "rect": [
+      1345,
+      55,
+      414,
+      343
+    ],
+    "sourceSize": [
+      1774,
+      887
+    ]
+  },
+  "crier": {
+    "sheet": "equipment-ink",
+    "rect": [
+      24,
+      475,
+      395,
+      363
+    ],
+    "sourceSize": [
+      1774,
+      887
+    ]
+  },
+  "terrain01": {
+    "sheet": "maps",
+    "rect": [
+      23,
+      12,
+      486,
+      494
+    ],
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  },
+  "terrain02": {
+    "sheet": "maps",
+    "rect": [
+      535,
+      41,
+      463,
+      456
+    ],
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  },
+  "terrain03": {
+    "sheet": "maps",
+    "rect": [
+      1025,
+      25,
+      490,
+      481
+    ],
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  },
+  "terrain04": {
+    "sheet": "maps",
+    "rect": [
+      13,
+      523,
+      493,
+      460
+    ],
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  },
+  "terrain05": {
+    "sheet": "maps",
+    "rect": [
+      525,
+      519,
+      499,
+      480
+    ],
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  },
+  "terrain06": {
+    "sheet": "maps",
+    "rect": [
+      1024,
+      524,
+      501,
+      475
+    ],
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  },
+  "minstrel": {
+    "sheet": "equipment-ink",
+    "rect": [
+      444,
+      463,
+      418,
+      386
+    ],
+    "sourceSize": [
+      1774,
+      887
+    ]
+  },
+  "tavern": {
+    "sheet": "equipment-ink",
+    "rect": [
+      889,
+      458,
+      440,
+      410
+    ],
+    "sourceSize": [
+      1774,
+      887
+    ]
+  },
+  "stage01": {
+    "sheet": "stages",
+    "rect": [
+      12,
+      70,
+      339,
+      327
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "stage02": {
+    "sheet": "stages",
+    "rect": [
+      356,
+      119,
+      337,
+      275
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "stage03": {
+    "sheet": "stages",
+    "rect": [
+      713,
+      83,
+      299,
+      303
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "stage04": {
+    "sheet": "stages",
+    "rect": [
+      12,
+      443,
+      335,
+      307
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "stage05": {
+    "sheet": "stages",
+    "rect": [
+      360,
+      502,
+      370,
+      251
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "stage06": {
+    "sheet": "stages",
+    "rect": [
+      732,
+      450,
+      277,
+      309
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "stage07": {
+    "sheet": "stages",
+    "rect": [
+      29,
+      826,
+      340,
+      296
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "stage08": {
+    "sheet": "stages",
+    "rect": [
+      399,
+      816,
+      262,
+      319
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "stage09": {
+    "sheet": "stages",
+    "rect": [
+      700,
+      860,
+      314,
+      268
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "stage10": {
+    "sheet": "stages",
+    "rect": [
+      13,
+      1199,
+      337,
+      254
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "stage11": {
+    "sheet": "stages",
+    "rect": [
+      351,
+      1210,
+      316,
+      236
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  },
+  "stage12": {
+    "sheet": "stages",
+    "rect": [
+      685,
+      1211,
+      328,
+      252
+    ],
+    "sourceSize": [
+      1024,
+      1536
+    ]
+  }
+}
