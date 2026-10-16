@@ -1,5 +1,12 @@
 # White Rabbit — Afterimage, illustrated and print refinements
 
+## Calling Card lines — 16 October 2026 (Claude)
+
+Both editions share one line pool. Jordan removed all Lewis Carroll quotes and the two tea-party lines; eight
+attributed Arsène Lupin quotes and nine new legion lines replace them (full list and rules in
+`APPROVED_DESIGN_DECISIONS.txt` and the theme bible). Every new line fits the Afterimage Calling Card at all three
+sizes with no ellipsis. No art, painter or layout change in Afterimage.
+
 ## Browser pass and picker fix — 16 October 2026 (Claude)
 
 Interactive-browser checks passed on main `2ec2353` in headless Chromium: edition and palette switching, all

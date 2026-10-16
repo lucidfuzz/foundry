@@ -425,11 +425,11 @@ const PRESETS = {
         cell: 'NERVE', cycle: 'NIGHT', shift: 'W-02 // GETAWAY', activeLong: 'ON THE JOB', offTitle: 'Laying Low', tx: 'W-05 // CALLING CARD' },
       classes: ['CALLING CARD', 'HEIST', 'FOR THE LEGION', 'BURN AFTER READING'],
       archiveList: [
-        { t: 'Oh dear! Oh dear! I shall be too late!', by: 'LEWIS CARROLL · ALICE IN WONDERLAND · 1865' },
-        { t: 'Curiouser and curiouser!', by: 'LEWIS CARROLL · ALICE IN WONDERLAND · 1865' },
-        { t: "We're all mad here.", by: 'LEWIS CARROLL · ALICE IN WONDERLAND · 1865' },
-        { t: 'Begin at the beginning, and go on till you come to the end: then stop.', by: 'LEWIS CARROLL · ALICE IN WONDERLAND · 1865' },
-        { t: "It's no use going back to yesterday, because I was a different person then.", by: 'LEWIS CARROLL · ALICE IN WONDERLAND · 1865' }
+        { t: 'Arsène Lupin, gentleman-burglar, will return when the furniture is genuine.', by: 'MAURICE LEBLANC · GENTLEMAN-BURGLAR · 1907' },
+        { t: 'What a pity that I am not an honest man!', by: 'MAURICE LEBLANC · GENTLEMAN-BURGLAR · 1907' },
+        { t: 'I shall not be present at my trial.', by: 'MAURICE LEBLANC · GENTLEMAN-BURGLAR · 1907' },
+        { t: 'When I wish to escape I shall not require any assistance.', by: 'MAURICE LEBLANC · GENTLEMAN-BURGLAR · 1907' },
+        { t: 'It is I, always I, only I.', by: 'MAURICE LEBLANC · GENTLEMAN-BURGLAR · 1907' }
       ]
     },
     slogans: [
@@ -1475,10 +1475,6 @@ const QUOTE_PACKS = {
 "GETAWAY"
 ],
 [
-"Masks Off Only For Tea",
-"SOCIAL COMMITTEE"
-],
-[
 "Every Vault Has A Mood",
 "ENTRY SPECIALISTS"
 ],
@@ -1527,42 +1523,62 @@ const QUOTE_PACKS = {
 "SURVEILLANCE"
 ],
 [
-"Never Rob A Tea Party",
-"SOCIAL COMMITTEE"
-],
-[
 "Lasers Are Just Strict Ribbons",
 "ENTRY SPECIALISTS"
 ],
 [
 "Be The Rumor",
 "RECRUITMENT"
+],
+[
+"There Was Never Just One Rabbit",
+"THE LEGION"
+],
+[
+"Copycat Or Cell? Yes.",
+"THE LEGION"
+],
+[
+"Seen Everywhere. Caught Nowhere.",
+"SURVEILLANCE"
+],
+[
+"Chase Us. It's Flattering.",
+"GETAWAY"
+],
+[
+"Security Was Very Impressive",
+"ENTRY SPECIALISTS"
+],
+[
+"Two Initials. Zero Witnesses.",
+"CALLING CARDS"
+],
+[
+"Pearl Finish, Steel Nerve",
+"FIELD OPERATIONS"
+],
+[
+"Heirlooms Prefer Better Company",
+"THE ARCHIVE"
+],
+[
+"The Getaway Is The Encore",
+"GETAWAY"
 ]
 ],
 "archive": [
 {
-"t": "Who in the world am I? Ah, that's the great puzzle!",
-"by": "LEWIS CARROLL · ALICE IN WONDERLAND · 1865"
+"t": "My actions will serve to identify me.",
+"by": "MAURICE LEBLANC · GENTLEMAN-BURGLAR · 1907"
 },
 {
-"t": "Off with their heads!",
-"by": "LEWIS CARROLL · ALICE IN WONDERLAND · 1865"
+"t": "Ah! there are duties to society that one cannot avoid. To-morrow, I shall rest.",
+"by": "MAURICE LEBLANC · GENTLEMAN-BURGLAR · 1907"
 },
 {
-"t": "Everything's got a moral, if only you can find it.",
-"by": "LEWIS CARROLL · ALICE IN WONDERLAND · 1865"
-},
-{
-"t": "If everybody minded their own business, the world would go round a great deal faster than it does.",
-"by": "LEWIS CARROLL · ALICE IN WONDERLAND · 1865"
-},
-{
-"t": "Now, here, you see, it takes all the running you can do, to keep in the same place.",
-"by": "LEWIS CARROLL · THROUGH THE LOOKING-GLASS · 1871"
-},
-{
-"t": "The time has come, the Walrus said, to talk of many things.",
-"by": "LEWIS CARROLL · THROUGH THE LOOKING-GLASS · 1871"
+"t": "Bah! a person must have some diversion to occupy his leisure hours, especially when he is in prison.",
+"by": "MAURICE LEBLANC · GENTLEMAN-BURGLAR · 1907"
 },
 {
 "t": "I can resist everything except temptation.",

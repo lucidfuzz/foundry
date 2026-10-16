@@ -1,4 +1,43 @@
 FOUNDRY / APPROVED DESIGN DECISIONS
+[WHITE RABBIT / ALICE TEXT REMOVED, LUPIN ARCHIVE, NEW LEGION LINES / CLAUDE / 2026-10-16]
+Added by Claude. Labels as above. Applies to both White Rabbit editions (they share one line pool).
+- APPROVED (Jordan, 16 Oct): no Alice in Wonderland text in White Rabbit, extending the existing imagery rule. All 11
+  Lewis Carroll archive quotes are removed: 9 Alice in Wonderland and 2 Through the Looking-Glass (correction: the
+  entry below counted 9). The two tea-party legion lines ("Masks Off Only For Tea", "Never Rob A Tea Party") are removed
+  without replacement. The Oscar Wilde archive quote stays.
+- APPROVED (Jordan, 16 Oct): eight attributed Arsène Lupin quotes replace the Carroll lines, verbatim from George
+  Morehead's 1910 translation of Leblanc's first collection (Project Gutenberg #6133, public domain), attributed
+  "MAURICE LEBLANC · GENTLEMAN-BURGLAR · 1907" (French first edition year, as the Carroll lines used theirs):
+  "Arsène Lupin, gentleman-burglar, will return when the furniture is genuine." / "What a pity that I am not an honest
+  man!" / "I shall not be present at my trial." / "When I wish to escape I shall not require any assistance." / "It is
+  I, always I, only I." / "My actions will serve to identify me." / "Ah! there are duties to society that one cannot
+  avoid. To-morrow, I shall rest." / "Bah! a person must have some diversion to occupy his leisure hours, especially
+  when he is in prison."
+  Rejected by Jordan (do not re-propose): lines that need story context (Ganimard, the castle owner, Rozaine), the
+  romantic line, identity musing ("I no longer know who I am..."), and third-person boasts naming Lupin ("always keeps
+  his promises", "remains in prison...", "The unexpected always happens...").
+- APPROVED (Jordan, 16 Oct): nine original legion lines, written by Claude in the spirit of the supplied Marathon
+  lore (collective persona, copycats, sightings, impossible heists). No game names, places or text. Voice that passed:
+  short, dry, first person plural, smug understatement aimed at pursuers, never explaining itself. Voice that failed:
+  "ears" gimmicks, lore exposition, borrowed stock phrases. Lines: There Was Never Just One Rabbit (THE LEGION); Copycat
+  Or Cell? Yes. (THE LEGION); Seen Everywhere. Caught Nowhere. (SURVEILLANCE); Chase Us. It's Flattering. (GETAWAY);
+  Security Was Very Impressive (ENTRY SPECIALISTS); Two Initials. Zero Witnesses. (CALLING CARDS); Pearl Finish, Steel
+  Nerve (FIELD OPERATIONS); Heirlooms Prefer Better Company (THE ARCHIVE); The Getaway Is The Encore (GETAWAY).
+  Pool: 39 legion lines (was 32), 9 archive quotes (was 12). SOCIAL COMMITTEE no longer issues any line.
+- CHANGED (copy only, Jordan may veto): Original's archive label "FROM AN OLD STORYBOOK" (src/paint/80_rabbit.js) now
+  reads "ARCHIVE / ATTRIBUTED", matching Afterimage. No layout change.
+- CHECKED: 52 tests and build check pass. Native-script harness: all 17 new lines at small, medium and large in both
+  editions, stable across three runs. Afterimage: no ellipsis, nothing out of bounds, attribution clear of ornament at
+  every size. Original medium and large: clean. Browser render with real fonts (Bodoni Moda, DM Mono): every line fits
+  the Calling Card in both editions. Planar Grimoire keeps its own Carroll quote; this change is White Rabbit only.
+- OPEN (pre-existing on main 2ec2353/adab1f4, not caused by this change): Original small Calling Card cuts text with
+  an ellipsis. On main with the old lines: all 11 Carroll attributions, 4 of 11 Carroll quotes, and the "A CALLING CARD
+  · LOT 0n/07" header on every legion card. With the new lines: all 8 Lupin attributions and 3 of 8 quotes, including
+  "genuine." on the furniture line. Violates the no-truncation rule; belongs with the backlog item for small Original
+  widgets. Fix would be shrink-then-wrap in the Original painter, as its own PR.
+- OPEN (pre-existing): Original medium Calling Card: when a quote runs to three lines, the sparkle row overlaps the
+  "CATCH ME IF YOU CAN" footer. Same on main with the old Carroll lines.
+
 [WHITE RABBIT / BROWSER PASS, HOME-FRAME PICKER FIX, OPEN ITEMS / CLAUDE / 2026-10-16]
 Added by Claude. Labels: APPROVED (Jordan stated it), FIXED, OPEN, PENDING. GPT/Codex text below is kept as written.
 - This PR commits GPT's handoff-only status entry below and the matching header in WHITE_RABBIT_AFTERIMAGE.md, verbatim.

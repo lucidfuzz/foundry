@@ -60,7 +60,7 @@ const RB = {
     const small = W < 200, big = H > 200, x0 = 10, y0 = 6, w = W - 20, h = H - 12
     k.rect(x0, y0, w, h, k.a(T.panel, 0.9), k.a(T.headBg, 1), 1); k.rect(x0 + 4, y0 + 4, w - 8, h - 8, null, k.a(T.accent, 0.35), 0.6)
     ;[[x0 + 12, y0 + 14, 1], [x0 + w - 12, y0 + h - 14, -1]].forEach(([x, y]) => { k.t("A", x, y - 7, 9, k.A, { f: "disp", a: "c", w: 14 }); rbHeart(k, x, y + 8, 8, k.A) })
-    k.t(d.archival ? "FROM AN OLD STORYBOOK" : `A CALLING CARD · LOT 0${parseInt(d.hex, 16) % 7 + 1}/07`, W / 2, y0 + 10, 7, k.A, { a: "c", w: W - 60 })
+    k.t(d.archival ? "ARCHIVE / ATTRIBUTED" : `A CALLING CARD · LOT 0${parseInt(d.hex, 16) % 7 + 1}/07`, W / 2, y0 + 10, 7, k.A, { a: "c", w: W - 60 })
     const fs = fitFs(k, d.text, w - 52, small ? 4 : 3, small ? 13 : (big ? 21 : 18), "disp"), n = k.para(d.text, x0 + 26, y0 + 24, w - 52, fs, k.I, "disp", small ? 4 : 3, 1.12)
     k.t(`— ${d.by}`, W / 2, y0 + 28 + n * fs * 1.12, small ? 6.5 : 7.5, k.S, { a: "c", w: W - 60 })
     const e0 = y0 + 44 + n * fs * 1.12, e1 = y0 + h - 12
