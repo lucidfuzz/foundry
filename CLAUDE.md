@@ -20,6 +20,13 @@ Record new approvals and corrections in the decisions file the same day, and mar
 - Build: `node scripts/build.cjs`. Check: `node --test tests/*.test.cjs` and `node scripts/build.cjs --check`. Both must pass
   before any commit.
 - After adding or changing raster art in `assets/<theme>/`: `python3 scripts/art.py` (needs Pillow), then rebuild.
+- Exports are trimmed: each exported script keeps only the template code its centerpiece frame and edition can reach.
+  `scripts/trim.cjs` works this out at build time (with the vendored parser in `scripts/vendor/acorn.js`; nothing to install),
+  and `src/trim.js` applies it in `buildScript()`. Anything unexpected exports the full template. To keep it working:
+  keep `THEME_PAINT` and `GAMES` as plain object literals read only as `THEME_PAINT[T.frame]` or `GAMES[f]` (the build fails
+  otherwise); add any new edition flag (like `T.wrOn`) to `FLAGS` in `scripts/trim.cjs` and to the list in `src/trim.js`, or its
+  code ships in every theme's export; never reach code through a name built from a string. `tests/export-trim.test.cjs`
+  runs trimmed and full exports side by side for every theme, edition, widget and size (about two minutes).
 
 ## Rules
 1. **Editions, never replacements.** New designs (from GPT, Codex or anyone) are added as a new edition in `EDITIONS`

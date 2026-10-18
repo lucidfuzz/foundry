@@ -42,17 +42,6 @@ Every theme exports one Scriptable script that holds all of its widgets, each dr
 
 Weather comes from Open-Meteo (no account needed). Nothing leaves your phone except the weather request.
 
-## Suggestions and custom themes
-
-**Ideas, bugs or suggestions:** email **lucidfuzz@gmail.com**.
-
-**Want a theme made just for you?** Send your assets to **lucidfuzz@gmail.com** and we will work with you to create a widget script and asset pack just for you. Helpful things to include:
-
-- A name and a few words about the vibe
-- Reference images (screenshots, art, photos, a game or show you love). Large files are fine as a shared link
-- Any colors or fonts you have in mind
-- Which widgets you want most (weather, calendar, music, a game, something new)
-
 ## Halcyon Biofab development build
 
 The approved Halcyon art system is integrated into wallpapers, icons and all widget sizes. See [Halcyon setup and validation notes](docs/HALCYON.md) for Allocation, Radio, the specimen game and the new Distant Care catalogue. Run `npm run build` after source changes, `npm test` for integration checks, and `npm start` for a local preview.

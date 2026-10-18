@@ -1,4 +1,38 @@
 FOUNDRY / APPROVED DESIGN DECISIONS
+[SITE / CONTACT SECTION REMOVED / CLAUDE / 2026-10-17]
+- APPROVED (Jordan, 17 Oct): remove all contact info from Foundry. Removed the "Suggestions and custom themes" step (both
+  email buttons and the address line), the "@ Contact" tab in the step bar, the "Want one made just for you? Get in touch."
+  sentence on the Pick step, the now-unused contact styling, and the README's "Suggestions and custom themes" section.
+  The site and README no longer contain an email address or mailto link. Do not re-add contact details without Jordan.
+- NOTE: the address remains in git history (one earlier commit on main) and in the android branch's older copies of
+  README.md, src/page.html and index.html. Neither is served by the live site.
+
+[EXPORTS / EACH SCRIPT CARRIES ONLY ITS OWN THEME'S CODE / CLAUDE / 2026-10-16]
+Added by Claude. Resolves the OPEN site-speed item in the Long Road integration entry below (exported scripts part).
+- APPROVED (Jordan, 16 Oct): trim exported scripts to the chosen theme's code before the next edition.
+- WHAT CHANGED: every exported widget script used to carry every theme's drawing code (818 KB on main f7d059c). The build
+  now works out, for each of the 11 centerpiece frames and each edition, which top-level statements of the widget template
+  can run, and Export copies only those. Exported sizes in the browser: 184-293 KB, 64-78% smaller (Halcyon Original
+  204 KB, Illustrated 293 KB; White Rabbit Afterimage 251 KB; Wayfarer's Folio 274 KB). The page grows 818 KB of template
+  untouched plus a 15 KB plan (index.html 1.473 -> 1.491 MB); the page-side half of the site-speed item stays OPEN.
+- HOW: scripts/trim.cjs (build time only, vendored acorn 8.18.0 in scripts/vendor/, released 28 Jul) parses the template.
+  Code that runs at load is kept with everything it uses; functions and constants are kept only if kept code refers to them;
+  "Object.key = value" attachments only when their object is kept; code behind an edition flag that is off is never reached
+  (the flags are fixed in an exported script and never reassigned); THEME_PAINT and GAMES are narrowed to the current frame
+  (they are only ever read with it, which the build enforces). No widget code is rewritten. src/trim.js applies the plan in
+  buildScript(); any unknown combination, stale plan or error exports the full template exactly as before.
+- CHECKED: all 66 frame/edition combinations parse at build time, or the build fails. New tests/export-trim.test.cjs: for
+  every theme and edition plus four customised centerpieces, all 13 widget modes x 3 sizes x 3 data states (online and
+  charging, offline and denied, a saved game), trimmed and full scripts run in identical recording Scriptable stand-ins with a
+  frozen clock and seeded randomness; every widget call, drawing operation, file write and log line matched (2,340 pairs).
+  Sanity: sampled runs all finish their widget with substantial output, and deliberately removing a needed statement is
+  caught (Nightfall's painter: 8/8 comparisons differ; the Oddity-only helper: exactly the 2 Oddity comparisons). All 64
+  existing tests pass on trimmed exports (66 total). Browser: every theme and edition exports trimmed with no console errors;
+  the theme pack carries the same script as Copy script.
+- RULES for contributors (also in CLAUDE.md): keep THEME_PAINT and GAMES plain object literals read only by T.frame or f;
+  add new edition flags to FLAGS in scripts/trim.cjs and src/trim.js; never reach code through a name built from a string.
+- Existing users keep their current scripts until they re-export; old and new scripts behave the same.
+
 [THE LONG ROAD / WAYFARER'S FOLIO INTEGRATED BY CLAUDE / 2026-10-16]
 Added by Claude. GPT's revision 8 handoff (three ZIPs, 163 payload files) verified against its SHA256.json. Its patch
 applied cleanly on its stated base, current main 53a565d59d4de99cb77a8ddf7ca7bfd31510ca9e, with all 99 Long Road

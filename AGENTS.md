@@ -3,7 +3,8 @@
 Before any prefab design or implementation change, read `docs/APPROVED_DESIGN_DECISIONS.txt` (the canonical design record,
 including the WORLD-BUILDING STANDARD), the theme's section of `docs/FOUNDRY_THEME_BIBLE.md`, and `docs/PREFAB_VARIETY.txt`.
 Follow the engineering and delivery rules in `CLAUDE.md`. They apply to every contributor: editions never replace originals,
-no embedded images or fonts, hosted art via scripts/art.py, realistic Scriptable reads, start from a fresh pull of GitHub main.
+no embedded images or fonts, hosted art via scripts/art.py, realistic Scriptable reads, exports that stay trimmable, start from a
+fresh pull of GitHub main.
 
 Treat the user's approved visual direction as the baseline. Inspect the original reference and current approved render before
 editing. Preserve detail, palette separation, tone, graphic variety, artwork ownership and size consistency. Do not treat passing
