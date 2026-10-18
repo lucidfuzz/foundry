@@ -730,7 +730,9 @@ function scriptTheme() {
   };
 }
 function buildScript() {
-  return `// ${state.th.company} — made with Foundry\n` + $('tpl').textContent.trim().replace('__THEME__', JSON.stringify(scriptTheme(), null, 2));
+  // Only the code this theme and edition can reach is exported (src/trim.js); anything unexpected exports the full template.
+  const T = scriptTheme(), tpl = $('tpl').textContent.trim();
+  return `// ${state.th.company} — made with Foundry\n` + trimScript(tpl, typeof TRIM_PLAN === 'undefined' ? null : TRIM_PLAN, T).replace('__THEME__', JSON.stringify(T, null, 2));
 }
 function renderScript() { $('scriptbox').value = buildScript(); }
 

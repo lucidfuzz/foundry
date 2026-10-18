@@ -2,6 +2,7 @@
 // 1. Joins src/paint/*.js (each theme's widget art) into the paint block of src/tpl.js, keeping the Halcyon and Deep Range markers.
 // 2. Splices the Halcyon and Deep Range modules into the widget script template (their editions switch them on).
 // 3. Joins the page shell, theme data, art manifest and browser code into the standalone index.html.
+// 4. Adds the export trimming plan, so each exported script carries only its own theme's code (scripts/trim.cjs).
 // Theme artwork is NOT embedded: it is served from assets/ (run python3 scripts/art.py after changing art).
 const fs = require('node:fs');
 const path = require('node:path');
@@ -25,7 +26,10 @@ const tpl = tplSrc
   .replace('// @rabbit-runtime', () => read('src/rabbit/runtime.js'))
   .replace('// @longroad-runtime', () => read('src/longroad/runtime.js'));
 if (tpl.includes('</script')) throw new Error('The widget script cannot contain a closing script tag');
-const app = [read('src/foundry-data.js'), read('src/art-manifest.js'), read('src/art.js'), read('src/render.js'), read('src/halcyon/browser.js'), read('src/deeprange/browser.js'), read('src/deeprange/wallpapers.js'), read('android/runtime/foundry-runtime.js'), read('src/directive/browser.js'), read('src/rabbit/browser.js'), read('src/longroad/browser.js'), read('src/app.js')].join('\n');
+// 4. Export trimming: work out which template code each theme and edition can reach (see scripts/trim.cjs).
+const { makePlan, loadTrimScript } = require('./trim.cjs');
+const trimPlan = makePlan(tpl.trim(), loadTrimScript(process.cwd()));
+const app = [read('src/foundry-data.js'), read('src/art-manifest.js'), read('src/art.js'), read('src/render.js'), read('src/halcyon/browser.js'), read('src/deeprange/browser.js'), read('src/deeprange/wallpapers.js'), read('android/runtime/foundry-runtime.js'), read('src/directive/browser.js'), read('src/rabbit/browser.js'), read('src/longroad/browser.js'), read('src/trim.js'), `const TRIM_PLAN = ${JSON.stringify(trimPlan)};`, read('src/app.js')].join('\n');
 const html = read('src/page.html').replace('@@WIDGET_SCRIPT@@', () => tpl).replace('@@APPLICATION@@', () => app);
 if (check) { if (read('index.html') !== html) throw new Error('index.html is stale. Run node scripts/build.cjs'); }
 else fs.writeFileSync('index.html', html);
