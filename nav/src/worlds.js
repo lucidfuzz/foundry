@@ -52,7 +52,7 @@ const NAV_WORLDS = {
     buildings: 'outline', buildingColor: c => navMix(c.ground, c.accent, 0.3), route: c => ({ line: c.accent, glow: 12 })
   },
   vapor: {
-    texture: 'checker', textureColor: c => c.ink, textureAlpha: 0.05, marker: 'cursor', labels: { font: 'Regular' },
+    texture: 'checker', textureColor: c => c.ink, textureAlpha: 0.035, marker: 'cursor', labels: { font: 'Regular' },
     land: c => c.ground, water: c => navMix(c.ground, c.glow, 0.38), park: c => navMix(c.ground, c.glow, 0.14), wood: c => navMix(c.ground, c.glow, 0.2),
     roads: c => ({ minor: navMix(c.ground, c.accent, 0.3), major: navMix(c.ground, c.accent, 0.62), motorway: navMix(c.ground, c.glow, 0.7) }),
     buildings: 'fill', route: c => ({ line: c.alert || c.ink, casing: c.accent })

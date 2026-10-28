@@ -1,4 +1,4 @@
-// Screenshots Navie in the offline test town: node scripts/nav-shots.cjs [outdir] [--worlds=halcyon,directive]
+// Screenshots Navie in the offline test town: node scripts/nav-shots.cjs [outdir] [--worlds=halcyon,directive] [--jobs=3]
 // Writes, for every world: its five colorways on the map (browse-<world>-<n>.png), the route choice, a mid-drive screen and
 // the arrival card (<world>-route|drive|arrive.png), the theme picker (picker-*.png; with --worlds only if --picker is
 // given), plus contact sheets (contact-*.png). Look at them before calling map or
@@ -91,7 +91,8 @@ async function contact(browser, files, name, cols, label) {
   await listPage.close();
   if (only.length && worlds.length !== only.length) throw new Error(`Unknown theme id in --worlds: ${only.filter(id => !worlds.some(w => w[0] === id)).join(', ')}`);
   const queue = worlds.slice(), done = {};
-  await Promise.all([0, 1, 2].map(async () => { for (let w; (w = queue.shift());) done[w[0]] = await shoot(w); }));
+  const jobs = Math.max(1, +((args.find(a => a.startsWith('--jobs=')) || '').slice(7)) || 3);
+  await Promise.all(Array.from({ length: jobs }, async () => { for (let w; (w = queue.shift());) done[w[0]] = await shoot(w); }));
   for (const [id] of worlds) { shots.browse.push(...done[id].browse); shots.scenes.push(...done[id].scenes); }
   // The theme picker: everyone, then filtered to kids and to easy-to-read.
   if (!only.length || args.includes('--picker')) {

@@ -178,6 +178,10 @@ test('every Navie theme is complete, readable and original', () => {
     for (const cw of t.colorways) for (const [k, v] of Object.entries(cw.colors)) assert.ok(/^#[0-9A-Fa-f]{6}$/.test(v) && k in t.colors || k === 'highway', `${t.id}/${cw.name} color ${k}`);
     assert.ok(/^family=[A-Za-z0-9+]+(:[^&]+)?(&family=[A-Za-z0-9+]+(:[^&]+)?)?&display=swap$/.test(t.fontQuery), `${t.id} font link`);
     for (const f of [t.fonts.display, t.fonts.mono]) assert.ok(t.fontQuery.includes('family=' + f.replace(/ /g, '+')), `${t.id} loads ${f}`);
+    for (const cw of t.colorways) {
+      const p = N.navPalette(t, cw), c = Object.assign({}, t.colors, cw.colors);
+      assert.equal(p.route.line, c.accent, `${t.id}/${cw.name}: the route is the theme's own accent, not the app's fallback`);
+    }
     const w = N.NAV_WORLDS[t.id];
     assert.ok(N.NAV_MARKERS[w.marker], `${t.id} marker`);
     assert.ok(w.texture === 'none' || N.navTexture(w.texture, '#000000', 1).data.some(v => v), `${t.id} texture ${w.texture} draws`);
