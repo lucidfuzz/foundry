@@ -66,7 +66,7 @@ async function contact(browser, files, name, cols, label) {
     await page.clock.install({ time: new Date('2026-10-28T17:00:00') });
     await page.goto(`${base}/nav/index.html?fixture=1&sim=manual&theme=${id}`);
     await page.waitForFunction(() => window.FoundryMaps && window.FoundryMaps.map && window.FoundryMaps.map.isStyleLoaded());
-    const snap = async (list, f) => { await idle(page); await page.screenshot({ path: path.join(OUT, f) }); list.push(f); log(f); };
+    const snap = async (list, f) => { await idle(page); await page.screenshot({ path: path.join(OUT, f), timeout: 120000 }); list.push(f); log(f); };
     for (let i = 0; i < n; i++) {
       await page.evaluate(([id, i]) => { window.FoundryMaps.world(id, i); window.FoundryMaps.map.jumpTo({ center: [12.0, 45.0], zoom: 15.2, bearing: 0, pitch: 0 }); }, [id, i]);
       await snap(mine.browse, `browse-${id}-${i}.png`);
@@ -104,7 +104,7 @@ async function contact(browser, files, name, cols, label) {
     for (const [age, vibe] of [['all', 'all'], ['kids', 'all'], ['clear', 'all']]) {
       await page.evaluate(([a, v]) => window.FoundryMaps.picker(a, v), [age, vibe]);
       await page.waitForTimeout(800);
-      const f = `picker-${age}.png`; await page.screenshot({ path: path.join(OUT, f) }); shots.scenes.push(f);
+      const f = `picker-${age}.png`; await page.screenshot({ path: path.join(OUT, f), timeout: 120000 }); shots.scenes.push(f);
     }
     await ctx.close();
   }

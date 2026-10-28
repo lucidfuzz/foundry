@@ -410,7 +410,14 @@ function boot() {
     attributionControl: false, canvasContextAttributes: { preserveDrawingBuffer: NAV_MANUAL }
   });
   map.on('styleimagemissing', e => { const img = navTextureFromId(e.id); if (img && !map.hasImage(e.id)) map.addImage(e.id, img, { pixelRatio: 2 }); });
-  map.on('style.load', drawRoute);
+  // Textures: MapLibre never asks for a background layer's pattern, so every texture the style names is drawn on load.
+  map.on('style.load', () => {
+    for (const l of map.getStyle().layers) {
+      const id = l.paint && (l.paint['background-pattern'] || l.paint['fill-pattern']), img = typeof id === 'string' && navTextureFromId(id);
+      if (img && !map.hasImage(id)) map.addImage(id, img, { pixelRatio: 2 });
+    }
+    drawRoute();
+  });
   map.on('dragstart', () => { if (S.mode === 'nav') S.following = false; });
   map.on('click', 'nav-alts', e => { const i = e.features[0] && e.features[0].properties.i; if (i != null) { S.pick = i; renderRoutes(); drawRoute(); } });
   map.on('contextmenu', e => dropPin(e.lngLat));
