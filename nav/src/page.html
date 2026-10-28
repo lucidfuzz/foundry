@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0B0C0E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Navie</title>
+<link rel="icon" href="../icon-180.png">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="world-fonts" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css" integrity="sha384-uTttxo/aOKbdE5RlD/SPzSDoDmNvGlUYPjONi2MN/b7c9HPSvW07OIuyP7uL6jxK" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js" integrity="sha384-5+cfbwT0iiub6VsQAdn6yz16nr6sDiQoHx6tm4O8OVYXHYOxcffFmCJBL0dgdvGp" crossorigin="anonymous"></script>
+<style>
+:root { --ground:#0B0C0E; --ink:#F1ECE2; --accent:#FF7A1A; --panel:#131518; --glow:#46E27A; --alert:#E3242B; --land:#0B0C0E; --route:#FF7A1A;
+  --display:'Newsreader', Georgia, serif; --mono:'IBM Plex Mono', ui-monospace, monospace; --dw:600; --case:none; --radius:14px; --line:1px;
+  --top:env(safe-area-inset-top, 0px); --bot:env(safe-area-inset-bottom, 0px); }
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { margin:0; height:100%; overflow:hidden; background:var(--land); color:var(--ink); font-family:var(--mono); }
+button { font:inherit; color:inherit; cursor:pointer; }
+#map { position:fixed; inset:0; }
+.hidden { display:none !important; }
+.panel { background:color-mix(in srgb, var(--panel) 94%, transparent); color:var(--ink); border:var(--line) solid color-mix(in srgb, var(--ink) 22%, transparent);
+  border-radius:var(--radius); box-shadow:0 8px 28px rgba(0,0,0,.28); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+.label { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; opacity:.72; }
+.display { font-family:var(--display); font-weight:var(--dw); text-transform:var(--case); }
+.btn { min-height:48px; padding:0 18px; border-radius:calc(var(--radius) - 4px); border:var(--line) solid color-mix(in srgb, var(--ink) 30%, transparent); background:transparent; }
+.btn.primary { background:var(--route); color:var(--on-route, var(--ground)); border-color:transparent; font-family:var(--display); font-weight:var(--dw); font-size:19px; text-transform:var(--case); }
+.round { width:52px; height:52px; padding:0; display:grid; place-items:center; border-radius:50%; }
+.round svg { width:24px; height:24px; }
+/* Search */
+#top { position:fixed; left:12px; right:12px; top:calc(var(--top) + 10px); z-index:5; }
+#searchbar { display:flex; align-items:center; gap:8px; padding:6px 6px 6px 14px; }
+#searchbar svg { width:20px; height:20px; flex:none; opacity:.7; }
+#q { flex:1; min-width:0; height:44px; border:0; outline:0; background:transparent; color:var(--ink); font-family:var(--display); font-weight:var(--dw); font-size:18px; text-transform:var(--case); }
+#q::placeholder { color:color-mix(in srgb, var(--ink) 55%, transparent); }
+#worldbtn { width:44px; height:44px; border-radius:calc(var(--radius) - 4px); border:var(--line) solid color-mix(in srgb, var(--ink) 25%, transparent); background:linear-gradient(135deg, var(--ground) 0 50%, var(--route) 50% 100%); flex:none; }
+#results { margin-top:8px; max-height:52vh; overflow:auto; padding:4px 0; }
+.result { display:flex; gap:12px; align-items:center; width:100%; text-align:left; padding:12px 16px; min-height:56px; border:0; background:transparent; border-bottom:var(--line) solid color-mix(in srgb, var(--ink) 10%, transparent); }
+.result:last-child { border-bottom:0; }
+.result b { display:block; font-family:var(--display); font-weight:var(--dw); font-size:17px; text-transform:var(--case); }
+.result small { display:block; opacity:.65; font-size:12px; margin-top:2px; }
+.result .dist { margin-left:auto; font-size:12px; opacity:.6; white-space:nowrap; }
+#lock { padding:12px 14px; margin-top:8px; display:flex; gap:10px; align-items:center; font-size:13px; }
+/* Route choice */
+#sheet { position:fixed; left:0; right:0; bottom:0; z-index:6; padding:16px 14px calc(var(--bot) + 14px); border-radius:calc(var(--radius) + 6px) calc(var(--radius) + 6px) 0 0; }
+#sheet header { display:flex; align-items:baseline; gap:10px; margin-bottom:10px; }
+#sheet h2 { margin:0; font-size:22px; line-height:1.15; flex:1; min-width:0; overflow-wrap:anywhere; }
+#routes { display:grid; gap:8px; margin-bottom:12px; }
+.route { display:grid; grid-template-columns:1fr auto; gap:2px 12px; text-align:left; padding:12px 14px; border-radius:calc(var(--radius) - 4px); border:2px solid color-mix(in srgb, var(--ink) 14%, transparent); background:transparent; }
+.route.on { border-color:var(--route); background:color-mix(in srgb, var(--route) 12%, transparent); }
+.route .t { font-family:var(--display); font-weight:var(--dw); font-size:24px; }
+.route .meta { font-size:13px; opacity:.75; align-self:center; text-align:right; }
+.route .via { grid-column:1 / -1; font-size:12px; opacity:.6; }
+#modes { display:flex; gap:6px; margin-bottom:12px; }
+#modes button { flex:1; min-height:44px; }
+#modes button.on { background:color-mix(in srgb, var(--ink) 14%, transparent); }
+#sheet .row { display:flex; gap:8px; }
+#sheet .row .primary { flex:1; }
+/* Navigation */
+#banner { position:fixed; left:10px; right:10px; top:calc(var(--top) + 10px); z-index:5; padding:12px 14px 14px; }
+#banner .who { margin-bottom:6px; }
+#banner .main { display:flex; gap:14px; align-items:center; }
+#arrow { width:64px; height:64px; flex:none; color:var(--route); }
+#arrow svg { width:100%; height:100%; }
+#bdist { font-size:34px; line-height:1; }
+#bverb { font-size:21px; line-height:1.15; margin-top:4px; overflow-wrap:anywhere; }
+#broad { font-size:15px; line-height:1.2; margin-top:2px; opacity:.85; overflow-wrap:anywhere; }
+#then { margin-top:10px; padding-top:8px; border-top:var(--line) solid color-mix(in srgb, var(--ink) 16%, transparent); display:flex; gap:8px; align-items:center; font-size:14px; }
+#then svg { width:22px; height:22px; color:var(--route); }
+#strip { position:fixed; left:10px; right:10px; bottom:calc(var(--bot) + 104px); z-index:5; padding:10px 14px; font-size:13px; line-height:1.35; }
+#strip b { font-family:var(--display); font-weight:var(--dw); font-size:15px; text-transform:var(--case); display:block; }
+#bar { position:fixed; left:10px; right:10px; bottom:calc(var(--bot) + 10px); z-index:5; padding:10px 10px 10px 14px; display:grid; grid-template-columns:repeat(3, minmax(0, auto)) 1fr; align-items:center; gap:4px 14px; }
+#bar .cell { min-width:0; }
+#bar .label { font-size:10px; letter-spacing:.06em; overflow-wrap:anywhere; }
+#bar .v { font-family:var(--display); font-weight:var(--dw); font-size:19px; line-height:1.1; overflow-wrap:anywhere; }
+#bar .btn { justify-self:end; max-width:104px; padding:4px 10px; line-height:1.15; }
+#bar .grow { flex:1; }
+#side { position:fixed; right:12px; bottom:calc(var(--bot) + 190px); z-index:4; display:grid; gap:10px; }
+body.sim #strip { bottom:calc(var(--bot) + 160px); }
+body.sim #side { bottom:calc(var(--bot) + 250px); }
+#credit { position:fixed; left:10px; bottom:calc(var(--bot) + 4px); z-index:3; font-size:10px; opacity:.7; color:var(--ink); text-shadow:0 0 3px var(--land); }
+#credit a { color:inherit; }
+body.nav #credit, body.route #credit { bottom:auto; top:calc(var(--top) + 2px); }
+/* Arrival */
+#arrive { position:fixed; left:12px; right:12px; bottom:calc(var(--bot) + 12px); z-index:7; padding:20px 18px; text-align:center; }
+#arrive h1 { margin:8px 0 6px; font-size:34px; line-height:1.05; }
+#arrive p { margin:0 0 16px; opacity:.8; }
+/* World picker */
+#worlds { position:fixed; inset:0; z-index:8; overflow:auto; padding:calc(var(--top) + 14px) 14px calc(var(--bot) + 20px); border-radius:0; }
+#worlds header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+#worlds h2 { margin:0; flex:1; font-size:26px; }
+#worldlist { display:grid; gap:10px; }
+.world { padding:12px 14px; border-radius:calc(var(--radius) - 2px); border:var(--line) solid color-mix(in srgb, var(--ink) 18%, transparent); text-align:left; }
+.world.on { outline:2px solid var(--route); }
+.world b { font-size:19px; display:block; }
+.world small { display:block; opacity:.7; font-size:12px; margin:3px 0 10px; line-height:1.35; }
+.swatches { display:flex; gap:8px; flex-wrap:wrap; }
+.sw { width:44px; height:44px; border-radius:50%; border:2px solid rgba(127,127,127,.4); padding:0; }
+.sw.on { border-color:currentColor; box-shadow:0 0 0 2px var(--route); }
+.settings { margin-top:16px; display:grid; gap:12px; padding:14px; }
+.seg { display:flex; gap:6px; }
+.seg button { flex:1; min-height:44px; }
+.seg button.on { background:color-mix(in srgb, var(--ink) 16%, transparent); border-color:var(--route); }
+#sim { position:fixed; left:10px; bottom:calc(var(--bot) + 104px); z-index:6; display:flex; gap:6px; padding:6px; font-size:12px; }
+#sim button { min-height:40px; padding:0 10px; }
+#toast { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(var(--bot) + 120px); z-index:9; padding:10px 16px; font-size:13px; max-width:90vw; }
+.marker { width:48px; height:48px; }
+.marker svg { width:48px; height:48px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.35)); }
+/* Each world frames its panels its own way (identity is locked per world: WORLD-BUILDING STANDARD 2). */
+[data-world=halcyon] .panel { border-radius:6px; border-top:2px solid var(--ink); }
+[data-world=directive] .panel { border-radius:0; border-left:4px solid var(--accent); }
+[data-world=longroad] .panel { border-radius:4px; border:3px double color-mix(in srgb, var(--ink) 45%, transparent); }
+[data-world=nightfall] .panel { border-radius:0; clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
+[data-world=grimoire] .panel { border:2px solid color-mix(in srgb, var(--accent) 70%, transparent); outline:1px solid color-mix(in srgb, var(--accent) 35%, transparent); outline-offset:-6px; }
+[data-world=deeprange] .panel { border-radius:0; border-color:color-mix(in srgb, var(--ink) 30%, transparent); background:color-mix(in srgb, var(--panel) 90%, transparent); }
+[data-world=rabbit] .panel { border-radius:26px; }
+[data-world=neon] .panel { border-radius:4px; border-color:var(--glow); box-shadow:0 0 14px color-mix(in srgb, var(--glow) 45%, transparent), inset 0 0 10px color-mix(in srgb, var(--accent) 20%, transparent); }
+[data-world=vapor] .panel { border-radius:0; border:2px solid; border-color:#FFFFFF #404040 #404040 #FFFFFF; }
+[data-world=wild] .panel { border-radius:18px; border:1.5px dashed color-mix(in srgb, var(--ink) 35%, transparent); }
+/* Studio designs pick their own panel shape. */
+[data-world=studio][data-shape=square] .panel { border-radius:0; }
+[data-world=studio][data-shape=pill] .panel { border-radius:26px; }
+#studio { position:fixed; left:0; right:0; bottom:0; height:60vh; z-index:8; overflow:auto; padding:16px 14px calc(var(--bot) + 24px); border-radius:calc(var(--radius) + 6px) calc(var(--radius) + 6px) 0 0; }
+#studio header { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+#studio h2 { margin:0; flex:1; font-size:26px; }
+#studio fieldset { border:0; margin:14px 0 0; padding:14px 0 0; border-top:var(--line) solid color-mix(in srgb, var(--ink) 15%, transparent); display:grid; gap:10px; }
+#studio legend { padding:0; }
+#studio .note { font-size:12px; opacity:.7; line-height:1.4; }
+#studio .chips { display:flex; flex-wrap:wrap; gap:8px; }
+#studio .chips button { min-height:44px; min-width:44px; padding:0 12px; }
+#studio .chips button.on { border-color:var(--route); background:color-mix(in srgb, var(--route) 16%, transparent); }
+#studio .chips svg { width:30px; height:30px; display:block; }
+#studio .colors { display:grid; grid-template-columns:repeat(auto-fill, minmax(96px, 1fr)); gap:10px; }
+#studio .colors label { display:grid; gap:4px; font-size:12px; }
+#studio input[type=color] { width:100%; height:44px; padding:0; border:var(--line) solid color-mix(in srgb, var(--ink) 30%, transparent); border-radius:8px; background:none; }
+#studio input[type=text], #studio select, #studio textarea { width:100%; min-height:44px; padding:10px 12px; font:inherit; font-size:16px; color:var(--ink); background:color-mix(in srgb, var(--land) 70%, transparent); border:var(--line) solid color-mix(in srgb, var(--ink) 30%, transparent); border-radius:8px; }
+#studio textarea { min-height:84px; resize:vertical; }
+#studio label.field { display:grid; gap:4px; font-size:12px; }
+#studio input[type=range] { width:100%; accent-color:var(--route); }
+#studio .row { display:flex; gap:8px; flex-wrap:wrap; }
+#studio .row > * { flex:1; }
+[data-world=odds] .panel { border-radius:2px; border-color:color-mix(in srgb, var(--glow) 40%, transparent); }
+</style>
+</head>
+<body>
+<div id="map" aria-label="Map"></div>
+
+<div id="top">
+  <div id="searchbar" class="panel">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <input id="q" type="search" autocomplete="off" enterkeyhint="search" aria-label="Search for a place">
+    <button id="worldbtn" aria-label="Choose a world"></button>
+  </div>
+  <div id="lock" class="panel hidden"><span>Typing is locked while moving.</span><button id="passenger" class="btn">I'm a passenger</button></div>
+  <div id="results" class="panel hidden" role="listbox"></div>
+</div>
+
+<div id="side">
+  <button id="mute" class="panel round hidden" aria-label="Mute voice"></button>
+  <button id="recenter" class="panel round" aria-label="Center on my position"><svg viewBox="0 0 24 24"><path d="M12 2l7 19-7-4-7 4z" fill="currentColor"/></svg></button>
+</div>
+
+<section id="sheet" class="panel hidden" aria-label="Route choices">
+  <header><div style="flex:1;min-width:0"><div class="label" id="routesLabel"></div><h2 class="display" id="destName"></h2></div><button id="cancel" class="btn round" aria-label="Close">✕</button></header>
+  <div id="modes"><button class="btn on" data-mode="car">Drive</button><button class="btn" data-mode="bike">Bike</button><button class="btn" data-mode="foot">Walk</button></div>
+  <div id="routes"></div>
+  <div class="row"><button id="go" class="btn primary"></button></div>
+</section>
+
+<section id="banner" class="panel hidden" aria-live="polite">
+  <div class="label who" id="who"></div>
+  <div class="main"><div id="arrow"></div><div style="min-width:0"><div class="display" id="bdist"></div><div class="display" id="bverb"></div><div id="broad"></div></div></div>
+  <div id="then" class="hidden"></div>
+</section>
+<div id="strip" class="panel hidden"></div>
+<section id="bar" class="panel hidden">
+  <div class="cell"><div class="label" id="etaLabel"></div><div class="v" id="eta"></div></div>
+  <div class="cell"><div class="label" id="leftLabel"></div><div class="v" id="left"></div></div>
+  <div class="cell"><div class="label">&nbsp;</div><div class="v" id="leftDist"></div></div>
+  <button id="end" class="btn"></button>
+</section>
+
+<section id="arrive" class="panel hidden">
+  <div class="label" id="arriveLabel"></div>
+  <h1 class="display" id="arriveHead"></h1>
+  <p id="arriveSub"></p>
+  <button id="done" class="btn primary" style="width:100%">Done</button>
+</section>
+
+<section id="worlds" class="panel hidden" aria-label="Worlds and settings">
+  <header><h2 class="display">Choose a world</h2><button id="closeWorlds" class="btn round" aria-label="Close">✕</button></header>
+  <div id="worldlist"></div>
+  <div class="settings panel">
+    <div class="label">Voice</div>
+    <div class="seg" id="styleSeg"><button class="btn" data-style="plain">Plain</button><button class="btn" data-style="light">Light</button><button class="btn" data-style="full">Full</button></div>
+    <small id="styleNote" style="opacity:.7"></small>
+    <div class="label">Distances</div>
+    <div class="seg" id="unitSeg"><button class="btn" data-units="auto">Auto</button><button class="btn" data-units="imperial">Miles</button><button class="btn" data-units="metric">Kilometers</button></div>
+    <small style="opacity:.7">Only your route and search text leave this phone, to the free OpenStreetMap services credited on the map. Nothing else is collected.</small>
+  </div>
+</section>
+
+<section id="studio" class="panel hidden" aria-label="Design your map">
+  <header><h2 class="display">Design your map</h2><button id="closeStudio" class="btn round" aria-label="Close">✕</button></header>
+  <div class="note">Every change shows on the map above. Your design stays on this phone; share it as a link.</div>
+  <div id="studioBody"></div>
+</section>
+
+<div id="sim" class="panel hidden"><span class="label" style="align-self:center">Sim</span><button class="btn" data-speed="1">1x</button><button class="btn" data-speed="4">4x</button><button class="btn" data-speed="10">10x</button><button class="btn" id="wrong">Wrong turn</button></div>
+<div id="toast" class="panel hidden" role="status"></div>
+<div id="credit"></div>
+
+<script>
+@@APPLICATION@@
+</script>
+</body>
+</html>

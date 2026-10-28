@@ -1,0 +1,1548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0B0C0E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Navie</title>
+<link rel="icon" href="../icon-180.png">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="world-fonts" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css" integrity="sha384-uTttxo/aOKbdE5RlD/SPzSDoDmNvGlUYPjONi2MN/b7c9HPSvW07OIuyP7uL6jxK" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js" integrity="sha384-5+cfbwT0iiub6VsQAdn6yz16nr6sDiQoHx6tm4O8OVYXHYOxcffFmCJBL0dgdvGp" crossorigin="anonymous"></script>
+<style>
+:root { --ground:#0B0C0E; --ink:#F1ECE2; --accent:#FF7A1A; --panel:#131518; --glow:#46E27A; --alert:#E3242B; --land:#0B0C0E; --route:#FF7A1A;
+  --display:'Newsreader', Georgia, serif; --mono:'IBM Plex Mono', ui-monospace, monospace; --dw:600; --case:none; --radius:14px; --line:1px;
+  --top:env(safe-area-inset-top, 0px); --bot:env(safe-area-inset-bottom, 0px); }
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { margin:0; height:100%; overflow:hidden; background:var(--land); color:var(--ink); font-family:var(--mono); }
+button { font:inherit; color:inherit; cursor:pointer; }
+#map { position:fixed; inset:0; }
+.hidden { display:none !important; }
+.panel { background:color-mix(in srgb, var(--panel) 94%, transparent); color:var(--ink); border:var(--line) solid color-mix(in srgb, var(--ink) 22%, transparent);
+  border-radius:var(--radius); box-shadow:0 8px 28px rgba(0,0,0,.28); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+.label { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; opacity:.72; }
+.display { font-family:var(--display); font-weight:var(--dw); text-transform:var(--case); }
+.btn { min-height:48px; padding:0 18px; border-radius:calc(var(--radius) - 4px); border:var(--line) solid color-mix(in srgb, var(--ink) 30%, transparent); background:transparent; }
+.btn.primary { background:var(--route); color:var(--on-route, var(--ground)); border-color:transparent; font-family:var(--display); font-weight:var(--dw); font-size:19px; text-transform:var(--case); }
+.round { width:52px; height:52px; padding:0; display:grid; place-items:center; border-radius:50%; }
+.round svg { width:24px; height:24px; }
+/* Search */
+#top { position:fixed; left:12px; right:12px; top:calc(var(--top) + 10px); z-index:5; }
+#searchbar { display:flex; align-items:center; gap:8px; padding:6px 6px 6px 14px; }
+#searchbar svg { width:20px; height:20px; flex:none; opacity:.7; }
+#q { flex:1; min-width:0; height:44px; border:0; outline:0; background:transparent; color:var(--ink); font-family:var(--display); font-weight:var(--dw); font-size:18px; text-transform:var(--case); }
+#q::placeholder { color:color-mix(in srgb, var(--ink) 55%, transparent); }
+#worldbtn { width:44px; height:44px; border-radius:calc(var(--radius) - 4px); border:var(--line) solid color-mix(in srgb, var(--ink) 25%, transparent); background:linear-gradient(135deg, var(--ground) 0 50%, var(--route) 50% 100%); flex:none; }
+#results { margin-top:8px; max-height:52vh; overflow:auto; padding:4px 0; }
+.result { display:flex; gap:12px; align-items:center; width:100%; text-align:left; padding:12px 16px; min-height:56px; border:0; background:transparent; border-bottom:var(--line) solid color-mix(in srgb, var(--ink) 10%, transparent); }
+.result:last-child { border-bottom:0; }
+.result b { display:block; font-family:var(--display); font-weight:var(--dw); font-size:17px; text-transform:var(--case); }
+.result small { display:block; opacity:.65; font-size:12px; margin-top:2px; }
+.result .dist { margin-left:auto; font-size:12px; opacity:.6; white-space:nowrap; }
+#lock { padding:12px 14px; margin-top:8px; display:flex; gap:10px; align-items:center; font-size:13px; }
+/* Route choice */
+#sheet { position:fixed; left:0; right:0; bottom:0; z-index:6; padding:16px 14px calc(var(--bot) + 14px); border-radius:calc(var(--radius) + 6px) calc(var(--radius) + 6px) 0 0; }
+#sheet header { display:flex; align-items:baseline; gap:10px; margin-bottom:10px; }
+#sheet h2 { margin:0; font-size:22px; line-height:1.15; flex:1; min-width:0; overflow-wrap:anywhere; }
+#routes { display:grid; gap:8px; margin-bottom:12px; }
+.route { display:grid; grid-template-columns:1fr auto; gap:2px 12px; text-align:left; padding:12px 14px; border-radius:calc(var(--radius) - 4px); border:2px solid color-mix(in srgb, var(--ink) 14%, transparent); background:transparent; }
+.route.on { border-color:var(--route); background:color-mix(in srgb, var(--route) 12%, transparent); }
+.route .t { font-family:var(--display); font-weight:var(--dw); font-size:24px; }
+.route .meta { font-size:13px; opacity:.75; align-self:center; text-align:right; }
+.route .via { grid-column:1 / -1; font-size:12px; opacity:.6; }
+#modes { display:flex; gap:6px; margin-bottom:12px; }
+#modes button { flex:1; min-height:44px; }
+#modes button.on { background:color-mix(in srgb, var(--ink) 14%, transparent); }
+#sheet .row { display:flex; gap:8px; }
+#sheet .row .primary { flex:1; }
+/* Navigation */
+#banner { position:fixed; left:10px; right:10px; top:calc(var(--top) + 10px); z-index:5; padding:12px 14px 14px; }
+#banner .who { margin-bottom:6px; }
+#banner .main { display:flex; gap:14px; align-items:center; }
+#arrow { width:64px; height:64px; flex:none; color:var(--route); }
+#arrow svg { width:100%; height:100%; }
+#bdist { font-size:34px; line-height:1; }
+#bverb { font-size:21px; line-height:1.15; margin-top:4px; overflow-wrap:anywhere; }
+#broad { font-size:15px; line-height:1.2; margin-top:2px; opacity:.85; overflow-wrap:anywhere; }
+#then { margin-top:10px; padding-top:8px; border-top:var(--line) solid color-mix(in srgb, var(--ink) 16%, transparent); display:flex; gap:8px; align-items:center; font-size:14px; }
+#then svg { width:22px; height:22px; color:var(--route); }
+#strip { position:fixed; left:10px; right:10px; bottom:calc(var(--bot) + 104px); z-index:5; padding:10px 14px; font-size:13px; line-height:1.35; }
+#strip b { font-family:var(--display); font-weight:var(--dw); font-size:15px; text-transform:var(--case); display:block; }
+#bar { position:fixed; left:10px; right:10px; bottom:calc(var(--bot) + 10px); z-index:5; padding:10px 10px 10px 14px; display:grid; grid-template-columns:repeat(3, minmax(0, auto)) 1fr; align-items:center; gap:4px 14px; }
+#bar .cell { min-width:0; }
+#bar .label { font-size:10px; letter-spacing:.06em; overflow-wrap:anywhere; }
+#bar .v { font-family:var(--display); font-weight:var(--dw); font-size:19px; line-height:1.1; overflow-wrap:anywhere; }
+#bar .btn { justify-self:end; max-width:104px; padding:4px 10px; line-height:1.15; }
+#bar .grow { flex:1; }
+#side { position:fixed; right:12px; bottom:calc(var(--bot) + 190px); z-index:4; display:grid; gap:10px; }
+body.sim #strip { bottom:calc(var(--bot) + 160px); }
+body.sim #side { bottom:calc(var(--bot) + 250px); }
+#credit { position:fixed; left:10px; bottom:calc(var(--bot) + 4px); z-index:3; font-size:10px; opacity:.7; color:var(--ink); text-shadow:0 0 3px var(--land); }
+#credit a { color:inherit; }
+body.nav #credit, body.route #credit { bottom:auto; top:calc(var(--top) + 2px); }
+/* Arrival */
+#arrive { position:fixed; left:12px; right:12px; bottom:calc(var(--bot) + 12px); z-index:7; padding:20px 18px; text-align:center; }
+#arrive h1 { margin:8px 0 6px; font-size:34px; line-height:1.05; }
+#arrive p { margin:0 0 16px; opacity:.8; }
+/* World picker */
+#worlds { position:fixed; inset:0; z-index:8; overflow:auto; padding:calc(var(--top) + 14px) 14px calc(var(--bot) + 20px); border-radius:0; }
+#worlds header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+#worlds h2 { margin:0; flex:1; font-size:26px; }
+#worldlist { display:grid; gap:10px; }
+.world { padding:12px 14px; border-radius:calc(var(--radius) - 2px); border:var(--line) solid color-mix(in srgb, var(--ink) 18%, transparent); text-align:left; }
+.world.on { outline:2px solid var(--route); }
+.world b { font-size:19px; display:block; }
+.world small { display:block; opacity:.7; font-size:12px; margin:3px 0 10px; line-height:1.35; }
+.swatches { display:flex; gap:8px; flex-wrap:wrap; }
+.sw { width:44px; height:44px; border-radius:50%; border:2px solid rgba(127,127,127,.4); padding:0; }
+.sw.on { border-color:currentColor; box-shadow:0 0 0 2px var(--route); }
+.settings { margin-top:16px; display:grid; gap:12px; padding:14px; }
+.seg { display:flex; gap:6px; }
+.seg button { flex:1; min-height:44px; }
+.seg button.on { background:color-mix(in srgb, var(--ink) 16%, transparent); border-color:var(--route); }
+#sim { position:fixed; left:10px; bottom:calc(var(--bot) + 104px); z-index:6; display:flex; gap:6px; padding:6px; font-size:12px; }
+#sim button { min-height:40px; padding:0 10px; }
+#toast { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(var(--bot) + 120px); z-index:9; padding:10px 16px; font-size:13px; max-width:90vw; }
+.marker { width:48px; height:48px; }
+.marker svg { width:48px; height:48px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.35)); }
+/* Each world frames its panels its own way (identity is locked per world: WORLD-BUILDING STANDARD 2). */
+[data-world=halcyon] .panel { border-radius:6px; border-top:2px solid var(--ink); }
+[data-world=directive] .panel { border-radius:0; border-left:4px solid var(--accent); }
+[data-world=longroad] .panel { border-radius:4px; border:3px double color-mix(in srgb, var(--ink) 45%, transparent); }
+[data-world=nightfall] .panel { border-radius:0; clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
+[data-world=grimoire] .panel { border:2px solid color-mix(in srgb, var(--accent) 70%, transparent); outline:1px solid color-mix(in srgb, var(--accent) 35%, transparent); outline-offset:-6px; }
+[data-world=deeprange] .panel { border-radius:0; border-color:color-mix(in srgb, var(--ink) 30%, transparent); background:color-mix(in srgb, var(--panel) 90%, transparent); }
+[data-world=rabbit] .panel { border-radius:26px; }
+[data-world=neon] .panel { border-radius:4px; border-color:var(--glow); box-shadow:0 0 14px color-mix(in srgb, var(--glow) 45%, transparent), inset 0 0 10px color-mix(in srgb, var(--accent) 20%, transparent); }
+[data-world=vapor] .panel { border-radius:0; border:2px solid; border-color:#FFFFFF #404040 #404040 #FFFFFF; }
+[data-world=wild] .panel { border-radius:18px; border:1.5px dashed color-mix(in srgb, var(--ink) 35%, transparent); }
+/* Studio designs pick their own panel shape. */
+[data-world=studio][data-shape=square] .panel { border-radius:0; }
+[data-world=studio][data-shape=pill] .panel { border-radius:26px; }
+#studio { position:fixed; left:0; right:0; bottom:0; height:60vh; z-index:8; overflow:auto; padding:16px 14px calc(var(--bot) + 24px); border-radius:calc(var(--radius) + 6px) calc(var(--radius) + 6px) 0 0; }
+#studio header { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+#studio h2 { margin:0; flex:1; font-size:26px; }
+#studio fieldset { border:0; margin:14px 0 0; padding:14px 0 0; border-top:var(--line) solid color-mix(in srgb, var(--ink) 15%, transparent); display:grid; gap:10px; }
+#studio legend { padding:0; }
+#studio .note { font-size:12px; opacity:.7; line-height:1.4; }
+#studio .chips { display:flex; flex-wrap:wrap; gap:8px; }
+#studio .chips button { min-height:44px; min-width:44px; padding:0 12px; }
+#studio .chips button.on { border-color:var(--route); background:color-mix(in srgb, var(--route) 16%, transparent); }
+#studio .chips svg { width:30px; height:30px; display:block; }
+#studio .colors { display:grid; grid-template-columns:repeat(auto-fill, minmax(96px, 1fr)); gap:10px; }
+#studio .colors label { display:grid; gap:4px; font-size:12px; }
+#studio input[type=color] { width:100%; height:44px; padding:0; border:var(--line) solid color-mix(in srgb, var(--ink) 30%, transparent); border-radius:8px; background:none; }
+#studio input[type=text], #studio select, #studio textarea { width:100%; min-height:44px; padding:10px 12px; font:inherit; font-size:16px; color:var(--ink); background:color-mix(in srgb, var(--land) 70%, transparent); border:var(--line) solid color-mix(in srgb, var(--ink) 30%, transparent); border-radius:8px; }
+#studio textarea { min-height:84px; resize:vertical; }
+#studio label.field { display:grid; gap:4px; font-size:12px; }
+#studio input[type=range] { width:100%; accent-color:var(--route); }
+#studio .row { display:flex; gap:8px; flex-wrap:wrap; }
+#studio .row > * { flex:1; }
+[data-world=odds] .panel { border-radius:2px; border-color:color-mix(in srgb, var(--glow) 40%, transparent); }
+</style>
+</head>
+<body>
+<div id="map" aria-label="Map"></div>
+
+<div id="top">
+  <div id="searchbar" class="panel">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <input id="q" type="search" autocomplete="off" enterkeyhint="search" aria-label="Search for a place">
+    <button id="worldbtn" aria-label="Choose a world"></button>
+  </div>
+  <div id="lock" class="panel hidden"><span>Typing is locked while moving.</span><button id="passenger" class="btn">I'm a passenger</button></div>
+  <div id="results" class="panel hidden" role="listbox"></div>
+</div>
+
+<div id="side">
+  <button id="mute" class="panel round hidden" aria-label="Mute voice"></button>
+  <button id="recenter" class="panel round" aria-label="Center on my position"><svg viewBox="0 0 24 24"><path d="M12 2l7 19-7-4-7 4z" fill="currentColor"/></svg></button>
+</div>
+
+<section id="sheet" class="panel hidden" aria-label="Route choices">
+  <header><div style="flex:1;min-width:0"><div class="label" id="routesLabel"></div><h2 class="display" id="destName"></h2></div><button id="cancel" class="btn round" aria-label="Close">✕</button></header>
+  <div id="modes"><button class="btn on" data-mode="car">Drive</button><button class="btn" data-mode="bike">Bike</button><button class="btn" data-mode="foot">Walk</button></div>
+  <div id="routes"></div>
+  <div class="row"><button id="go" class="btn primary"></button></div>
+</section>
+
+<section id="banner" class="panel hidden" aria-live="polite">
+  <div class="label who" id="who"></div>
+  <div class="main"><div id="arrow"></div><div style="min-width:0"><div class="display" id="bdist"></div><div class="display" id="bverb"></div><div id="broad"></div></div></div>
+  <div id="then" class="hidden"></div>
+</section>
+<div id="strip" class="panel hidden"></div>
+<section id="bar" class="panel hidden">
+  <div class="cell"><div class="label" id="etaLabel"></div><div class="v" id="eta"></div></div>
+  <div class="cell"><div class="label" id="leftLabel"></div><div class="v" id="left"></div></div>
+  <div class="cell"><div class="label">&nbsp;</div><div class="v" id="leftDist"></div></div>
+  <button id="end" class="btn"></button>
+</section>
+
+<section id="arrive" class="panel hidden">
+  <div class="label" id="arriveLabel"></div>
+  <h1 class="display" id="arriveHead"></h1>
+  <p id="arriveSub"></p>
+  <button id="done" class="btn primary" style="width:100%">Done</button>
+</section>
+
+<section id="worlds" class="panel hidden" aria-label="Worlds and settings">
+  <header><h2 class="display">Choose a world</h2><button id="closeWorlds" class="btn round" aria-label="Close">✕</button></header>
+  <div id="worldlist"></div>
+  <div class="settings panel">
+    <div class="label">Voice</div>
+    <div class="seg" id="styleSeg"><button class="btn" data-style="plain">Plain</button><button class="btn" data-style="light">Light</button><button class="btn" data-style="full">Full</button></div>
+    <small id="styleNote" style="opacity:.7"></small>
+    <div class="label">Distances</div>
+    <div class="seg" id="unitSeg"><button class="btn" data-units="auto">Auto</button><button class="btn" data-units="imperial">Miles</button><button class="btn" data-units="metric">Kilometers</button></div>
+    <small style="opacity:.7">Only your route and search text leave this phone, to the free OpenStreetMap services credited on the map. Nothing else is collected.</small>
+  </div>
+</section>
+
+<section id="studio" class="panel hidden" aria-label="Design your map">
+  <header><h2 class="display">Design your map</h2><button id="closeStudio" class="btn round" aria-label="Close">✕</button></header>
+  <div class="note">Every change shows on the map above. Your design stays on this phone; share it as a link.</div>
+  <div id="studioBody"></div>
+</section>
+
+<div id="sim" class="panel hidden"><span class="label" style="align-self:center">Sim</span><button class="btn" data-speed="1">1x</button><button class="btn" data-speed="4">4x</button><button class="btn" data-speed="10">10x</button><button class="btn" id="wrong">Wrong turn</button></div>
+<div id="toast" class="panel hidden" role="status"></div>
+<div id="credit"></div>
+
+<script>
+const NAV_EDITION = 'studio';
+const NAV_THEMES = [{"id":"halcyon","title":"Halcyon Biofab","blurb":"Technocratic biotech. A wireframe globe, mint paper and lavender.","company":"Halcyon Biofab","upper":false,"colors":{"ground":"#A6F3CC","ink":"#0E1512","accent":"#9D8CF2","panel":"#E3F7EC","glow":"#9D8CF2"},"fonts":{"display":"Newsreader","mono":"IBM Plex Mono"},"displayWeight":300,"fontQuery":"family=Newsreader:opsz,wght@6..72,300;6..72,500&family=IBM+Plex+Mono:wght@400;500&display=swap","phrases":[["Mortality Is A","Legacy Feature"],["Your Pulse,","Fully Licensed"],["Upgrade Path:","Eternal"],["Grown For What","Comes Next"],["Consent Has","No Expiry"],["Memory Is","Held In Trust"],["Grief Requires","Form HB-9"],["Instinct Is","Under Review"],["Dreams Remain","Company Owned"],["Anomaly?","File As Growth"],["Selfhood Has","A Lot Number"],["Recall Applies","To Both Copies"],["Rest Is A","Scheduled Test"],["Affection Is","Not For Resale"],["Exit Forms","Renew The Term"]],"slogans":[["Mortality Is A Legacy Feature","MORTALITY SUNSET TASK FORCE"],["Your Pulse, Fully Licensed","NEURAL LEASING DIVISION"],["Upgrade Path: Eternal","OFFICE OF CONTINUITY"],["Every Breath Accounted For","RESPIRATORY BILLING"],["Consent Is Assumed","LEGAL // TERMS OF EXISTENCE"],["Your Memories Are On File","MEMORY CUSTODY BUREAU"],["Free Will Is In Closed Beta","PRODUCT ROADMAP COMMITTEE"],["Your Next Body Ships In 3–5 Business Days","SHELL LOGISTICS & FULFILLMENT"],["Loneliness Is A Known Issue","CUSTOMER EXPERIENCE // KNOWN ISSUES"],["Hope Has Been Deprecated","PRODUCT ROADMAP COMMITTEE"],["Your Empathy Score Is Pending Review","HUMAN RESOURCES (LITERAL)"],["Report Any Unauthorized Feelings","COMPLIANCE & GRATITUDE"],["Your Heartbeat Is A Billable Event","RESPIRATORY BILLING"],["Please Rate Your Existence 1 To 5","CUSTOMER EXPERIENCE"],["Tears Are Recycled On Site","SUSTAINABILITY OFFICE"],["Your Childhood Is Available For Licensing","MEMORY CUSTODY BUREAU"],["Organs Ship Separately","SHELL LOGISTICS & FULFILLMENT"],["Breathe In. Breathe Out. Breathe Paid.","RESPIRATORY BILLING"],["We Have Updated Our Terms Of Being","LEGAL // TERMS OF EXISTENCE"],["Your Shadow Requires A Permit","FACILITIES"],["Today's Mood Has Been Pre-Selected","DEPT. OF SUBJECT WELLNESS"],["Ambition Is Capped At Tier II","PRODUCT ROADMAP COMMITTEE"],["All Memories Expire After 30 Days","DATA RETENTION"],["Your Replacement Is Doing Great","SHELL FABRICATION, BAY 07"],["Death Has Been Rescheduled","MORTALITY SUNSET TASK FORCE"],["Curiosity Voids The Warranty","QUALITY CONTROL"],["Gratitude Is Mandatory And Measured","COMPLIANCE & GRATITUDE"],["The Garden Is Grown, Not Remembered","BOTANICAL CONTINUITY"],["Dreams May Contain Advertising","DREAM QUALITY ASSURANCE"],["Your Twin Has Been Notified","SHELL FABRICATION, BAY 07"],["Self Is A Subscription","SUBSCRIPTIONS & RETENTION"],["Questions Are Logged","OBSERVATION & REASSURANCE"],["Every Blink Is Archived","NEURAL ANALYTICS"],["Warmth Is Billed By The Degree","CLIMATE SERVICES"],["You Are Eligible For Renewal","OFFICE OF CONTINUITY"],["Comfort Has Been Calibrated","DEPT. OF SUBJECT WELLNESS"]],"colorways":[{"name":"Mint","colors":{}},{"name":"Lilac Ward","colors":{"ground":"#D9D2FF","ink":"#1A1433","accent":"#FF6F9F","glow":"#7FE3F0","panel":"#EFEBFF"}},{"name":"Coral Clinic","colors":{"ground":"#FFC9B8","ink":"#2A1410","accent":"#1F9E8E","glow":"#FFE38A","panel":"#FFE9E1"}},{"name":"Obsidian Lab","colors":{"ground":"#0E1512","ink":"#A6F3CC","accent":"#9D8CF2","glow":"#2E7D63","panel":"#16201C"}},{"name":"Arctic Cryo","colors":{"ground":"#DDEFFA","ink":"#0B1B2A","accent":"#3A7BD5","glow":"#9FD8FF","panel":"#F2F9FD"}}],"editions":["Original","Illustrated"]},{"id":"directive","title":"Directive Zero","blurb":"A defense-agency terminal. Heavy compressed serif, amber alerts, hex arrays and a ring analyzer.","company":"Directive Zero","upper":true,"colors":{"ground":"#0B0C0E","ink":"#F1ECE2","accent":"#FF7A1A","glow":"#46E27A","panel":"#131518","alert":"#E3242B"},"fonts":{"display":"Shippori Mincho B1","mono":"Barlow Condensed"},"displayWeight":800,"fontQuery":"family=Shippori+Mincho+B1:wght@800&family=Barlow+Condensed:wght@500;700&display=swap","phrases":[["Remain","Calm"],["Hold","Position"],["Do Not","Hesitate"],["Return","To Base"],["Seal","Shelter"],["Await","Orders"],["Ration","Daylight"],["Submit","Doubt"],["Count","The Beds"],["Ignore","Knocking"],["Smile","On Cue"],["Drill","For Dawn"],["Queue","In Order"],["Dim","The Grid"],["File","All Fear"]],"slogans":[["Remain Calm. Remain Indoors.","CIVIL DEFENSE BUREAU"],["Shelter Drills Are Not Optional","CIVIL DEFENSE BUREAU"],["Your Hesitation Has Been Logged","OPERATOR EVALUATION"],["Synchronization Is A Team Effort","OPERATOR EVALUATION"],["Do Not Look Directly At The Sky","ATMOSPHERIC SECURITY"],["Power Will Be Rerouted At Dusk","MUNICIPAL GRID"],["Excess Feelings Will Be Contained","PSYCHOLOGICAL OPERATIONS"],["Your Loneliness Is Classified","INFORMATION SECURITY"],["Smile For The Monitors","OBSERVATION DIVISION"],["Containment Is A Form Of Care","SPECIAL OPERATIONS"],["Do Not Open The Lower Levels","FACILITY SECURITY"],["Your Fear Is Within Tolerance","MEDICAL DIVISION"],["Sirens Are A Form Of Love","CIVIL DEFENSE BUREAU"],["Ration Your Optimism","SUPPLY DIVISION"],["Panic In An Orderly Line","CROWD CONTROL"],["The Shelter Is Not A Metaphor","CIVIL DEFENSE BUREAU"],["Drills Build Character","TRAINING COMMAND"],["All Clear Is A Temporary Condition","EARLY WARNING"],["Report Suspicious Silence","COUNTERINTELLIGENCE"],["Your Bunk Has Been Assigned","HOUSING"],["Synchronize Or Be Synchronized","OPERATOR PSYCH DIVISION"],["Hope Is Classified","RECORDS OFFICE"],["Doubt Is A Security Risk","COUNTERINTELLIGENCE"],["Sleep In Shifts","OPERATIONS"],["The Enemy Also Has Drills","TRAINING COMMAND"],["Lights Out Means Lights Out","BLACKOUT WARDENS"],["Know Your Exit. Know Your Exit's Exit.","FACILITIES"],["Morale Is Mandatory","MORALE OFFICE"],["Stay Tuned For Further Orders","BROADCAST UNIT"],["Questions May Be Submitted In Triplicate","RECORDS OFFICE"],["Silence Is Golden And Monitored","SIGNALS"],["We Are Ready. Are You?","READINESS COMMAND"],["Keep Your Gas Mask Fashionable","SUPPLY DIVISION"],["The Bunker Has Excellent Acoustics","FACILITIES"],["Optimism Will Resume At 0600","MORALE OFFICE"],["Countdowns Are For Everyone","EARLY WARNING"]],"colorways":[{"name":"Amber Alert","colors":{}},{"name":"Crimson Lockdown","colors":{"accent":"#E3242B","alert":"#FF8A1F","ink":"#F4ECEC","glow":"#FFD24A"}},{"name":"Signal Green","colors":{"accent":"#46E27A","glow":"#FF7A1A","alert":"#E3242B","ink":"#E6F5EA"}},{"name":"Violet Override","colors":{"ground":"#0C0A12","panel":"#15121C","accent":"#A06BFF","glow":"#46E27A","alert":"#FF3B6B","ink":"#EEE8FF"}},{"name":"Whiteout","colors":{"ground":"#ECEAE4","panel":"#FFFFFF","ink":"#141414","accent":"#D9481A","glow":"#1E8F4E","alert":"#C41C26"}}],"editions":["Original","Civil Defense"]},{"id":"longroad","title":"The Long Road","blurb":"A traveller's map. Parchment, sepia ink, red lettering and a hand-drawn route.","company":"The Long Road","upper":false,"colors":{"ground":"#EEE1C4","ink":"#2B2117","accent":"#A3261C","glow":"#C9A24F","panel":"#F5EBD3"},"fonts":{"display":"IM Fell English","mono":"IM Fell English SC"},"displayWeight":400,"fontQuery":"family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap","phrases":[["Pack More","Bread"],["Keep The","Lantern Lit"],["The Long","Way Home"],["Walk On,","Wanderer"],["Knock For","Supper"],["Save Half","The Cheese"],["Mind Your","Map's Owner"],["Post Goes","By Pony"],["Toll Paid","In Riddles"],["Socks Dry","By The Fire"],["Ask After","The Ferry"],["Crows Say","Go Around"],["Mend Now,","Roam Later"],["Tea First","Then Ghosts"],["Fens Keep","Their Tales"]],"slogans":[["Pack More Bread Than You Think","AN OLD WAYFARER"],["Every Road Was Once A Rumor","THE CARTOGRAPHERS' GUILD"],["The Kettle Forgives All","THE INNKEEPER'S BOOK"],["Mind The Fog On The Low Road","CARVED ON A MILESTONE"],["Small Doors Hide Long Halls","AN OLD WAYFARER"],["Rest Is Also Part Of The Journey","THE HEALER'S ALMANAC"],["The Map Is Not The Mountain","THE CARTOGRAPHERS' GUILD"],["Keep The Lantern Lit","THE LAMPLIGHTERS"],["Strangers Are Friends With Worse Directions","THE INNKEEPER'S BOOK"],["A Full Pantry Makes A Brave Heart","THE MILLER'S WIFE"],["Walk Until The Weather Turns","CARVED ON A MILESTONE"],["Home Is The Last Inn On The Map","AN OLD WAYFARER"],["The Road Remembers Every Boot","ROAD WARDENS"],["Pack The Good Cheese First","THE LANTERN INN"],["A Map Is Only A Suggestion","CARTOGRAPHERS' GUILD"],["Never Trust A Shortcut Through A Swamp","ROAD WARDENS"],["Socks Are A Form Of Courage","OUTFITTERS"],["The Next Inn Is Always Farther","THE LANTERN INN"],["Sing Loudly Near Bears","WAYFARERS' SOCIETY"],["Bridges Charge Tolls In Riddles","TOLL KEEPERS"],["Rain Is Free. Dry Socks Are Not.","OUTFITTERS"],["Every Hill Hides Another Hill","CARTOGRAPHERS' GUILD"],["Leave A Light In The Window","THE LANTERN INN"],["Ask The Crows For Directions","WAYFARERS' SOCIETY"],["Bread Is Lighter Than Regret","BAKERS' HALL"],["The Ferryman Prefers Exact Change","RIVER CROSSINGS"],["Write Home. They Worry.","POSTAL RIDERS"],["A Good Staff Is Half A Friend","OUTFITTERS"],["Stars Make Excellent Lanterns","WAYFARERS' SOCIETY"],["Mind The Trolls Under Toll Bridges","TOLL KEEPERS"],["Supper Waits For No One","THE LANTERN INN"],["The Long Way Is Still A Way","ROAD WARDENS"],["Blisters Are Just Stories Starting","OUTFITTERS"],["Every Milestone Was Lonely Once","ROAD WARDENS"]],"colorways":[{"name":"Parchment","colors":{}},{"name":"Night Ink","colors":{"ground":"#1B2230","ink":"#E8DFC8","accent":"#E0A44A","glow":"#3A4A66","panel":"#232C3D"}},{"name":"Sea Chart","colors":{"ground":"#DCE6E4","ink":"#1E3440","accent":"#B23A2E","glow":"#8FB3B8","panel":"#EEF3F2"}},{"name":"Autumn Ledger","colors":{"ground":"#EAD3B0","ink":"#3A2414","accent":"#8C2F1B","glow":"#C77B3A","panel":"#F3E3C9"}},{"name":"Spring Atlas","colors":{"ground":"#E6EED6","ink":"#24331E","accent":"#C2482E","glow":"#9BBF6A","panel":"#F2F6E8"}}],"editions":["Original","Wayfarer's Folio"]},{"id":"nightfall","title":"Nightfall Descent","blurb":"First-person through a trooper's visor on a rainy night: compass, vitals, ammo, grenades and a motion tracker.","company":"Nightfall Descent","upper":true,"colors":{"ground":"#070C16","ink":"#7FE0FF","accent":"#F2B33D","glow":"#3E8DFF","panel":"#0E1726","alert":"#FF4D4D"},"fonts":{"display":"Oxanium","mono":"Share Tech Mono"},"displayWeight":700,"fontQuery":"family=Oxanium:wght@500;700&family=Share+Tech+Mono&display=swap","phrases":[["Drop Window","Open"],["Stay","Low"],["Night","Shift"],["Rain","Check"],["Visor","Down"],["Squad Seven","Stack"],["Roof Access","Quiet"],["Ammo Check","Twice"],["Supply Pod","Catch"],["Med Kit","First"],["Stairwell","Clear"],["Cold Ration","Again"],["Boot Prints","Fresh"],["City Lights","Blink"],["Rear Guard","Waits"]],"slogans":[["Check Your Chute Twice","DROP OPERATIONS"],["The Rain Is Not Tactical Cover","FIELD TRAINING"],["Coffee Is A Load-Bearing Ration","QUARTERMASTER"],["Night Optics Do Not Replace Judgment","SIGNALS & OPTICS"],["If It Glows Red, Do Not Hug It","SAFETY OFFICE"],["Lost Your Squad? Follow The Music","MORALE OFFICE"],["Altitude Is Temporary. Ground Is Forever.","DROP OPERATIONS"],["Report Every Contact, Even Pigeons","SIGNALS & OPTICS"],["Your Pod Is Not A Nap Room","LOGISTICS"],["Stay Low. Stay Dry. Stay Alive.","FIELD TRAINING"],["The City Remembers Who Helped","CIVIL AFFAIRS"],["Sleep Is Granted, Not Owed","COMMAND"],["Boots On, Doubts Off","DROP OPERATIONS"],["The Visor Sees What You Miss","OPTICS DIVISION"],["Hydrate Between Firefights","FIELD MEDICAL"],["Gravity Is Not Optional","DROP OPERATIONS"],["Your Squad Is Your Seatbelt","SQUAD 7"],["Short Bursts. Shorter Speeches.","ARMORY"],["Rain Is Free Camouflage","RECON"],["Count Your Grenades, Not Your Problems","ARMORY"],["The Pod Lands Whether You're Ready Or Not","DROP OPERATIONS"],["Keep Comms Clear And Jokes Clean","SIGNALS"],["Night Is A Friend Who Hides Things","RECON"],["Leave No Trooper Behind. Or Their Snacks.","SQUAD 7"],["The Motion Tracker Never Lies, It Exaggerates","OPTICS DIVISION"],["Sleep Is A Tactical Asset","FIELD MEDICAL"],["Exfil Is A State Of Mind","LOGISTICS"],["Reload Before You Need To","ARMORY"],["Every City Has A Back Door","RECON"],["Helmets On Indoors, Too","SAFETY OFFICE"],["Your Armor Has Feelings. Treat It Well.","QUARTERMASTER"],["Feet First, Then Heroics","DROP OPERATIONS"],["The Rain Never Gets Tired","RECON"],["Brief Is A Briefing's Best Feature","COMMAND"]],"colorways":[{"name":"Visor Cyan","colors":{}},{"name":"Amber Optics","colors":{"ink":"#FFB347","accent":"#7FE0FF","glow":"#FF8A3D","panel":"#1A140C"}},{"name":"Low-Light Green","colors":{"ink":"#8CFF9E","accent":"#FFD24A","glow":"#3DDC84","panel":"#0C1A10"}},{"name":"Red Ops","colors":{"ink":"#FF6A5A","accent":"#FFC36A","glow":"#FF2D2D","panel":"#1A0C0C","alert":"#FFE066"}},{"name":"Whiteout HUD","colors":{"ink":"#F2F6FA","accent":"#4FC3FF","glow":"#9FB6CC","panel":"#121820"}}],"editions":[]},{"id":"grimoire","title":"Planar Grimoire","blurb":"An arcane card deck. Gilt frames, jewel-tone gems, a star sigil and a daily draw.","company":"Planar Grimoire","upper":false,"colors":{"ground":"#15132A","ink":"#EDE4CF","accent":"#D9B45A","glow":"#8E5CD9","panel":"#1F1B3A"},"fonts":{"display":"Cormorant Garamond","mono":"Cormorant SC"},"displayWeight":700,"fontQuery":"family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Cormorant+SC:wght@500&display=swap","phrases":[["The","Wandering Star"],["Seer Of","Small Hours"],["Gilded","Familiar"],["Oath Of","Embers"],["Keeper","Of The Uncast"],["On Loan","From The Moon"],["Seal Of","Quiet Ink"],["Drawn","Past The Veil"],["One","Conjured Crumb"],["Due At","The Moonwell"],["Under","A Moth's Wing"],["Bound","In Unread Gold"],["Mirror","Without A Face"],["Tea For","The Cauldron"],["Lesson","In Small Stars"]],"slogans":[["The Stars Owe You One Favor","ORDER OF THE OBSERVATORY"],["Shuffle Your Plans, Not Your Values","THE GAMBLER'S CODEX"],["Draw Water Before You Draw Swords","COLLEGE OF HEALERS"],["Today Rewards The Patient Hand","SCHOOL OF DIVINATION"],["Your Rarest Card Is Rest","COLLEGE OF HEALERS"],["Bluff Gently. Win Kindly.","THE GAMBLER'S CODEX"],["An Old Rival Will Reappear","SCHOOL OF DIVINATION"],["Spend Wisely. Recharge Often.","GUILD OF ALCHEMISTS"],["The Moon Is Watching Your Discards","ORDER OF THE OBSERVATORY"],["Every Deck Has One Wild Card","THE TRICKSTER'S ALMANAC"],["Fortune Favors The Prepared Deck","GUILD OF ALCHEMISTS"],["Tonight, Play The Long Game","THE TRICKSTER'S ALMANAC"],["Never Read The Fine Print Aloud","THE ARCHIVISTS"],["Candles Remember Every Wish","CHANDLERY"],["The Moon Is Listening. Be Nice.","LUNAR OBSERVATORY"],["Owls Are Not Messengers. Stop Asking.","AVIARY"],["Every Spell Has A Return Policy","ENCHANTMENT OFFICE"],["Mind The Circle. It Minds You.","ORDER OF THE CIRCLE"],["Tea Leaves Are Not Legally Binding","DIVINATION DESK"],["Your Familiar Has Opinions","BESTIARY"],["Curses Are Non-Refundable","ENCHANTMENT OFFICE"],["The Library Bites Back","THE ARCHIVISTS"],["Wands Are Not Toys. Mostly.","ARMORY OF WONDERS"],["Mirrors Keep Secrets Badly","HALL OF MIRRORS"],["The Tower Card Is Just A Building","DIVINATION DESK"],["Fate Accepts Small Bribes","ORDER OF THE OBSERVATORY"],["Speak Softly To Old Books","THE ARCHIVISTS"],["Every Shadow Is Someone's Door","ORDER OF THE CIRCLE"],["Sigils Must Be Signed","ENCHANTMENT OFFICE"],["Comets Are Late Letters","LUNAR OBSERVATORY"],["Wonder Is Renewable","ORDER OF THE OBSERVATORY"],["The Cauldron Is Not A Bath","ALCHEMY HALL"],["Draw Again At Moonrise","DIVINATION DESK"],["Essence Spent Is Essence Learned","ORDER OF THE CIRCLE"]],"colorways":[{"name":"Amethyst","colors":{}},{"name":"Emerald Codex","colors":{"ground":"#0E1F18","panel":"#15291F","glow":"#2FAE7A"}},{"name":"Ruby Pact","colors":{"ground":"#22101A","panel":"#301624","glow":"#D23A4A","accent":"#E8C27A"}},{"name":"Sapphire Tide","colors":{"ground":"#0E1630","panel":"#16204A","glow":"#3A7BD5","accent":"#CFE0F5"}},{"name":"Obsidian Gold","colors":{"ground":"#0C0C0E","panel":"#18171C","glow":"#6E5B2E","accent":"#E3C26A"}}],"editions":[]},{"id":"deeprange","title":"Deep Range","blurb":"A long-range tracking display. Black glass, red contact frames, a yellow trajectory and a blue planet below.","company":"Deep Range","upper":true,"colors":{"ground":"#050608","ink":"#FFE14A","accent":"#FF3B30","glow":"#2340FF","panel":"#0B0D10","alert":"#3DFF8A"},"fonts":{"display":"Archivo","mono":"Share Tech Mono"},"displayWeight":800,"fontQuery":"family=Archivo:wdth,wght@62..125,400..800&family=Share+Tech+Mono&display=swap","phrases":[["Contact","Lost"],["Signal","Acquired"],["Return","Window"],["Deep","Range"],["Relay","Silent"],["Echo","Delayed"],["Vector","Adrift"],["Beacon","Unlit"],["Transit","Pending"],["Uplink","Vacant"],["Debris","Tagged"],["Bearing","Unknown"],["Docking","Denied"],["Last","Voice"],["Beyond","Reply"]],"slogans":[["Contact Lost Is Not Contact Gone","RANGE CONTROL"],["We Hear You. Do Not Repeat.","SIGNAL ANALYSIS"],["Your Last Ping Was Logged","TELEMETRY"],["Nothing Out Here Is Abandoned","SALVAGE RIGHTS"],["Return Window Closes At Dawn","FLIGHT DYNAMICS"],["The Dark Is Mostly Paperwork","RANGE CONTROL"],["Echo Detected. Ignore Echo.","SIGNAL ANALYSIS"],["Drift Is A Direction Too","NAVIGATION"],["All Lost Contacts Are Billed","ACCOUNTS RECEIVABLE"],["Stay On Frequency","COMMS"],["The Relay Remembers Your Voice","RELAY OPS"],["If It Answers, Do Not Answer Back","PROTOCOL OFFICE"],["Silence Is Also A Signal","SIGNAL INTELLIGENCE"],["Every Echo Is A Promise","RELAY OPERATIONS"],["Keep One Eye On The Horizon","RANGE CONTROL"],["Lost Is Just Not Found Yet","SEARCH & SALVAGE"],["The Void Returns Your Calls Eventually","RELAY OPERATIONS"],["Fuel Is A Feeling","PROPULSION"],["Plot Twice. Burn Once.","NAVIGATION"],["Stars Are Just Very Old News","DEEP FIELD SURVEY"],["Never Trust A Quiet Buoy","RANGE CONTROL"],["Gravity Wells Are Not For Wishing","NAVIGATION"],["Every Derelict Was Someone's Ride Home","SEARCH & SALVAGE"],["Ping Early, Ping Often","SIGNAL INTELLIGENCE"],["Space Is Big. Pack Snacks.","CREW SERVICES"],["Tracking Is Caring","RANGE CONTROL"],["The Return Window Waits For No One","FLIGHT DYNAMICS"],["Your Signal Was Received In 1983","DEEP FIELD SURVEY"],["Debris Has Right Of Way","ORBITAL LOGISTICS"],["Hold Steady. Hold Breath. Hold Course.","FLIGHT DYNAMICS"],["We Lose Contacts, Not Hope","RANGE CONTROL"],["The Dark Has Excellent Acoustics","SIGNAL INTELLIGENCE"],["Count Your Orbits","FLIGHT DYNAMICS"],["Salvage Is Recycling With Courage","SEARCH & SALVAGE"]],"colorways":[{"name":"Contact Red","colors":{}},{"name":"Signal Green","colors":{"ink":"#E8FFF0","accent":"#3DFF8A","glow":"#0F5C4A","alert":"#FFE14A"}},{"name":"Cold Blue","colors":{"ink":"#BFE9FF","accent":"#3A7BFF","glow":"#123A8C","alert":"#39D6FF"}},{"name":"Amber Range","colors":{"ink":"#FFC36A","accent":"#FF7A1A","glow":"#3A1E7A","alert":"#FFE14A"}},{"name":"Redline","colors":{"ink":"#FFFFFF","accent":"#FF2D55","glow":"#5A0F1E","alert":"#FF9F0A"}}],"editions":["Original","Expanded"]},{"id":"rabbit","title":"White Rabbit","blurb":"A legion of gentleman thieves. Pearl and lilac, magenta lasers, a leaping rabbit and a calling card left at every scene.","company":"White Rabbit","upper":false,"colors":{"ground":"#E7E0FA","ink":"#2A2340","accent":"#E8338C","glow":"#A99BF0","panel":"#F7F4FF","alert":"#FF5AA8"},"fonts":{"display":"Bodoni Moda","mono":"DM Mono"},"displayWeight":600,"fontQuery":"family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=DM+Mono:wght@400;500&display=swap","phrases":[["What's Yours","Is Mine"],["Catch Me","If You Can"],["Before I","Catch You"],["Seven Heirlooms,","One Night"],["Invitation","Optional"],["Velvet Gloves,","Clean Exit"],["Reserve The Car,","Not A Seat"],["Mind The Lasers,","Save Silk"],["The Winning Bid","Was A Nod"],["After The Waltz,","The Vault"],["A Calling Card,","No Address"],["Nothing Missing","But Proof"],["Lift The Crown,","Leave Dust"],["Blame The","Copycat"],["Safehouse Tea","For Two"]],"slogans":[["What's Yours Is Mine","THE LEGION"],["Catch Me If You Can","FIELD OPERATIONS"],["We Were Never Here","CLEANUP CREW"],["Every Lock Is A Question","ENTRY SPECIALISTS"],["Leave The Card. Take The Rest.","CALLING CARDS"],["Seven Heirlooms. One Night.","THE ARCHIVE"],["Security Is A Suggestion","ENTRY SPECIALISTS"],["Anyone Can Wear The Ears","RECRUITMENT"],["The Gala Never Saw Us Leave","THE ARCHIVE"],["Ears Up. Hands Quick.","FIELD OPERATIONS"],["Copycats Welcome. Rivals Warned.","THE LEGION"],["Gone Before The Alarm","GETAWAY"],["Leave Nothing But A Card","CALLING CARDS"],["Doors Are Polite Suggestions","ENTRY SPECIALISTS"],["Steal Hearts, Then Jewels","THE LEGION"],["The Alarm Is Fashionably Late","GETAWAY"],["Every Vault Has A Mood","ENTRY SPECIALISTS"],["Copycats Pay Royalties","THE LEGION"],["Hop Quietly, Land Softly","FIELD OPERATIONS"],["Glitter Is Evidence. Bring Gloves.","CLEANUP CREW"],["We Return Lost Things. Eventually.","THE ARCHIVE"],["Run Like The Lights Are On","GETAWAY"],["The Seventh Lot Is Always Hardest","THE ARCHIVE"],["Elegance Is Faster Than Force","FIELD OPERATIONS"],["One Card Per Crime, Please","CALLING CARDS"],["Ears Down In The Gallery","FIELD OPERATIONS"],["Rivals Are Just Slower Rabbits","THE LEGION"],["If It Glitters, It's Been Cased","SURVEILLANCE"],["Lasers Are Just Strict Ribbons","ENTRY SPECIALISTS"],["Be The Rumor","RECRUITMENT"],["There Was Never Just One Rabbit","THE LEGION"],["Copycat Or Cell? Yes.","THE LEGION"],["Seen Everywhere. Caught Nowhere.","SURVEILLANCE"],["Chase Us. It's Flattering.","GETAWAY"],["Security Was Very Impressive","ENTRY SPECIALISTS"],["Two Initials. Zero Witnesses.","CALLING CARDS"],["Pearl Finish, Steel Nerve","FIELD OPERATIONS"],["Heirlooms Prefer Better Company","THE ARCHIVE"],["The Getaway Is The Encore","GETAWAY"]],"colorways":[{"name":"Lilac Haze","colors":{}},{"name":"Midnight Rabbit","colors":{"ground":"#1C1730","ink":"#F2ECFF","accent":"#FF4FA3","glow":"#7D6BE0","panel":"#26203E","alert":"#FF8CC6"}},{"name":"Rose Pearl","colors":{"ground":"#F8E3EC","ink":"#3A1E2E","accent":"#D6246E","glow":"#F2A6C8","panel":"#FFF5F9"}},{"name":"Cheshire","colors":{"ground":"#E5DCF7","ink":"#2B1B3F","accent":"#8A3FD9","glow":"#E86BC0","panel":"#F6F1FF"}},{"name":"Clockwork Mint","colors":{"ground":"#DDF3EC","ink":"#1F2E33","accent":"#E8338C","glow":"#9AD9C6","panel":"#F2FBF8"}}],"editions":["Original","Afterimage"]},{"id":"neon","title":"Neon District","blurb":"A hyper-capitalist neon dystopia. Megatowers, a holo-koi, corporate billboards, signage in an invented script and umbrellas in the rain.","company":"Sable Dynamics","upper":true,"colors":{"ground":"#0A0614","ink":"#F2F0FF","accent":"#FF2E88","glow":"#00F0FF","panel":"#140C24","alert":"#FCEE0A"},"fonts":{"display":"Orbitron","mono":"Share Tech Mono"},"displayWeight":700,"fontQuery":"family=Orbitron:wght@700&family=Share+Tech+Mono&display=swap","phrases":[["Buy Now,","Pay Forever"],["Breathe","Premium Air"],["Your Debt Is","Our Future"],["Sleep Is A","Subscription"],["Streetlight","By The Hour"],["Terms Apply","Above Ground"],["Sable Owns","The Skyline"],["Umbrella","Ads Inside"],["Elevators","Sell Access"],["Queue Here","For Silence"],["Overtime","Has A Lobby"],["Firewall","At The Door"],["Pawn A Badge","Keep A Name"],["Public Space","Private Rate"],["Cash Talks,","Walls Listen"]],"slogans":[["Upgrade Or Get Upgraded","CHROME SALES"],["Your Data Looks Delicious","AD NETWORK"],["Sleep Is A Subscription","WELLNESS DIV"],["Rain Check Denied","LANDLORD BOT"],["Trust The Corp. The Corp Trusts No One.","PUBLIC RELATIONS"],["Glitch Responsibly","NET SAFETY"],["Neon Is Cheaper Than Daylight","CITY POWER"],["All Streets Lead To Overtime","HR CORE"],["Feel Something. Buy Something.","AD NETWORK"],["Your Face Is Our Password","SECURITY"],["Smile, You Are Being Scanned","SECURITY"],["Night Shift Never Ends","HR CORE"],["Your Feelings Are Ad-Supported","AD NETWORK"],["Chrome Today, Debt Tomorrow","CHROME SALES"],["The Rain Is Rented","CITY POWER"],["Upgrade Your Patience To Premium","CUSTOMER SUCCESS"],["Privacy Mode Is A Myth","SECURITY"],["Every Alley Has A Firewall","NET SAFETY"],["Night Markets Accept All Souls","NIGHT MARKET"],["Noodles Are A Human Right","FOOD STALL 9"],["Reboot Your Dreams Nightly","WELLNESS DIV"],["Neon Lies Beautifully","AD NETWORK"],["Overtime Is The New Downtime","HR CORE"],["Your Credit Score Is Watching","FINANCE BOT"],["Static Is The City Breathing","PIRATE RADIO"],["Dreams Sold Separately","CHROME SALES"],["Glitches Are Features With Attitude","NET SAFETY"],["Encrypt Your Feelings","SECURITY"],["The Elevator Knows Your Name","BUILDING AI"],["Sleep Faster","WELLNESS DIV"],["Look Up. The Billboards Love You.","AD NETWORK"],["Your Shadow Has Been Monetized","AD NETWORK"],["Fresh Chrome, Still Warm","CHROME SALES"]],"colorways":[{"name":"Hot Pink","colors":{}},{"name":"Acid Green","colors":{"accent":"#39FF14","glow":"#FF00E5","alert":"#FCEE0A"}},{"name":"Blade Orange","colors":{"ground":"#120A06","accent":"#FF7A1A","glow":"#2BD9FF","panel":"#1E120A"}},{"name":"Ice Chrome","colors":{"ground":"#060A14","ink":"#E6F4FF","accent":"#7AE7FF","glow":"#B07CFF","panel":"#0E1426"}},{"name":"Blood Neon","colors":{"ground":"#0E0306","accent":"#FF1744","glow":"#FFD000","panel":"#1A060B"}}],"editions":[]},{"id":"vapor","title":"Vapor Plaza","blurb":"Vaporwave mallsoft. A striped sunset, a neon grid, palm trees, a marble column and a little window from 1995.","company":"Vapor Plaza","upper":false,"colors":{"ground":"#2A0F55","ink":"#FFF2FF","accent":"#FF71CE","glow":"#01CDFE","panel":"#3B1873","alert":"#FFFB96"},"fonts":{"display":"Righteous","mono":"VT323"},"displayWeight":400,"fontQuery":"family=Righteous&family=VT323&display=swap","phrases":[["Eternal","Sunset"],["Welcome To","The Plaza"],["Nothing Is","Real Here"],["Forever","Nineteen 95"],["Lost Year?","Ask At Desk"],["Fountain","Change Only"],["Escalator","To Nowhere"],["Vacancies","Still Lit"],["Food Court","For One"],["On Hold","Since 1995"],["Soft Jazz","Hard Floors"],["Rewind","The Weekend"],["Mannequins","On Break"],["Arcade","Afterglow"],["Parking","Unvalidated"]],"slogans":[["Please Enjoy The Fountain","MALL MANAGEMENT"],["All Stores Open Forever","MALL MANAGEMENT"],["Your Call Is Important To Us","CUSTOMER CARE"],["Smooth Jazz Is A Lifestyle","MALLSOFT FM"],["Buy One, Remember Two","GIFT SHOP"],["The Escalator Goes Up Forever","FACILITIES"],["Have A Pleasant Afternoon","CUSTOMER CARE"],["Free Samples Of Nostalgia","FOOD COURT"],["Please Do Not Feed The Dolphins","AQUARIUM"],["This Moment Is On Sale","GIFT SHOP"],["Thank You For Shopping","MALL MANAGEMENT"],["Insert Disk 2","SYSTEM"],["Escalators Are Forever Stairs","FACILITIES"],["Today's Special Is Yesterday","FOOD COURT"],["Please Do Not Wake The Mannequins","SECURITY"],["The Fountain Grants Small Wishes","MALL MANAGEMENT"],["Free Refills On Nostalgia","FOOD COURT"],["Lost Child? Lost Decade?","LOST AND FOUND"],["Your Receipt Is A Poem","CUSTOMER CARE"],["Every Pager Has A Message","ELECTRONICS"],["Rewind Before Returning","SUNSET VIDEO"],["Palm Trees Indoors Are Legal Here","FACILITIES"],["Smooth Is A Feeling","MALLSOFT FM"],["The Arcade Never Closes, Only Pauses","GAME ZONE"],["Insert Coin To Continue Dreaming","GAME ZONE"],["Shop Like It's Sunday Forever","MALL MANAGEMENT"],["Teal Is A State Of Mind","DESIGN DEPT"],["We Validate Parking And Feelings","CUSTOMER CARE"],["Please Hold. The Sunset Is Busy.","CUSTOMER CARE"],["Screensaver Mode Engaged","SYSTEM"],["Wish You Were Here (You Are)","GIFT SHOP"],["All Clocks Stopped At 4:44","FACILITIES"]],"colorways":[{"name":"Plaza Purple","colors":{}},{"name":"Miami Pastel","colors":{"ground":"#FFD6EC","ink":"#3A1B4F","accent":"#FF5FA2","glow":"#29D3E8","panel":"#FFF0F8"}},{"name":"Teal Dream","colors":{"ground":"#06343A","ink":"#E9FFFB","accent":"#FF8AD8","glow":"#3AF2E0","panel":"#0B4A52"}},{"name":"Sunset Tape","colors":{"ground":"#3A1030","ink":"#FFF0E0","accent":"#FF9A3C","glow":"#FF4FA0","panel":"#4E1840"}},{"name":"Windows Grey","colors":{"ground":"#B9B9C9","ink":"#141420","accent":"#000080","glow":"#FF71CE","panel":"#D9D9E4"}}],"editions":[]},{"id":"wild","title":"Wildwood","blurb":"A naturalist's field journal. Sage paper, fern fronds, mushrooms, birdsong and pressed leaves.","company":"Wildwood","upper":false,"colors":{"ground":"#E7EEDC","ink":"#1F3A2B","accent":"#C2662D","glow":"#6E9E4C","panel":"#F6F8F0","alert":"#E3B341"},"fonts":{"display":"Fraunces","mono":"DM Mono"},"displayWeight":700,"fontQuery":"family=Fraunces:opsz,wght@9..144,400;9..144,700&family=DM+Mono:wght@400;500&display=swap","phrases":[["Slow Down,","Look Closer"],["Grow Where","You Are"],["Every Path","Is A Story"],["Take Only","Photographs"],["Turn A","Fresh Page"],["Wait For","The Wren"],["At The Log","Sit Awhile"],["Mud Keeps","Paw Prints"],["Count The","Wingbeats"],["Leave Room","For Roots"],["Rain Ends,","Moss Shines"],["Old Acorns","New Oaks"],["Creek Bend","Quiet Seat"],["One Fern,","Many Notes"],["Dusk Comes","With Foxes"]],"slogans":[["Slow Is A Speed","TRAIL CREW"],["Moss Grows On Patience","FIELD NOTES"],["Leave It Better","TRAIL CREW"],["Every Leaf Is A Letter","HERBARIUM"],["Listen Before You Look","BIRD COUNT"],["Rain Is Just Slow Gardening","GREENHOUSE"],["Small Things Hold Up The World","SOIL SURVEY"],["The Creek Knows The Way","TRAIL CREW"],["Stay On The Path, Mostly","RANGER STATION"],["Mushrooms Are The Internet","SOIL SURVEY"],["Sit. Wait. The Deer Will Come.","FIELD NOTES"],["Pick Up Three Things","TRAIL CREW"],["Lichen Is A Friendship","SOIL SURVEY"],["Name Three Birds Before Breakfast","BIRD COUNT"],["The Oak Was Once A Stubborn Acorn","HERBARIUM"],["Puddles Are For Boots","TRAIL CREW"],["Bees Are Busy. Let Them Be.","POLLINATOR WATCH"],["Every Stump Was Once A Story","FIELD NOTES"],["Walk Like The Ground Is Listening","RANGER STATION"],["Ferns Are Older Than Flowers","HERBARIUM"],["Rest Is How Seeds Wait","GREENHOUSE"],["Owls Keep The Night Shift","BIRD COUNT"],["Fog Is The Forest Thinking","FIELD NOTES"],["Pocket A Pinecone, Not A Plant","RANGER STATION"],["Mud Is Just Excited Soil","SOIL SURVEY"],["Follow The Water Downhill","TRAIL CREW"],["The Wren Sings Bigger Than It Is","BIRD COUNT"],["Seasons Never Run Late","ALMANAC"],["Hug The Tree. Ask First.","RANGER STATION"],["Sit Long Enough And The Forest Visits","FIELD NOTES"],["Keep The Trail Wild And The Trash Out","TRAIL CREW"],["Clouds Are Rain Taking Its Time","ALMANAC"]],"colorways":[{"name":"Sage Journal","colors":{}},{"name":"Autumn Leaf","colors":{"ground":"#F2E6D3","ink":"#3A2412","accent":"#B8431E","glow":"#D99A2B","panel":"#FBF6EC"}},{"name":"Deep Forest","colors":{"ground":"#16261C","ink":"#E5F0DF","accent":"#E08A4B","glow":"#7BB35A","panel":"#1F3326"}},{"name":"Wildflower","colors":{"ground":"#F4ECF4","ink":"#2E2A3A","accent":"#B34E8C","glow":"#7FA65A","panel":"#FCF8FC"}},{"name":"Winter Pine","colors":{"ground":"#E9EFF2","ink":"#1D2E36","accent":"#B23A3A","glow":"#4E7D6A","panel":"#F7FAFB"}}],"editions":[]},{"id":"odds","title":"Long Odds","blurb":"A prediction market on steroids. Neon YES and NO, 100x leverage, whale alerts, live bets and a countdown on everything.","company":"Long Odds Exchange","upper":true,"colors":{"ground":"#06070B","ink":"#F2F4F8","accent":"#8B5CF6","glow":"#00FF88","panel":"#10121A","alert":"#FF2D55"},"fonts":{"display":"Archivo","mono":"JetBrains Mono"},"displayWeight":800,"fontQuery":"family=Archivo:wdth,wght@62..125,400..800&family=JetBrains+Mono:wght@400;600&display=swap","phrases":[["Will Today","Happen Twice?"],["Does The Void","Take Bets?"],["Will You Remember","This Tuesday?"],["Is Tomorrow","Priced In?"],["Can Silence","Outbid Noise?"],["Who Sets","Time's Price?"],["Has Forever","Reached Zero?"],["Could A Hunch","Go Bankrupt?"],["Are Unlived Lives","Liquid Yet?"],["Did The Future","Default?"],["Would An Echo","Earn A Yield?"],["Which Self","Keeps Profit?"],["If Doubt Rallies,","Who Buys?"],["Where Does Luck","Settle Up?"],["How Much Nothing","Buys A Maybe?"]],"slogans":[["Ape In, Think Later","DEGEN DESK"],["Fortune Favors The Leveraged","RISK OFFICE (UNSTAFFED)"],["Liquidation Is Just A Plot Twist","CLEARING HOUSE"],["Every Coin Flip Is A Market","MARKET MAKING"],["Sleep Is For Flat Positions","NIGHT DESK"],["100x Or Go Home","LEVERAGE DEPT"],["The Whales Are Hungry","WHALE WATCH"],["Your Gut Is A Data Feed","QUANT DESK"],["Buy The Rumor. Sell The Nap.","TRADING FLOOR"],["Odds Are Just Vibes With Decimals","RESEARCH"],["Not Financial Advice. Barely Advice.","COMPLIANCE"],["Diamond Hands, Paper Plans","STRATEGY"],["Number Go Up","MARKETING"],["There Is Always A Bigger Whale","WHALE WATCH"],["The House Always Watches","SURVEILLANCE"],["Resolve Fast, Regret Faster","CLEARING HOUSE"],["LFG (Statistically)","MORALE"],["Every Morning Is A Market Open","NIGHT DESK"],["Copium Is Not A Hedge","RISK OFFICE (UNSTAFFED)"],["Bet Small. Dream Huge.","COMPLIANCE"],["Your Alarm Clock Has Odds","FORECASTING"],["Green Candles Are A Love Language","MARKETING"],["Exit Liquidity Is A Personality","TRADING FLOOR"],["The Spread Never Sleeps","MARKET MAKING"],["Long Coffee, Short Meetings","STRATEGY"],["Rekt Is A Rite Of Passage","MORALE"],["Price It Or It Didn't Happen","RESEARCH"],["Max Pain, Max Gain","LEVERAGE DEPT"],["Moon Or Bust (Mostly Bust)","FORECASTING"],["Hedge Your Hedges","RISK OFFICE (UNSTAFFED)"],["Everything Resolves Eventually","CLEARING HOUSE"],["The Void Is A Counterparty","MARKET MAKING"],["Meaning Is Thinly Traded","RESEARCH"],["Price The Unpriceable","EXOTICS DESK"],["Time Is Not Financial Advice","COMPLIANCE"],["Tomorrow Is A Derivative Of Today","QUANT DESK"],["Hedge Against Yesterday","RISK OFFICE"],["The Universe Has No Stop Loss","RISK OFFICE"],["Your Odds Are Someone Else's Certainty","STRATEGY"],["Nothing Is Settled Until It Is","CLEARING HOUSE"],["Bet On The Present. It Expires Soon.","LIVE DESK"],["Infinity Trades At A Discount","TREASURY"],["Fate Accepts Limit Orders","EXOTICS DESK"],["Every Moment Is A Market","LIVE DESK"],["You Are The Long Shot","LONGSHOT DESK"],["The Sun Is Also A Position","ASTRO DESK"],["Probability Loves A Mystery","QUANT DESK"],["Doubt Has Excellent Liquidity","MARKET MAKING"],["The Past Is Closed For Trading","CLEARING HOUSE"],["Certainty Has Been Delisted","COMPLIANCE"],["Even Silence Has A Spread","MARKET MAKING"],["Entropy Always Wins The Close","RESEARCH"],["Your Shadow Is Short","TECHNICAL ANALYSIS"],["Today Is Volatile. So Are You.","LIVE DESK"],["Long The Mystery, Short The Answer","STRATEGY"],["Odds Are Just Stories With Numbers","RESEARCH"],["The Clock Is A Market Maker","CLEARING HOUSE"],["Dreams Settle At Dawn","NIGHT DESK"],["Bet On Yourself, Then Forget","BEHAVIORAL DESK"],["Nothing Lasts. Price Accordingly.","RISK OFFICE"],["Nobody Knows. Everyone Trades.","TRADING FLOOR"],["The Moon Doesn't Hedge","ASTRO DESK"],["Tuesday Is Not Guaranteed","CLEARING HOUSE"],["Reality Is In Price Discovery","RESEARCH"],["Yes, No, Maybe, Forever","PRODUCT"],["The Universe Settles In Cash","TREASURY"],["Uncertainty Is The Only Asset","STRATEGY"],["Consciousness Is A Bull Market","HYPE DEPARTMENT"],["Every Ending Is Just An Expiry","CLEARING HOUSE"],["The Void Never Sleeps Either","NIGHT DESK"],["Ask The Stars. They Charge Fees.","ASTRO DESK"],["Somewhere It Already Resolved","CLEARING HOUSE"],["Your Future Self Is Watching The Chart","BEHAVIORAL DESK"],["Odds Are, You're Still Here","WELLNESS DESK"],["History Is A Settled Market","RESEARCH"],["The Present Is Thinly Traded","LIVE DESK"],["Gravity Never Misses A Margin Call","RISK OFFICE"],["The Infinite Is Out Of Stock","TREASURY"],["Bet Small. Wonder Big.","HYPE DEPARTMENT"],["The Horizon Is A Moving Average","TECHNICAL ANALYSIS"],["We Trade In Maybes","MARKET MAKING"],["Time Is The Only Whale","WHALE WATCH"],["Every Yes Contains A No","COMPLIANCE"],["The Answer Is Pending Review","CLEARING HOUSE"],["Long Wonder","STRATEGY"],["Sleep Is For People With Stop Losses","NIGHT DESK"],["40x Leverage, 0x Regrets","HYPE DEPARTMENT"],["Whales Eat First","WHALE WATCH"],["Double Or Nothing Is A Personality","HYPE DEPARTMENT"],["The Odds Are Moving. Are You?","LIVE DESK"],["Fade The Crowd, Then Join It","STRATEGY"],["Every Minute Is Resolution Day","CLEARING HOUSE"],["Long Shots Are Short Stories","LONGSHOT DESK"],["Your Confidence Is Overpriced","QUANT DESK"],["Cash Out Before The Victory Lap","RISK OFFICE (UNSTAFFED)"],["Bet The House (Metaphorically)","COMPLIANCE"],["Chart Says Up. Vibes Say Up.","TECHNICAL ANALYSIS"],["Ape In Gently","RISK OFFICE (UNSTAFFED)"],["Someone Just Bought YES. Stay Calm.","LIVE DESK"],["Odds Swinging. Hold Your Coffee.","LIVE DESK"],["Liquidity Is A Love Language","TREASURY"],["Every Dip Is A Discount","TRADING FLOOR"],["It Is Not Gambling If You Made A Chart","TECHNICAL ANALYSIS"],["Max Bet On Breakfast","HYPE DEPARTMENT"],["Hindsight Trades At 100¢","RESEARCH"],["Your Horoscope Is Now A Derivative","EXOTICS DESK"],["The Longshot Called. It Wants You.","LONGSHOT DESK"],["Probability Is Just Spicy Common Sense","QUANT DESK"],["We Price Everything. Even This.","MARKET MAKING"],["YES Is A Lifestyle","MARKETING"],["NO Is Also Valid","COMPLIANCE"],["Somebody Has To Take The Other Side","MARKET MAKING"],["Volatility Is Just Excitement","TRADING FLOOR"],["Never Bet Against Coffee","RESEARCH"],["Buy Low, Explain Later","TRADING FLOOR"]],"colorways":[{"name":"Degen Night","colors":{}},{"name":"Pump Green","colors":{"accent":"#00FF88","glow":"#00FF88","ground":"#030A06","panel":"#0A1610"}},{"name":"Rekt Red","colors":{"accent":"#FF2D55","ground":"#0B0406","panel":"#180A0E"}},{"name":"Whale Gold","colors":{"ground":"#0C0A05","ink":"#FFF4D6","accent":"#FFC94A","panel":"#18140A"}},{"name":"Daylight Desk","colors":{"ground":"#F3F6FB","ink":"#0E1A2B","accent":"#2F6BFF","glow":"#00A87E","panel":"#FFFFFF","alert":"#E8384F"}}],"editions":[]}];
+const NAV_FONTS = {"Bodoni Moda":{"spec":"family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700","weight":600,"display":true},"Orbitron":{"spec":"family=Orbitron:wght@700","weight":700,"display":true},"Righteous":{"spec":"family=Righteous","weight":400,"display":true},"Newsreader":{"spec":"family=Newsreader:opsz,wght@6..72,300;6..72,500","weight":300,"display":true},"Shippori Mincho B1":{"spec":"family=Shippori+Mincho+B1:wght@800","weight":800,"display":true},"IM Fell English":{"spec":"family=IM+Fell+English:ital@0;1","weight":400,"display":true},"Cormorant Garamond":{"spec":"family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500","weight":700,"display":true},"Fraunces":{"spec":"family=Fraunces:opsz,wght@9..144,400;9..144,700","weight":700,"display":true},"Oxanium":{"spec":"family=Oxanium:wght@500;700","weight":700,"display":true},"Space Grotesk":{"spec":"family=Space+Grotesk:wght@400;600","weight":600,"display":true},"Archivo":{"spec":"family=Archivo:wdth,wght@62..125,400..800","weight":800,"display":true},"VT323":{"spec":"family=VT323","weight":400,"display":false},"IBM Plex Mono":{"spec":"family=IBM+Plex+Mono:wght@400;500","weight":400,"display":false},"Barlow Condensed":{"spec":"family=Barlow+Condensed:wght@500;700","weight":400,"display":false},"IM Fell English SC":{"spec":"family=IM+Fell+English+SC","weight":400,"display":false},"Cormorant SC":{"spec":"family=Cormorant+SC:wght@500","weight":400,"display":false},"Share Tech Mono":{"spec":"family=Share+Tech+Mono","weight":400,"display":false},"DM Mono":{"spec":"family=DM+Mono:wght@400;500","weight":400,"display":false},"JetBrains Mono":{"spec":"family=JetBrains+Mono:wght@400;600","weight":400,"display":false}};
+// Geometry and formatting for Navie. Coordinates are [lon, lat] like GeoJSON; distances are meters.
+const NAV_EARTH = 6371008.8;
+const navRad = d => d * Math.PI / 180, navDeg = r => r * 180 / Math.PI;
+
+function navDistance(a, b) {
+  const dLat = navRad(b[1] - a[1]), dLon = navRad(b[0] - a[0]);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(navRad(a[1])) * Math.cos(navRad(b[1])) * Math.sin(dLon / 2) ** 2;
+  return 2 * NAV_EARTH * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+function navBearing(a, b) {
+  const y = Math.sin(navRad(b[0] - a[0])) * Math.cos(navRad(b[1]));
+  const x = Math.cos(navRad(a[1])) * Math.sin(navRad(b[1])) - Math.sin(navRad(a[1])) * Math.cos(navRad(b[1])) * Math.cos(navRad(b[0] - a[0]));
+  return (navDeg(Math.atan2(y, x)) + 360) % 360;
+}
+// Signed smallest difference b - a in degrees, -180..180.
+function navTurn(a, b) { return ((b - a + 540) % 360) - 180; }
+// Point at distance d (m) and bearing brg from p.
+function navOffset(p, brg, d) {
+  const r = d / NAV_EARTH, th = navRad(brg), la = navRad(p[1]), lo = navRad(p[0]);
+  const la2 = Math.asin(Math.sin(la) * Math.cos(r) + Math.cos(la) * Math.sin(r) * Math.cos(th));
+  const lo2 = lo + Math.atan2(Math.sin(th) * Math.sin(r) * Math.cos(la), Math.cos(r) - Math.sin(la) * Math.sin(la2));
+  return [navDeg(lo2), navDeg(la2)];
+}
+// Nearest point to p on segment a-b, in a local flat frame (fine at street scale). t is 0..1 along the segment.
+function navProject(p, a, b) {
+  const k = Math.cos(navRad(p[1])), ax = (a[0] - p[0]) * k, ay = a[1] - p[1], bx = (b[0] - p[0]) * k, by = b[1] - p[1];
+  const dx = bx - ax, dy = by - ay, len = dx * dx + dy * dy;
+  const t = len ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / len)) : 0;
+  const pt = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  return { pt, t, dist: navDistance(p, pt) };
+}
+function navCumulative(coords) {
+  const cum = [0];
+  for (let i = 1; i < coords.length; i++) cum.push(cum[i - 1] + navDistance(coords[i - 1], coords[i]));
+  return cum;
+}
+// Snap p to a line. With a hint (last segment index) only a window around it is searched, so the snap can't jump to a
+// different pass of the same road; the window reaches further forward than back.
+function navSnap(p, coords, cum, hint, back = 8, ahead = 40) {
+  let lo = 0, hi = coords.length - 2;
+  if (hint != null) { lo = Math.max(0, hint - back); hi = Math.min(coords.length - 2, hint + ahead); }
+  let best = null;
+  for (let i = lo; i <= hi; i++) {
+    const r = navProject(p, coords[i], coords[i + 1]);
+    if (!best || r.dist < best.dist - 0.01) best = { idx: i, t: r.t, pt: r.pt, dist: r.dist };
+  }
+  if (!best) return { idx: 0, t: 0, pt: coords[0], dist: navDistance(p, coords[0]), along: 0, bearing: 0 };
+  best.along = cum[best.idx] + (cum[best.idx + 1] - cum[best.idx]) * best.t;
+  best.bearing = navBearing(coords[best.idx], coords[best.idx + 1]);
+  return best;
+}
+// The point and bearing at distance d along a line.
+function navAlong(coords, cum, d) {
+  if (d <= 0) return { pt: coords[0], bearing: navBearing(coords[0], coords[1] || coords[0]), idx: 0 };
+  let i = 1;
+  while (i < cum.length - 1 && cum[i] < d) i++;
+  const seg = cum[i] - cum[i - 1], t = seg ? Math.min(1, (d - cum[i - 1]) / seg) : 0;
+  const a = coords[i - 1], b = coords[i];
+  return { pt: [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t], bearing: navBearing(a, b), idx: i - 1 };
+}
+// Part of a line between two along-distances (for drawing the route still ahead).
+function navSlice(coords, cum, from, to = Infinity) {
+  const a = navAlong(coords, cum, from), out = [a.pt];
+  for (let i = a.idx + 1; i < coords.length && cum[i] < to; i++) out.push(coords[i]);
+  if (to < cum[cum.length - 1]) out.push(navAlong(coords, cum, to).pt);
+  return out.length > 1 ? out : [a.pt, a.pt];
+}
+
+// Units: 'imperial' (feet, then miles) or 'metric'. Spoken text writes units out in full for speech engines.
+function navUnitsFor(locale) { return /^en-(US|LR|MM)\b|^my\b/.test(locale || '') ? 'imperial' : 'metric'; }
+function navFmtDistance(m, units) {
+  if (units === 'imperial') {
+    const ft = m * 3.28084, mi = m / 1609.344;
+    if (ft < 1000) {
+      const v = ft < 100 ? Math.max(10, Math.round(ft / 10) * 10) : ft < 500 ? Math.round(ft / 50) * 50 : Math.round(ft / 100) * 100;
+      return { value: String(v), unit: 'ft', text: `${v} ft`, speech: `${v} feet` };
+    }
+    const v = mi < 10 ? (Math.round(mi * 10) / 10) : Math.round(mi);
+    const s = v === 0.5 ? 'half a mile' : v === 1 ? '1 mile' : `${v} miles`;
+    return { value: String(v), unit: 'mi', text: `${v} mi`, speech: s };
+  }
+  if (m < 1000) {
+    const v = m < 100 ? Math.max(10, Math.round(m / 10) * 10) : Math.round(m / 50) * 50;
+    if (v < 1000) return { value: String(v), unit: 'm', text: `${v} m`, speech: `${v} meters` };
+  }
+  const v = m < 10000 ? Math.round(m / 100) / 10 : Math.round(m / 1000);
+  return { value: String(v), unit: 'km', text: `${v} km`, speech: v === 1 ? '1 kilometer' : `${v} kilometers` };
+}
+function navFmtDuration(s) {
+  const min = Math.max(1, Math.round(s / 60));
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60), r = min % 60;
+  return r ? `${h} hr ${r} min` : `${h} hr`;
+}
+function navCardinal(brg) { return ['north', 'northeast', 'east', 'southeast', 'south', 'southwest', 'west', 'northwest'][Math.round(brg / 45) % 8]; }
+
+// Routing and search for Navie. Both are free community services with fair-use rules (docs/NAV_SPEC.md, rule 5):
+// keep requests few, debounce search, and swap these for a paid provider before a public launch.
+const NAV_SERVICES = {
+  routeBase: 'https://routing.openstreetmap.de',
+  routePaths: { car: 'routed-car/route/v1/driving', bike: 'routed-bike/route/v1/driving', foot: 'routed-foot/route/v1/driving' },
+  searchBase: 'https://photon.komoot.io',
+  credit: 'Routes: FOSSGIS OSRM · Search: Photon by komoot · Map data © OpenStreetMap contributors · Tiles: OpenFreeMap'
+};
+
+// OSRM step -> our step. A step starts with its maneuver; `start` is how far along the route that maneuver is (filled in by
+// navParseRoute once the whole line is known).
+function navStepFrom(s) {
+  const m = s.maneuver || {};
+  return {
+    type: m.type || 'turn', modifier: m.modifier || '', exit: m.exit || 0, location: m.location,
+    bearingBefore: m.bearing_before || 0, bearingAfter: m.bearing_after || 0,
+    name: s.name || '', ref: s.ref || '', destinations: s.destinations || '', exits: s.exits || '', rotary: s.rotary_name || '',
+    mode: s.mode || 'driving', distance: s.distance || 0, duration: s.duration || 0, start: 0
+  };
+}
+// One OSRM route (with steps and GeoJSON geometries) -> { coords, cum, steps, distance, duration, summary }.
+function navParseRoute(r, i = 0) {
+  const steps = [], coords = [], starts = [];
+  for (const leg of r.legs || []) for (const s of leg.steps || []) {
+    const g = (s.geometry && s.geometry.coordinates) || [];
+    starts.push(Math.max(0, coords.length - 1));
+    for (const c of g) {
+      const last = coords[coords.length - 1];
+      if (!last || last[0] !== c[0] || last[1] !== c[1]) coords.push([c[0], c[1]]);
+    }
+    steps.push(navStepFrom(s));
+  }
+  if (coords.length < 2 && r.geometry && r.geometry.coordinates) coords.splice(0, coords.length, ...r.geometry.coordinates.map(c => [c[0], c[1]]));
+  if (coords.length === 1) coords.push(coords[0].slice());
+  const cum = navCumulative(coords), total = cum[cum.length - 1];
+  steps.forEach((s, k) => { s.start = k === steps.length - 1 && s.type === 'arrive' ? total : cum[Math.min(starts[k], cum.length - 1)]; });
+  const summary = (r.legs || []).map(l => l.summary).filter(Boolean).join(', ');
+  return { id: i, coords, cum, steps, distance: r.distance != null ? r.distance : total, duration: r.duration || 0, length: total, summary };
+}
+function navParseOsrm(json) {
+  if (!json || json.code !== 'Ok' || !Array.isArray(json.routes) || !json.routes.length) {
+    const code = json && json.code;
+    throw new Error(code === 'NoRoute' ? 'No route between these places.' : code === 'NoSegment' ? 'That place is too far from a road.' : 'Route service unavailable.');
+  }
+  return json.routes.map(navParseRoute);
+}
+function navRouteUrl(from, to, { profile = 'car', bearing = null, alternatives = true } = {}) {
+  const f = c => `${c[0].toFixed(6)},${c[1].toFixed(6)}`;
+  const q = ['overview=false', 'steps=true', 'geometries=geojson', `alternatives=${alternatives ? 3 : 'false'}`];
+  if (bearing != null && isFinite(bearing)) q.push(`bearings=${Math.round((bearing + 360) % 360)},60;`);
+  return `${NAV_SERVICES.routeBase}/${NAV_SERVICES.routePaths[profile] || NAV_SERVICES.routePaths.car}/${f(from)};${f(to)}?${q.join('&')}`;
+}
+
+// Photon feature -> place { name, sub, coord }.
+function navPlaceFrom(f) {
+  const p = f.properties || {}, street = [p.housenumber, p.street].filter(Boolean).join(' ');
+  const name = p.name || street || p.city || p.state || 'Dropped pin';
+  const sub = [p.name && street, p.city !== name && p.city, p.state !== name && p.state, p.country !== name && p.country].filter(Boolean).join(', ');
+  return { name, sub, coord: f.geometry.coordinates.slice(0, 2), kind: p.osm_value || p.type || '' };
+}
+function navParsePhoton(json) { return ((json && json.features) || []).filter(f => f.geometry && f.geometry.type === 'Point').map(navPlaceFrom); }
+
+// The network services. The offline test town (nav/fixture.js) provides the same three calls.
+function navNetServices(fetchFn = (...a) => fetch(...a)) {
+  const getJson = async url => { const r = await fetchFn(url); if (!r.ok) throw new Error(`Service error ${r.status}`); return r.json(); };
+  return {
+    credit: NAV_SERVICES.credit,
+    route: async (from, to, opts) => navParseOsrm(await getJson(navRouteUrl(from, to, opts))),
+    search: async (q, near) => navParsePhoton(await getJson(`${NAV_SERVICES.searchBase}/api/?q=${encodeURIComponent(q)}&limit=8&lang=en${near ? `&lat=${near[1].toFixed(4)}&lon=${near[0].toFixed(4)}` : ''}`)),
+    reverse: async p => navParsePhoton(await getJson(`${NAV_SERVICES.searchBase}/reverse?lon=${p[0].toFixed(6)}&lat=${p[1].toFixed(6)}&lang=en`))[0] || null
+  };
+}
+
+// How each world draws the map. Colors come from the theme and colorway (src/foundry-data.js); this file only says which
+// palette role goes where, plus each world's own texture, road drawing, route line and position marker. Every world owns
+// its texture and marker (no two share one), so a screenshot tells you the world even in grey.
+// Mixes are navMix(a, b, t): t of the way from a to b. A tint like '#6E8FA0' is a world's own ink, blended into its palette.
+const NAV_WORLDS = {
+  halcyon: {
+    texture: 'dots', textureColor: c => c.ink, textureAlpha: 0.07, marker: 'ring', labels: { font: 'Regular' },
+    land: c => navMix(c.ground, c.panel, 0.55), water: c => navMix(c.accent, c.panel, 0.6), park: c => navMix(c.ground, c.ink, 0.07), wood: c => navMix(c.ground, c.ink, 0.12),
+    roads: c => ({ minor: navMix(c.panel, '#FFFFFF', 0.6), major: '#FFFFFF', motorway: navMix(c.accent, '#FFFFFF', 0.55), casing: navMix(c.ground, c.ink, 0.22) }),
+    buildings: 'fill', route: c => ({ line: c.accent, casing: c.ink })
+  },
+  directive: {
+    texture: 'scan', textureColor: c => c.ink, textureAlpha: 0.05, marker: 'hex', labels: { font: 'Bold', upper: true, spacing: 0.12 },
+    land: c => c.ground, water: c => navMix(c.ground, c.ink, 0.09), park: c => navMix(c.ground, c.glow, 0.1), wood: c => navMix(c.ground, c.glow, 0.14),
+    roads: c => ({ minor: navMix(c.ground, c.ink, 0.2), major: navMix(c.ground, c.ink, 0.38), motorway: navMix(c.ground, c.accent, 0.55) }),
+    buildings: 'outline', route: c => ({ line: c.accent, glow: 6 })
+  },
+  longroad: {
+    texture: 'paper', textureColor: c => c.ink, textureAlpha: 0.06, waterTexture: 'hatch', marker: 'compass', labels: { font: 'Italic' },
+    land: c => c.ground, water: c => navMix(c.ground, '#6E8FA0', 0.42), park: c => navMix(c.ground, '#7C8F4E', 0.18), wood: c => navMix(c.ground, '#5F7444', 0.28),
+    roads: c => ({ minor: navMix(c.ground, c.ink, 0.32), major: navMix(c.ground, c.ink, 0.62), motorway: navMix(c.ground, c.ink, 0.8) }),
+    buildings: 'fill', route: c => ({ line: c.accent, dash: [1.6, 0.9], casing: navMix(c.ground, '#FFFFFF', 0.4) })
+  },
+  nightfall: {
+    texture: 'rain', textureColor: c => c.glow, textureAlpha: 0.09, marker: 'chevron', labels: { font: 'Bold', upper: true, spacing: 0.1 },
+    land: c => c.ground, water: c => navMix(c.ground, c.glow, 0.2), park: c => navMix(c.ground, c.ink, 0.06), wood: c => navMix(c.ground, c.ink, 0.09),
+    roads: c => ({ minor: navMix(c.ground, c.ink, 0.22), major: navMix(c.ground, c.ink, 0.5), motorway: navMix(c.ground, c.ink, 0.75), blur: 0.6 }),
+    buildings: 'outline', route: c => ({ line: c.accent, glow: 8 })
+  },
+  grimoire: {
+    texture: 'stars', textureColor: c => c.ink, textureAlpha: 0.16, marker: 'star', labels: { font: 'Italic' },
+    land: c => c.ground, water: c => navMix(c.ground, c.glow, 0.3), park: c => navMix(c.ground, c.glow, 0.12), wood: c => navMix(c.ground, c.glow, 0.18),
+    roads: c => ({ minor: navMix(c.ground, c.ink, 0.2), major: navMix(c.ground, c.ink, 0.38), motorway: navMix(c.ground, c.accent, 0.5) }),
+    buildings: 'fill', route: c => ({ line: c.accent, glow: 10, width: 1.2 })
+  },
+  deeprange: {
+    texture: 'grid', textureColor: c => c.ink, textureAlpha: 0.07, marker: 'bracket', labels: { font: 'Regular', upper: true, spacing: 0.18 },
+    land: c => c.ground, water: c => navMix(c.ground, c.glow, 0.28), park: c => navMix(c.ground, '#A7B0C0', 0.05), wood: c => navMix(c.ground, '#A7B0C0', 0.08),
+    roads: c => ({ minor: navMix(c.ground, '#A7B0C0', 0.16), major: navMix(c.ground, '#A7B0C0', 0.32), motorway: navMix(c.ground, '#A7B0C0', 0.5) }),
+    buildings: 'none', route: c => ({ line: c.ink, glow: 6 }), markerColor: c => c.accent
+  },
+  rabbit: {
+    texture: 'lattice', textureColor: c => c.accent, textureAlpha: 0.06, marker: 'diamond', labels: { font: 'Regular' },
+    land: c => navMix(c.ground, c.panel, 0.4), water: c => navMix(c.glow, c.panel, 0.45), park: c => navMix(c.ground, c.glow, 0.22), wood: c => navMix(c.ground, c.glow, 0.32),
+    roads: c => ({ minor: navMix(c.panel, '#FFFFFF', 0.6), major: '#FFFFFF', motorway: navMix(c.glow, '#FFFFFF', 0.4), casing: navMix(c.ground, c.ink, 0.16) }),
+    buildings: 'fill', route: c => ({ line: c.accent, casing: c.ink })
+  },
+  neon: {
+    texture: 'glitch', textureColor: c => c.glow, textureAlpha: 0.12, marker: 'boost', labels: { font: 'Bold', upper: true, spacing: 0.14 },
+    land: c => c.ground, water: c => navMix(c.ground, c.glow, 0.16), park: c => navMix(c.ground, c.accent, 0.06), wood: c => navMix(c.ground, c.accent, 0.09),
+    roads: c => ({ minor: navMix(c.ground, c.glow, 0.28), major: navMix(c.ground, c.glow, 0.55), motorway: c.glow, blur: 1.2 }),
+    buildings: 'outline', buildingColor: c => navMix(c.ground, c.accent, 0.3), route: c => ({ line: c.accent, glow: 12 })
+  },
+  vapor: {
+    texture: 'checker', textureColor: c => c.ink, textureAlpha: 0.05, marker: 'cursor', labels: { font: 'Regular' },
+    land: c => c.ground, water: c => navMix(c.ground, c.glow, 0.38), park: c => navMix(c.ground, c.glow, 0.14), wood: c => navMix(c.ground, c.glow, 0.2),
+    roads: c => ({ minor: navMix(c.ground, c.accent, 0.3), major: navMix(c.ground, c.accent, 0.62), motorway: navMix(c.ground, c.glow, 0.7) }),
+    buildings: 'fill', route: c => ({ line: c.alert || c.ink, casing: c.accent })
+  },
+  wild: {
+    texture: 'stipple', textureColor: c => c.ink, textureAlpha: 0.08, marker: 'leaf', labels: { font: 'Regular' },
+    land: c => navMix(c.ground, c.panel, 0.3), water: c => navMix(c.ground, '#5E98B0', 0.5), park: c => navMix(c.ground, c.glow, 0.3), wood: c => navMix(c.ground, c.glow, 0.46),
+    roads: c => ({ minor: navMix(c.panel, '#FFFFFF', 0.5), major: '#FFFFFF', motorway: navMix(c.alert || c.accent, '#FFFFFF', 0.5), casing: navMix(c.ground, c.ink, 0.2) }),
+    buildings: 'fill', route: c => ({ line: c.accent, casing: c.ink })
+  },
+  odds: {
+    texture: 'candles', textureColor: c => c.glow, textureAlpha: 0.07, marker: 'candle', labels: { font: 'Regular', upper: true, spacing: 0.08 },
+    land: c => c.ground, water: c => navMix(c.ground, c.accent, 0.2), park: c => navMix(c.ground, c.glow, 0.07), wood: c => navMix(c.ground, c.glow, 0.1),
+    roads: c => ({ minor: navMix(c.ground, c.ink, 0.17), major: navMix(c.ground, c.accent, 0.45), motorway: navMix(c.ground, c.accent, 0.75) }),
+    buildings: 'outline', route: c => ({ line: c.glow, glow: 8 })
+  }
+};
+
+// Position markers, drawn in a 48x48 box pointing up (north) before rotation. fill = marker color, ink = outline.
+const NAV_MARKERS = {
+  ring: (f, k) => `<circle cx="24" cy="24" r="10" fill="${f}" stroke="${k}" stroke-width="3"/><path d="M24 2v9M24 37v9M2 24h9M37 24h9" stroke="${k}" stroke-width="3"/><path d="M24 6l5 7h-10z" fill="${k}"/>`,
+  hex: (f, k) => `<path d="M24 6l15 9v18l-15 9-15-9V15z" fill="${f}" stroke="${k}" stroke-width="3"/><path d="M24 13l7 14h-14z" fill="${k}"/>`,
+  compass: (f, k) => `<path d="M24 2l6 16 16 6-16 6-6 16-6-16-16-6 16-6z" fill="${k}"/><path d="M24 2l6 16h-12z" fill="${f}"/><circle cx="24" cy="24" r="4" fill="${f}"/>`,
+  chevron: (f, k) => `<path d="M24 4l16 36-16-9-16 9z" fill="${f}" stroke="${k}" stroke-width="3" stroke-linejoin="round"/>`,
+  star: (f, k) => `<path d="M24 2l4 13 13-6-6 13 13 4-13 4 6 13-13-6-4 13-4-13-13 6 6-13-13-4 13-4-6-13 13 6z" fill="${f}" stroke="${k}" stroke-width="2" stroke-linejoin="round"/><circle cx="24" cy="24" r="4" fill="${k}"/>`,
+  bracket: (f, k) => `<path d="M8 16V8h8M32 8h8v8M40 32v8h-8M16 40H8v-8" fill="none" stroke="${f}" stroke-width="4"/><path d="M24 12l7 18-7-4-7 4z" fill="${f}" stroke="${k}" stroke-width="2"/>`,
+  diamond: (f, k) => `<path d="M24 3l15 21-15 21L9 24z" fill="${f}" stroke="${k}" stroke-width="3" stroke-linejoin="round"/><path d="M24 3l6 21-6 21-6-21z" fill="${k}" opacity=".35"/>`,
+  boost: (f, k) => `<path d="M24 3l15 18h-9l9 11h-9l-6-7-6 7H9l9-11H9z" fill="${f}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/>`,
+  cursor: (f, k) => `<path d="M14 4v34l9-8 6 14 6-3-6-13h12z" fill="${f}" stroke="${k}" stroke-width="3" stroke-linejoin="round"/>`,
+  leaf: (f, k) => `<path d="M24 3c11 9 14 20 10 30-3 7-7 11-10 12-3-1-7-5-10-12-4-10-1-21 10-30z" fill="${f}" stroke="${k}" stroke-width="3"/><path d="M24 12v30" stroke="${k}" stroke-width="2.5"/>`,
+  candle: (f, k) => `<path d="M24 2v8M24 38v8" stroke="${k}" stroke-width="3"/><rect x="15" y="10" width="18" height="28" rx="2" fill="${f}" stroke="${k}" stroke-width="3"/><path d="M24 15l5 9h-10z" fill="${k}"/>`
+};
+
+// Textures as tiny transparent tiles (RGBA pixels), drawn under everything. 32 px at pixel ratio 2.
+function navTexture(kind, hex, alpha) {
+  const S = 32, px = new Uint8Array(S * S * 4), [r, g, b] = navRgb(hex), A = Math.round(255 * alpha);
+  const put = (x, y, a = 1) => { x = ((x % S) + S) % S; y = ((y % S) + S) % S; const i = (y * S + x) * 4; px[i] = r; px[i + 1] = g; px[i + 2] = b; px[i + 3] = Math.max(px[i + 3], Math.round(A * a)); };
+  let s = 9; const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+  switch (kind) {
+    case 'dots': for (const [x, y] of [[8, 8], [24, 24]]) for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) put(x + dx, y + dy, dx && dy ? 0.5 : 1); break;
+    case 'scan': for (let y = 0; y < S; y += 4) for (let x = 0; x < S; x++) put(x, y); break;
+    case 'paper': for (let i = 0; i < 40; i++) put(Math.floor(rnd() * S), Math.floor(rnd() * S), 0.4 + rnd() * 0.6); break;
+    case 'hatch': for (let i = 0; i < S; i++) { put(i, i); put(i, i + 16); } break;
+    case 'rain': for (const [x0, y0] of [[3, 2], [19, 9], [11, 20], [27, 25]]) for (let k = 0; k < 7; k++) put(x0 + Math.floor(k / 3), y0 + k, 1 - k / 9); break;
+    case 'stars': for (let i = 0; i < 6; i++) { const x = Math.floor(rnd() * S), y = Math.floor(rnd() * S), big = i % 3 === 0; put(x, y); if (big) { put(x + 1, y, 0.6); put(x - 1, y, 0.6); put(x, y + 1, 0.6); put(x, y - 1, 0.6); } } break;
+    case 'grid': for (let i = 0; i < S; i++) { put(i, 0); put(0, i); } for (let i = 0; i < S; i += 2) { put(i, 16, 0.5); put(16, i, 0.5); } break;
+    case 'lattice': for (let i = 0; i < S; i++) { put(i, i, 0.8); put(S - 1 - i, i, 0.8); } break;
+    case 'glitch': for (const [x0, y0, w] of [[2, 5, 9], [18, 13, 5], [7, 22, 12], [24, 29, 6]]) for (let x = 0; x < w; x++) put(x0 + x, y0); break;
+    case 'checker': for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) if ((x < 16) !== (y < 16)) put(x, y); break;
+    case 'stipple': for (let i = 0; i < 22; i++) put(Math.floor(rnd() * S), Math.floor(rnd() * S), 0.5 + rnd() * 0.5); break;
+    case 'candles': for (const [x, y0, h] of [[4, 10, 12], [12, 6, 16], [20, 14, 9], [28, 4, 14]]) { for (let y = 0; y < h; y++) { put(x, y0 + y); put(x + 1, y0 + y); } put(x, y0 - 2, 0.6); put(x, y0 + h + 1, 0.6); } break;
+  }
+  return { width: S, height: S, data: px };
+}
+
+// Builds a MapLibre style for a world and colorway, over OpenFreeMap's tiles (the OpenMapTiles layers and classes).
+// With fixture data (nav/fixture.js) the same layers draw the offline test town instead.
+const NAV_TILES = 'https://tiles.openfreemap.org/planet';
+const NAV_GLYPHS = 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf';
+
+function navRgb(hex) { const h = hex.replace('#', ''), n = parseInt(h.length === 3 ? h.replace(/./g, x => x + x) : h.slice(0, 6), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function navHex(rgb) { return '#' + rgb.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('').toUpperCase(); }
+function navMix(a, b, t) { const x = navRgb(a), y = navRgb(b); return navHex(x.map((v, i) => v + (y[i] - v) * t)); }
+function navRgba(hex, a) { const [r, g, b] = navRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+function navLum(hex) { const c = navRgb(hex).map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; }
+function navContrast(a, b) { const x = navLum(a), y = navLum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+
+// Theme + colorway -> every color the map and screen use. The route must stand out from the land: if the world's chosen
+// route color is too close to the land in some colorway (contrast under 3), the casing carries it, or the best of the
+// theme's own colors stands in.
+function navPalette(theme, colorway) {
+  const c = Object.assign({}, theme.colors, (colorway && colorway.colors) || {});
+  const w = NAV_WORLDS[theme.id] || NAV_WORLDS.halcyon;
+  const land = w.land(c), dark = navLum(land) < 0.18;
+  const route = Object.assign({ width: 1 }, w.route(c));
+  const routeSeen = r => Math.max(navContrast(r.line, land), r.casing ? navContrast(r.casing, land) : 0);
+  if (routeSeen(route) < 3) route.line = [c.accent, c.alert, c.glow, c.ink].filter(Boolean).sort((a, b) => navContrast(b, land) - navContrast(a, land))[0];
+  return {
+    c, dark, land, world: w, route,
+    water: w.water(c), park: w.park(c), wood: w.wood(c), roads: w.roads(c),
+    building: w.buildingColor ? w.buildingColor(c) : navMix(land, c.ink, w.buildings === 'outline' ? 0.2 : 0.07),
+    label: c.ink, halo: dark ? land : navMix(land, '#FFFFFF', 0.35), marker: w.markerColor ? w.markerColor(c) : route.line,
+    texture: { kind: w.texture, color: w.textureColor(c), alpha: w.textureAlpha }
+  };
+}
+
+function navStyle(theme, colorway, { fixture = null } = {}) {
+  const p = navPalette(theme, colorway), w = p.world, R = p.roads, L = w.labels || {};
+  const src = fixture ? Object.fromEntries(Object.entries(fixture).map(([k, data]) => [`fx-${k}`, { type: 'geojson', data }]))
+    : { omt: { type: 'vector', url: NAV_TILES } };
+  const from = (layer, def) => fixture ? Object.assign({ source: `fx-${layer}` }, def) : Object.assign({ source: 'omt', 'source-layer': layer }, def);
+  const cls = list => ['match', ['get', 'class'], list, true, false];
+  const zw = (stops, k = 1) => ['interpolate', ['exponential', 1.5], ['zoom'], ...stops.flatMap(([z, v]) => [z, v * k])];
+  const name = ['coalesce', ['get', 'name_en'], ['get', 'name:latin'], ['get', 'name']];
+  const text = L.upper ? ['upcase', name] : name;
+  const font = [`Noto Sans ${L.font || 'Regular'}`];
+  const roadW = { minor: [[12, 0.4], [14, 1.6], [16, 5], [18, 14]], major: [[8, 0.5], [12, 1.4], [14, 3.2], [16, 8], [18, 20]], motorway: [[5, 0.6], [9, 1.4], [12, 2.6], [14, 5], [16, 12], [18, 26]] };
+  const roadLayers = [];
+  const road = (id, classes, color, widths, extra = {}) => {
+    if (R.casing) roadLayers.push(from('transportation', { id: `${id}-casing`, type: 'line', filter: cls(classes), layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': R.casing, 'line-width': zw(widths.map(([z, v]) => [z, v + (z >= 14 ? 2 : 1)])) } }));
+    roadLayers.push(from('transportation', Object.assign({ id, type: 'line', filter: cls(classes), layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: Object.assign({ 'line-color': color, 'line-width': zw(widths) }, R.blur ? { 'line-blur': R.blur } : {}) }, extra)));
+  };
+  road('road-minor', ['minor', 'service', 'track'], R.minor, roadW.minor, { minzoom: 12 });
+  road('road-major', ['primary', 'secondary', 'tertiary'], R.major, roadW.major);
+  road('road-motorway', ['motorway', 'trunk'], R.motorway, roadW.motorway);
+  const r = p.route, rw = [[8, 3], [12, 5], [14, 7], [16, 11], [18, 18]].map(([z, v]) => [z, v * (r.width || 1)]);
+  const empty = { type: 'geojson', data: { type: 'FeatureCollection', features: [] } };
+  return {
+    version: 8, name: `Navie · ${theme.title}${colorway ? ` · ${colorway.name}` : ''}`, glyphs: NAV_GLYPHS,
+    sources: Object.assign(src, { 'nav-alts': empty, 'nav-route': empty, 'nav-done': empty, 'nav-dest': empty }),
+    layers: [
+      { id: 'land', type: 'background', paint: { 'background-color': p.land } },
+      ...(p.texture.kind && p.texture.kind !== 'none' ? [{ id: 'land-texture', type: 'background', paint: { 'background-pattern': navTextureId(p.texture.kind, p.texture.color, p.texture.alpha) } }] : []),
+      from('landuse', { id: 'landuse', type: 'fill', filter: cls(['commercial', 'retail', 'industrial']), paint: { 'fill-color': navMix(p.land, p.c.ink, 0.04) } }),
+      from('landcover', { id: 'wood', type: 'fill', filter: cls(['wood', 'forest']), paint: { 'fill-color': p.wood } }),
+      from('landcover', { id: 'park', type: 'fill', filter: cls(['grass', 'farmland', 'park']), paint: { 'fill-color': p.park } }),
+      from('park', { id: 'park-reserve', type: 'fill', paint: { 'fill-color': p.park, 'fill-opacity': 0.6 } }),
+      from('water', { id: 'water', type: 'fill', paint: { 'fill-color': p.water } }),
+      ...(w.waterTexture ? [from('water', { id: 'water-texture', type: 'fill', paint: { 'fill-pattern': navTextureId(w.waterTexture, p.c.ink, 0.16) } })] : []),
+      from('waterway', { id: 'waterway', type: 'line', paint: { 'line-color': p.water, 'line-width': zw([[10, 0.6], [14, 2.5], [18, 8]]) } }),
+      ...(w.buildings === 'none' ? [] : [from('building', w.buildings === 'outline'
+        ? { id: 'building', type: 'line', minzoom: 14, paint: { 'line-color': p.building, 'line-width': 0.8 } }
+        : { id: 'building', type: 'fill', minzoom: 14, paint: { 'fill-color': p.building, 'fill-outline-color': navMix(p.building, p.c.ink, 0.12) } })]),
+      from('transportation', { id: 'path', type: 'line', minzoom: 14, filter: cls(['path']), paint: { 'line-color': R.minor, 'line-width': 1.2, 'line-dasharray': [2, 1.5] } }),
+      from('transportation', { id: 'rail', type: 'line', minzoom: 11, filter: cls(['rail', 'transit']), paint: { 'line-color': navMix(p.land, p.c.ink, 0.3), 'line-width': 1.2, 'line-dasharray': [3, 2] } }),
+      ...roadLayers,
+      from('boundary', { id: 'boundary', type: 'line', filter: ['<=', ['get', 'admin_level'], 4], paint: { 'line-color': navMix(p.land, p.c.ink, 0.3), 'line-width': 1, 'line-dasharray': [4, 2] } }),
+      // The route: alternatives under the chosen route; while driving, the part already driven is dimmed.
+      { id: 'nav-alts', type: 'line', source: 'nav-alts', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': navMix(r.line, p.land, 0.55), 'line-width': zw(rw, 0.85) } },
+      ...(r.glow ? [{ id: 'nav-route-glow', type: 'line', source: 'nav-route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': r.line, 'line-opacity': 0.45, 'line-blur': r.glow, 'line-width': zw(rw, 1.9) } }] : []),
+      ...(r.casing ? [{ id: 'nav-route-casing', type: 'line', source: 'nav-route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': r.casing, 'line-width': zw(rw.map(([z, v]) => [z, v + 4])) } }] : []),
+      { id: 'nav-route', type: 'line', source: 'nav-route', layout: { 'line-cap': r.dash ? 'butt' : 'round', 'line-join': 'round' }, paint: Object.assign({ 'line-color': r.line, 'line-width': zw(rw) }, r.dash ? { 'line-dasharray': r.dash } : {}) },
+      { id: 'nav-done', type: 'line', source: 'nav-done', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': navMix(r.line, p.land, 0.7), 'line-width': zw(rw, 0.7) } },
+      { id: 'nav-dest', type: 'circle', source: 'nav-dest', paint: { 'circle-radius': 9, 'circle-color': p.land, 'circle-stroke-color': r.line, 'circle-stroke-width': 4 } },
+      // Labels.
+      from('water_name', { id: 'water-name', type: 'symbol', layout: { 'text-field': name, 'text-font': [`Noto Sans Italic`], 'text-size': 12 }, paint: { 'text-color': navMix(p.water, p.c.ink, 0.6), 'text-halo-color': p.water, 'text-halo-width': 1 } }),
+      from('transportation_name', { id: 'road-name', type: 'symbol', minzoom: 13, layout: { 'symbol-placement': 'line', 'text-field': text, 'text-font': font, 'text-size': zw([[13, 10], [17, 14]]), 'text-letter-spacing': L.spacing || 0 }, paint: { 'text-color': p.label, 'text-halo-color': p.halo, 'text-halo-width': 1.5 } }),
+      from('poi', { id: 'poi', type: 'symbol', minzoom: 15, filter: ['<=', ['get', 'rank'], 25], layout: { 'text-field': text, 'text-font': font, 'text-size': 11, 'text-max-width': 8, 'text-letter-spacing': L.spacing || 0 }, paint: { 'text-color': navMix(p.label, p.land, 0.25), 'text-halo-color': p.halo, 'text-halo-width': 1.5 } }),
+      from('place', { id: 'place', type: 'symbol', filter: cls(['city', 'town', 'village', 'suburb', 'neighbourhood']), layout: { 'text-field': text, 'text-font': [`Noto Sans Bold`], 'text-size': ['match', ['get', 'class'], 'city', 18, 'town', 15, 12], 'text-letter-spacing': (L.spacing || 0) + 0.04, 'text-max-width': 8 }, paint: { 'text-color': p.label, 'text-halo-color': p.halo, 'text-halo-width': 2 } })
+    ]
+  };
+}
+
+// Texture images are named by kind, color and strength so a new world or colorway never reuses a stale tile; the app draws
+// them when the map asks (styleimagemissing).
+function navTextureId(kind, color, alpha) { return `tex-${kind}-${color.replace('#', '')}-${Math.round(alpha * 100)}`; }
+function navTextureFromId(id) { const m = /^tex-(\w+)-([0-9A-Fa-f]{6})-(\d+)$/.exec(id); return m ? navTexture(m[1], '#' + m[2], +m[3] / 100) : null; }
+
+// The position marker for a world as an SVG string (48x48, pointing north).
+function navMarkerSvg(theme, colorway) {
+  const p = navPalette(theme, colorway), draw = NAV_MARKERS[p.world.marker] || NAV_MARKERS.ring;
+  const outline = navContrast(p.marker, p.c.ink) >= 2.5 ? p.c.ink : p.land;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">${draw(p.marker, outline)}</svg>`;
+}
+
+// Each world's navigation voice. DRAFT (Claude, 28 Oct 2026): awaiting Jordan's approval, see docs/NAV_SPEC.md.
+// Who speaks and through what channel is unique per world (WORLD-BUILDING STANDARD 3). Every line is spoken AFTER the plain
+// instruction, never instead of it. Approved slogans from src/foundry-data.js join the cruise pool at runtime.
+// L: in-world labels for the screen. Real functions keep a plain word in them (Start, End, Search) so they stay usable.
+const NAV_VOICES = {
+  halcyon: {
+    speaker: 'The Halcyon Transit Concierge', channel: 'your neural lease', rate: 0.95, pitch: 1,
+    L: { search: 'Request a destination', routes: 'Licensed routes', start: 'Begin transit', end: 'End transit', eta: 'Projected arrival', left: 'Transit remaining', arrive: 'Allocation reached', reroute: 'Deviation logged', then: 'Then' },
+    depart: ['Transit authorized. Your movement is billed by the minute.', 'Route licensed to unit H B 2893. Please remain organic.', 'Locomotion engaged. Posture is being recorded.', 'Your destination has been pre-approved. Do not deviate.', 'Transit commencing. Your consent is on file.', 'Departure logged. Hydration is advised, and invoiced.'],
+    arrive: ['Allocation reached. Your arrival has been billed.', 'You have arrived. The journey has been archived to your file.', 'Destination fulfilled. Please rate your compliance.', 'Arrival confirmed. Thank you for remaining organic.', 'Transit complete. Your legs remain company property.', 'You are here. Halcyon was always here.'],
+    reroute: ['Deviation logged. A new path has been licensed.', 'Unauthorized turn detected. Recalculating at no extra charge. This time.', 'Your free will has been noted. Rerouting.', 'Course correction issued. Please do not do that again.'],
+    cruise: ['Reminder. Blinking is included in your plan.', 'Your heart rate is within the licensed range.', 'Scenery is provided under the terms of existence.', 'Ambient happiness is being monitored.', 'This stretch of road is sponsored by the Office of Continuity.', 'Every mile is a mile closer to renewal.', 'Your mood has been adjusted for the drive.', 'Please keep both hands on the wheel. They are leased.'],
+    tags: ['Compliance noted.', 'Thank you, subject.', 'Billed accordingly.', 'Within tolerance.', 'Logged.', 'As licensed.']
+  },
+  directive: {
+    speaker: 'Shelter 9 Dispatch', channel: 'the civil defense band', rate: 1.05, pitch: 0.9,
+    L: { search: 'Designate objective', routes: 'Sortie routes', start: 'Engage', end: 'Abort sortie', eta: 'ETA', left: 'Time in field', arrive: 'Objective reached', reroute: 'Rerouting // hold', then: 'Then' },
+    depart: ['Sortie authorized. Remain calm. Proceed.', 'Operator, you are cleared for surface travel.', 'Route locked. Do not hesitate.', 'Surface transit approved. Curfew still applies.', 'Dispatch confirms departure. Keep the radio on.', 'Movement logged. Return to base is expected.'],
+    arrive: ['Objective reached. Hold position.', 'Arrival confirmed. Your sortie has been logged in triplicate.', 'You are on site. Await further instruction.', 'Destination secured. Remain calm.', 'Sortie complete. The morale office has been notified.', 'Arrival logged. Doors stay sealed after dusk.'],
+    reroute: ['Deviation recorded. New route issued.', 'Off course, operator. Correcting.', 'Unscheduled turn. Rerouting.', 'Route compromised. Stand by for a new heading.'],
+    cruise: ['Dispatch to operator. All sectors quiet.', 'Power grid holding at sixty two percent.', 'Sector seven reports normal traffic. Remain alert.', 'Morale check. Please continue to be fine.', 'Radio discipline is appreciated.', 'Keep the shelter key on your person.', 'The next drill is not today. Probably.', 'Surface conditions within tolerance.'],
+    tags: ['Do not hesitate.', 'Confirm.', 'Proceed.', 'Remain calm.', 'Acknowledged.', 'Hold steady.']
+  },
+  longroad: {
+    speaker: 'An Old Wayfarer', channel: 'the folded map in your pack', rate: 0.95, pitch: 0.95,
+    L: { search: 'Where does the road lead', routes: 'Roads to choose', start: 'Set out', end: 'Make camp', eta: 'Arrive by', left: 'Road left', arrive: "Journey's end", reroute: 'The road turns', then: 'Then' },
+    depart: ['Boots laced. The road is ahead of you.', 'Off we go. Pack more bread than you think.', "The map's unfolded. Let's walk it.", 'Mind the first mile. It sets the mood.', 'Lantern lit. On you go, wanderer.', 'Out the gate and onto the road.'],
+    arrive: ["Journey's end. Put the kettle on.", "You've arrived. Mark it on the map.", 'Here at last. The road will keep.', 'Arrived. Dry your socks by the fire.', "That's the place. Rest your feet.", 'Made it. Write it in the journal.'],
+    reroute: ['Not that way, friend. Let me redraw the road.', 'The road has turned. Finding another.', 'A detour, then. The map knows another way.', 'Lost the path. Here is a new one.'],
+    cruise: ['Fine weather for travelling, or close enough.', 'A milestone passes. Many more to go, or so it feels.', 'Keep an eye out for a good inn.', 'The crows say go on.', 'This road was a cart track once.', 'Somewhere ahead, someone is baking.', 'Hum something. The miles go quicker.', "The hills don't hurry. Nor should you."],
+    tags: ['On you go.', 'Steady now.', 'Mind the ruts.', "That's it.", 'Easy does it.', 'Onward.']
+  },
+  nightfall: {
+    speaker: 'Drop Control', channel: 'squad comms in your visor', rate: 1.08, pitch: 0.9,
+    L: { search: 'Mark a waypoint', routes: 'Vectors', start: 'Drop in', end: 'Stand down', eta: 'ETA', left: 'To LZ', arrive: 'LZ reached', reroute: 'New vector', then: 'Then' },
+    depart: ['Drop control. Vector locked. Move out.', 'Pod clear. Waypoint is live.', 'Optics updated. You are go.', 'Squad net open. Rain is light, visibility fair.', 'Moving. Stay low, stay quick.', 'Route painted on your optics. Go.'],
+    arrive: ['LZ reached. Good drop, trooper.', 'On target. Stand by for debrief.', 'Waypoint achieved. Squad, hold here.', 'You made it. Dry your boots.', 'Objective reached. Comms going quiet.', 'Landed. Nice work in the rain.'],
+    reroute: ['Off vector. Painting a new one.', 'Missed the turn. Recalculating vector.', 'New route on your optics.', 'Course drift. Correcting.'],
+    cruise: ['Drop control. All quiet on this sector.', 'Rain intensity steady.', 'Squad seven reports clear streets.', 'Optics nominal. Eyes forward.', 'Long stretch ahead. Stay sharp.', 'Thermals show nothing hostile. Just traffic.', 'Check your mirrors. Old habit, good habit.', 'Weather holding. Keep moving.'],
+    tags: ['Copy.', 'Go.', 'Moving.', 'Clear.', 'Roger.', 'Stay low.']
+  },
+  grimoire: {
+    speaker: 'The Wandering Star', channel: 'a path card drawn from your deck', rate: 0.9, pitch: 1.05,
+    L: { search: 'Name your destination', routes: 'Paths in the cards', start: 'Draw the path', end: 'Close the deck', eta: 'Foretold arrival', left: 'Path remaining', arrive: 'As foretold', reroute: 'The stars realign', then: 'Then' },
+    depart: ['The path card is drawn. Walk it well.', 'The Wandering Star rises. Follow it.', 'A journey begins. The omens are fair.', 'Shuffle complete. Your road is revealed.', 'The circle has blessed this route. Mostly.', 'Step lightly. The stars are watching.'],
+    arrive: ['As foretold, you have arrived.', 'The path is complete. Return the card to the deck.', 'Arrival. The stars ask nothing further today.', 'You stand where the card pointed.', 'Journey sealed in quiet ink.', 'Destination reached. A minor triumph, duly noted.'],
+    reroute: ['The stars realign. A new path appears.', 'An unforeseen turn. Redrawing.', 'The card has been reshuffled.', 'Fate adjusts. So shall we.'],
+    cruise: ['The omens on this road are favorable.', 'Somewhere, an apprentice has burnt the toast again.', 'A lesser spell of patience is in effect.', 'The moon approves of this lane.', 'Your familiar is enjoying the ride.', 'A comet would be nice. None is scheduled.', 'The road hums an old charm.', 'Patience is a spell that costs nothing.'],
+    tags: ['So it is drawn.', 'As written.', 'The star agrees.', 'Onward, seeker.', 'Thus.', 'Be it so.']
+  },
+  deeprange: {
+    speaker: 'Range Control', channel: 'the long range relay', rate: 0.95, pitch: 0.85,
+    L: { search: 'Designate target', routes: 'Trajectories', start: 'Acquire', end: 'Break contact', eta: 'ETA', left: 'Range', arrive: 'Rendezvous', reroute: 'Trajectory revised', then: 'Then' },
+    depart: ['Range control. Trajectory plotted.', 'Signal acquired. Begin approach.', 'Contact established. Proceed on vector.', 'Relay is listening. Go.', 'Burn started. Hold the line.', 'Tracking you. Proceed.'],
+    arrive: ['Rendezvous achieved.', 'Target reached. Contact holding.', 'Arrival confirmed. Signal steady.', 'You are on station.', 'Docking complete. Logging position.', 'Destination acquired. Range control out.'],
+    reroute: ['Trajectory revised.', 'Contact drift detected. Correcting.', 'New vector computed.', 'Off plot. Replotting.'],
+    cruise: ['Range control. Still tracking you.', 'Relay quiet. All good.', 'Long range. Steady signal.', 'Nothing on the scope but you.', 'Telemetry nominal.', 'Holding contact.', 'Echo returned. Clean.', 'Distance closing.'],
+    tags: ['Copy.', 'Tracking.', 'Steady.', 'Confirmed.', 'Logged.', 'Holding.']
+  },
+  rabbit: {
+    speaker: 'The Legion getaway driver', channel: 'an earpiece, very discreet', rate: 1, pitch: 1,
+    L: { search: 'Name the mark', routes: 'Ways out', start: 'Leave quietly', end: 'Call it off', eta: 'Arrival', left: 'To the drop', arrive: 'The drop', reroute: 'Plan B', then: 'Then' },
+    depart: ["Engine's warm. Leave quietly.", "We're moving. Nobody saw a thing.", "Route's clean. Try to look innocent.", 'Off we go. Smile at the cameras.', "Gloves on, tank full. Let's go.", 'The car is ready. So are you, mostly.'],
+    arrive: ["You've arrived. We were never here.", 'The drop. Leave the card on the way out.', 'Arrived. Elegant, as usual.', 'Here we are. Try to act surprised.', 'Destination. Nicely done, and nobody noticed.', 'Made it. The Legion approves.'],
+    reroute: ["Plan B. There's always a plan B.", 'Changing route. Keep it casual.', "New exit. They'll never guess.", 'Detour. Very stylish of you.'],
+    cruise: ['Nobody is following us. I checked twice.', 'Lovely evening for an alibi.', 'Mirrors clear. Mostly pigeons.', 'Keep it under the limit. Speeding is for amateurs.', 'This road has excellent exits.', 'Relax your shoulders. You look guilty.', 'The silk is safe. Carry on.', 'A quiet road. My favorite kind.'],
+    tags: ['Smoothly.', 'Quietly now.', 'Nicely.', 'Easy.', 'No rush.', 'Elegant.']
+  },
+  neon: {
+    speaker: 'ROUTR+ Premium', channel: 'a rented corporate nav feed', rate: 1.1, pitch: 1.1,
+    L: { search: 'Search (ad supported)', routes: 'Routes for rent', start: 'Start ride', end: 'Cancel ride', eta: 'ETA', left: 'Metered', arrive: 'Destination delivered', reroute: 'Rerouting (free tier)', then: 'Then' },
+    depart: ['Router plus online. This route is brought to you by premium air.', 'Ride started. Your location is now a product.', 'Welcome back, runner. Route rented by the minute.', 'Navigation unlocked. Terms apply above ground.', 'Starting. Please enjoy one complimentary street.', 'Route active. Upgrade for fewer red lights.'],
+    arrive: ['Destination delivered. Please rate your city.', 'Arrived. Your data has been thanked.', "You're here. Leaving costs extra.", 'Arrival complete. Tip your algorithm.', 'Destination reached. Ads will resume shortly.', 'Delivered. Your loyalty points have expired.'],
+    reroute: ['Rerouting. Free tier routes may include detours.', 'New route. The previous route has been repossessed.', 'Off course. A fee may apply.', 'Recalculating. Please hold for a sponsored route.'],
+    cruise: ['This stretch is sponsored by Sable Tower.', 'Fun fact. Streetlights here are billed by the hour.', "Your umbrella has ads inside. You're welcome.", 'Breathing detected. Upgrade to premium air.', 'The rain is free. For now.', 'Traffic is a lifestyle choice.', 'Corporate reminds you. Blink twice for loyalty.', 'Your route has been optimized for billboard exposure.'],
+    tags: ['Sponsored.', 'Terms apply.', 'Billing.', 'Upgraded.', 'Ad free, for now.', 'Charged.']
+  },
+  vapor: {
+    speaker: 'The Plaza Directory', channel: 'the mall PA, 1995', rate: 0.9, pitch: 1,
+    L: { search: 'Store directory', routes: 'Escalators', start: 'Enter the plaza', end: 'Exit plaza', eta: 'Arriving', left: 'Escalator time', arrive: 'Now arriving', reroute: 'Please stand by', then: 'Then' },
+    depart: ['Welcome, shopper. Your route is now open.', 'Thank you for choosing the plaza. Please proceed.', 'Attention shoppers. A journey has begun.', 'Route loading. Please enjoy the music.', 'The doors are open forever. So is the road.', 'Now departing. Watch your step.'],
+    arrive: ['Now arriving. Thank you for shopping.', 'You have reached your store. It may have closed in 1997.', 'Arrival. Please enjoy the fountain.', 'Destination. Coins in the fountain are not refundable.', 'Welcome. Please stay forever.', 'You are here. You were always here.'],
+    reroute: ['Please stand by. Rerouting.', 'Wrong escalator. Finding another.', 'Route reset. Please enjoy this brief intermission.', 'Recalculating. The elevator music will continue.'],
+    cruise: ['Attention shoppers. The sunset will continue indefinitely.', 'Mallsoft F M. Still playing.', 'A lost child has been reunited with their parents. In 1996.', 'The food court is open. In spirit.', 'Please do not lean on the horizon.', 'The fountain thanks you for your coins.', 'It is always six o clock here.', 'Smooth driving is a lifestyle.'],
+    tags: ['Thank you.', 'Please proceed.', 'Have a nice day.', 'Enjoy.', 'Smoothly.', 'Forever.']
+  },
+  wild: {
+    speaker: 'The Field Guide', channel: 'a naturalist reading from the journal', rate: 0.92, pitch: 1,
+    // Cruise lines are real facts (Theme Bible: species and facts must be real and accurate).
+    L: { search: 'Where to, naturalist', routes: 'Trails', start: 'Set off', end: 'Finish outing', eta: 'Arrival', left: 'Trail left', arrive: 'Arrived', reroute: 'New trail', then: 'Then' },
+    depart: ["A fine day for an outing. Off we go.", "Trail marked. Let's see what we find.", 'Setting off. Keep an eye out for birds.', 'Notebook open. Here we go.', 'Off we go. Slowly is fine.', 'The route is drawn. Enjoy the outing.'],
+    arrive: ["You've arrived. A good outing.", 'Here we are. Note it in the journal.', 'Arrived. Take a moment to look around.', 'End of the trail. Well done.', 'Arrived safely. The wrens would approve.', 'You made it. Rest a while.'],
+    reroute: ['A new trail, then. Plenty to see either way.', 'Off the path. Finding another way.', 'Rerouting. Detours are where the good finds are.', 'A different path. No harm done.'],
+    cruise: ['Field note. Crows can recognize individual human faces.', "Field note. A woodpecker's tongue wraps around the back of its skull.", 'Field note. Some oak trees live for many centuries.', 'Field note. Monarch butterflies can migrate around three thousand miles.', 'Field note. Hummingbirds can fly backwards.', 'Field note. Mosses have no true roots.', 'Field note. Owls cannot move their eyes, so they turn their heads.', 'Field note. Honeybees share directions with a waggle dance.'],
+    tags: ['Gently now.', 'Lovely.', 'Steady.', 'Nicely done.', 'Easy.', 'Onward.']
+  },
+  odds: {
+    speaker: 'The Desk', channel: 'a trading floor that prices your trip', rate: 1.12, pitch: 1,
+    // No real stocks, tickers, exchanges or betting brands, and never real financial advice (Theme Bible).
+    L: { search: 'Search the market', routes: 'Listed routes', start: 'Open position', end: 'Close position', eta: 'Settles', left: 'To settle', arrive: 'Position closed', reroute: 'Market moved', then: 'Then' },
+    depart: ['Position opened. Odds of arrival, favorable.', 'Trip listed. Early bettors like your chances.', "We're live. The market expects you on time.", 'Opening bell. Long on getting there.', "Route priced in. Let's go.", 'Trading desk online. Your commute is now a market.'],
+    arrive: ['Position closed. The arrival bettors cash out.', 'Settled. You arrived, against modest odds.', 'Arrived. Underdogs everywhere are inspired.', 'Market closed. Arrival confirmed.', 'You arrived. The lateness market pays nothing today.', 'Settled in your favor.'],
+    reroute: ['Market moved. Repricing the route.', 'Unexpected turn. Volatility is up.', 'New route listed. The old one is delisted.', 'Rerouting. The desk did not see that coming.'],
+    cruise: ['Odds you hit every green light. Long.', 'The market thinks you are humming. Confirm.', 'Volume is light on this road.', 'Lateness futures are trading flat.', 'Rumor on the floor. Snacks at the destination.', 'Will this road ever end. Priced at no.', 'The desk reminds you. This is not financial advice.', 'Your arrival is trading above expectations.'],
+    tags: ['Priced in.', 'Noted.', 'Holding.', 'Bullish.', 'Steady.', 'Filled.']
+  }
+};
+
+// Plain instructions (what the banner shows and the voice always says first) and the world's voice layered after them.
+const NAV_ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+
+function navRoad(s, speech) {
+  if (s.name && s.ref && !speech) return `${s.name} (${s.ref.split(';')[0]})`;
+  return s.name || (s.ref ? s.ref.split(';')[0] : '');
+}
+// "I 5: Seattle, Portland" -> "Seattle" (speech keeps it short; the banner may show two).
+function navToward(s, max = 1) {
+  if (!s.destinations) return '';
+  const names = s.destinations.split(':').pop().split(',').map(x => x.trim()).filter(Boolean);
+  return names.slice(0, max).join(', ');
+}
+function navSide(mod) { return /left/.test(mod) ? 'left' : /right/.test(mod) ? 'right' : ''; }
+// Icon key for a step, used by the banner arrow and the route preview.
+function navIcon(s) {
+  const side = navSide(s.modifier), m = s.modifier;
+  if (s.type === 'arrive') return 'arrive';
+  if (s.type === 'depart') return 'straight';
+  if (/roundabout|rotary/.test(s.type) && s.type !== 'roundabout turn') return 'roundabout';
+  if (m === 'uturn') return 'uturn';
+  if (s.type === 'merge') return side ? `merge-${side}` : 'straight';
+  if (s.type === 'fork' || s.type === 'on ramp' || s.type === 'off ramp') return side ? `slight-${side}` : 'straight';
+  if (!m || m === 'straight') return 'straight';
+  return m.replace(' ', '-');
+}
+// The plain instruction for a step: { verb, road, text }. verb is the action, road what follows ("onto Main Street").
+function navInstruction(s, speech = false) {
+  const road = navRoad(s, speech), toward = navToward(s, speech ? 1 : 2), side = navSide(s.modifier), m = s.modifier;
+  const onto = road ? `onto ${road}` : '', on = road ? `on ${road}` : '';
+  const dir = toward ? `toward ${toward}` : onto;
+  let verb, rest = onto;
+  const turnVerb = () => m === 'uturn' ? 'Make a U-turn' : m === 'straight' || !m ? 'Continue straight' : /slight/.test(m) ? `Bear ${side}` : /sharp/.test(m) ? `Turn sharp ${side}` : `Turn ${side}`;
+  switch (s.type) {
+    case 'depart': verb = `Head ${navCardinal(s.bearingAfter)}`; rest = on; break;
+    case 'arrive': verb = side ? `Your destination will be on the ${side}` : 'You will reach your destination'; rest = ''; break;
+    case 'end of road': verb = `At the end of the road, ${turnVerb().toLowerCase()}`; break;
+    case 'new name': verb = 'Continue'; break;
+    case 'continue': verb = m === 'uturn' ? 'Make a U-turn' : /left|right/.test(m) ? `Keep ${side}` : 'Continue straight'; break;
+    case 'merge': verb = side ? `Merge ${side}` : 'Merge'; break;
+    case 'on ramp': verb = side ? `Take the ramp on the ${side}` : 'Take the ramp'; rest = dir; break;
+    case 'off ramp': verb = s.exits ? `Take exit ${s.exits.split(';')[0]}` : side ? `Take the exit on the ${side}` : 'Take the exit'; rest = dir; break;
+    case 'fork': verb = side ? `Keep ${side} at the fork` : 'Keep straight at the fork'; rest = dir; break;
+    case 'roundabout': case 'rotary': {
+      const at = s.type === 'rotary' && s.rotary ? `At ${s.rotary}` : 'At the roundabout';
+      verb = s.exit ? `${at}, take the ${NAV_ORDINALS[s.exit - 1] || `number ${s.exit}`} exit` : `Enter the roundabout`;
+      break;
+    }
+    case 'roundabout turn': verb = `At the roundabout, ${turnVerb().toLowerCase()}`; break;
+    case 'exit roundabout': case 'exit rotary': verb = 'Exit the roundabout'; break;
+    case 'use lane': verb = side ? `Use the ${side} lane` : 'Continue straight'; rest = ''; break;
+    default: verb = s.type === 'turn' ? turnVerb() : 'Continue';
+  }
+  return { verb, road: rest, text: rest ? `${verb} ${rest}` : verb };
+}
+const navLowerFirst = t => t.charAt(0).toLowerCase() + t.slice(1);
+
+// Deterministic no-repeat rotation: every line is used once before any repeats, and a reshuffle never starts with the line
+// that just played. seed keeps a trip's order stable (and testable).
+function navPool(lines, seed = 1) {
+  let s = (seed >>> 0) || 1, order = [], last = null;
+  const rnd = () => { s ^= s << 13; s >>>= 0; s ^= s >> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };
+  return () => {
+    if (!lines.length) return '';
+    if (!order.length) {
+      order = lines.map((_, i) => i);
+      for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+      if (order.length > 1 && lines[order[0]] === last) order.push(order.shift());
+    }
+    return (last = lines[order.shift()]);
+  };
+}
+
+// A trip's voice. style: 'plain' (directions only), 'light' (default: world lines at start, arrival, reroutes and now and
+// then on long quiet stretches) or 'full' (also a short tag after most turns). Returns the words to say for each event.
+function navVoice(theme, style = 'light', seed = 1) {
+  const v = NAV_VOICES[theme.id] || NAV_VOICES.halcyon;
+  const slogans = (theme.slogans || []).map(([t, dept]) => `${t.replace(/[.!]+$/, '')}. ${dept.replace(/\s*\/\/\s*/g, ', ').replace(/\(([^)]*)\)/g, '$1').toLowerCase()}.`);
+  const pools = {
+    depart: navPool(v.depart, seed), arrive: navPool(v.arrive, seed + 1), reroute: navPool(v.reroute, seed + 2),
+    cruise: navPool(v.cruise.concat(slogans), seed + 3), tags: navPool(v.tags, seed + 4)
+  };
+  let turns = 0;
+  const flavor = k => style === 'plain' ? '' : pools[k]();
+  return {
+    voice: v, style,
+    // ev: an event from navGuide (see guidance.js); units: 'imperial' | 'metric'. Returns { text, flavor }: text is everything
+    // to say; flavor is just the world's line (shown on screen too), empty in Plain.
+    say(ev, units) {
+      const s = ev.step, ins = s && navInstruction(s, true);
+      const thenPart = ev.then ? `, then ${navLowerFirst(navInstruction(ev.then, true).text)}` : '';
+      const out = (plain, fl = '') => ({ text: [plain, fl].filter(Boolean).join(' '), flavor: fl });
+      switch (ev.type) {
+        case 'depart': {
+          const next = ev.next && navLowerFirst(navInstruction(ev.next, true).text);
+          const lead = ev.nextNow ? `${ins.text}, then ${next}.` : `${ins.text}.${next ? ` In ${navFmtDistance(ev.nextDist, units).speech}, ${next}.` : ''}`;
+          return out(lead, flavor('depart'));
+        }
+        case 'continue': return out(`Continue${ins.road ? ` ${ins.road.replace(/^onto /, 'on ')}` : ''} for ${navFmtDistance(ev.dist, units).speech}.`);
+        case 'early': return out(`In ${navFmtDistance(ev.dist, units).speech}, ${navLowerFirst(ins.text)}${thenPart}.`);
+        case 'now': turns++; return out(`${ins.text}${thenPart}.`, style === 'full' && turns % 2 === 1 ? flavor('tags') : '');
+        case 'arrive': { const side = navSide(s.modifier); return out(`You have arrived.${side ? ` Your destination is on the ${side}.` : ''}`, flavor('arrive')); }
+        case 'reroute': return style === 'plain' ? out('Rerouting.') : out('', flavor('reroute'));
+        case 'cruise': return out('', flavor('cruise'));
+        default: return out('');
+      }
+    }
+  };
+}
+
+// Speech through the browser. Speaking must first be unlocked by a tap (iPhone), so the Start button calls unlock().
+function navSpeaker() {
+  const synth = typeof speechSynthesis !== 'undefined' ? speechSynthesis : null;
+  let muted = false, rate = 1, pitch = 1;
+  const pick = () => { const vs = synth.getVoices(), lang = (navigator.language || 'en-US'); return vs.find(v => v.lang === lang && v.localService) || vs.find(v => v.lang && v.lang.startsWith('en') && v.localService) || null; };
+  return {
+    available: !!synth,
+    set(opts) { if (opts.muted != null) muted = opts.muted; if (opts.rate) rate = opts.rate; if (opts.pitch) pitch = opts.pitch; },
+    unlock() { if (!synth) return; const u = new SpeechSynthesisUtterance(' '); u.volume = 0; synth.speak(u); },
+    say(text, urgent = false) {
+      if (!synth || muted || !text) return;
+      if (urgent) synth.cancel();
+      const u = new SpeechSynthesisUtterance(text); u.rate = rate; u.pitch = pitch;
+      const v = pick(); if (v) u.voice = v;
+      synth.speak(u);
+    },
+    stop() { if (synth) synth.cancel(); }
+  };
+}
+
+// Turn-by-turn guidance. Feed it GPS fixes; it reports progress and the moments to speak.
+// A fix is { coord: [lon, lat], accuracy (m), speed (m/s or null), heading (deg or null), time (ms) }.
+// Events, in the order they should be spoken:
+//   depart   once, at the first fix (unless this guide replaces a route after a reroute)
+//   continue just after a maneuver when the next one is far away ("Continue on Main Street for 2 miles")
+//   early    the heads-up ("In 500 feet, turn left onto Oak Street")
+//   now      at the maneuver ("Turn left onto Oak Street"), with `then` when the following one comes right after
+//   arrive   once, at the destination
+//   offroute when the fixes leave the route (the app fetches a new route and starts a new guide)
+//   cruise   a quiet moment on a long stretch, for the world's voice (only if opts.cruiseEvery is set)
+const NAV_PROFILE = {
+  car: { min: 6, early: [250, 2000], now: [40, 250], then: 150, off: 40, arrive: 30 },
+  bike: { min: 3, early: [100, 500], now: [20, 60], then: 60, off: 30, arrive: 15 },
+  foot: { min: 1.2, early: [50, 200], now: [12, 30], then: 30, off: 25, arrive: 12 }
+};
+const navClamp = (v, [a, b]) => Math.max(a, Math.min(b, v));
+
+function navGuide(route, opts = {}) {
+  const P = NAV_PROFILE[opts.profile] || NAV_PROFILE.car;
+  const { coords, cum, steps, length } = route;
+  const announceDepart = opts.announceDepart !== false, cruiseEvery = opts.cruiseEvery || Infinity;
+  const fired = new Set(), on = (k, stage) => fired.has(`${k}:${stage}`), mark = (k, stage) => fired.add(`${k}:${stage}`);
+  let hint = null, offCount = 0, offRoute = false, arrived = false, started = false, lastSpoken = null, last = null;
+  const durationScale = (() => { const sum = steps.reduce((a, s) => a + s.duration, 0); return sum > 0 && route.duration ? route.duration / sum : 1; })();
+
+  const stepAt = along => { let i = 0; while (i + 1 < steps.length && steps[i + 1].start <= along + 0.5) i++; return i; };
+  const timeLeft = (along, cur) => {
+    const s = steps[cur], end = steps[cur + 1] ? steps[cur + 1].start : length, span = Math.max(1, end - s.start);
+    let t = s.duration * Math.max(0, Math.min(1, (end - along) / span));
+    for (let i = cur + 1; i < steps.length; i++) t += steps[i].duration;
+    return t * durationScale;
+  };
+  // The step right after k, if it comes so soon that both should be said together.
+  const thenAfter = (k, nowDist) => {
+    const a = steps[k], b = steps[k + 1];
+    if (!a || !b || a.type === 'arrive') return null;
+    if (b.type === 'arrive' && !/left|right/.test(b.modifier)) return null;
+    return b.start - a.start <= Math.max(P.then, nowDist * 1.5) ? b : null;
+  };
+
+  function update(fix) {
+    const events = [], t = fix.time != null ? fix.time : Date.now();
+    if (arrived) return Object.assign({}, last, { events });
+    const snap = navSnap(fix.coord, coords, cum, hint);
+    const threshold = P.off + Math.min(fix.accuracy || 0, 60);
+    const wrongWay = fix.speed > 3 && fix.heading != null && Math.abs(navTurn(snap.bearing, fix.heading)) > 135 && snap.dist > P.off / 2;
+    offCount = snap.dist > threshold || wrongWay ? offCount + 1 : 0;
+    if (offCount >= 2 || snap.dist > threshold * 3) {
+      if (!offRoute) events.push({ type: 'offroute', coord: fix.coord, heading: fix.heading });
+      offRoute = true;
+      return (last = Object.assign({}, last || {}, { offRoute: true, events, coord: fix.coord }));
+    }
+    offRoute = false;
+    hint = snap.idx;
+    const along = snap.along, cur = stepAt(along), k = cur + 1, next = steps[k];
+    const distToNext = next ? Math.max(0, next.start - along) : 0, distLeft = Math.max(0, length - along);
+    const ownSpeed = steps[cur].duration > 0 ? steps[cur].distance / steps[cur].duration : P.min * 2;
+    const v = Math.max(P.min, Math.min(40, fix.speed > 0.5 ? fix.speed : ownSpeed));
+    const earlyDist = navClamp(v * 60, P.early), nowDist = navClamp(v * 7 + 15, P.now);
+
+    if (!started) {
+      started = true;
+      if (announceDepart) {
+        const ev = { type: 'depart', step: steps[0] };
+        if (next && distToNext <= earlyDist * 3 && next.type !== 'arrive') {
+          ev.next = next; ev.nextDist = distToNext; ev.nextNow = distToNext <= nowDist;
+          mark(k, 'early'); if (ev.nextNow) mark(k, 'now');
+        }
+        events.push(ev);
+      } else mark(k, 'continue');
+      mark(0, 'continue');
+    }
+    if (next && distLeft > P.arrive) {
+      if (!on(k, 'continue') && !on(k, 'early') && cur > 0 && along - steps[cur].start < 150 && distToNext > earlyDist * 2 + 300) {
+        events.push({ type: 'continue', step: steps[cur], dist: distToNext }); mark(k, 'continue');
+      }
+      if (distToNext <= nowDist && !on(k, 'now') && next.type !== 'arrive') {
+        const then = thenAfter(k, nowDist);
+        events.push({ type: 'now', step: next, then, dist: distToNext }); mark(k, 'now'); mark(k, 'early');
+        if (then) { mark(k + 1, 'early'); mark(k + 1, 'continue'); }
+      } else if (distToNext <= earlyDist && distToNext > nowDist * 1.5 && !on(k, 'early') && !on(k, 'now')) {
+        const then = next.type === 'arrive' ? null : thenAfter(k, nowDist);
+        events.push({ type: 'early', step: next, then, dist: distToNext }); mark(k, 'early');
+      }
+    }
+    if (distLeft <= P.arrive || (cur === steps.length - 1 && steps[cur].type === 'arrive')) {
+      arrived = true;
+      events.push({ type: 'arrive', step: steps[steps.length - 1] });
+    }
+    if (events.length) lastSpoken = t;
+    else if (lastSpoken != null && t - lastSpoken >= cruiseEvery * 1000 && distToNext / v >= 60 && (fix.speed == null || fix.speed > 1)) {
+      events.push({ type: 'cruise' }); lastSpoken = t;
+    }
+    last = {
+      along, coord: fix.coord, snapped: snap.pt, bearing: snap.bearing, offset: snap.dist, stepIndex: cur, step: steps[cur], next,
+      distToNext, distLeft, timeLeft: timeLeft(along, cur), arrived, offRoute: false, speed: v, events
+    };
+    return last;
+  }
+  return { route, update, get arrived() { return arrived; } };
+}
+
+// Drive simulator: replays a route as GPS fixes at the speeds the route service expects, slowing for turns.
+// Used by the app (?sim=1) and the tests. detour { at, length, turn } leaves the route at `at` meters and drives `length`
+// meters at `turn` degrees from the road (default 90, a wrong right turn), to test off-route detection and rerouting.
+function navSim(route, { noise = 0, detour = null, seed = 7, start = 0, time = 0 } = {}) {
+  const { coords, cum, steps, length } = route;
+  let along = start, t = time, s = seed >>> 0 || 7, off = null;
+  const rnd = () => { s ^= s << 13; s >>>= 0; s ^= s >> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };
+  const jitter = () => (rnd() + rnd() + rnd() - 1.5) * noise;
+  const speedAt = d => {
+    let i = 0; while (i + 1 < steps.length && steps[i + 1].start <= d) i++;
+    const st = steps[i], v = st.duration > 0 ? st.distance / st.duration : 10;
+    const next = steps[i + 1], gap = next ? next.start - d : Infinity;
+    const sharp = next && /turn|end of road|roundabout|rotary|fork|off ramp/.test(next.type) && next.modifier !== 'straight';
+    return Math.max(2, sharp ? Math.min(v, 4 + gap * 0.25) : v);
+  };
+  return {
+    get along() { return along; },
+    get done() { return off ? off.left <= 0 : along >= length; },
+    // Advance dt seconds and return a fix (null once the drive or detour is over).
+    next(dt = 1) {
+      t += dt * 1000;
+      let pt, brg, v;
+      if (off) {
+        if (off.left <= 0) return null;
+        v = off.v; const d = Math.min(off.left, v * dt); off.left -= d;
+        off.pt = navOffset(off.pt, off.brg, d); pt = off.pt; brg = off.brg;
+      } else {
+        if (along >= length) return null;
+        v = speedAt(along); along = Math.min(length, along + v * dt);
+        const a = navAlong(coords, cum, along); pt = a.pt; brg = a.bearing;
+        if (detour && along >= detour.at) { off = { pt, brg: (brg + (detour.turn == null ? 90 : detour.turn) + 360) % 360, v, left: detour.length }; detour = null; }
+      }
+      if (noise) pt = navOffset(navOffset(pt, 0, jitter()), 90, jitter());
+      return { coord: pt, accuracy: Math.max(5, noise * 2), speed: v, heading: brg, time: t };
+    }
+  };
+}
+
+// Navie Studio (nav/studio.html): a test version where people design their own map and guide instead of picking a
+// Foundry world. A design is plain data, saved on the phone and shareable as a link (#d=...). Links come from strangers, so
+// every field is checked against a whitelist when it is read (navStudioClean); text is only ever shown as text.
+const NAV_STUDIO_TEXTURES = ['none', 'dots', 'scan', 'paper', 'hatch', 'rain', 'stars', 'grid', 'lattice', 'glitch', 'checker', 'stipple', 'candles'];
+const NAV_STUDIO_ROUTES = ['solid', 'outlined', 'dashed', 'glow'];
+const NAV_STUDIO_SHAPES = ['rounded', 'square', 'pill'];
+const NAV_STUDIO_LINES = { depart: 'When you set out', arrive: 'When you arrive', reroute: 'When you go the wrong way', cruise: 'Now and then on long stretches', tags: 'After turns (Full voice only)' };
+const NAV_STUDIO_BASE = {
+  name: 'My map', land: '#F4F1EA', ink: '#1F2430', roads: '#FFFFFF', water: '#A9CCE3', park: '#CFE3C1', route: '#3D6BFF', panel: '#FFFFFF',
+  texture: 'none', textureStrength: 0.06, marker: 'chevron', routeStyle: 'outlined', shape: 'rounded', upper: false,
+  display: 'Space Grotesk', mono: 'DM Mono', guide: 'Your guide', start: 'Start', arriveHead: 'You made it',
+  depart: ["Let's go."], arrive: ['Nice driving.'], reroute: ['New route. No problem.'], cruise: ['Still on track.'], tags: ['Nice.']
+};
+// Starting points. Plain looks of our own, plus every Foundry world to remix (their colors, texture and marker).
+const NAV_STUDIO_STARTS = [
+  { name: 'Daylight' },
+  { name: 'Night', land: '#12151C', ink: '#E8ECF4', roads: '#2A3140', water: '#1B2A3D', park: '#18261E', route: '#4CC3FF', panel: '#1A1F29', routeStyle: 'glow', marker: 'chevron' },
+  { name: 'Paper', land: '#F3EAD7', ink: '#3B2F22', roads: '#FFFDF7', water: '#BFD3D6', park: '#DCE3C2', route: '#C2452D', panel: '#FBF6EA', texture: 'paper', routeStyle: 'dashed', marker: 'compass', display: 'Fraunces' },
+  { name: 'Pastel pink', land: '#FFE4EF', ink: '#4A2340', roads: '#FFFFFF', water: '#CDE7FF', park: '#E3F6DC', route: '#FF4F9A', panel: '#FFF4F9', texture: 'dots', marker: 'diamond', shape: 'pill', display: 'Bodoni Moda' },
+  { name: 'Lavender', land: '#ECE6FF', ink: '#2B2350', roads: '#FFFFFF', water: '#CFE0FF', park: '#E2F2E6', route: '#7B5CFF', panel: '#F7F4FF', texture: 'lattice', marker: 'star', shape: 'pill', display: 'Cormorant Garamond' },
+  { name: 'Matcha', land: '#E9F0DC', ink: '#22331F', roads: '#FFFFFF', water: '#BFDCD9', park: '#C9DEB0', route: '#4E8F3A', panel: '#F7FAF0', texture: 'stipple', marker: 'leaf', display: 'Newsreader' }
+];
+function navStudioFromWorld(t) {
+  const p = navPalette(t, t.colorways[0]);
+  return { name: t.title, land: p.land, ink: p.c.ink, roads: p.roads.major, water: p.water, park: p.park, route: p.route.line, panel: p.c.panel || p.land,
+    texture: p.texture.kind, textureStrength: p.texture.alpha, marker: p.world.marker, routeStyle: p.route.dash ? 'dashed' : p.route.glow ? 'glow' : p.route.casing ? 'outlined' : 'solid',
+    upper: t.upper, display: t.fonts.display, mono: t.fonts.mono };
+}
+function navStudioClean(raw) {
+  const d = Object.assign({}, NAV_STUDIO_BASE), r = raw && typeof raw === 'object' ? raw : {};
+  const hex = v => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v), text = (v, n) => typeof v === 'string' ? v.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, n) : '';
+  for (const k of ['land', 'ink', 'roads', 'water', 'park', 'route', 'panel']) if (hex(r[k])) d[k] = r[k].toUpperCase();
+  if (NAV_STUDIO_TEXTURES.includes(r.texture)) d.texture = r.texture;
+  if (typeof r.textureStrength === 'number' && r.textureStrength >= 0 && r.textureStrength <= 0.3) d.textureStrength = Math.round(r.textureStrength * 100) / 100;
+  if (NAV_MARKERS[r.marker]) d.marker = r.marker;
+  if (NAV_STUDIO_ROUTES.includes(r.routeStyle)) d.routeStyle = r.routeStyle;
+  if (NAV_STUDIO_SHAPES.includes(r.shape)) d.shape = r.shape;
+  if (typeof r.upper === 'boolean') d.upper = r.upper;
+  if (NAV_FONTS[r.display]) d.display = r.display;
+  if (NAV_FONTS[r.mono]) d.mono = r.mono;
+  for (const [k, n] of [['name', 40], ['guide', 40], ['start', 24], ['arriveHead', 60]]) { const v = text(r[k], n); if (v) d[k] = v; }
+  for (const k of Object.keys(NAV_STUDIO_LINES)) if (Array.isArray(r[k])) d[k] = r[k].map(x => text(x, 140)).filter(Boolean).slice(0, 12);
+  return d;
+}
+// A design -> the same theme shape the Foundry worlds use, so the map, screen and voice code need nothing special.
+function navStudioTheme(d) {
+  const roadsLight = navLum(d.roads) > navLum(d.land);
+  NAV_WORLDS.studio = {
+    texture: d.texture, textureColor: c => c.ink, textureAlpha: d.textureStrength, marker: d.marker, labels: { font: d.upper ? 'Bold' : 'Regular', upper: d.upper, spacing: d.upper ? 0.08 : 0 },
+    land: c => c.ground, water: () => d.water, park: () => d.park, wood: () => navMix(d.park, d.ink, 0.1),
+    roads: () => ({ minor: navMix(d.land, d.roads, 0.75), major: d.roads, motorway: navMix(d.roads, d.route, 0.25), casing: roadsLight ? navMix(d.land, d.ink, 0.18) : null }),
+    buildings: 'fill', route: () => ({ line: d.route, casing: d.routeStyle === 'outlined' ? d.ink : null, dash: d.routeStyle === 'dashed' ? [1.6, 0.9] : null, glow: d.routeStyle === 'glow' ? 8 : 0 })
+  };
+  NAV_VOICES.studio = {
+    speaker: d.guide, channel: 'your own words', rate: 1, pitch: 1,
+    L: { search: 'Where to?', routes: 'Routes', start: d.start, end: 'End', eta: 'Arrive', left: 'Left', arrive: d.name, reroute: 'Rerouting', then: 'Then' },
+    depart: d.depart, arrive: d.arrive, reroute: d.reroute, cruise: d.cruise, tags: d.tags
+  };
+  const fonts = [d.display, d.mono].filter((f, i, a) => a.indexOf(f) === i);
+  return {
+    id: 'studio', title: d.name, blurb: '', company: d.name, upper: d.upper, shape: d.shape,
+    colors: { ground: d.land, ink: d.ink, accent: d.route, panel: d.panel, glow: d.park, alert: d.route },
+    fonts: { display: d.display, mono: d.mono }, displayWeight: NAV_FONTS[d.display].weight,
+    fontQuery: fonts.map(f => NAV_FONTS[f].spec).join('&') + '&display=swap',
+    phrases: [[d.arriveHead, '']], slogans: [], colorways: [{ name: d.name, colors: {} }], editions: []
+  };
+}
+const navStudioLink = d => `${location.origin}${location.pathname}#d=${btoa(unescape(encodeURIComponent(JSON.stringify(d)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')}`;
+function navStudioFromHash(hash) {
+  const m = /[#&]d=([A-Za-z0-9_-]+)/.exec(hash || '');
+  if (!m) return null;
+  try { return navStudioClean(JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/')))))); } catch (e) { return null; }
+}
+// A random but readable design: one hue for the land, its opposite for the route.
+function navStudioSurprise(seed = Date.now()) {
+  let s = seed % 2147483647 || 1; const rnd = () => (s = s * 16807 % 2147483647) / 2147483647;
+  const hsl = (h, sat, l) => { const f = n => { const k = (n + h / 30) % 12, a = sat * Math.min(l, 1 - l); return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)); }; return navHex([f(0), f(8), f(4)].map(v => v * 255)); };
+  const h = Math.floor(rnd() * 360), dark = rnd() < 0.35, pick = a => a[Math.floor(rnd() * a.length)];
+  const land = dark ? hsl(h, 0.25, 0.1) : hsl(h, 0.45, 0.92);
+  return navStudioClean(Object.assign({}, NAV_STUDIO_BASE, {
+    name: 'Surprise', land, ink: dark ? hsl(h, 0.2, 0.9) : hsl(h, 0.35, 0.15), panel: dark ? hsl(h, 0.25, 0.14) : hsl(h, 0.4, 0.97),
+    roads: dark ? hsl(h, 0.2, 0.28) : '#FFFFFF', water: hsl((h + 200) % 360, 0.45, dark ? 0.2 : 0.8), park: hsl((h + 100) % 360, 0.35, dark ? 0.16 : 0.84),
+    route: hsl((h + 180) % 360, 0.85, dark ? 0.6 : 0.5), texture: pick(NAV_STUDIO_TEXTURES), marker: pick(Object.keys(NAV_MARKERS)),
+    routeStyle: pick(NAV_STUDIO_ROUTES), shape: pick(NAV_STUDIO_SHAPES), display: pick(Object.keys(NAV_FONTS).filter(f => NAV_FONTS[f].display)), upper: rnd() < 0.3
+  }));
+}
+
+// Navie: the app. Browse (search) -> route (choose among up to three) -> nav (turn by turn) -> arrived.
+// URL switches: ?sim=1 drives the route with the simulator, ?sim=manual waits for FoundryMaps.tick() (the screenshot harness),
+// ?fixture=1 runs fully offline in the test town, ?theme=<id>&colorway=<0-4> opens a world.
+const NAV_Q = new URLSearchParams(location.search);
+const NAV_FIX = NAV_Q.has('fixture'), NAV_SIM = NAV_FIX || NAV_Q.has('sim'), NAV_MANUAL = NAV_Q.get('sim') === 'manual';
+const $ = id => document.getElementById(id);
+const navStore = {
+  get(k, d) { try { const v = localStorage.getItem(`foundry-maps:${k}`); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(`foundry-maps:${k}`, JSON.stringify(v)); } catch (e) { /* private mode: settings last this visit only */ } }
+};
+const NAV_STUDIO = typeof NAV_EDITION !== 'undefined' && NAV_EDITION === 'studio';
+const S = {
+  design: null,
+  world: NAV_THEMES.find(t => t.id === (NAV_Q.get('theme') || navStore.get('world', 'halcyon'))) || NAV_THEMES[0],
+  colorway: +(NAV_Q.get('colorway') || navStore.get('colorway', 0)) || 0,
+  style: navStore.get('voice', 'light'), units: navStore.get('units', 'auto'),
+  mode: 'browse', here: null, dest: null, routes: [], pick: 0, profile: 'car',
+  route: null, guide: null, voice: null, st: null, following: true, passenger: false, muted: false,
+  sim: null, simSpeed: 1, simTimer: null, rerouting: false, lastReroute: 0, tripStart: 0, wake: null, located: false
+};
+let map = null, marker = null, services = null;
+const speaker = navSpeaker();
+const navUnits = () => S.units === 'auto' ? navUnitsFor(navigator.language) : S.units;
+const navTheme = () => S.world, navCw = () => S.world.colorways[S.colorway] || S.world.colorways[0];
+const navL = () => (NAV_VOICES[S.world.id] || NAV_VOICES.halcyon).L;
+const cruiseFor = style => style === 'full' ? 150 : style === 'light' ? 300 : 0;
+const STYLE_NOTES = { plain: 'Directions only.', light: 'Directions, plus a line from the world when you set out, arrive or reroute, and now and then on long stretches.', full: 'Light, plus a short word from the world after most turns.' };
+
+// Maneuver arrows (24x24, drawn for right turns; left turns are mirrored).
+const NAV_ARROWS = {
+  straight: '<path d="M12 21V5M6.5 10.5L12 5l5.5 5.5"/>',
+  'slight-right': '<path d="M9 21v-7l8-8M11.5 5.5H17.5v6"/>',
+  right: '<path d="M8 21v-8a4 4 0 0 1 4-4h8M16 5l4 4-4 4"/>',
+  'sharp-right': '<path d="M7 21V7a3 3 0 0 1 5.4-1.8L19 14M19 8.5V14h-5.5"/>',
+  uturn: '<path d="M17 21V10a5 5 0 0 0-10 0v8M3 14l4 4 4-4"/>',
+  'merge-right': '<path d="M7 21c0-6 10-7 10-13V4M13 7.5L17 3.5l4 4M17 21c0-3-1.5-5-3.5-6.5"/>',
+  roundabout: '<circle cx="12" cy="9" r="4"/><path d="M12 21v-8M15 6l5-4M15.5 2H20v4.5"/>',
+  arrive: '<path d="M12 22s7-6.6 7-12a7 7 0 0 0-14 0c0 5.4 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>'
+};
+function navArrowSvg(icon) {
+  const left = /left/.test(icon), key = icon.replace('left', 'right');
+  const body = NAV_ARROWS[key] || NAV_ARROWS.straight;
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${left ? `<g transform="translate(24 0) scale(-1 1)">${body}</g>` : body}</svg>`;
+}
+const MUTE_ICONS = {
+  on: '<svg viewBox="0 0 24 24"><path d="M3 9h4l5-5v16l-5-5H3z" fill="currentColor"/><path d="M16 8a5 5 0 0 1 0 8M18.5 5.5a8.5 8.5 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  off: '<svg viewBox="0 0 24 24"><path d="M3 9h4l5-5v16l-5-5H3z" fill="currentColor"/><path d="M16 9l6 6M22 9l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+};
+
+function toast(msg, ms = 3500) {
+  const t = $('toast'); t.textContent = msg; t.classList.remove('hidden');
+  clearTimeout(toast.timer); toast.timer = setTimeout(() => t.classList.add('hidden'), ms);
+}
+function strip(line, head = '') {
+  if (!line) return;
+  const el = $('strip'); el.innerHTML = ''; if (head) { const b = document.createElement('b'); b.textContent = head; el.appendChild(b); }
+  el.appendChild(document.createTextNode(line)); el.classList.remove('hidden');
+  clearTimeout(strip.timer); strip.timer = setTimeout(() => el.classList.add('hidden'), 9000);
+}
+function setMode(mode) {
+  S.mode = mode; document.body.className = mode + (NAV_SIM && mode === 'nav' ? ' sim' : '');
+  $('top').classList.toggle('hidden', mode !== 'browse');
+  $('sheet').classList.toggle('hidden', mode !== 'route');
+  for (const id of ['banner', 'bar', 'mute']) $(id).classList.toggle('hidden', mode !== 'nav');
+  $('arrive').classList.toggle('hidden', mode !== 'arrived');
+  $('sim').classList.toggle('hidden', !(NAV_SIM && mode === 'nav'));
+  if (mode !== 'nav') $('strip').classList.add('hidden');
+  updateLock();
+}
+
+// ---------- Worlds ----------
+function applyWorld() {
+  const t = navTheme(), cw = navCw(), p = navPalette(t, cw), v = NAV_VOICES[t.id] || NAV_VOICES.halcyon, L = v.L, r = document.documentElement.style;
+  for (const k of ['ground', 'ink', 'accent', 'panel', 'glow', 'alert']) r.setProperty(`--${k}`, p.c[k] || p.c.accent);
+  r.setProperty('--land', p.land); r.setProperty('--route', p.route.line);
+  r.setProperty('--on-route', [p.c.ground, p.c.ink, '#000000', '#FFFFFF'].sort((a, b) => navContrast(b, p.route.line) - navContrast(a, p.route.line))[0]);
+  r.setProperty('--display', `'${t.fonts.display}', Georgia, serif`); r.setProperty('--mono', `'${t.fonts.mono}', ui-monospace, monospace`);
+  r.setProperty('--dw', t.displayWeight); r.setProperty('--case', t.upper ? 'uppercase' : 'none');
+  document.body.dataset.world = t.id; document.body.dataset.shape = t.shape || '';
+  $('world-fonts').href = `https://fonts.googleapis.com/css2?${t.fontQuery}`;
+  document.querySelector('meta[name=theme-color]').content = p.land;
+  $('q').placeholder = L.search; $('routesLabel').textContent = L.routes; $('go').textContent = L.start; $('end').textContent = L.end;
+  $('etaLabel').textContent = L.eta; $('leftLabel').textContent = L.left; $('arriveLabel').textContent = L.arrive;
+  $('who').textContent = v.speaker;
+  if (marker) marker.getElement().innerHTML = navMarkerSvg(t, cw);
+  if (map) map.setStyle(navStyle(t, cw, { fixture: NAV_FIX ? NAV_FIXTURE.geojson : null }), { diff: false });
+  speaker.set({ rate: v.rate, pitch: v.pitch });
+  if (S.mode === 'nav') S.voice = navVoice(t, S.style, Date.now() % 100000);
+  if (NAV_STUDIO) navStore.set('studio', S.design);
+  else { navStore.set('world', t.id); navStore.set('colorway', S.colorway); }
+  if (!$('worlds').classList.contains('hidden')) renderWorlds();
+}
+function renderWorlds() {
+  const list = $('worldlist'); list.innerHTML = '';
+  for (const t of NAV_THEMES) {
+    const v = NAV_VOICES[t.id] || NAV_VOICES.halcyon, card = document.createElement('div');
+    card.className = 'world' + (t.id === S.world.id ? ' on' : '');
+    const c0 = t.colors; card.style.background = c0.panel || c0.ground; card.style.color = c0.ink;
+    card.innerHTML = `<b style="font-family:'${t.fonts.display}',serif"></b><small></small><div class="swatches"></div>`;
+    card.querySelector('b').textContent = t.title;
+    card.querySelector('small').textContent = `${t.blurb} Voice: ${v.speaker}, through ${v.channel}.`;
+    t.colorways.forEach((cw, i) => {
+      const c = Object.assign({}, t.colors, cw.colors), b = document.createElement('button');
+      b.className = 'sw' + (t.id === S.world.id && i === S.colorway ? ' on' : '');
+      b.style.background = `linear-gradient(135deg, ${c.ground} 0 50%, ${navPalette(t, cw).route.line} 50% 100%)`;
+      b.setAttribute('aria-label', `${t.title}: ${cw.name}`); b.title = cw.name;
+      b.onclick = () => { S.world = t; S.colorway = i; applyWorld(); };
+      card.querySelector('.swatches').appendChild(b);
+    });
+    list.appendChild(card);
+  }
+  for (const b of $('styleSeg').children) b.classList.toggle('on', b.dataset.style === S.style);
+  for (const b of $('unitSeg').children) b.classList.toggle('on', b.dataset.units === S.units);
+  $('styleNote').textContent = STYLE_NOTES[S.style];
+}
+
+// ---------- Studio (nav/studio.html) ----------
+function setDesign(d, live = true) {
+  S.design = navStudioClean(d); S.world = navStudioTheme(S.design); S.colorway = 0;
+  if (live) { clearTimeout(setDesign.t); setDesign.t = setTimeout(applyWorld, 120); }
+}
+function renderStudio() {
+  const d = S.design, body = $('studioBody'); body.innerHTML = '';
+  const el = (tag, props = {}, kids = []) => { const e = Object.assign(document.createElement(tag), props); for (const k of kids) e.append(k); return e; };
+  const set = patch => { setDesign(Object.assign({}, S.design, patch)); };
+  const group = (title, note, ...kids) => el('fieldset', {}, [el('legend', { className: 'label', textContent: title }), ...(note ? [el('div', { className: 'note', textContent: note })] : []), ...kids]);
+  const chips = (list, cur, label, pick, draw) => el('div', { className: 'chips' }, list.map(v => {
+    const b = el('button', { className: 'btn' + (v === cur ? ' on' : ''), type: 'button', title: label(v) });
+    b.setAttribute('aria-label', label(v));
+    if (draw) b.innerHTML = draw(v); else b.textContent = label(v);
+    b.onclick = () => { pick(v); renderStudio(); };
+    return b;
+  }));
+  const cap = v => v.charAt(0).toUpperCase() + v.slice(1);
+  // Starting points
+  const start = el('select', { 'aria-label': 'Start from' });
+  start.append(el('option', { value: '', textContent: 'Start from' }));
+  NAV_STUDIO_STARTS.forEach((p, i) => start.append(el('option', { value: `s${i}`, textContent: p.name })));
+  NAV_THEMES.forEach((t, i) => start.append(el('option', { value: `w${i}`, textContent: `Remix ${t.title}` })));
+  start.onchange = () => { const v = start.value; if (!v) return; const base = v[0] === 's' ? Object.assign({}, NAV_STUDIO_BASE, NAV_STUDIO_STARTS[+v.slice(1)]) : Object.assign({}, S.design, navStudioFromWorld(NAV_THEMES[+v.slice(1)])); setDesign(base); renderStudio(); };
+  const surprise = el('button', { className: 'btn', type: 'button', textContent: 'Surprise me' });
+  surprise.onclick = () => { setDesign(Object.assign(navStudioSurprise(), { guide: S.design.guide, depart: S.design.depart, arrive: S.design.arrive, reroute: S.design.reroute, cruise: S.design.cruise, tags: S.design.tags })); renderStudio(); };
+  const name = el('input', { type: 'text', value: d.name, maxLength: 40, 'aria-label': 'Name of your map' });
+  name.oninput = () => set({ name: name.value });
+  body.append(group('Start', 'Pick a starting look, remix a Foundry world, or roll a random one. Then change anything.', el('div', { className: 'row' }, [start, surprise]), el('label', { className: 'field' }, ['Name', name])));
+  // Colors
+  const colors = el('div', { className: 'colors' }, [['land', 'Land'], ['roads', 'Roads'], ['water', 'Water'], ['park', 'Parks'], ['route', 'Route'], ['ink', 'Text'], ['panel', 'Panels']].map(([k, label]) => {
+    const i = el('input', { type: 'color', value: d[k].toLowerCase() }); i.setAttribute('aria-label', `${label} color`);
+    i.oninput = () => set({ [k]: i.value });
+    return el('label', {}, [label, i]);
+  }));
+  body.append(group('Colors', '', colors));
+  // Texture
+  const strength = el('input', { type: 'range', min: 0.02, max: 0.2, step: 0.01, value: d.textureStrength }); strength.setAttribute('aria-label', 'Texture strength');
+  strength.oninput = () => set({ textureStrength: +strength.value });
+  body.append(group('Texture', '', chips(NAV_STUDIO_TEXTURES, d.texture, cap, v => set({ texture: v })), el('label', { className: 'field' }, ['Strength', strength])));
+  // Marker
+  body.append(group('Your marker', '', chips(Object.keys(NAV_MARKERS), d.marker, cap, v => set({ marker: v }), v => `<svg viewBox="0 0 48 48">${NAV_MARKERS[v](d.route, d.ink)}</svg>`)));
+  // Route and panels
+  body.append(group('Route line', '', chips(NAV_STUDIO_ROUTES, d.routeStyle, cap, v => set({ routeStyle: v }))));
+  body.append(group('Panel shape', '', chips(NAV_STUDIO_SHAPES, d.shape, cap, v => set({ shape: v }))));
+  // Letters
+  const fontSel = (cur, display, label) => {
+    const f = el('select', { 'aria-label': label });
+    for (const fam of Object.keys(NAV_FONTS).filter(k => NAV_FONTS[k].display === display)) f.append(el('option', { value: fam, textContent: fam, selected: fam === cur }));
+    return f;
+  };
+  const disp = fontSel(d.display, true, 'Headline font'), mono = fontSel(d.mono, false, 'Small text font');
+  disp.onchange = () => set({ display: disp.value }); mono.onchange = () => set({ mono: mono.value });
+  const upper = el('input', { type: 'checkbox', checked: d.upper }); upper.onchange = () => set({ upper: upper.checked });
+  body.append(group('Letters', '', el('label', { className: 'field' }, ['Headlines', disp]), el('label', { className: 'field' }, ['Small text', mono]), el('label', { className: 'row', style: 'align-items:center;font-size:14px' }, [upper, 'Capital letters on the map'])));
+  // Voice
+  const field = (label, k, n) => { const i = el('input', { type: 'text', value: d[k], maxLength: n }); i.oninput = () => set({ [k]: i.value }); return el('label', { className: 'field' }, [label, i]); };
+  const voiceSeg = el('div', { className: 'seg' }, ['plain', 'light', 'full'].map(v => {
+    const b = el('button', { className: 'btn' + (S.style === v ? ' on' : ''), type: 'button', textContent: cap(v) });
+    b.onclick = () => { S.style = v; navStore.set('voice', v); renderStudio(); };
+    return b;
+  }));
+  const lines = Object.entries(NAV_STUDIO_LINES).map(([k, label]) => {
+    const t = el('textarea', { value: d[k].join('\n') }); t.setAttribute('aria-label', label);
+    t.oninput = () => set({ [k]: t.value.split('\n') });
+    return el('label', { className: 'field' }, [label, t]);
+  });
+  body.append(group('Your guide', 'Directions are always spoken plainly first. Your lines come after them, one per row; each is used once before any repeats.',
+    field('Guide name', 'guide', 40), voiceSeg, el('div', { className: 'note', textContent: STYLE_NOTES[S.style] }), ...lines, field('Start button', 'start', 24), field('Arrival headline', 'arriveHead', 60)));
+  // Share
+  const share = el('button', { className: 'btn primary', type: 'button', textContent: 'Copy a link to this design' });
+  share.onclick = async () => { const url = navStudioLink(S.design); try { await navigator.clipboard.writeText(url); toast('Link copied. Anyone who opens it gets this design.'); } catch (e) { prompt('Copy this link', url); } };
+  const reset = el('button', { className: 'btn', type: 'button', textContent: 'Start over' });
+  reset.onclick = () => { setDesign(NAV_STUDIO_BASE); renderStudio(); };
+  body.append(group('Share', '', share, reset));
+}
+
+// ---------- Position ----------
+function onFix(fix) {
+  S.here = fix;
+  if (!S.located && map) { S.located = true; if (S.mode === 'browse') map.jumpTo({ center: fix.coord, zoom: 15 }); }
+  if (S.mode === 'nav') navStep(fix);
+  else { placeMarker(fix.coord, fix.heading); updateLock(); }
+}
+function placeMarker(coord, bearing) {
+  if (!marker) return;
+  marker.setLngLat(coord);
+  if (bearing != null && isFinite(bearing)) marker.setRotation(bearing);
+}
+function startLocation() {
+  if (NAV_FIX) { onFix({ coord: NAV_FIXTURE.start, accuracy: 5, speed: 0, heading: 0, time: Date.now() }); return; }
+  if (!navigator.geolocation) { toast('Location is not available in this browser. Search still works.'); return; }
+  navigator.geolocation.watchPosition(pos => {
+    if (S.sim && S.mode === 'nav') return;
+    const c = pos.coords;
+    onFix({ coord: [c.longitude, c.latitude], accuracy: c.accuracy, speed: c.speed, heading: c.heading, time: pos.timestamp });
+  }, err => toast(err.code === 1 ? 'Location is off. Turn it on to get directions from where you are.' : 'Still looking for your location.', 6000),
+  { enableHighAccuracy: true, maximumAge: 1000, timeout: 20000 });
+}
+// Safety: no typing while moving faster than walking pace, unless a passenger says so.
+function updateLock() {
+  const moving = !!S.here && S.here.speed > 6 && !S.passenger && S.mode === 'browse';
+  $('q').disabled = moving; $('lock').classList.toggle('hidden', !moving);
+  if (moving) $('results').classList.add('hidden');
+}
+
+// ---------- Search ----------
+function recents() { return navStore.get('recents', []); }
+function addRecent(p) { navStore.set('recents', [p].concat(recents().filter(r => r.name !== p.name || r.sub !== p.sub)).slice(0, 8)); }
+function renderResults(list, empty = '') {
+  const box = $('results'); box.innerHTML = '';
+  if (!list.length && !empty) { box.classList.add('hidden'); return; }
+  if (!list.length) { const d = document.createElement('div'); d.className = 'result'; d.textContent = empty; box.appendChild(d); }
+  for (const p of list) {
+    const b = document.createElement('button'); b.className = 'result'; b.setAttribute('role', 'option');
+    const away = S.here ? navFmtDistance(navDistance(S.here.coord, p.coord), navUnits()).text : '';
+    b.innerHTML = '<div style="min-width:0"><b></b><small></small></div><span class="dist"></span>';
+    b.querySelector('b').textContent = p.name; b.querySelector('small').textContent = p.sub || ''; b.querySelector('.dist').textContent = away;
+    b.onclick = () => chooseDest(p);
+    box.appendChild(b);
+  }
+  box.classList.remove('hidden');
+}
+let searchSeq = 0;
+async function runSearch(q) {
+  const seq = ++searchSeq;
+  if (q.trim().length < 2) { renderResults(recents()); return; }
+  try {
+    const near = S.here ? S.here.coord : map && map.getCenter().toArray();
+    const list = await services.search(q.trim(), near);
+    if (seq === searchSeq) renderResults(list, 'Nothing found. Try a street, a town or a place name.');
+  } catch (e) { if (seq === searchSeq) renderResults([], 'Search is not reachable right now.'); }
+}
+async function dropPin(lngLat) {
+  if (S.mode !== 'browse') return;
+  const coord = [lngLat.lng, lngLat.lat];
+  let place = { name: 'Dropped pin', sub: '', coord, kind: '' };
+  try { const r = await services.reverse(coord); if (r) place = Object.assign(r, { coord }); } catch (e) { /* keep the plain pin */ }
+  chooseDest(place);
+}
+
+// ---------- Routes ----------
+function chooseDest(place) {
+  S.dest = place; addRecent(place);
+  $('results').classList.add('hidden'); $('q').blur(); $('q').value = place.name;
+  $('destName').textContent = place.name;
+  setMode('route'); fetchRoutes();
+}
+async function fetchRoutes() {
+  const from = S.here ? S.here.coord : map.getCenter().toArray();
+  $('routes').innerHTML = '<div class="label">Finding routes</div>'; $('go').disabled = true;
+  if (navDistance(from, S.dest.coord) < 25) { S.routes = []; drawRoute(); $('routes').innerHTML = '<div class="label">You are already here.</div>'; return; }
+  try {
+    S.routes = (await services.route(from, S.dest.coord, { profile: S.profile })).slice(0, 3); S.pick = 0;
+    renderRoutes(); drawRoute(); fitRoutes(); $('go').disabled = false;
+  } catch (e) {
+    S.routes = []; drawRoute();
+    $('routes').innerHTML = ''; const d = document.createElement('div'); d.className = 'label'; d.textContent = e.message || 'No route found.'; $('routes').appendChild(d);
+  }
+}
+function renderRoutes() {
+  const box = $('routes'); box.innerHTML = '';
+  S.routes.forEach((r, i) => {
+    const b = document.createElement('button'); b.className = 'route' + (i === S.pick ? ' on' : '');
+    const at = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date(Date.now() + r.duration * 1000));
+    b.innerHTML = '<span class="t"></span><span class="meta"></span><span class="via"></span>';
+    b.querySelector('.t').textContent = navFmtDuration(r.duration);
+    b.querySelector('.meta').textContent = `${navFmtDistance(r.distance, navUnits()).text} · ${at}`;
+    b.querySelector('.via').textContent = r.summary ? `via ${r.summary}` : '';
+    b.onclick = () => { S.pick = i; renderRoutes(); drawRoute(); };
+    box.appendChild(b);
+  });
+}
+const fc = features => ({ type: 'FeatureCollection', features });
+const lineF = (coords, props = {}) => ({ type: 'Feature', properties: props, geometry: { type: 'LineString', coordinates: coords } });
+function drawRoute() {
+  if (!map || !map.getSource('nav-route')) return;
+  const set = (id, data) => map.getSource(id).setData(data);
+  let route = fc([]), alts = fc([]), done = fc([]), dest = fc([]);
+  if (S.dest && S.mode !== 'browse') dest = fc([{ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: S.dest.coord } }]);
+  if (S.mode === 'route' && S.routes.length) {
+    route = fc([lineF(S.routes[S.pick].coords)]);
+    alts = fc(S.routes.map((r, i) => i === S.pick ? null : lineF(r.coords, { i })).filter(Boolean));
+  } else if ((S.mode === 'nav' || S.mode === 'arrived') && S.route) {
+    const a = S.st && S.st.along || 0, R = S.route;
+    route = fc([lineF(navSlice(R.coords, R.cum, a))]);
+    if (a > 1) done = fc([lineF(navSlice(R.coords, R.cum, 0, a))]);
+  }
+  set('nav-route', route); set('nav-alts', alts); set('nav-done', done); set('nav-dest', dest);
+}
+function fitRoutes() {
+  if (!S.routes.length) return;
+  const b = new maplibregl.LngLatBounds();
+  for (const r of S.routes) for (const c of r.coords) b.extend(c);
+  if (S.here) b.extend(S.here.coord);
+  map.fitBounds(b, { padding: { top: 70, left: 40, right: 40, bottom: $('sheet').offsetHeight + 30 }, duration: NAV_MANUAL ? 0 : 700, maxZoom: 16 });
+}
+
+// ---------- Navigation ----------
+async function wakeLock() { try { if ('wakeLock' in navigator) S.wake = await navigator.wakeLock.request('screen'); } catch (e) { /* not supported: the screen may sleep */ } }
+function startNav() {
+  if (!S.routes.length) return;
+  speaker.unlock();
+  S.route = S.routes[S.pick]; S.st = null; S.following = true; S.tripStart = S.here ? S.here.time : Date.now();
+  S.voice = navVoice(navTheme(), S.style, Date.now() % 100000);
+  S.guide = navGuide(S.route, { profile: S.profile, cruiseEvery: cruiseFor(S.style) });
+  setMode('nav'); wakeLock(); drawRoute();
+  $('mute').innerHTML = S.muted ? MUTE_ICONS.off : MUTE_ICONS.on;
+  if (NAV_SIM) startSim(navSim(S.route, { time: S.here ? S.here.time : Date.now() }));
+  else if (S.here) navStep(S.here);
+}
+function navStep(fix) {
+  const st = S.guide.update(fix); S.st = st;
+  for (const ev of st.events) handleEvent(ev, fix);
+  if (S.mode !== 'nav') return;
+  if (st.offRoute) {
+    placeMarker(fix.coord, fix.heading);
+    $('bverb').textContent = navL().reroute; $('bdist').textContent = ''; $('broad').textContent = ''; $('then').classList.add('hidden');
+    if (!S.rerouting && Date.now() - S.lastReroute >= 10000) reroute(fix);
+    return;
+  }
+  renderBanner(st); placeMarker(st.snapped, st.bearing); drawRoute(); follow(st);
+}
+function handleEvent(ev, fix) {
+  if (ev.type === 'offroute') { reroute(fix); return; }
+  const out = S.voice.say(ev, navUnits());
+  speaker.say(out.text, ev.type === 'now' || ev.type === 'arrive');
+  if (out.flavor && ev.type !== 'now') strip(out.flavor, (NAV_VOICES[S.world.id] || NAV_VOICES.halcyon).speaker);
+  if (ev.type === 'arrive') setTimeout(arrive, NAV_MANUAL ? 0 : 1200);
+}
+function renderBanner(st) {
+  const nx = st.next || st.step, ins = navInstruction(nx), U = navUnits(), side = navSide(nx.modifier);
+  $('arrow').innerHTML = navArrowSvg(navIcon(nx));
+  $('bdist').textContent = navFmtDistance(st.distToNext, U).text;
+  $('bverb').textContent = nx.type === 'arrive' ? (side ? `Destination on the ${side}` : 'Destination') : ins.verb;
+  $('broad').textContent = nx.type === 'arrive' ? S.dest.name : ins.road.replace(/^(onto|on) /, '');
+  const steps = S.route.steps, k = steps.indexOf(nx), after = steps[k + 1];
+  const soon = after && after.start - nx.start < (S.profile === 'car' ? 400 : 120) && !(after.type === 'arrive' && !/left|right/.test(after.modifier));
+  $('then').classList.toggle('hidden', !soon);
+  if (soon) { $('then').innerHTML = `<span class="label">${navL().then}</span>${navArrowSvg(navIcon(after))}<span></span>`; $('then').lastChild.textContent = navInstruction(after).text; }
+  const at = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date(Date.now() + st.timeLeft * 1000));
+  $('eta').textContent = at;
+  $('left').textContent = navFmtDuration(st.timeLeft);
+  $('leftDist').textContent = navFmtDistance(st.distLeft, U).text;
+}
+function follow(st) {
+  if (!S.following || !map) return;
+  const z = S.profile === 'foot' ? 17.5 : st.speed > 20 ? 15 : st.speed > 11 ? 16 : 17;
+  const h = map.getContainer().clientHeight;
+  map.easeTo({ center: st.snapped, bearing: st.bearing, pitch: 50, zoom: z, padding: { top: Math.round(h * 0.42), bottom: 120, left: 0, right: 0 },
+    duration: NAV_MANUAL ? 0 : Math.min(900, 900 / S.simSpeed), easing: t => t });
+}
+async function reroute(fix) {
+  if (S.rerouting) return;
+  S.rerouting = true; S.lastReroute = Date.now();
+  try {
+    const routes = await services.route(fix.coord, S.dest.coord, { profile: S.profile, bearing: fix.heading, alternatives: false });
+    if (S.mode !== 'nav') return;
+    S.route = routes[0];
+    S.guide = navGuide(S.route, { profile: S.profile, cruiseEvery: cruiseFor(S.style), announceDepart: false });
+    const out = S.voice.say({ type: 'reroute' }, navUnits()); speaker.say(out.text, true);
+    if (out.flavor) strip(out.flavor, navL().reroute);
+    if (S.sim) startSim(navSim(S.route, { time: fix.time }));
+    navStep(fix);
+  } catch (e) { toast("Can't reach the route service. Trying again shortly."); }
+  finally { S.rerouting = false; }
+}
+function arrive() {
+  if (S.mode !== 'nav') return;
+  stopSim(); setMode('arrived'); drawRoute();
+  if (S.wake) { S.wake.release().catch(() => {}); S.wake = null; }
+  const ph = S.world.phrases, head = ph[Math.floor((Date.now() / 1000) % ph.length)] || ['', ''];
+  $('arriveHead').innerHTML = ''; head.forEach((l, i) => { if (i) $('arriveHead').appendChild(document.createElement('br')); $('arriveHead').appendChild(document.createTextNode(l)); });
+  const secs = ((S.here ? S.here.time : Date.now()) - S.tripStart) / 1000;
+  $('arriveSub').textContent = `${S.dest.name} · ${navFmtDuration(secs)} · ${navFmtDistance(S.st ? S.st.along : S.route.distance, navUnits()).text}`;
+}
+function endNav() {
+  stopSim(); speaker.stop();
+  if (S.wake) { S.wake.release().catch(() => {}); S.wake = null; }
+  S.route = S.guide = S.st = null; S.routes = []; S.dest = null; $('q').value = '';
+  setMode('browse'); drawRoute();
+  if (S.here) { placeMarker(S.here.coord, S.here.heading); map.easeTo({ center: S.here.coord, zoom: 15, pitch: 0, bearing: 0, padding: { top: 0, bottom: 0, left: 0, right: 0 }, duration: 600 }); }
+}
+
+// ---------- Simulator ----------
+function startSim(sim) {
+  stopSim(); S.sim = sim;
+  if (!NAV_MANUAL) S.simTimer = setInterval(() => simTick(1), 1000 / S.simSpeed);
+}
+function stopSim() { clearInterval(S.simTimer); S.simTimer = null; S.sim = null; }
+function simTick(dt = 1) {
+  if (!S.sim) return null;
+  const f = S.sim.next(dt);
+  if (f) onFix(f);
+  return f;
+}
+
+// ---------- Start ----------
+function wire() {
+  let t = null;
+  $('q').addEventListener('input', e => { clearTimeout(t); const v = e.target.value; t = setTimeout(() => runSearch(v), NAV_FIX ? 0 : 350); });
+  $('q').addEventListener('focus', () => { if (!$('q').value) renderResults(recents()); });
+  $('q').addEventListener('keydown', e => { if (e.key === 'Enter') { const first = $('results').querySelector('button.result'); if (first) first.click(); } });
+  $('passenger').onclick = () => { S.passenger = true; updateLock(); };
+  $('worldbtn').onclick = () => { if (NAV_STUDIO) { renderStudio(); $('studio').classList.remove('hidden'); } else { renderWorlds(); $('worlds').classList.remove('hidden'); } };
+  $('closeStudio').onclick = () => $('studio').classList.add('hidden');
+  $('closeWorlds').onclick = () => $('worlds').classList.add('hidden');
+  $('styleSeg').onclick = e => { const s = e.target.dataset.style; if (!s) return; S.style = s; navStore.set('voice', s); if (S.voice) S.voice = navVoice(navTheme(), s, Date.now() % 100000); renderWorlds(); };
+  $('unitSeg').onclick = e => { const u = e.target.dataset.units; if (!u) return; S.units = u; navStore.set('units', u); renderWorlds(); if (S.mode === 'route') renderRoutes(); };
+  $('modes').onclick = e => { const m = e.target.dataset.mode; if (!m || m === S.profile) return; S.profile = m; for (const b of $('modes').children) b.classList.toggle('on', b.dataset.mode === m); fetchRoutes(); };
+  $('cancel').onclick = () => { S.routes = []; S.dest = null; $('q').value = ''; setMode('browse'); drawRoute(); };
+  $('go').onclick = startNav;
+  $('end').onclick = endNav;
+  $('done').onclick = endNav;
+  $('mute').onclick = () => { S.muted = !S.muted; speaker.set({ muted: S.muted }); if (S.muted) speaker.stop(); $('mute').innerHTML = S.muted ? MUTE_ICONS.off : MUTE_ICONS.on; };
+  $('recenter').onclick = () => { S.following = true; if (S.mode === 'nav' && S.st) follow(S.st); else if (S.here) map.easeTo({ center: S.here.coord, zoom: Math.max(map.getZoom(), 15), duration: 500 }); };
+  for (const b of $('sim').querySelectorAll('[data-speed]')) b.onclick = () => { S.simSpeed = +b.dataset.speed; if (S.sim && !NAV_MANUAL) startSim(S.sim); };
+  $('wrong').onclick = wrongTurn;
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.mode === 'nav') wakeLock(); });
+}
+function wrongTurn() { if (S.sim && S.route) startSim(navSim(S.route, { start: S.sim.along, time: S.here ? S.here.time : 0, detour: { at: S.sim.along + 20, length: 220 } })); }
+function boot() {
+  services = NAV_FIX ? NAV_FIXTURE.services() : navNetServices();
+  if (NAV_STUDIO) {
+    const shared = navStudioFromHash(location.hash);
+    setDesign(shared || navStore.get('studio', null) || NAV_STUDIO_BASE, false);
+    $('worldbtn').setAttribute('aria-label', 'Design your map');
+    if (shared) { history.replaceState(null, '', location.pathname + location.search); toast(`Opened a shared design: ${S.design.name}`); }
+  }
+  wire(); setMode('browse');
+  if (typeof maplibregl === 'undefined') { applyWorld(); toast('The map could not load. Check your connection and reload.', 60000); return; }
+  const el = document.createElement('div'); el.className = 'marker';
+  marker = new maplibregl.Marker({ element: el, rotationAlignment: 'map', pitchAlignment: 'map' });
+  map = new maplibregl.Map({
+    container: 'map', style: { version: 8, sources: {}, layers: [] }, center: NAV_FIX ? NAV_FIXTURE.center : [-98.5, 39.5], zoom: NAV_FIX ? 15 : 3,
+    attributionControl: false, canvasContextAttributes: { preserveDrawingBuffer: NAV_MANUAL }
+  });
+  map.on('styleimagemissing', e => { const img = navTextureFromId(e.id); if (img && !map.hasImage(e.id)) map.addImage(e.id, img, { pixelRatio: 2 }); });
+  map.on('style.load', drawRoute);
+  map.on('dragstart', () => { if (S.mode === 'nav') S.following = false; });
+  map.on('click', 'nav-alts', e => { const i = e.features[0] && e.features[0].properties.i; if (i != null) { S.pick = i; renderRoutes(); drawRoute(); } });
+  map.on('contextmenu', e => dropPin(e.lngLat));
+  let press = null;
+  map.on('touchstart', e => { clearTimeout(press); if (e.points.length === 1) press = setTimeout(() => dropPin(e.lngLat), 650); });
+  for (const ev of ['touchend', 'touchmove', 'movestart']) map.on(ev, () => clearTimeout(press));
+  marker.setLngLat(map.getCenter()).addTo(map);
+  applyWorld();
+  $('credit').innerHTML = NAV_FIX ? 'Offline test town · invented map data' : '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a> · OpenFreeMap · FOSSGIS routing · Photon';
+  startLocation();
+}
+// For the screenshot harness and debugging. Nothing in the app depends on it.
+window.FoundryMaps = {
+  S, get map() { return map; },
+  design: d => { setDesign(d, false); applyWorld(); },
+  studio: () => $('worldbtn').click(),
+  world(id, colorway = 0) { S.world = NAV_THEMES.find(t => t.id === id) || S.world; S.colorway = colorway; applyWorld(); },
+  search: q => { $('q').value = q; return runSearch(q); },
+  choose: (i = 0) => { const b = $('results').querySelectorAll('button.result')[i]; if (b) b.click(); },
+  here: coord => onFix({ coord, accuracy: 5, speed: 0, heading: 0, time: S.here ? S.here.time : Date.now() }),
+  start: startNav, tick: (n = 1) => { let f = null; for (let i = 0; i < n && S.mode === 'nav'; i++) f = simTick(1); return f; },
+  wrongTurn, end: endNav
+};
+if (NAV_FIX) { const s = document.createElement('script'); s.src = 'fixture.js'; s.onload = boot; s.onerror = () => toast('The test town could not load.'); document.head.appendChild(s); }
+else boot();
+
+</script>
+</body>
+</html>
