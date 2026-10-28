@@ -1,4 +1,27 @@
 FOUNDRY / APPROVED DESIGN DECISIONS
+[FOUNDRY MAPS / NAVIGATION APP STARTED, TWO TEST VERSIONS / CLAUDE / 2026-10-28]
+Added by Claude. Plan and rules: docs/NAV_SPEC.md.
+- DIRECTION (Jordan, 28 Oct): turn Foundry into a navigation app like "GoGirl: Girly Maps & Pink GPS" (App Store, Retry Apps),
+  with everything built so far ported to that style of app. Then: also set up a test version where, instead of ported themes,
+  people customize their own experience.
+- BUILT (not yet live; on branch claude/busy-lovelace-0duzp0): Foundry Maps in nav/, a web app beside the theme builder.
+  nav/index.html: the 11 worlds x 5 colorways as map themes, each with its own texture, position marker, route line, panel
+  framing and navigation voice. nav/studio.html: the Studio, where people design their own map (colors, texture, marker,
+  route line, fonts, panel shape) and write their own guide's lines; saved on the phone, shareable as a link. Both share one
+  codebase and one build. The theme builder (index.html) is unchanged byte for byte.
+- PROPOSED, needs Jordan: the working name "Foundry Maps"; each world's navigation voice (speaker, channel and lines in
+  nav/src/voices.js, all DRAFT); each world's map treatment (nav/src/worlds.js); which test version leads; free vs paid;
+  the production routing and search provider before any public launch (the free community servers are fair-use only).
+- RULES (binding for Foundry Maps): directions are spoken plainly and first, flavor only after; theme data only from
+  src/foundry-data.js; no GoGirl names, theme names, icons or lines; every world keeps a unique texture, marker, speaker and
+  channel (tests enforce it); Studio links are untrusted input and pass navStudioClean.
+- CHECKED: 76 tests (10 new in tests/nav.test.cjs) and both build checks pass. Headless renders of every world and
+  colorway, a route choice, a mid-drive screen and arrival per world, and the Studio's starting looks, design screen and a
+  drive, in the offline test town; no page errors.
+- NOT TESTED HERE: real map tiles, routing and search (not reachable from Claude's cloud session), spoken voice, GPS and
+  screen wake lock on a phone. Next: Jordan opens nav/?sim=1 and nav/studio.html?sim=1 on a phone, then a short real drive
+  with a passenger.
+
 [SITE / CONTACT SECTION REMOVED / CLAUDE / 2026-10-17]
 - APPROVED (Jordan, 17 Oct): remove all contact info from Foundry. Removed the "Suggestions and custom themes" step (both
   email buttons and the address line), the "@ Contact" tab in the step bar, the "Want one made just for you? Get in touch."

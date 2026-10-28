@@ -1,0 +1,462 @@
+{
+ "code": "Ok",
+ "waypoints": [
+  {
+   "location": [
+    -122.4194,
+    37.7749
+   ],
+   "name": "Market Street"
+  },
+  {
+   "location": [
+    -122.342353,
+    37.7749
+   ],
+   "name": "Oak Street"
+  }
+ ],
+ "routes": [
+  {
+   "distance": 6780,
+   "duration": 565,
+   "weight": 565,
+   "weight_name": "routability",
+   "legs": [
+    {
+     "steps": [
+      {
+       "distance": 420,
+       "duration": 35,
+       "name": "Market Street",
+       "ref": "",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.4194,
+          37.7749
+         ],
+         [
+          -122.414627,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "depart",
+        "location": [
+         -122.4194,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 90
+       }
+      },
+      {
+       "distance": 300,
+       "duration": 25,
+       "name": "Valencia Street",
+       "ref": "",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.414627,
+          37.7749
+         ],
+         [
+          -122.411218,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "turn",
+        "location": [
+         -122.414627,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 90,
+        "modifier": "left"
+       }
+      },
+      {
+       "distance": 250,
+       "duration": 20.8,
+       "name": "Dolores Street",
+       "ref": "",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.411218,
+          37.7749
+         ],
+         [
+          -122.408377,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "roundabout",
+        "location": [
+         -122.411218,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 90,
+        "modifier": "right",
+        "exit": 2
+       }
+      },
+      {
+       "distance": 400,
+       "duration": 33.3,
+       "name": "",
+       "ref": "",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.408377,
+          37.7749
+         ],
+         [
+          -122.403832,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "on ramp",
+        "location": [
+         -122.408377,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 90,
+        "modifier": "right"
+       },
+       "destinations": "US 101 North: San Francisco, Golden Gate"
+      },
+      {
+       "distance": 3200,
+       "duration": 266.7,
+       "name": "Bayshore Freeway",
+       "ref": "US 101",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.403832,
+          37.7749
+         ],
+         [
+          -122.367468,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "merge",
+        "location": [
+         -122.403832,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 90,
+        "modifier": "left"
+       }
+      },
+      {
+       "distance": 300,
+       "duration": 25,
+       "name": "",
+       "ref": "",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.367468,
+          37.7749
+         ],
+         [
+          -122.364059,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "off ramp",
+        "location": [
+         -122.367468,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 90,
+        "modifier": "right"
+       },
+       "exits": "432B",
+       "destinations": "Cesar Chavez Street"
+      },
+      {
+       "distance": 500,
+       "duration": 41.7,
+       "name": "Cesar Chavez Street",
+       "ref": "",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.364059,
+          37.7749
+         ],
+         [
+          -122.358377,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "fork",
+        "location": [
+         -122.364059,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 90,
+        "modifier": "left"
+       }
+      },
+      {
+       "distance": 600,
+       "duration": 50,
+       "name": "Harrison Street",
+       "ref": "",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.358377,
+          37.7749
+         ],
+         [
+          -122.351559,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "end of road",
+        "location": [
+         -122.358377,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 90,
+        "modifier": "right"
+       }
+      },
+      {
+       "distance": 250,
+       "duration": 20.8,
+       "name": "Folsom Street",
+       "ref": "",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.351559,
+          37.7749
+         ],
+         [
+          -122.348718,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "new name",
+        "location": [
+         -122.351559,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 90,
+        "modifier": "straight"
+       }
+      },
+      {
+       "distance": 150,
+       "duration": 12.5,
+       "name": "Folsom Street",
+       "ref": "",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.348718,
+          37.7749
+         ],
+         [
+          -122.347013,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "continue",
+        "location": [
+         -122.348718,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 90,
+        "modifier": "slight left"
+       }
+      },
+      {
+       "distance": 90,
+       "duration": 7.5,
+       "name": "Folsom Street",
+       "ref": "",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.347013,
+          37.7749
+         ],
+         [
+          -122.34599,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "turn",
+        "location": [
+         -122.347013,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 90,
+        "modifier": "uturn"
+       }
+      },
+      {
+       "distance": 120,
+       "duration": 10,
+       "name": "",
+       "ref": "",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.34599,
+          37.7749
+         ],
+         [
+          -122.344626,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "turn",
+        "location": [
+         -122.34599,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 90,
+        "modifier": "sharp right"
+       }
+      },
+      {
+       "distance": 200,
+       "duration": 16.7,
+       "name": "Oak Street",
+       "ref": "",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.344626,
+          37.7749
+         ],
+         [
+          -122.342353,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "rotary",
+        "location": [
+         -122.344626,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 90,
+        "modifier": "straight",
+        "exit": 3
+       },
+       "rotary_name": "Dolores Circle"
+      },
+      {
+       "distance": 0,
+       "duration": 0,
+       "name": "Oak Street",
+       "ref": "",
+       "mode": "driving",
+       "geometry": {
+        "type": "LineString",
+        "coordinates": [
+         [
+          -122.342353,
+          37.7749
+         ],
+         [
+          -122.342353,
+          37.7749
+         ]
+        ]
+       },
+       "maneuver": {
+        "type": "arrive",
+        "modifier": "left",
+        "location": [
+         -122.342353,
+         37.7749
+        ],
+        "bearing_before": 90,
+        "bearing_after": 0
+       }
+      }
+     ],
+     "distance": 6780,
+     "duration": 565,
+     "summary": "Bayshore Freeway, Harrison Street",
+     "weight": 565
+    }
+   ]
+  }
+ ]
+}

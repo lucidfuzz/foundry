@@ -34,3 +34,5 @@ const html = read('src/page.html').replace('@@WIDGET_SCRIPT@@', () => tpl).repla
 if (check) { if (read('index.html') !== html) throw new Error('index.html is stale. Run node scripts/build.cjs'); }
 else fs.writeFileSync('index.html', html);
 console.log(`Foundry built${check ? ' (check passed)' : ''}: index.html ${(Buffer.byteLength(html) / 1e6).toFixed(2)} MB, artwork served from assets/.`);
+// 5. Foundry Maps (nav/), built from the same theme data (scripts/nav-build.cjs).
+require('./nav-build.cjs').run(check);
