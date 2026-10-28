@@ -52,7 +52,7 @@ const NAV_WORLDS = {
     buildings: 'outline', buildingColor: c => navMix(c.ground, c.accent, 0.3), route: c => ({ line: c.accent, glow: 12 })
   },
   vapor: {
-    texture: 'checker', textureColor: c => c.ink, textureAlpha: 0.05, marker: 'cursor', labels: { font: 'Regular' },
+    texture: 'checker', textureColor: c => c.ink, textureAlpha: 0.035, marker: 'cursor', labels: { font: 'Regular' },
     land: c => c.ground, water: c => navMix(c.ground, c.glow, 0.38), park: c => navMix(c.ground, c.glow, 0.14), wood: c => navMix(c.ground, c.glow, 0.2),
     roads: c => ({ minor: navMix(c.ground, c.accent, 0.3), major: navMix(c.ground, c.accent, 0.62), motorway: navMix(c.ground, c.glow, 0.7) }),
     buildings: 'fill', route: c => ({ line: c.alert || c.ink, casing: c.accent })
@@ -83,6 +83,29 @@ const NAV_MARKERS = {
   boost: (f, k) => `<path d="M24 3l15 18h-9l9 11h-9l-6-7-6 7H9l9-11H9z" fill="${f}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/>`,
   cursor: (f, k) => `<path d="M14 4v34l9-8 6 14 6-3-6-13h12z" fill="${f}" stroke="${k}" stroke-width="3" stroke-linejoin="round"/>`,
   leaf: (f, k) => `<path d="M24 3c11 9 14 20 10 30-3 7-7 11-10 12-3-1-7-5-10-12-4-10-1-21 10-30z" fill="${f}" stroke="${k}" stroke-width="3"/><path d="M24 12v30" stroke="${k}" stroke-width="2.5"/>`,
+  // Kit markers for Navie's own themes (nav/src/kit.js). Shapes that look the same both ways carry a small pointer on top.
+  heart: (f, k) => `<path d="M24 43C10 33 4 25 5 18a9.5 9.5 0 0 1 19-4 9.5 9.5 0 0 1 19 4c1 7-5 15-19 25z" fill="${f}" stroke="${k}" stroke-width="3" stroke-linejoin="round"/><path d="M24 2l4 6h-8z" fill="${k}"/>`,
+  paw: (f, k) => `<ellipse cx="24" cy="33" rx="10" ry="9" fill="${f}" stroke="${k}" stroke-width="2.5"/><g fill="${f}" stroke="${k}" stroke-width="2.5"><circle cx="11" cy="21" r="4.5"/><circle cx="19" cy="12" r="4.5"/><circle cx="29" cy="12" r="4.5"/><circle cx="37" cy="21" r="4.5"/></g>`,
+  rocket: (f, k) => `<path d="M24 3c7 6 10 14 10 24l5 7v6l-8-4H17l-8 4v-6l5-7c0-10 3-18 10-24z" fill="${f}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/><circle cx="24" cy="20" r="4" fill="${k}"/>`,
+  fish: (f, k) => `<path d="M24 4c8 6 11 14 9 23-1 5-4 8-6 10l6 8H15l6-8c-2-2-5-5-6-10-2-9 1-17 9-23z" fill="${f}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/><circle cx="20" cy="15" r="2.2" fill="${k}"/>`,
+  footprint: (f, k) => `<path d="M24 46c-7 0-10-5-9-11l1-6-7-13 4-2 7 10 1-15h6l1 15 7-10 4 2-7 13 1 6c1 6-2 11-9 11z" fill="${f}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/>`,
+  crayon: (f, k) => `<path d="M24 2l7 12v31H17V14z" fill="${f}" stroke="${k}" stroke-width="3" stroke-linejoin="round"/><path d="M17 14h14M17 37h14" stroke="${k}" stroke-width="3"/>`,
+  crown: (f, k) => `<path d="M8 37V14l9 9 7-15 7 15 9-9v23z" fill="${f}" stroke="${k}" stroke-width="3" stroke-linejoin="round"/><path d="M8 42h32" stroke="${k}" stroke-width="3"/>`,
+  bow: (f, k) => `<path d="M24 23c-6-9-17-13-19-8s3 14 19 8c16 6 21-3 19-8s-13-1-19 8z" fill="${f}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/><path d="M22 25l-6 17 6-3 4 3 2-17" fill="${f}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/><circle cx="24" cy="23" r="3.5" fill="${k}"/><path d="M24 3l4 6h-8z" fill="${k}"/>`,
+  butterfly: (f, k) => `<path d="M24 15c-6-10-18-12-18-2 0 7 8 10 14 10-6 2-12 8-8 14 3 4 10-2 12-8 2 6 9 12 12 8 4-6-2-12-8-14 6 0 14-3 14-10 0-10-12-8-18 2z" fill="${f}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/><path d="M24 13v26" stroke="${k}" stroke-width="3" stroke-linecap="round"/><path d="M24 3l3 6h-6z" fill="${k}"/>`,
+  cloud: (f, k) => `<path d="M14 38a8 8 0 0 1-1-16 11 11 0 0 1 21-4 9 9 0 0 1 2 20z" fill="${f}" stroke="${k}" stroke-width="3" stroke-linejoin="round"/><path d="M24 3l5 7h-10z" fill="${k}"/>`,
+  pixel: (f, k) => `<path d="M20 4h8v4h4v4h4v4h4v8H32v20H16V24H8v-8h4v-4h4V8h4z" fill="${f}" stroke="${k}" stroke-width="2.5"/>`,
+  sun: (f, k) => `<path d="M24 1v8M24 39v8M1 24h8M39 24h8M8 8l5.5 5.5M34.5 34.5L40 40M8 40l5.5-5.5M34.5 13.5L40 8" stroke="${k}" stroke-width="3.5" stroke-linecap="round"/><circle cx="24" cy="24" r="10" fill="${f}" stroke="${k}" stroke-width="3"/><path d="M24 17l4 8h-8z" fill="${k}"/>`,
+  moon: (f, k) => `<path d="M31 5a19 19 0 1 0 12 27A15 15 0 0 1 31 5z" fill="${f}" stroke="${k}" stroke-width="3" stroke-linejoin="round"/><path d="M18 3l4 6h-8z" fill="${k}"/>`,
+  flower: (f, k) => `<g fill="${f}" stroke="${k}" stroke-width="2.5"><circle cx="24" cy="12" r="7"/><circle cx="35" cy="20" r="7"/><circle cx="31" cy="33" r="7"/><circle cx="17" cy="33" r="7"/><circle cx="13" cy="20" r="7"/></g><circle cx="24" cy="24" r="5.5" fill="${k}"/>`,
+  bolt: (f, k) => `<path d="M28 2L10 27h11l-4 19 21-27H27z" fill="${f}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/>`,
+  ghost: (f, k) => `<path d="M10 44V21a14 14 0 0 1 28 0v23l-5-4-4 4-5-4-5 4-4-4z" fill="${f}" stroke="${k}" stroke-width="3" stroke-linejoin="round"/><circle cx="19" cy="22" r="2.6" fill="${k}"/><circle cx="29" cy="22" r="2.6" fill="${k}"/>`,
+  shell: (f, k) => `<path d="M24 5C12 5 5 15 6 27l18 17 18-17C43 15 36 5 24 5z" fill="${f}" stroke="${k}" stroke-width="3" stroke-linejoin="round"/><path d="M24 43V8M24 43L15 10M24 43l9-33M24 43L8 21M24 43l16-22" stroke="${k}" stroke-width="1.6"/>`,
+  feather: (f, k) => `<path d="M24 2c9 8 12 18 9 28-2 6-5 9-9 10-4-1-7-4-9-10-3-10 0-20 9-28z" fill="${f}" stroke="${k}" stroke-width="2.5"/><path d="M24 8v38M24 20l-6-4M24 28l6-4M24 34l-6-4" stroke="${k}" stroke-width="2" stroke-linecap="round"/>`,
+  car: (f, k) => `<rect x="13" y="4" width="22" height="40" rx="8" fill="${f}" stroke="${k}" stroke-width="3"/><path d="M17 14h14l-2 7H19zM19 34h10l2 5H17z" fill="${k}"/>`,
+  note: (f, k) => `<path d="M20 37V9l18-5v26" fill="none" stroke="${k}" stroke-width="3.5" stroke-linejoin="round"/><circle cx="15" cy="37" r="6.5" fill="${f}" stroke="${k}" stroke-width="3"/><circle cx="33" cy="31" r="6.5" fill="${f}" stroke="${k}" stroke-width="3"/>`,
+  balloon: (f, k) => `<ellipse cx="24" cy="18" rx="12" ry="14.5" fill="${f}" stroke="${k}" stroke-width="3"/><path d="M24 33l-3 4h6z" fill="${k}"/><path d="M24 37c-4 4 4 6 0 10" fill="none" stroke="${k}" stroke-width="2.5" stroke-linecap="round"/>`,
+  bigarrow: (f, k) => `<circle cx="24" cy="24" r="20" fill="${f}" stroke="${k}" stroke-width="4"/><path d="M24 9l11 24-11-6-11 6z" fill="${k}"/>`,
   candle: (f, k) => `<path d="M24 2v8M24 38v8" stroke="${k}" stroke-width="3"/><rect x="15" y="10" width="18" height="28" rx="2" fill="${f}" stroke="${k}" stroke-width="3"/><path d="M24 15l5 9h-10z" fill="${k}"/>`
 };
 
@@ -103,6 +126,21 @@ function navTexture(kind, hex, alpha) {
     case 'glitch': for (const [x0, y0, w] of [[2, 5, 9], [18, 13, 5], [7, 22, 12], [24, 29, 6]]) for (let x = 0; x < w; x++) put(x0 + x, y0); break;
     case 'checker': for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) if ((x < 16) !== (y < 16)) put(x, y); break;
     case 'stipple': for (let i = 0; i < 22; i++) put(Math.floor(rnd() * S), Math.floor(rnd() * S), 0.5 + rnd() * 0.5); break;
+    // Kit textures for Navie's own themes.
+    case 'hearts': for (const [x0, y0] of [[5, 6], [21, 22]]) ['0101', '1111', '1111', '0110'].forEach((row, y) => [...row].forEach((v, x) => { if (v === '1') { put(x0 + x * 2, y0 + y * 2); put(x0 + x * 2 + 1, y0 + y * 2); put(x0 + x * 2, y0 + y * 2 + 1); put(x0 + x * 2 + 1, y0 + y * 2 + 1); } })); break;
+    case 'sprinkles': for (let i = 0; i < 9; i++) { const x = Math.floor(rnd() * S), y = Math.floor(rnd() * S), d = [[1, 0], [0, 1], [1, 1], [1, -1]][i % 4]; for (let k = 0; k < 4; k++) put(x + d[0] * k, y + d[1] * k); } break;
+    case 'waves': for (let x = 0; x < S; x++) for (const base of [8, 24]) put(x, Math.round(base + 2.5 * Math.sin(x / S * Math.PI * 2))); break;
+    case 'bubbles': for (const [cx, cy, rr] of [[8, 9, 4], [23, 20, 6], [12, 26, 2.5]]) for (let a = 0; a < 64; a++) put(Math.round(cx + rr * Math.cos(a / 64 * Math.PI * 2)), Math.round(cy + rr * Math.sin(a / 64 * Math.PI * 2))); break;
+    case 'gingham': for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) { const a = (x % 16) < 6, b = (y % 16) < 6; if (a || b) put(x, y, a && b ? 1 : 0.45); } break;
+    case 'polka': for (const [cx, cy] of [[8, 8], [24, 24]]) for (let y = -4; y <= 4; y++) for (let x = -4; x <= 4; x++) if (x * x + y * y <= 12) put(cx + x, cy + y); break;
+    case 'sparkles': for (const [cx, cy, r] of [[8, 9, 4], [24, 23, 3], [26, 6, 2]]) { for (let k = -r; k <= r; k++) { put(cx + k, cy, 1 - Math.abs(k) / (r + 1)); put(cx, cy + k, 1 - Math.abs(k) / (r + 1)); } put(cx + 1, cy + 1, 0.5); put(cx - 1, cy - 1, 0.5); put(cx + 1, cy - 1, 0.5); put(cx - 1, cy + 1, 0.5); } break;
+    case 'pixels': for (let i = 0; i < 7; i++) { const x = Math.floor(rnd() * 8) * 4, y = Math.floor(rnd() * 8) * 4; for (let dy = 0; dy < 4; dy++) for (let dx = 0; dx < 4; dx++) put(x + dx, y + dy); } break;
+    case 'halftone': for (let y = 2; y < S; y += 6) for (let x = 2; x < S; x += 6) { const r = 0.6 + ((x + y) / (2 * S)) * 2; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (dx * dx + dy * dy <= r * r) put(x + dx, y + dy); } break;
+    case 'chalk': for (let i = 0; i < 10; i++) { const x = Math.floor(rnd() * S), y = Math.floor(rnd() * S), len = 3 + Math.floor(rnd() * 5); for (let k = 0; k < len; k++) put(x + k, y + Math.round(k * 0.3), 0.3 + rnd() * 0.5); } break;
+    case 'petals': for (const [cx, cy] of [[8, 8], [24, 22], [26, 4]]) { put(cx, cy - 1); put(cx - 1, cy); put(cx + 1, cy); put(cx, cy + 1); put(cx, cy, 0.4); } break;
+    case 'zigzag': for (let x = 0; x < S; x++) { const t = x % 8, y = t < 4 ? t : 8 - t; put(x, 6 + y); put(x, 22 + y); } break;
+    case 'weave': for (let y = 0; y < S; y += 8) for (let x = 0; x < S; x += 8) for (let k = 0; k < 5; k++) { if (((x + y) / 8) % 2) put(x + k, y + 2); else put(x + 2, y + k); } break;
+    case 'finegrid': for (let i = 0; i < S; i++) { put(i, 0); put(0, i); for (const g of [8, 16, 24]) { put(i, g, 0.35); put(g, i, 0.35); } } break;
     case 'candles': for (const [x, y0, h] of [[4, 10, 12], [12, 6, 16], [20, 14, 9], [28, 4, 14]]) { for (let y = 0; y < h; y++) { put(x, y0 + y); put(x + 1, y0 + y); } put(x, y0 - 2, 0.6); put(x, y0 + h + 1, 0.6); } break;
   }
   return { width: S, height: S, data: px };

@@ -1,4 +1,4 @@
-// Navie (nav/): geometry, instructions, guidance on simulated drives, voices, map styles and the Studio.
+// Navie (nav/): geometry, instructions, guidance on simulated drives, voices, map styles and every theme.
 // Runs the same source files the app is built from, in a plain JavaScript context (no browser, no network).
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -6,11 +6,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const ROOT = path.join(__dirname, '..');
-const { navThemes, navFonts, SOURCES } = require('../scripts/nav-build.cjs');
+const { navThemes, SOURCES } = require('../scripts/nav-build.cjs');
 
 function load() {
   const ctx = vm.createContext({ console, btoa, atob, escape, unescape, location: { origin: 'https://lucidfuzz.github.io', pathname: '/foundry/nav/studio.html' } });
-  vm.runInContext(`const NAV_THEMES = ${JSON.stringify(navThemes())}; const NAV_FONTS = ${JSON.stringify(navFonts())};`, ctx);
+  vm.runInContext(`const NAV_THEMES = ${JSON.stringify(navThemes())};`, ctx);
   for (const f of SOURCES.filter(f => f !== 'app.js')) vm.runInContext(fs.readFileSync(path.join(ROOT, 'nav/src', f), 'utf8'), ctx, { filename: f });
   vm.runInContext(fs.readFileSync(path.join(ROOT, 'nav/fixture.js'), 'utf8'), ctx, { filename: 'fixture.js' });
   return new Proxy({}, { get: (_, k) => vm.runInContext(k, ctx) });
@@ -91,7 +91,7 @@ test('a wrong turn raises exactly one off-route event', () => {
   assert.ok(clean.arrived);
 });
 
-test('voices: every world has its own guide, and nothing repeats within a trip', () => {
+test('voices: every theme has its own guide, and nothing repeats within a trip', () => {
   const themes = N.NAV_THEMES, speakers = new Set(), channels = new Set();
   for (const t of themes) {
     const v = N.NAV_VOICES[t.id];
@@ -102,8 +102,8 @@ test('voices: every world has its own guide, and nothing repeats within a trip',
     const all = [...v.depart, ...v.arrive, ...v.reroute, ...v.cruise, ...v.tags];
     assert.equal(new Set(all).size, all.length, `${t.id} lines are all different`);
   }
-  assert.equal(speakers.size, themes.length, 'no two worlds share a speaker');
-  assert.equal(channels.size, themes.length, 'no two worlds share a channel');
+  assert.equal(speakers.size, themes.length, 'no two themes share a speaker');
+  assert.equal(channels.size, themes.length, 'no two themes share a channel');
   const pool = N.navPool(['a', 'b', 'c', 'd'], 5), seq = Array.from({ length: 12 }, pool);
   for (let i = 0; i < 12; i += 4) assert.equal(new Set(seq.slice(i, i + 4)).size, 4, 'each line once per round');
   for (let i = 1; i < 12; i++) assert.notEqual(seq[i], seq[i - 1], 'never the same line twice in a row');
@@ -123,7 +123,7 @@ test('copy rules: no ellipses and no Japanese, Chinese or Korean characters in N
   }
 });
 
-test('every world and colorway makes a complete map style with a visible route', () => {
+test('every theme and colorway makes a complete map style with a visible route', () => {
   const textures = new Set(), markers = new Set();
   for (const t of N.NAV_THEMES) {
     const w = N.NAV_WORLDS[t.id];
@@ -145,41 +145,62 @@ test('every world and colorway makes a complete map style with a visible route',
       assert.ok(N.navTextureFromId(N.navTextureId(p.texture.kind, p.texture.color, p.texture.alpha)), `${t.id} texture draws`);
     });
   }
-  assert.equal(textures.size, N.NAV_THEMES.length, 'no two worlds share a texture');
-  assert.equal(markers.size, N.NAV_THEMES.length, 'no two worlds share a marker');
 });
 
-test('Studio: designs are checked, shareable and draw a full map', () => {
-  const bad = N.navStudioClean({ land: 'red', ink: '#12345', route: '#00FF88', texture: 'lava', marker: '<img>', display: 'Comic Sans', name: '<script>alert(1)</script>Mine', depart: ['ok', 7, 'x'.repeat(500)], textureStrength: 9 });
-  assert.equal(bad.land, N.NAV_STUDIO_BASE.land);
-  assert.equal(bad.ink, N.NAV_STUDIO_BASE.ink);
-  assert.equal(bad.route, '#00FF88');
-  assert.equal(bad.texture, N.NAV_STUDIO_BASE.texture);
-  assert.equal(bad.marker, N.NAV_STUDIO_BASE.marker);
-  assert.equal(bad.display, N.NAV_STUDIO_BASE.display);
-  assert.equal(bad.textureStrength, N.NAV_STUDIO_BASE.textureStrength);
-  assert.ok(!/[<>]/.test(bad.name));
-  assert.deepEqual(plain(bad.depart.map(x => x.length)), [2, 140]);
-  const d = N.navStudioClean(Object.assign({}, N.NAV_STUDIO_BASE, { name: 'Rosé route', depart: ['Allons-y.'] }));
-  const link = N.navStudioLink(d);
-  assert.ok(link.startsWith('https://lucidfuzz.github.io/foundry/nav/studio.html#d='));
-  assert.deepEqual(plain(N.navStudioFromHash(new URL(link).hash)), plain(d));
-  assert.equal(N.navStudioFromHash('#d=not-json'), null);
-  const designs = N.NAV_STUDIO_STARTS.map(s => Object.assign({}, N.NAV_STUDIO_BASE, s)).concat(N.NAV_THEMES.map(N.navStudioFromWorld), [N.navStudioSurprise(1), N.navStudioSurprise(2)]);
-  for (const raw of designs) {
-    const t = N.navStudioTheme(N.navStudioClean(raw)), st = N.navStyle(t, t.colorways[0], { fixture: N.NAV_FIXTURE.geojson });
-    assert.ok(st.layers.some(l => l.id === 'nav-route'), `${raw.name} draws a route`);
-    assert.ok(N.NAV_VOICES.studio.depart.length, `${raw.name} has lines`);
-    assert.ok(N.NAV_FONTS[t.fonts.display] && N.NAV_FONTS[t.fonts.mono], `${raw.name} fonts are offered`);
-  }
+test('Foundry worlds keep their own texture and marker; Navie themes never copy one', () => {
+  const foundry = N.NAV_THEMES.filter(t => !t.own), own = N.NAV_THEMES.filter(t => t.own);
+  const look = t => N.NAV_WORLDS[t.id].texture + '/' + N.NAV_WORLDS[t.id].marker;
+  assert.equal(new Set(foundry.map(t => N.NAV_WORLDS[t.id].texture)).size, foundry.length, 'no two Foundry worlds share a texture');
+  assert.equal(new Set(foundry.map(t => N.NAV_WORLDS[t.id].marker)).size, foundry.length, 'no two Foundry worlds share a marker');
+  const taken = new Set(foundry.map(look));
+  for (const t of own) { assert.ok(!taken.has(look(t)), `${t.id} looks like another theme (${look(t)})`); taken.add(look(t)); }
+  const full = own.map(t => look(t) + '/' + t.frame + '/' + t.colors.ground);
+  assert.equal(new Set(full).size, own.length, 'every Navie theme has its own look');
 });
 
-test('Navie builds both test versions and leaves the theme builder alone', () => {
-  for (const f of ['nav/index.html', 'nav/studio.html']) {
-    const html = fs.readFileSync(path.join(ROOT, f), 'utf8');
-    assert.ok(html.includes("const NAV_EDITION = '" + (f.includes('studio') ? 'studio' : 'worlds') + "'"), `${f} edition`);
-    assert.ok(!/data:image|data:font|base64,[A-Za-z0-9+/]{200}/.test(html), `${f} embeds no images or fonts`);
-    assert.ok(Buffer.byteLength(html) < 300000, `${f} stays small`);
+// Names nobody else owns: characters, brands and franchises, plus the reference app's own theme names.
+const NAV_BANNED = /\b(hello kitty|sanrio|barbie|disney|pixar|pok[eé]mon|pikachu|mario|nintendo|minecraft|roblox|fortnite|marvel|spider-man|batman|superman|starbucks|lego|peppa|bluey|paw patrol|sesame|hogwarts|harry potter|star wars|jedi|zelda|kirby|squishmallow|ghibli|totoro|care bears?|my little pony|rainbow road|animal crossing|sailor moon|stranger things|labubu|waze|gogirl|pink princess|lavender dream|baby blue|cherry girl|butter yellow|matcha)\b/i;
+
+test('every Navie theme is complete, readable and original', () => {
+  const own = N.NAV_THEMES.filter(t => t.own), titles = new Set(), ids = new Set();
+  assert.ok(own.length >= 1, 'Navie has its own themes');
+  for (const t of own) {
+    assert.ok(/^[a-z][a-z0-9-]*$/.test(t.id) && !ids.has(t.id), `${t.id} id`); ids.add(t.id);
+    assert.ok(t.title && !titles.has(t.title), `${t.id} title is unique`); titles.add(t.title);
+    assert.ok(t.blurb && t.blurb.length <= 160, `${t.id} blurb`);
+    assert.ok(t.ages.length && t.ages.every(a => N.NAV_AGES[a]), `${t.id} ages`);
+    assert.ok(t.vibes.length && t.vibes.every(v => N.NAV_VIBES[v]), `${t.id} vibes`);
+    assert.ok(N.NAV_FRAMES.includes(t.frame), `${t.id} frame`);
+    assert.ok(t.scale >= 1 && t.scale <= 1.4, `${t.id} text scale`);
+    assert.ok(t.colorways.length >= 4, `${t.id} has at least four colorways`);
+    assert.equal(new Set(t.colorways.map(c => c.name)).size, t.colorways.length, `${t.id} colorway names differ`);
+    for (const k of ['ground', 'ink', 'accent', 'panel', 'glow', 'alert', 'water', 'park', 'roads']) assert.ok(/^#[0-9A-Fa-f]{6}$/.test(t.colors[k]), `${t.id} color ${k}`);
+    for (const cw of t.colorways) for (const [k, v] of Object.entries(cw.colors)) assert.ok(/^#[0-9A-Fa-f]{6}$/.test(v) && k in t.colors || k === 'highway', `${t.id}/${cw.name} color ${k}`);
+    assert.ok(/^family=[A-Za-z0-9+]+(:[^&]+)?(&family=[A-Za-z0-9+]+(:[^&]+)?)?&display=swap$/.test(t.fontQuery), `${t.id} font link`);
+    for (const f of [t.fonts.display, t.fonts.mono]) assert.ok(t.fontQuery.includes('family=' + f.replace(/ /g, '+')), `${t.id} loads ${f}`);
+    for (const cw of t.colorways) {
+      const p = N.navPalette(t, cw), c = Object.assign({}, t.colors, cw.colors);
+      assert.equal(p.route.line, c.accent, `${t.id}/${cw.name}: the route is the theme's own accent, not the app's fallback`);
+    }
+    const w = N.NAV_WORLDS[t.id];
+    assert.ok(N.NAV_MARKERS[w.marker], `${t.id} marker`);
+    assert.ok(w.texture === 'none' || N.navTexture(w.texture, '#000000', 1).data.some(v => v), `${t.id} texture ${w.texture} draws`);
+    assert.ok(t.phrases.length >= 4 && t.phrases.every(p => p.length === 2 && p.every(x => x && x.length <= 22)), `${t.id} arrival headlines`);
+    const v = N.NAV_VOICES[t.id], words = [t.title, t.blurb, v.speaker, v.channel, ...Object.values(v.L), ...v.depart, ...v.arrive, ...v.reroute, ...v.cruise, ...v.tags, ...t.phrases.flat(), ...t.colorways.map(c => c.name)];
+    for (const x of words) assert.ok(!NAV_BANNED.test(x), `${t.id}: "${x}" uses a name we don't own`);
+    for (const x of Object.values(v.L)) assert.ok(x.length <= 26, `${t.id} label "${x}" is short enough`);
+    assert.ok(v.rate >= 0.8 && v.rate <= 1.2 && v.pitch >= 0.8 && v.pitch <= 1.3, `${t.id} voice speed and pitch`);
   }
-  assert.ok(!fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').includes('NAV_EDITION'), 'the theme builder does not carry Navie');
+  for (const t of N.NAV_THEMES.filter(t => !t.own)) assert.ok(t.ages.length && t.vibes.length, `${t.id} Foundry world is tagged`);
+  for (const a of Object.keys(N.NAV_AGES)) assert.ok(N.NAV_THEMES.some(t => t.ages.includes(a)), `someone fits ${a}`);
+});
+
+test('Navie builds and leaves the theme builder alone', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'nav/index.html'), 'utf8');
+  const js = html.slice(html.lastIndexOf('<script>') + 8, html.lastIndexOf('</script>'));
+  assert.doesNotThrow(() => new vm.Script(js), 'the whole app parses as one script (no clashing names between files)');
+  assert.ok(!/data:image|data:font|base64,[A-Za-z0-9+/]{200}/.test(html), 'Navie embeds no images or fonts');
+  assert.ok(Buffer.byteLength(html) < 600000, 'Navie stays small');
+  assert.ok(!fs.existsSync(path.join(ROOT, 'nav/studio.html')), 'the Studio test version is gone');
+  assert.ok(!fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').includes('NAV_THEMES'), 'the theme builder does not carry Navie');
 });

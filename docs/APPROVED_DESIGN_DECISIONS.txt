@@ -1,4 +1,32 @@
 FOUNDRY / APPROVED DESIGN DECISIONS
+[NAVIE / STUDIO SCRAPPED; A BIG THEME CATALOG FOR EVERY AGE AND TASTE / CLAUDE / 2026-10-28]
+- APPROVED (Jordan, 28 Oct): "Scratch the customization. We should create a vast array of themes catering to all ages and
+  aesthetics." SUPERSEDES the Studio test version (nav/studio.html, design-your-own) in the two entries below: removed with
+  its code, tests and docs. The live link lucidfuzz.github.io/foundry/nav/studio.html stops working once this ships.
+- BUILT: a theme kit (nav/src/kit.js) so each Navie theme is one data block in nav/src/themes/*.js; a picker that filters
+  by who it suits (Kids, Teens, Adults, Easy to read) and by style, with a map drawing per theme; 22 new markers, 14 new
+  textures and 15 panel frames to draw from; a text-size setting per theme for the Easy to read group.
+- WAVE 1 (DRAFT, needs Jordan): 24 Navie themes beside the 11 Foundry worlds, each with five colorways. All guides, lines,
+  titles and looks are drafts. Theme (ages): guide.
+  Kids: Dino Dig: Professor Pebble; Rocket Club: Flight Director Ollie; Bubble Reef: Wobble the octopus; Crayon Town:
+  Scribbly; Barnyard Buddies: Clover the farm dog; Sprinkle Sky (also teens): Nimbus the candy cloud.
+  Teens: Glitter Flip: Starla; Mochi Cloud (also kids): Puff; Pixel Quest (also kids): Byte the Bard; Midnight Synth (also
+  adults): Juno Static; Ribbon & Pearl (also adults): Mirabelle; Pow! (also kids): The Thundering Narrator; Velvet Thorn
+  (also adults): Lady Hollowmere.
+  Adults: Strawberry Milk (also teens): Berry; Quiet Mono: Nil; Gilded Night: Lowell; Hedgerow Cottage: Hattie Bramble;
+  Blueprint: Foreman Dolores; Watercolor Wash: Ottilie; Desert Bloom: Sunny Mesa; Oak & Ink: Miss Ashgrove.
+  Easy to read: Clear Day: your plain guide; Clear Night: the night guide; Calm Seas: Tide.
+- FLAGGED for Jordan: Glitter Flip's guide talks through a rhinestone flip phone. It is hands-free on speaker and tells the
+  driver to keep the phone in its holder, but the idea sits close to "phone use while driving"; keep, change or cut.
+- CHANGED alongside: map textures never drew before (a MapLibre quirk, now fixed), so every theme's texture, including
+  the 11 Foundry worlds', shows for the first time. Their strengths were checked in a full render.
+- RULES (binding for Navie themes): original only (a test bans character, brand and franchise names and GoGirl's theme
+  names); facts true; kids' guides talk to the whole car and never distract the driver; nothing encourages speeding, phone
+  use or drinking; every theme has its own guide (speaker and channel) and its own look; contrast is tested in every
+  colorway. The WORLD-BUILDING STANDARD still binds the Foundry worlds; Navie themes follow the lighter recipe in
+  .claude/skills/nav-port-theme/SKILL.md.
+- CHANGED: the "one source of theme truth" rule now covers Foundry worlds only; Navie's own themes live in nav/src/themes/.
+
 [NAVIE / THE NAVIGATION APP'S NAME / CLAUDE / 2026-10-28]
 - APPROVED (Jordan, 28 Oct): the navigation app is called Navie (Jordan offered "navie or naviii, something cutesy"; Claude
   picked Navie as easier to say, type and search, with "Naviii" kept as a possible logo spelling). Supersedes the working

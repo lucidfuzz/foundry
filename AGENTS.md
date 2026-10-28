@@ -15,4 +15,5 @@ corrections there, and include it in future handoffs. Latest explicit user direc
 design questions without a concrete conflict.
 
 Navie (the navigation app in `nav/`): read `docs/NAV_SPEC.md` and the Navie section of `CLAUDE.md` first. Theme
-data comes only from `src/foundry-data.js`; directions are spoken plainly before any world line; Studio links are untrusted.
+data for Foundry worlds comes only from `src/foundry-data.js`; Navie's own themes live in `nav/src/themes/`; directions are
+spoken plainly before any theme line; every theme is original (no characters, brands or franchises).
