@@ -67,9 +67,9 @@ const NAV_VOICES = {
     tags: ['Smoothly.', 'Quietly now.', 'Nicely.', 'Easy.', 'No rush.', 'Elegant.']
   },
   neon: {
-    speaker: 'NAVI+ Premium', channel: 'a rented corporate nav feed', rate: 1.1, pitch: 1.1,
+    speaker: 'ROUTR+ Premium', channel: 'a rented corporate nav feed', rate: 1.1, pitch: 1.1,
     L: { search: 'Search (ad supported)', routes: 'Routes for rent', start: 'Start ride', end: 'Cancel ride', eta: 'ETA', left: 'Metered', arrive: 'Destination delivered', reroute: 'Rerouting (free tier)', then: 'Then' },
-    depart: ['NAVI plus online. This route is brought to you by premium air.', 'Ride started. Your location is now a product.', 'Welcome back, runner. Route rented by the minute.', 'Navigation unlocked. Terms apply above ground.', 'Starting. Please enjoy one complimentary street.', 'Route active. Upgrade for fewer red lights.'],
+    depart: ['Router plus online. This route is brought to you by premium air.', 'Ride started. Your location is now a product.', 'Welcome back, runner. Route rented by the minute.', 'Navigation unlocked. Terms apply above ground.', 'Starting. Please enjoy one complimentary street.', 'Route active. Upgrade for fewer red lights.'],
     arrive: ['Destination delivered. Please rate your city.', 'Arrived. Your data has been thanked.', "You're here. Leaving costs extra.", 'Arrival complete. Tip your algorithm.', 'Destination reached. Ads will resume shortly.', 'Delivered. Your loyalty points have expired.'],
     reroute: ['Rerouting. Free tier routes may include detours.', 'New route. The previous route has been repossessed.', 'Off course. A fee may apply.', 'Recalculating. Please hold for a sponsored route.'],
     cruise: ['This stretch is sponsored by Sable Tower.', 'Fun fact. Streetlights here are billed by the hour.', "Your umbrella has ads inside. You're welcome.", 'Breathing detected. Upgrade to premium air.', 'The rain is free. For now.', 'Traffic is a lifestyle choice.', 'Corporate reminds you. Blink twice for loyalty.', 'Your route has been optimized for billboard exposure.'],

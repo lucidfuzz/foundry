@@ -1,4 +1,4 @@
-// Geometry and formatting for Foundry Maps. Coordinates are [lon, lat] like GeoJSON; distances are meters.
+// Geometry and formatting for Navie. Coordinates are [lon, lat] like GeoJSON; distances are meters.
 const NAV_EARTH = 6371008.8;
 const navRad = d => d * Math.PI / 180, navDeg = r => r * 180 / Math.PI;
 

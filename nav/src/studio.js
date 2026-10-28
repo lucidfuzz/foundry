@@ -1,4 +1,4 @@
-// Foundry Maps Studio (nav/studio.html): a test version where people design their own map and guide instead of picking a
+// Navie Studio (nav/studio.html): a test version where people design their own map and guide instead of picking a
 // Foundry world. A design is plain data, saved on the phone and shareable as a link (#d=...). Links come from strangers, so
 // every field is checked against a whitelist when it is read (navStudioClean); text is only ever shown as text.
 const NAV_STUDIO_TEXTURES = ['none', 'dots', 'scan', 'paper', 'hatch', 'rain', 'stars', 'grid', 'lattice', 'glitch', 'checker', 'stipple', 'candles'];

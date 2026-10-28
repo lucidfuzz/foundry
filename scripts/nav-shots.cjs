@@ -1,4 +1,4 @@
-// Screenshots Foundry Maps in the offline test town: node scripts/nav-shots.cjs [outdir] [--worlds=halcyon,directive] [--no-studio]
+// Screenshots Navie in the offline test town: node scripts/nav-shots.cjs [outdir] [--worlds=halcyon,directive] [--no-studio]
 // Writes, for every world: its five colorways on the map (browse-<world>-<n>.png), the route choice, a mid-drive screen and
 // the arrival card (<world>-route|drive|arrive.png); the Studio's starting looks, design screen and a drive (studio-*.png);
 // plus contact sheets (contact-*.png). Look at them before calling map or
@@ -122,6 +122,6 @@ async function contact(browser, files, name, cols, label) {
   await contact(browser, shots.browse, 'contact-colorways.png', 5, f => f.replace(/^browse-|\.png$/g, ''));
   await contact(browser, shots.scenes, 'contact-scenes.png', 3, f => f.replace(/\.png$/, ''));
   await browser.close(); srv.close();
-  console.log(`Foundry Maps shots: ${shots.browse.length + shots.scenes.length} screens and 2 contact sheets in ${OUT}`);
+  console.log(`Navie shots: ${shots.browse.length + shots.scenes.length} screens and 2 contact sheets in ${OUT}`);
   if (problems.length) { console.error(problems.join('\n')); process.exitCode = 1; }
 })().catch(e => { console.error(e); process.exit(1); });

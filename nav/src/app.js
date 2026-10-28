@@ -1,4 +1,4 @@
-// Foundry Maps: the app. Browse (search) -> route (choose among up to three) -> nav (turn by turn) -> arrived.
+// Navie: the app. Browse (search) -> route (choose among up to three) -> nav (turn by turn) -> arrived.
 // URL switches: ?sim=1 drives the route with the simulator, ?sim=manual waits for FoundryMaps.tick() (the screenshot harness),
 // ?fixture=1 runs fully offline in the test town, ?theme=<id>&colorway=<0-4> opens a world.
 const NAV_Q = new URLSearchParams(location.search);

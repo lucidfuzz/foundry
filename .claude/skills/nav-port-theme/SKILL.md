@@ -1,11 +1,11 @@
 ---
 name: nav-port-theme
-description: Add or update a Foundry world (theme or edition) in Foundry Maps, the navigation app in nav/. Use when a new Foundry theme or edition ships, when Jordan approves or changes a world's navigation voice or map look, or when asked to port a theme to the maps app.
+description: Add or update a Foundry world (theme or edition) in Navie, the navigation app in nav/. Use when a new Foundry theme or edition ships, when Jordan approves or changes a world's navigation voice or map look, or when asked to port a theme to the maps app.
 ---
 
-# Port a Foundry world to Foundry Maps
+# Port a Foundry world to Navie
 
-Foundry Maps reads every theme's colors, colorways, fonts, headlines and slogans from `src/foundry-data.js` at build time.
+Navie reads every theme's colors, colorways, fonts, headlines and slogans from `src/foundry-data.js` at build time.
 A new theme therefore appears in the app automatically, but with Halcyon's map treatment and voice as a fallback until it
 gets its own. This procedure gives it its own. Read `docs/NAV_SPEC.md` and the theme's Theme Bible section first.
 
@@ -23,7 +23,7 @@ Add an entry to `NAV_WORLDS` keyed by the theme id:
 - `route`: line color plus at most one of casing, dash or glow. It must stand out from the land in every colorway.
 - `labels`: font (Regular, Bold, Italic: the glyphs OpenFreeMap serves), upper case and letter spacing.
 - Add a `[data-world=<id>] .panel` rule in `nav/src/page.html` for the world's panel framing (unique per world).
-- Editions: until editions are mapped (spec Phase 2), the Original edition is what Foundry Maps shows.
+- Editions: until editions are mapped (spec Phase 2), the Original edition is what Navie shows.
 
 ## 3. Voice: `nav/src/voices.js`
 Add `NAV_VOICES[<id>]` with speaker, channel, rate, pitch, the in-world labels `L` (keep a plain word where a real function

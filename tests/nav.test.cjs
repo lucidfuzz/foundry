@@ -1,4 +1,4 @@
-// Foundry Maps (nav/): geometry, instructions, guidance on simulated drives, voices, map styles and the Studio.
+// Navie (nav/): geometry, instructions, guidance on simulated drives, voices, map styles and the Studio.
 // Runs the same source files the app is built from, in a plain JavaScript context (no browser, no network).
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -114,7 +114,7 @@ test('voices: every world has its own guide, and nothing repeats within a trip',
   assert.ok(said.text.startsWith('Turn left onto Valencia Street. ') && said.flavor, 'the world speaks after the instruction, never before');
 });
 
-test('copy rules: no ellipses and no Japanese, Chinese or Korean characters in Foundry Maps', () => {
+test('copy rules: no ellipses and no Japanese, Chinese or Korean characters in Navie', () => {
   const files = SOURCES.map(f => `nav/src/${f}`).concat(['nav/src/page.html', 'nav/fixture.js']);
   for (const f of files) {
     const s = fs.readFileSync(path.join(ROOT, f), 'utf8');
@@ -174,12 +174,12 @@ test('Studio: designs are checked, shareable and draw a full map', () => {
   }
 });
 
-test('Foundry Maps builds both test versions and leaves the theme builder alone', () => {
+test('Navie builds both test versions and leaves the theme builder alone', () => {
   for (const f of ['nav/index.html', 'nav/studio.html']) {
     const html = fs.readFileSync(path.join(ROOT, f), 'utf8');
     assert.ok(html.includes("const NAV_EDITION = '" + (f.includes('studio') ? 'studio' : 'worlds') + "'"), `${f} edition`);
     assert.ok(!/data:image|data:font|base64,[A-Za-z0-9+/]{200}/.test(html), `${f} embeds no images or fonts`);
     assert.ok(Buffer.byteLength(html) < 300000, `${f} stays small`);
   }
-  assert.ok(!fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').includes('NAV_EDITION'), 'the theme builder does not carry Foundry Maps');
+  assert.ok(!fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').includes('NAV_EDITION'), 'the theme builder does not carry Navie');
 });

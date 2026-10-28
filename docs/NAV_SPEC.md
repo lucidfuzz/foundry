@@ -1,6 +1,6 @@
-# Foundry Maps: spec (working name)
+# Navie: spec
 
-Foundry Maps is turn-by-turn navigation where every Foundry world restyles the map and speaks the directions. It is our answer
+Navie is turn-by-turn navigation where every Foundry world restyles the map and speaks the directions. It is our answer
 to GoGirl: Girly Maps & Pink GPS. It lives beside the Foundry theme builder, at `nav/` in this repo
 (https://lucidfuzz.github.io/foundry/nav/ once merged). The theme builder keeps working exactly as before.
 
@@ -43,7 +43,7 @@ What its reviews say is broken, which is our opening:
 What we do NOT copy: its name, theme names, icons, layouts or voice lines. Our worlds are our own (CLAUDE.md rule 5).
 
 ## How Foundry ports over
-| Foundry today | In Foundry Maps | Phase |
+| Foundry today | In Navie | Phase |
 |---|---|---|
 | 11 themes | 11 map worlds: a map style per theme with its own treatment (texture, road drawing, route line, marker) | 0 |
 | 5 colorways each | 55 map palettes, read from `VARIANTS` | 0 |
@@ -122,7 +122,7 @@ and search, simulator on), `?theme=<id>&colorway=<0-4>` (open in a world).
   CarPlay navigation approval); trip-driven games and oddities; the `trip` Scriptable widget.
 
 ## Open questions for Jordan
-1. Name: "Foundry Maps" is a placeholder.
+1. Name: Navie (approved by Jordan, 28 Oct). "Naviii" stays an option for a playful logo spelling.
 2. Free (recommended, as Foundry is) or paid? Free still has a cost at scale: routing and search servers (Phase 1 decision).
 3. GoGirl's audience wants pink and pastel. Several colorways already are (Rose Pearl, Lilac Ward, Miami Pastel, Wildflower,
    Cheshire). Do you want a dedicated pastel world, designed under the WORLD-BUILDING STANDARD?

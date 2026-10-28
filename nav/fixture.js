@@ -1,4 +1,4 @@
-// The offline test town for Foundry Maps (?fixture=1, the tests and scripts/nav-shots.cjs). An invented grid town drawn as
+// The offline test town for Navie (?fixture=1, the tests and scripts/nav-shots.cjs). An invented grid town drawn as
 // GeoJSON in the same layers and classes as OpenFreeMap's tiles, a grid router that answers in OSRM's format, and a place
 // search that answers like Photon. Loaded only in fixture mode; the live app never fetches it.
 const NAV_FIXTURE = (() => {

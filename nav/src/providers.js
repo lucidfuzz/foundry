@@ -1,4 +1,4 @@
-// Routing and search for Foundry Maps. Both are free community services with fair-use rules (docs/NAV_SPEC.md, rule 5):
+// Routing and search for Navie. Both are free community services with fair-use rules (docs/NAV_SPEC.md, rule 5):
 // keep requests few, debounce search, and swap these for a paid provider before a public launch.
 const NAV_SERVICES = {
   routeBase: 'https://routing.openstreetmap.de',

@@ -51,7 +51,7 @@ function navStyle(theme, colorway, { fixture = null } = {}) {
   const r = p.route, rw = [[8, 3], [12, 5], [14, 7], [16, 11], [18, 18]].map(([z, v]) => [z, v * (r.width || 1)]);
   const empty = { type: 'geojson', data: { type: 'FeatureCollection', features: [] } };
   return {
-    version: 8, name: `Foundry Maps · ${theme.title}${colorway ? ` · ${colorway.name}` : ''}`, glyphs: NAV_GLYPHS,
+    version: 8, name: `Navie · ${theme.title}${colorway ? ` · ${colorway.name}` : ''}`, glyphs: NAV_GLYPHS,
     sources: Object.assign(src, { 'nav-alts': empty, 'nav-route': empty, 'nav-done': empty, 'nav-dest': empty }),
     layers: [
       { id: 'land', type: 'background', paint: { 'background-color': p.land } },

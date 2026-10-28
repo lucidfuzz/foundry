@@ -14,5 +14,5 @@ Follow the review checklist and ship gate in the decisions file before presentin
 corrections there, and include it in future handoffs. Latest explicit user direction overrides older notes. Do not reopen settled
 design questions without a concrete conflict.
 
-Foundry Maps (the navigation app in `nav/`): read `docs/NAV_SPEC.md` and the Foundry Maps section of `CLAUDE.md` first. Theme
+Navie (the navigation app in `nav/`): read `docs/NAV_SPEC.md` and the Navie section of `CLAUDE.md` first. Theme
 data comes only from `src/foundry-data.js`; directions are spoken plainly before any world line; Studio links are untrusted.

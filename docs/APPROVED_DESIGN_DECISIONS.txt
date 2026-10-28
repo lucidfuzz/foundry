@@ -1,4 +1,11 @@
 FOUNDRY / APPROVED DESIGN DECISIONS
+[NAVIE / THE NAVIGATION APP'S NAME / CLAUDE / 2026-10-28]
+- APPROVED (Jordan, 28 Oct): the navigation app is called Navie (Jordan offered "navie or naviii, something cutesy"; Claude
+  picked Navie as easier to say, type and search, with "Naviii" kept as a possible logo spelling). Supersedes the working
+  name "Foundry Maps" in the entry below; the folder stays nav/ (lucidfuzz.github.io/foundry/nav/).
+- CHANGED: Neon District's navigation guide renamed from "NAVI+ Premium" to "ROUTR+ Premium" (still DRAFT), so the
+  world's satirical corporate guide is not mistaken for the app itself.
+
 [FOUNDRY MAPS / NAVIGATION APP STARTED, TWO TEST VERSIONS / CLAUDE / 2026-10-28]
 Added by Claude. Plan and rules: docs/NAV_SPEC.md.
 - DIRECTION (Jordan, 28 Oct): turn Foundry into a navigation app like "GoGirl: Girly Maps & Pink GPS" (App Store, Retry Apps),
@@ -9,7 +16,7 @@ Added by Claude. Plan and rules: docs/NAV_SPEC.md.
   framing and navigation voice. nav/studio.html: the Studio, where people design their own map (colors, texture, marker,
   route line, fonts, panel shape) and write their own guide's lines; saved on the phone, shareable as a link. Both share one
   codebase and one build. The theme builder (index.html) is unchanged byte for byte.
-- PROPOSED, needs Jordan: the working name "Foundry Maps"; each world's navigation voice (speaker, channel and lines in
+- PROPOSED, needs Jordan: each world's navigation voice (speaker, channel and lines in
   nav/src/voices.js, all DRAFT); each world's map treatment (nav/src/worlds.js); which test version leads; free vs paid;
   the production routing and search provider before any public launch (the free community servers are fair-use only).
 - RULES (binding for Foundry Maps): directions are spoken plainly and first, flavor only after; theme data only from

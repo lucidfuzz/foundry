@@ -1,4 +1,4 @@
-// Builds Foundry Maps: node scripts/nav-build.cjs   (check that nav/index.html is current: --check)
+// Builds Navie: node scripts/nav-build.cjs   (check that nav/index.html is current: --check)
 // Also run by scripts/build.cjs, so one build keeps both apps current.
 // 1. Reads the themes, colorways and copy from src/foundry-data.js (the one source of theme truth) and each theme's two
 //    Google Fonts from the site's font link in src/page.html.
@@ -47,12 +47,12 @@ function run(check = process.argv.includes('--check')) {
   const code = SOURCES.map(f => read(`nav/src/${f}`)).join('\n');
   for (const [edition, file] of Object.entries(EDITIONS)) {
     const js = `const NAV_EDITION = '${edition}';\n${data}\n${code}`;
-    if (js.includes('</script')) throw new Error('Foundry Maps code cannot contain a closing script tag');
+    if (js.includes('</script')) throw new Error('Navie code cannot contain a closing script tag');
     const html = read('nav/src/page.html').replace('@@APPLICATION@@', () => js);
     const out = path.join(ROOT, file);
     if (check) { if (!fs.existsSync(out) || fs.readFileSync(out, 'utf8') !== html) throw new Error(`${file} is stale. Run node scripts/build.cjs`); }
     else fs.writeFileSync(out, html);
-    console.log(`Foundry Maps built${check ? ' (check passed)' : ''}: ${file} ${(Buffer.byteLength(html) / 1e3).toFixed(0)} KB${edition === 'worlds' ? `, ${themes.length} worlds` : ', design your own'}.`);
+    console.log(`Navie built${check ? ' (check passed)' : ''}: ${file} ${(Buffer.byteLength(html) / 1e3).toFixed(0)} KB${edition === 'worlds' ? `, ${themes.length} worlds` : ', design your own'}.`);
   }
 }
 module.exports = { run, navThemes, navFonts, SOURCES, EDITIONS };
