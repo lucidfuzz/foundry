@@ -1,7 +1,7 @@
-// Screenshots Navie in the offline test town: node scripts/nav-shots.cjs [outdir] [--worlds=halcyon,directive] [--no-studio]
+// Screenshots Navie in the offline test town: node scripts/nav-shots.cjs [outdir] [--worlds=halcyon,directive]
 // Writes, for every world: its five colorways on the map (browse-<world>-<n>.png), the route choice, a mid-drive screen and
-// the arrival card (<world>-route|drive|arrive.png); the Studio's starting looks, design screen and a drive (studio-*.png);
-// plus contact sheets (contact-*.png). Look at them before calling map or
+// the arrival card (<world>-route|drive|arrive.png), the theme picker (picker-*.png; with --worlds only if --picker is
+// given), plus contact sheets (contact-*.png). Look at them before calling map or
 // screen work done (CLAUDE.md rule 8). Needs Playwright with Chromium (preinstalled in Claude's cloud sessions); downloads
 // MapLibre from npm once into .cache/ and serves it in place of the CDN, so it runs with no map network access. Map labels
 // need OpenFreeMap's glyph server: offline they are simply absent.
@@ -83,42 +83,31 @@ async function contact(browser, files, name, cols, label) {
     await ctx.close();
     return mine;
   }
-  // The Studio test version (nav/studio.html): each starting look, a remix, a random design, the design screen and a drive.
-  async function studio() {
+  // Every theme in the built app: the Foundry worlds and Navie's own (read from nav/index.html, so new theme files count).
+  const listPage = await browser.newPage();
+  await listPage.route(/./, r => r.request().url().startsWith(base) ? r.continue() : r.abort());
+  await listPage.goto(`${base}/nav/index.html?fixture=1&sim=manual`);
+  const worlds = (await listPage.evaluate(() => NAV_THEMES.map(t => [t.id, t.colorways.length]))).filter(([id]) => !only.length || only.includes(id));
+  await listPage.close();
+  if (only.length && worlds.length !== only.length) throw new Error(`Unknown theme id in --worlds: ${only.filter(id => !worlds.some(w => w[0] === id)).join(', ')}`);
+  const queue = worlds.slice(), done = {};
+  await Promise.all([0, 1, 2].map(async () => { for (let w; (w = queue.shift());) done[w[0]] = await shoot(w); }));
+  for (const [id] of worlds) { shots.browse.push(...done[id].browse); shots.scenes.push(...done[id].scenes); }
+  // The theme picker: everyone, then filtered to kids and to easy-to-read.
+  if (!only.length || args.includes('--picker')) {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: 'en-US' });
     await ctx.route(/cdn\.jsdelivr\.net\/npm\/maplibre-gl@/, r => r.fulfill({ path: path.join(dist, path.basename(new URL(r.request().url()).pathname)) }));
     await ctx.route(/tiles\.openfreemap\.org/, r => r.abort());
-    const page = await ctx.newPage(), mine = { browse: [], scenes: [] };
-    page.on('pageerror', e => problems.push(`studio: page error: ${e.message}`));
-    await page.clock.install({ time: new Date('2026-10-28T17:00:00') });
-    await page.goto(`${base}/nav/studio.html?fixture=1&sim=manual`);
+    const page = await ctx.newPage();
+    await page.goto(`${base}/nav/index.html?fixture=1&sim=manual`);
     await page.waitForFunction(() => window.FoundryMaps && window.FoundryMaps.map && window.FoundryMaps.map.isStyleLoaded());
-    const snap = async (list, f) => { await idle(page); await page.screenshot({ path: path.join(OUT, f) }); list.push(f); log(f); };
-    const designs = await page.evaluate(() => NAV_STUDIO_STARTS.map((p, i) => ['start-' + i, Object.assign({}, NAV_STUDIO_BASE, p)])
-      .concat([['remix-rabbit', Object.assign({}, NAV_STUDIO_BASE, navStudioFromWorld(NAV_THEMES.find(t => t.id === 'rabbit')))], ['surprise', navStudioSurprise(42)]]));
-    for (const [name, d] of designs) {
-      await page.evaluate(d => { window.FoundryMaps.design(d); window.FoundryMaps.map.jumpTo({ center: [12.0, 45.0], zoom: 15.2, bearing: 0, pitch: 0 }); }, d);
-      await snap(mine.browse, `browse-studio-${name}.png`);
+    for (const [age, vibe] of [['all', 'all'], ['kids', 'all'], ['clear', 'all']]) {
+      await page.evaluate(([a, v]) => window.FoundryMaps.picker(a, v), [age, vibe]);
+      await page.waitForTimeout(800);
+      const f = `picker-${age}.png`; await page.screenshot({ path: path.join(OUT, f) }); shots.scenes.push(f);
     }
-    await page.evaluate(d => window.FoundryMaps.design(d), designs[3][1]);
-    await page.evaluate(() => window.FoundryMaps.studio());
-    await snap(mine.scenes, 'studio-design.png');
-    await page.evaluate(() => document.getElementById('studio').scrollTo(0, 1500));
-    await snap(mine.scenes, 'studio-design-voice.png');
-    await page.evaluate(() => { document.getElementById('closeStudio').click(); window.FoundryMaps.here(NAV_FIXTURE.start); return window.FoundryMaps.search('market'); });
-    await page.evaluate(() => window.FoundryMaps.choose(0));
-    await page.waitForFunction(() => window.FoundryMaps.S.routes.length > 0);
-    await page.evaluate(() => { window.FoundryMaps.start(); window.FoundryMaps.tick(75); });
-    await snap(mine.scenes, 'studio-drive.png');
     await ctx.close();
-    return mine;
   }
-  const worlds = require('./nav-build.cjs').navThemes().map(t => [t.id, t.colorways.length]).filter(([id]) => !only.length || only.includes(id));
-  const queue = worlds.slice(), done = {};
-  const studioRun = args.includes('--no-studio') ? null : studio();
-  await Promise.all([0, 1, 2].map(async () => { for (let w; (w = queue.shift());) done[w[0]] = await shoot(w); }));
-  for (const [id] of worlds) { shots.browse.push(...done[id].browse); shots.scenes.push(...done[id].scenes); }
-  if (studioRun) { const st = await studioRun; shots.browse.push(...st.browse); shots.scenes.push(...st.scenes); }
   await contact(browser, shots.browse, 'contact-colorways.png', 5, f => f.replace(/^browse-|\.png$/g, ''));
   await contact(browser, shots.scenes, 'contact-scenes.png', 3, f => f.replace(/\.png$/, ''));
   await browser.close(); srv.close();

@@ -5,23 +5,39 @@ to GoGirl: Girly Maps & Pink GPS. It lives beside the Foundry theme builder, at 
 (https://lucidfuzz.github.io/foundry/nav/ once merged). The theme builder keeps working exactly as before.
 
 ## In one paragraph (for Jordan)
-You pick a world (Halcyon, Directive Zero, The Long Road and the rest) and one of its five colorways. The whole map turns into
-that world: its colors, textures, your position marker, the route line, the instruction banner, and a voice that gives real
-directions with that world's personality on top. Search a place, choose between up to three routes, press start, and it talks
-you there. Everything comes from the same theme data as the builder, so a new colorway or headline added there shows up here
-too.
+You pick a theme from a big catalog (filter by who it suits and by style) and one of its five colorways. The whole map
+turns into that theme: its colors, texture, your position marker, the route line, the panels, and a guide that gives real
+directions with that theme's personality on top. Search a place, choose between up to three routes, press start, and it
+talks you there. The catalog has two kinds of theme: the 11 Foundry worlds (built from the same data as the theme builder)
+and Navie's own themes, written for every age and taste.
 
-## Two test versions
-Both are built from the same code by one build, so we can put them side by side and see which people prefer.
-- **Worlds** (`nav/index.html`): the 11 Foundry worlds and their colorways, ported as described below.
-- **Studio** (`nav/studio.html`, Jordan, 28 Oct: "a way to allow users to customize their own experience"): no ported themes.
-  People design their own map: seven colors (land, roads, water, parks, route, text, panels), a texture and its strength, a
-  position marker, a route line (solid, outlined, dashed, glow), headline and small-text fonts from Foundry's set, capital
-  letters on or off, and a panel shape. They name their guide and write its lines (setting out, arriving, wrong way, now and
-  then, after turns); directions are still spoken plainly first. Starting points: six plain looks (Daylight, Night, Paper,
-  Pastel pink, Lavender, Matcha), a remix of any Foundry world, or "Surprise me". Designs save on the phone and share as a
-  link (`studio.html#d=...`); a shared link is checked field by field before use (`navStudioClean`), and text is only ever
-  shown as text. Code: `nav/src/studio.js`.
+## The theme catalog (Jordan, 28 Oct: "create a vast array of themes catering to all ages and aesthetics")
+The Studio test version (design your own) was scrapped the same day ("Scratch the customization"). Instead Navie grows a
+large catalog of ready-made themes, added in waves.
+- **Ages** (who it suits): Kids (riding along on family trips), Teens, Adults, and Easy to read (larger text, strong
+  contrast, a slower and calmer guide: older drivers, low vision, glare, night, nervous drivers).
+- **Styles**: Cute, Pastel, Bright, Dark, Retro, Nature, Fantasy, Sci-fi, Minimal, Luxe, Cozy, Spooky, Playful, Calm. The
+  picker filters by both; Foundry worlds have their own filter too.
+- **Wave 1 (28 Oct):** 24 Navie themes. Kids: Dino Dig, Rocket Club, Bubble Reef, Crayon Town, Barnyard Buddies, Sprinkle
+  Sky. Teens: Glitter Flip (Y2K), Mochi Cloud, Pixel Quest, Midnight Synth, Ribbon & Pearl, Pow!, Velvet Thorn. Adults:
+  Strawberry Milk, Quiet Mono, Gilded Night, Hedgerow Cottage, Blueprint, Watercolor Wash, Desert Bloom, Oak & Ink. Easy to
+  read: Clear Day, Clear Night, Calm Seas. (Titles may change in review.)
+- **Ideas for later waves:** seasons and holidays (spooky-cute autumn, snow day, spring blossom), sports and stadium,
+  racing, safari, fairy garden, mermaid lagoon, robots, trains, camping, beach day, café, retro diner, film noir, Memphis
+  80s, bauhaus, brutalist, terrarium, aurora, candy shop, k-pop-style idol stage (original), tropical, nautical, a
+  colorblind-safe pair, and a pure "large print" theme.
+
+### Adding a Navie theme
+One `navTheme({...})` call in `nav/src/themes/<group>.js` (format at the top of `nav/src/kit.js`; finished examples:
+Strawberry Milk in `30-adults.js`, the Easy to read themes in `40-clear.js`):
+- nine color roles (ground, ink, accent, panel, glow, alert, water, park, roads; optional highway) and four more colorways;
+- fonts from Google Fonts (check the exact query returns 200), ages, styles, a panel frame and a text size;
+- the map: marker, texture, route style, label style;
+- a guide: a unique speaker and channel, screen labels, and line pools (depart 6+, arrive 6+, reroute 4+, cruise 8+,
+  tags 6+), plus four or more two-line arrival headlines.
+`tests/nav.test.cjs` checks every theme (colors, contrast in every colorway, fonts link, unique speaker and channel, unique
+look, pool sizes, label lengths, a banned list of names we don't own); `node scripts/nav-shots.cjs <dir> --worlds=<ids>`
+renders them. The steps are in `.claude/skills/nav-port-theme/SKILL.md`.
 
 ## The reference: GoGirl (Retry Apps, App Store id6786178362)
 What it is (from its App Store page, 28 Oct 2026): pastel map themes (Pink Princess, Lavender Dream, Baby Blue, Matcha, Cherry
@@ -61,8 +77,9 @@ What we do NOT copy: its name, theme names, icons, layouts or voice lines. Our w
 1. **Directions are real and plain.** The instruction ("In 500 feet, turn left onto Main Street") is always complete, first,
    and in plain words. A world's flavor may come before or after it, never inside it and never instead of it. The banner shows
    the plain instruction. Truthful utility beats immersion (WORLD-BUILDING STANDARD 5).
-2. **One source of theme truth.** Theme data comes from `src/foundry-data.js` at build time. Never copy colors, names or copy
-   into `nav/`. Map-only additions (treatments, voices) live in `nav/src/` keyed by theme id.
+2. **One source of truth per theme.** Foundry worlds come from `src/foundry-data.js` at build time; never copy their colors,
+   names or copy into `nav/` (their map treatments and voices live in `nav/src/worlds.js` and `voices.js`). Navie's own
+   themes live only in `nav/src/themes/`.
 3. **Safety.** No typing while moving faster than walking pace (search is locked; a passenger can unlock it). Touch targets
    at least 48 px. Nothing animates in the banner. Flavor never hides the next maneuver, the distance or the arrival time.
 4. **Privacy.** No accounts, no analytics. Only the route request (start and destination) and search text leave the phone,
@@ -70,9 +87,11 @@ What we do NOT copy: its name, theme names, icons, layouts or voice lines. Our w
 5. **Free services, used politely.** The default services are free community servers with fair-use rules. Keep requests
    minimal (debounced search, at most one reroute every 10 s), show their attribution, and swap to a paid provider before a
    public launch with real traffic (Phase 1 decision for Jordan).
-6. **Every world stays itself.** The WORLD-BUILDING STANDARD applies: each world's navigation voice has its own speaker and
-   channel (no two worlds share one), its own marker shape and its own map treatment. Hard rules from the Theme Bible carry
-   over (no Alice for White Rabbit, no real tickers for Long Odds, real species facts only for Wildwood, invented glyphs only).
+6. **Every theme stays itself.** Each theme's guide has its own speaker and channel (no two themes share one) and its own
+   look (marker, texture, frame and palette together). For Foundry worlds the WORLD-BUILDING STANDARD and the Theme Bible's
+   hard rules carry over. All themes: original only (no characters, brands, shows, games or franchises, and none of the
+   reference app's theme names); facts must be true; kids' guides talk to the whole car and never distract the driver;
+   nothing encourages speeding, phone use or drinking.
 7. **The theme builder is untouched.** Nothing in `nav/` changes `index.html`, and the root build must produce the same
    `index.html` byte for byte.
 
@@ -91,30 +110,29 @@ navigating (wake lock). Native apps (background location, CarPlay, Android Auto)
 | Words | Plain instruction text, then the world's voice on top; speech through the browser (Web Speech) | `nav/src/voice.js`, `nav/src/voices.js` |
 | Worlds | Map style per theme and colorway, generated pattern textures, markers | `nav/src/mapstyle.js`, `nav/src/worlds.js` |
 | Simulator | Drives a route with realistic speeds, optional wrong turn | `nav/src/sim.js` (`?sim=1` in the app) |
-| Studio | User-designed map and guide, shareable links | `nav/src/studio.js` (built into `nav/studio.html`) |
-| UI | Search, route choices, navigation banner and bar, arrival card, world picker, settings | `nav/src/app.js`, `nav/src/page.html` |
-| Build | `scripts/nav-build.cjs` writes `nav/index.html` and `nav/studio.html` (called by `scripts/build.cjs`) | |
+| Theme kit | Navie's own themes as data; ages and styles for the picker | `nav/src/kit.js`, `nav/src/themes/*.js` |
+| UI | Search, route choices, navigation banner and bar, arrival card, theme picker with filters, settings | `nav/src/app.js`, `nav/src/page.html` |
+| Build | `scripts/nav-build.cjs` writes `nav/index.html` (called by `scripts/build.cjs`) | |
 
 URL switches: `?sim=1` (drive the route with the simulator), `?fixture=1` (fully offline: the synthetic test town, its router
-and search, simulator on), `?theme=<id>&colorway=<0-4>` (open in a world).
+and search, simulator on), `?theme=<id>&colorway=<0-4>` (open in a theme).
 
 ## Test harness
 - `node --test tests/*.test.cjs` runs `tests/nav.test.cjs` with everything else: geometry, instruction text for every
   maneuver type, guidance on simulated drives (announcements fire once each, in order; a wrong turn triggers exactly one
   reroute; GPS jitter alone does not; arrival fires), voices (unique speaker and channel per world, no repeats in a trip,
-  plain instruction first), copy rules, every world x colorway producing a complete style with a visible route and readable
-  labels, unique textures and markers, and the Studio (bad links rejected, share links round-trip, every starting look
-  draws). Fixtures: the test town in `nav/fixture.js` and an OSRM response covering every maneuver type in
+  plain instruction first), copy rules, every theme x colorway producing a complete style with a visible route and readable
+  labels, unique looks, every Navie theme complete and original, and the whole built app parsing as one script. Fixtures: the test town in `nav/fixture.js` and an OSRM response covering every maneuver type in
   `tests/fixtures/nav/osrm-mixed.json`.
 - `node scripts/nav-shots.cjs [outdir]` renders the app headless in the offline test town: every world in every colorway, plus
-  route choice, mid-drive and arrival screens per world, the Studio's starting looks, design screen and a drive, and two
-  contact sheets. Look at them (CLAUDE.md rule 8). It needs
+  route choice, mid-drive and arrival screens per theme, the theme picker, and two contact sheets (about 20 minutes for the
+  whole catalog; use `--worlds=<ids>` while working on a few). Look at them (CLAUDE.md rule 8). It needs
   Playwright (preinstalled in Claude's cloud sessions) and downloads MapLibre from npm once into `.cache/`.
 - Real-world check (only Jordan can do it): open the site on a phone, `?sim=1` first, then a real short drive with a passenger.
 
 ## Phases
 - **Phase 0 (started 28 Oct 2026):** this spec and harness; the web app with all 11 worlds x 5 colorways, search, up to three
-  routes, spoken turn-by-turn in Plain/Light/Full, reroute, arrival, simulator, offline harness; the Studio test version.
+  routes, spoken turn-by-turn in Plain/Light/Full, reroute, arrival, simulator, offline harness. Then the theme kit and the first wave of 24 Navie themes.
 - **Phase 1:** Jordan's phone tests; tune announcement timing; approve each world's voice (drafts in `voices.js`); add to home
   screen (manifest and icons); saved places polish; lane hints; choose the production routing/search provider.
 - **Phase 2:** editions on the map; theme maneuver arrows and place icons; theme label fonts on the map (hosted glyphs).
@@ -124,7 +142,5 @@ and search, simulator on), `?theme=<id>&colorway=<0-4>` (open in a world).
 ## Open questions for Jordan
 1. Name: Navie (approved by Jordan, 28 Oct). "Naviii" stays an option for a playful logo spelling.
 2. Free (recommended, as Foundry is) or paid? Free still has a cost at scale: routing and search servers (Phase 1 decision).
-3. GoGirl's audience wants pink and pastel. Several colorways already are (Rose Pearl, Lilac Ward, Miami Pastel, Wildflower,
-   Cheshire). Do you want a dedicated pastel world, designed under the WORLD-BUILDING STANDARD?
-4. Approve or redirect each world's navigation voice (who speaks, through what channel, sample lines in `nav/src/voices.js`).
-5. Worlds, Studio, or both in the finished app (for example Studio as a "make your own" world beside the eleven)?
+3. Approve, cut or redirect wave 1 (all DRAFT), and say which later-wave ideas you want next.
+4. Approve or redirect each guide (who speaks, through what channel, sample lines in `nav/src/voices.js` and the theme files).
